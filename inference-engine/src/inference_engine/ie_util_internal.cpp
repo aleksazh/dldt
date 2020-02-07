@@ -23,6 +23,7 @@
 #include <memory>
 #include <utility>
 #include <iomanip>
+#include <iostream>
 
 using std::string;
 
@@ -750,6 +751,7 @@ std::string getPathName(const std::string & s) {
 
 std::string getIELibraryPath() {
 #if defined(_WIN32) || defined(_WIN64)
+    std::cerr << "dldt ie_util_internal.cpp getIELibraryPath #if defined(_WIN32) || defined(_WIN64)" << std::endl;
     char ie_library_path[2048];
     HMODULE hm = NULL;
     if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
@@ -760,8 +762,11 @@ std::string getIELibraryPath() {
     GetModuleFileNameA(hm, (LPSTR)ie_library_path, sizeof(ie_library_path));
     return getPathName(ie_library_path);
 #else
+    std::cerr << "dldt ie_util_internal.cpp getIELibraryPath Dl_info info;" << std::endl;
     Dl_info info;
+    std::cerr << "dldt ie_util_internal.cpp getIELibraryPath: " << reinterpret_cast<void *>(getIELibraryPath) << std::endl;
     dladdr(reinterpret_cast<void *>(getIELibraryPath), &info);
+    std::cerr << "dldt ie_util_internal.cpp getIELibraryPath return getPathName(info.dli_fname);" << std::endl;
     return getPathName(info.dli_fname);
 #endif
 }

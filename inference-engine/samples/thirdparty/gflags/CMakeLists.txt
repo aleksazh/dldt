@@ -279,9 +279,9 @@ if (NOT INTTYPES_FORMAT)
     gflags_set (INTTYPES_FORMAT VC7)
   else ()
     gflags_property (INTTYPES_FORMAT ADVANCED FALSE)
-    message (FATAL_ERROR "Do not know how to define a 32-bit integer quantity on your system!"
-                         " Neither uint32_t, u_int32_t, nor __int32 seem to be available."
-                         " Set [GFLAGS_]INTTYPES_FORMAT to either C99, BSD, or VC7 and try again.")
+    #message (FATAL_ERROR "Do not know how to define a 32-bit integer quantity on your system!"
+    #                     " Neither uint32_t, u_int32_t, nor __int32 seem to be available."
+    #                     " Set [GFLAGS_]INTTYPES_FORMAT to either C99, BSD, or VC7 and try again.")
   endif ()
 endif ()
 # use of special characters in strings to circumvent bug #0008226
@@ -289,7 +289,7 @@ if ("^${INTTYPES_FORMAT}$" STREQUAL "^WIN$")
   gflags_set (INTTYPES_FORMAT VC7)
 endif ()
 if (NOT INTTYPES_FORMAT MATCHES "^(C99|BSD|VC7)$")
-  message (FATAL_ERROR "Invalid value for [GFLAGS_]INTTYPES_FORMAT! Choose one of \"C99\", \"BSD\", or \"VC7\"")
+  #message (FATAL_ERROR "Invalid value for [GFLAGS_]INTTYPES_FORMAT! Choose one of \"C99\", \"BSD\", or \"VC7\"")
 endif ()
 set (GFLAGS_INTTYPES_FORMAT "${INTTYPES_FORMAT}")
 set (GFLAGS_INTTYPES_FORMAT_C99 0)

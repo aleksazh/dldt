@@ -20,19 +20,19 @@ set(TARGET_INCLUDE_DIRS
 
 add_definitions(-D_NO_MKL_)
 
-ie_add_plugin(NAME ${TARGET_NAME}
-              DEVICE_NAME "GNA"
-              SOURCES ${SOURCES} ${HEADERS})
+#ie_add_plugin(NAME ${TARGET_NAME}
+#              DEVICE_NAME "GNA"
+#              SOURCES ${SOURCES} ${HEADERS})
 
 if (LINUX)
-    find_package(Threads)
+    #find_package(Threads)
 endif()
 
 #saving rpath to GNA shared library be used by CI
 log_rpath_from_dir(GNA ${libGNA_LIBRARIES_BASE_PATH})
 
-target_link_libraries(${TARGET_NAME} PRIVATE inference_engine ${INTEL_ITT_LIBS} ${CMAKE_THREAD_LIBS_INIT} libGNA)
-target_include_directories(${TARGET_NAME} PUBLIC ${TARGET_INCLUDE_DIRS})
+#target_link_libraries(${TARGET_NAME} PRIVATE inference_engine ${INTEL_ITT_LIBS} ${CMAKE_THREAD_LIBS_INIT} libGNA)
+#target_include_directories(${TARGET_NAME} PUBLIC ${TARGET_INCLUDE_DIRS})
 
 set(TEST_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/gna_plugin.cpp"

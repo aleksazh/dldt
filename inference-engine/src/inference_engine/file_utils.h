@@ -24,6 +24,7 @@
 #endif
 
 #include "ie_api.h"
+//#include <sys/time.h>
 
 namespace FileUtils {
 #ifdef _WIN32
@@ -131,7 +132,7 @@ INFERENCE_ENGINE_API_CPP(bool) isSharedLibrary(const std::string &fileName);
  * @brief TODO: description
  * @return TODO: please use c++11 chrono module for time operations
  */
-inline long long GetMicroSecTimer() {
+/*inline long long GetMicroSecTimer() {
 #ifdef _WIN32
     static LARGE_INTEGER Frequency = { 0 };
     LARGE_INTEGER timer;
@@ -153,5 +154,5 @@ inline long long GetMicroSecTimer() {
     #endif
     return now.tv_sec * 1000000L + now.tv_nsec / 1000;
 #endif
-}
+}*/
 }  // namespace FileUtils

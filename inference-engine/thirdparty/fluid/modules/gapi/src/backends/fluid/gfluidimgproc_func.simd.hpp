@@ -1223,13 +1223,13 @@ static void run_sepfilter3x3_char2short(short out[], const uchar *in[], int widt
                                         float scale, float delta,
                                         float *buf[], int y, int y0)
 {
-    const schar ikx0 = saturate<schar>(kx[0], rintf);
-    const schar ikx1 = saturate<schar>(kx[1], rintf);
-    const schar ikx2 = saturate<schar>(kx[2], rintf);
+    const schar_ ikx0 = saturate<schar_>(kx[0], rintf);
+    const schar_ ikx1 = saturate<schar_>(kx[1], rintf);
+    const schar_ ikx2 = saturate<schar_>(kx[2], rintf);
 
-    const schar iky0 = saturate<schar>(ky[0], rintf);
-    const schar iky1 = saturate<schar>(ky[1], rintf);
-    const schar iky2 = saturate<schar>(ky[2], rintf);
+    const schar_ iky0 = saturate<schar_>(ky[0], rintf);
+    const schar_ iky1 = saturate<schar_>(ky[1], rintf);
+    const schar_ iky2 = saturate<schar_>(ky[2], rintf);
 
     const short iscale = saturate<short>(scale * (1 << 15), rintf);
     const short idelta = saturate<short>(delta            , rintf);

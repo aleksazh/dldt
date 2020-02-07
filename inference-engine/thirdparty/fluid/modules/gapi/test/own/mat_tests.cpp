@@ -312,28 +312,28 @@ TEST(OwnMat, ScalarAssign8UC3)
     constexpr int height = 8;
     constexpr int stepInPixels = 16;
 
-    std::array<schar, height * stepInPixels * channels> data;
+    std::array<schar_, height * stepInPixels * channels> data;
     for (size_t i = 0; i < data.size(); i+= channels)
     {
-        data[i + 0] = static_cast<schar>(10 * i + 0);
-        data[i + 1] = static_cast<schar>(10 * i + 1);
-        data[i + 2] = static_cast<schar>(10 * i + 2);
+        data[i + 0] = static_cast<schar_>(10 * i + 0);
+        data[i + 1] = static_cast<schar_>(10 * i + 1);
+        data[i + 2] = static_cast<schar_>(10 * i + 2);
     }
 
     Mat mat(height, width, cv_type, data.data(), channels * stepInPixels * sizeof(data[0]));
 
     mat = cv::gapi::own::Scalar{-10, -11, -12};
 
-    std::array<schar, data.size()> expected;
+    std::array<schar_, data.size()> expected;
 
     for (size_t row = 0; row < height; row++)
     {
         for (size_t col = 0; col < stepInPixels; col++)
         {
             int index = static_cast<int>(channels * (row*stepInPixels + col));
-            expected[index + 0] = static_cast<schar>(col < width ? -10 : 10 * index + 0);
-            expected[index + 1] = static_cast<schar>(col < width ? -11 : 10 * index + 1);
-            expected[index + 2] = static_cast<schar>(col < width ? -12 : 10 * index + 2);
+            expected[index + 0] = static_cast<schar_>(col < width ? -10 : 10 * index + 0);
+            expected[index + 1] = static_cast<schar_>(col < width ? -11 : 10 * index + 1);
+            expected[index + 2] = static_cast<schar_>(col < width ? -12 : 10 * index + 2);
         }
     }
 

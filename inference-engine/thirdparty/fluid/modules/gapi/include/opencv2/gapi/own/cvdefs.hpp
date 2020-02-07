@@ -17,7 +17,7 @@
 // interface.h:
 
 typedef unsigned char uchar;
-typedef          char schar;
+typedef          char schar_;
 
 typedef unsigned short ushort;
 
@@ -33,7 +33,7 @@ typedef unsigned short ushort;
 #define CV_32S  4
 #define CV_32F  5
 #define CV_64F  6
-#define CV_USRTYPE1 7
+//#define CV_USRTYPE1 7
 
 #define CV_MAT_DEPTH_MASK       (CV_DEPTH_MAX - 1)
 #define CV_MAT_DEPTH(flags)     ((flags) & CV_MAT_DEPTH_MASK)
@@ -105,7 +105,7 @@ typedef unsigned short ushort;
 #define CV_MAT_TYPE(flags)      ((flags) & CV_MAT_TYPE_MASK)
 
 /** 0x3a50 = 11 10 10 01 01 00 00 ~ array of log2(sizeof(arr_type_elem)) */
-#define CV_ELEM_SIZE(type) \
+#define CV_ELEM_SIZ_E(type) \
     (CV_MAT_CN(type) << ((((sizeof(size_t)/4+1)*16384|0x3a50) >> CV_MAT_DEPTH(type)*2) & 3))
 
 #ifndef CV_OVERRIDE

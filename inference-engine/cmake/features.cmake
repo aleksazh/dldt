@@ -57,9 +57,9 @@ ie_option (GAPI_TEST_PERF "if GAPI unit tests should examine performance" OFF)
 
 ie_option (ENABLE_MYRIAD_MVNC_TESTS "functional and behavior tests for mvnc api" OFF)
 
-ie_option (ENABLE_SAMPLES "console samples are part of inference engine package" ON)
+ie_option (ENABLE_SAMPLES "console samples are part of inference engine package" OFF)
 
-ie_option (ENABLE_SAMPLES_CORE "console samples core library" ON)
+ie_option (ENABLE_SAMPLES_CORE "console samples core library" OFF)
 
 ie_option (ENABLE_SANITIZER "enable checking memory errors via AddressSanitizer" OFF)
 

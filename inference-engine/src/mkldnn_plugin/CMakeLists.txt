@@ -41,6 +41,7 @@ if (GEMM STREQUAL "MKL")
     log_rpath_from_dir(MKL "${MKL}/lib")
 endif()
 
+message(STATUS "Add MKLDNN plugin")
 ie_add_plugin(NAME ${TARGET_NAME}
               DEVICE_NAME "CPU"
               SOURCES ${SOURCES} ${HEADERS})

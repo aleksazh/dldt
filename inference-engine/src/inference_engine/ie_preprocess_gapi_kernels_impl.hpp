@@ -4,11 +4,8 @@
 
 #pragma once
 
-#ifdef HAVE_SSE
-  #define MANUAL_SIMD 1  // 1=call manually vectored code, 0=don't
-#else
-  #define MANUAL_SIMD 0
-#endif
+
+#define MANUAL_SIMD 0
 
 #if MANUAL_SIMD
   #define USE_CVKL 1     // 1=reuse CVKL code for Resize, 0=don't

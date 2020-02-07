@@ -16,14 +16,14 @@
 
 set(TARGET_NAME vpu_profile)
 
-find_package(Threads REQUIRED)
+#find_package(Threads REQUIRED)
 
 file(GLOB SOURCES
     ${CMAKE_SOURCE_DIR}/tools/vpu/common/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
 
-add_executable(${TARGET_NAME} ${SOURCES})
+#add_executable(${TARGET_NAME} ${SOURCES})
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(${TARGET_NAME} PRIVATE
@@ -31,22 +31,22 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     )
 endif()
 
-target_include_directories(${TARGET_NAME} SYSTEM PRIVATE
-    "${IE_MAIN_SOURCE_DIR}/include"
-    "${IE_MAIN_SOURCE_DIR}/src/inference_engine"
-    "${IE_MAIN_SOURCE_DIR}/samples/common"
-    "${IE_MAIN_SOURCE_DIR}/samples/common/format_reader"
-    "${CMAKE_SOURCE_DIR}/tools/vpu/common"
-)
+#target_include_directories(${TARGET_NAME} SYSTEM PRIVATE
+#    "${IE_MAIN_SOURCE_DIR}/include"
+#    "${IE_MAIN_SOURCE_DIR}/src/inference_engine"
+#    "${IE_MAIN_SOURCE_DIR}/samples/common"
+#    "${IE_MAIN_SOURCE_DIR}/samples/common/format_reader"
+#    "${CMAKE_SOURCE_DIR}/tools/vpu/common"
+#)
 
-target_link_libraries(${TARGET_NAME} PRIVATE
-    inference_engine format_reader vpu_graph_transformer
-    ${CMAKE_DL_LIBS}
-    Threads::Threads
-    gflags
-)
+#target_link_libraries(${TARGET_NAME} PRIVATE
+#    inference_engine format_reader vpu_graph_transformer
+#    ${CMAKE_DL_LIBS}
+#    Threads::Threads
+#    gflags
+#)
 
-set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_PDB_NAME ${TARGET_NAME})
+#set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_PDB_NAME ${TARGET_NAME})
 
-add_cpplint_target(${TARGET_NAME}_cpplint FOR_TARGETS ${TARGET_NAME})
+#add_cpplint_target(${TARGET_NAME}_cpplint FOR_TARGETS ${TARGET_NAME})
 

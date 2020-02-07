@@ -22,6 +22,7 @@ file (GLOB LIBRARY_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/shape_infer/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/shape_infer/built-in/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/shape_infer/const_infer/*.cpp
+        /home/sasha/workspace/projects/dldt/inference-engine/thirdparty/pugixml/src/pugixml.cpp
       )
 
 file (GLOB LIBRARY_HEADERS
@@ -34,7 +35,11 @@ file (GLOB LIBRARY_HEADERS
        ${CMAKE_CURRENT_SOURCE_DIR}/cpp_interfaces/base/*.hpp
        ${CMAKE_CURRENT_SOURCE_DIR}/cpp_interfaces/impl/*.hpp
        ${CMAKE_CURRENT_SOURCE_DIR}/cpp_interfaces/interface/*.hpp
+#       /home/sasha/workspace/projects/emsdk/upstream/emscripten/system/include/wasm_simd128.h
+       /home/sasha/workspace/projects/dldt/inference-engine/thirdparty/pugixml/src/pugiconfig.hpp
+       /home/sasha/workspace/projects/dldt/inference-engine/thirdparty/pugixml/src/pugixml.hpp
       )
+
 
 if( (NOT DEFINED ENABLE_SSE42) OR ENABLE_SSE42)
     file (GLOB LIBRARY_SRC
@@ -59,23 +64,35 @@ if( (NOT DEFINED ENABLE_SSE42) OR ENABLE_SSE42)
         if("${CMAKE_CXX_COMPILER_ID}" STREQUAL MSVC)
             set_source_files_properties(${SSE_SRC}
                 PROPERTIES COMPILE_FLAGS /arch:SSE4.2
-                )       
+                )
         elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL Intel)
             set_source_files_properties(${SSE_SRC}
                 PROPERTIES COMPILE_FLAGS /arch:SSE4.2 /QxSSE4.2 /Qvc14
-                )       
+                )
         elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL Clang)
             set_source_files_properties(${SSE_SRC}
                 PROPERTIES COMPILE_FLAGS -msse4.2
-                )       
+                )
         endif()
     else()
-        set_source_files_properties(${SSE_SRC}
-                PROPERTIES COMPILE_FLAGS -msse4.2
-                )
+        #set_source_files_properties(${SSE_SRC}
+        #        PROPERTIES COMPILE_FLAGS -msse4.2
+        #        )
     endif()
     add_definitions(-DHAVE_SSE=1)
 endif()
+
+function (addVersionDefines FILE)
+    foreach (VAR ${ARGN})
+        if (DEFINED ${VAR} AND NOT "${${VAR}}" STREQUAL "")
+            set_property(
+                SOURCE ${FILE}
+                APPEND
+                PROPERTY COMPILE_DEFINITIONS
+                ${VAR}="${${VAR}}")
+        endif()
+    endforeach()
+endfunction()
 
 addVersionDefines(ie_version.cpp CI_BUILD_NUMBER)
 
@@ -101,6 +118,7 @@ add_library(${TARGET_NAME} SHARED
             ${LIBRARY_HEADERS}
             ${PUBLIC_HEADERS})
 set_ie_threading_interface_for(${TARGET_NAME})
+#message(STATUS "add_library SHARED ${TARGET_NAME}, LIBRARY_SRC: ${LIBRARY_SRC}, LIBRARY_HEADERS: ${LIBRARY_HEADERS}, PUBLIC_HEADERS: ${PUBLIC_HEADERS}")
 
 target_link_libraries(${TARGET_NAME} PRIVATE fluid ngraph ${INTEL_ITT_LIBS} pugixml PUBLIC ${CMAKE_DL_LIBS})
 
@@ -129,11 +147,12 @@ set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_PDB_NAME ${TARGET_NAME})
 
 # Static library used for unit tests which are always built
 
-add_library(${TARGET_NAME}_s STATIC
+add_library(${TARGET_NAME}_s SHARED
             ${LIBRARY_SRC}
             ${LIBRARY_HEADERS}
             ${PUBLIC_HEADERS})
 set_ie_threading_interface_for(${TARGET_NAME}_s)
+#message(STATUS "add_library STATIC ${TARGET_NAME}_s, LIBRARY_SRC: ${LIBRARY_SRC}, LIBRARY_HEADERS: ${LIBRARY_HEADERS}, PUBLIC_HEADERS: ${PUBLIC_HEADERS}")
 
 # Properties->C/C++->General->Additional Include Directories
 target_include_directories(${TARGET_NAME}_s PUBLIC  "${PUBLIC_HEADERS_DIR}"
@@ -164,7 +183,8 @@ set_target_properties(${TARGET_NAME}_s PROPERTIES COMPILE_PDB_NAME ${TARGET_NAME
 target_link_libraries(${TARGET_NAME}_s PRIVATE fluid
                                        PRIVATE ngraph
                                        PRIVATE ade
-                                       PUBLIC pugixml
+                                       #PUBLIC pugixml
+                                       PRIVATE pugixml
 # NOTE: public linkage with ITT is important here! without it binaries that use this library do not
 #       get proper compile flags to support ITT which causes hard-to-detect bugs.
                                        PUBLIC ${INTEL_ITT_LIBS})
@@ -175,6 +195,7 @@ ie_register_plugins(MAIN_TARGET ${TARGET_NAME}
                     POSSIBLE_PLUGINS MultiDevicePlugin HeteroPlugin clDNNPlugin dliaPlugin GNAPlugin MKLDNNPlugin myriadPlugin HDDLPlugin)
 
 # export targets
+
 export(TARGETS ${TARGET_NAME} NAMESPACE IE:: FILE "${CMAKE_BINARY_DIR}/targets.cmake")
 
 configure_file(
@@ -198,7 +219,6 @@ configure_file(
     "${CMAKE_SOURCE_DIR}/cmake/developer_package_config.cmake.in"
     "${CMAKE_BINARY_DIR}/InferenceEngineDeveloperPackageConfig.cmake"
     @ONLY)
-
 configure_file(
     "${CMAKE_SOURCE_DIR}/cmake/share/InferenceEngineConfig-version.cmake.in"
     "${CMAKE_BINARY_DIR}/InferenceEngineDeveloperPackageConfig-version.cmake"

@@ -22,6 +22,7 @@
 #include <vector>
 #include <utility>
 #include <map>
+#include <iostream>
 
 #include "xml_parse_utils.h"
 
@@ -363,14 +364,20 @@ Core::Impl::~Impl() {
 }
 
 Core::Core(const std::string & xmlConfigFile) {
+    std::cerr << "dldt ie_core.cpp Core::Core _impl = std::make_shared<Impl>();" << std::endl;
     _impl = std::make_shared<Impl>();
 
+    std::cerr << "dldt ie_core.cpp Core::Core std::string xmlConfigFile_ = xmlConfigFile;" << std::endl;
     std::string xmlConfigFile_ = xmlConfigFile;
     if (xmlConfigFile_.empty()) {
+        std::cerr << "dldt ie_core.cpp Core::Core xmlConfigFile = " << xmlConfigFile_ << std::endl;
         // register plugins from default plugins.xml config
+        // Failing here
         xmlConfigFile_ = FileUtils::makePath(getIELibraryPath(), "plugins.xml");
+        std::cerr << "dldt ie_core.cpp Core::Core xmlConfigFile = " << xmlConfigFile_ << std::endl;
     }
 
+    std::cerr << "dldt ie_core.cpp Core::Core RegisterPlugins(xmlConfigFile_);" << std::endl;
     RegisterPlugins(xmlConfigFile_);
 }
 

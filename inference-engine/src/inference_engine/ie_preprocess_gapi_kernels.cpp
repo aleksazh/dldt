@@ -5,12 +5,6 @@
 #include "ie_preprocess_gapi_kernels.hpp"
 #include "ie_preprocess_gapi_kernels_impl.hpp"
 
-// AFTER "ie_preprocess_gapi_kernels_impl.hpp"
-// (MANUAL_SIMD is defined there)
-#if MANUAL_SIMD
-  #include "cpu_detector.hpp"
-  #include "ie_preprocess_gapi_kernels_sse42.hpp"
-#endif
 
 #include <opencv2/gapi/opencv_includes.hpp>
 #include <opencv2/gapi/fluid/gfluidkernel.hpp>

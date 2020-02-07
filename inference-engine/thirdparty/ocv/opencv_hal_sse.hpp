@@ -108,23 +108,23 @@ struct v_uint8x16
 
 struct v_int8x16
 {
-    typedef schar lane_type;
+    typedef schar_ lane_type;
     typedef __m128i vector_type;
     enum { nlanes = 16 };
 
     v_int8x16() : val(_mm_setzero_si128()) {}
     explicit v_int8x16(__m128i v) : val(v) {}
-    v_int8x16(schar v0, schar v1, schar v2, schar v3, schar v4, schar v5, schar v6, schar v7,
-              schar v8, schar v9, schar v10, schar v11, schar v12, schar v13, schar v14, schar v15)
+    v_int8x16(schar_ v0, schar_ v1, schar_ v2, schar_ v3, schar_ v4, schar_ v5, schar_ v6, schar_ v7,
+              schar_ v8, schar_ v9, schar_ v10, schar_ v11, schar_ v12, schar_ v13, schar_ v14, schar_ v15)
     {
         val = _mm_setr_epi8((char)v0, (char)v1, (char)v2, (char)v3,
                             (char)v4, (char)v5, (char)v6, (char)v7,
                             (char)v8, (char)v9, (char)v10, (char)v11,
                             (char)v12, (char)v13, (char)v14, (char)v15);
     }
-    schar get0() const
+    schar_ get0() const
     {
-        return (schar)_mm_cvtsi128_si32(val);
+        return (schar_)_mm_cvtsi128_si32(val);
     }
 
     __m128i val;
@@ -324,7 +324,7 @@ template<typename _Tpvec0> inline _Tpvec v_reinterpret_as_##suffix(const _Tpvec0
 { return _Tpvec(cast(a.val)); }
 
 OPENCV_HAL_IMPL_SSE_INITVEC(v_uint8x16, uchar, u8, si128, epi8, char, OPENCV_HAL_NOP)
-OPENCV_HAL_IMPL_SSE_INITVEC(v_int8x16, schar, s8, si128, epi8, char, OPENCV_HAL_NOP)
+OPENCV_HAL_IMPL_SSE_INITVEC(v_int8x16, schar_, s8, si128, epi8, char, OPENCV_HAL_NOP)
 OPENCV_HAL_IMPL_SSE_INITVEC(v_uint16x8, ushort, u16, si128, epi16, short, OPENCV_HAL_NOP)
 OPENCV_HAL_IMPL_SSE_INITVEC(v_int16x8, short, s16, si128, epi16, short, OPENCV_HAL_NOP)
 OPENCV_HAL_IMPL_SSE_INITVEC(v_uint32x4, unsigned, u32, si128, epi32, int, OPENCV_HAL_NOP)
@@ -427,7 +427,7 @@ void v_rshr_pack_u_store(uchar* ptr, const v_int16x8& a)
 inline v_int8x16 v_pack(const v_int16x8& a, const v_int16x8& b)
 { return v_int8x16(_mm_packs_epi16(a.val, b.val)); }
 
-inline void v_pack_store(schar* ptr, const v_int16x8& a)
+inline void v_pack_store(schar_* ptr, const v_int16x8& a)
 { _mm_storel_epi64((__m128i*)ptr, _mm_packs_epi16(a.val, a.val)); }
 
 template<int n> inline
@@ -439,7 +439,7 @@ v_int8x16 v_rshr_pack(const v_int16x8& a, const v_int16x8& b)
                                      _mm_srai_epi16(_mm_adds_epi16(b.val, delta), n)));
 }
 template<int n> inline
-void v_rshr_pack_store(schar* ptr, const v_int16x8& a)
+void v_rshr_pack_store(schar_* ptr, const v_int16x8& a)
 {
     // we assume that n > 0, and so the shifted 16-bit values can be treated as signed numbers.
     __m128i delta = _mm_set1_epi16((short)(1 << (n-1)));
@@ -1288,7 +1288,7 @@ inline void v_store_high(_Tp* ptr, const _Tpvec& a) \
 { _mm_storel_epi64((__m128i*)ptr, _mm_unpackhi_epi64(a.val, a.val)); }
 
 OPENCV_HAL_IMPL_SSE_LOADSTORE_INT_OP(v_uint8x16, uchar)
-OPENCV_HAL_IMPL_SSE_LOADSTORE_INT_OP(v_int8x16, schar)
+OPENCV_HAL_IMPL_SSE_LOADSTORE_INT_OP(v_int8x16, schar_)
 OPENCV_HAL_IMPL_SSE_LOADSTORE_INT_OP(v_uint16x8, ushort)
 OPENCV_HAL_IMPL_SSE_LOADSTORE_INT_OP(v_int16x8, short)
 OPENCV_HAL_IMPL_SSE_LOADSTORE_INT_OP(v_uint32x4, unsigned)
@@ -1528,7 +1528,7 @@ inline _Tpwsvec v_load_expand(const _Tps* ptr) \
     return _Tpwsvec(_mm_srai_##wsuffix(_mm_unpacklo_##suffix(a, a), shift)); \
 }
 
-OPENCV_HAL_IMPL_SSE_EXPAND(v_uint8x16, v_uint16x8, uchar, v_int8x16, v_int16x8, schar, epi8, epi16, 8)
+OPENCV_HAL_IMPL_SSE_EXPAND(v_uint8x16, v_uint16x8, uchar, v_int8x16, v_int16x8, schar_, epi8, epi16, 8)
 OPENCV_HAL_IMPL_SSE_EXPAND(v_uint16x8, v_uint32x4, ushort, v_int16x8, v_int32x4, short, epi16, epi32, 16)
 
 inline void v_expand(const v_uint32x4& a, v_uint64x2& b0, v_uint64x2& b1)
@@ -1562,7 +1562,7 @@ inline v_uint32x4 v_load_expand_q(const uchar* ptr)
     return v_uint32x4(_mm_unpacklo_epi16(_mm_unpacklo_epi8(a, z), z));
 }
 
-inline v_int32x4 v_load_expand_q(const schar* ptr)
+inline v_int32x4 v_load_expand_q(const schar_* ptr)
 {
     __m128i a = _mm_cvtsi32_si128(*(const int*)ptr);
     a = _mm_unpacklo_epi8(a, a);
@@ -2570,7 +2570,7 @@ inline void v_store_interleave( _Tp0* ptr, const _Tpvec0& a0, const _Tpvec0& b0,
     v_store_interleave((_Tp1*)ptr, a1, b1, c1, d1, mode); \
 }
 
-OPENCV_HAL_IMPL_SSE_LOADSTORE_INTERLEAVE(v_int8x16, schar, s8, v_uint8x16, uchar, u8)
+OPENCV_HAL_IMPL_SSE_LOADSTORE_INTERLEAVE(v_int8x16, schar_, s8, v_uint8x16, uchar, u8)
 OPENCV_HAL_IMPL_SSE_LOADSTORE_INTERLEAVE(v_int16x8, short, s16, v_uint16x8, ushort, u16)
 OPENCV_HAL_IMPL_SSE_LOADSTORE_INTERLEAVE(v_int32x4, int, s32, v_uint32x4, unsigned, u32)
 OPENCV_HAL_IMPL_SSE_LOADSTORE_INTERLEAVE(v_int64x2, int64, s64, v_uint64x2, uint64, u64)

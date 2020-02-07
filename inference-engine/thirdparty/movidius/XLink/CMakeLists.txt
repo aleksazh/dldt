@@ -17,7 +17,7 @@ else()
     list(APPEND XLINK_SOURCES "../WinPthread/pthread_semaphore.c")
 endif()
 
-add_library(${TARGET_NAME} STATIC ${XLINK_SOURCES})
+#add_library(${TARGET_NAME} STATIC ${XLINK_SOURCES})
 
 # Threads and usb include
 if(WIN32)
@@ -26,30 +26,30 @@ if(WIN32)
             "../USB_WIN"
             "../WinPthread")
 else()
-    target_include_directories(${TARGET_NAME}
-            PRIVATE
-            "${LIBUSB_INCLUDE_DIR}")
+#    target_include_directories(${TARGET_NAME}
+#            PRIVATE
+#            "${LIBUSB_INCLUDE_DIR}")
 endif()
 
-target_include_directories(${TARGET_NAME}
-        PUBLIC
-        ${XLINK_INCLUDE}
-        "../WinPthread")
+#target_include_directories(${TARGET_NAME}
+#        PUBLIC
+#        ${XLINK_INCLUDE}
+#        "../WinPthread")
 
 if(NOT WIN32)
-    target_link_libraries(${TARGET_NAME}
-            PUBLIC
-            Threads::Threads
-            ${LIBUSB_LIBRARY})
+#    target_link_libraries(${TARGET_NAME}
+#            PUBLIC
+#            Threads::Threads
+#            ${LIBUSB_LIBRARY})
 endif()
 
-target_compile_definitions(${TARGET_NAME}
-        PRIVATE
-        __PC__
-        HAVE_STRUCT_TIMESPEC
-        _CRT_SECURE_NO_WARNINGS
-        USE_USB_VSC
-        )
+#target_compile_definitions(${TARGET_NAME}
+#        PRIVATE
+#        __PC__
+#        HAVE_STRUCT_TIMESPEC
+#       _CRT_SECURE_NO_WARNINGS
+#        USE_USB_VSC
+#        )
 
 if (ENABLE_MYRIAD_NO_BOOT)
     target_compile_definitions(${TARGET_NAME}
@@ -57,6 +57,6 @@ if (ENABLE_MYRIAD_NO_BOOT)
             NO_BOOT)
 endif()
 
-add_dependencies(${TARGET_NAME} vpu_copy_firmware)
+#add_dependencies(${TARGET_NAME} vpu_copy_firmware)
 
-set_property(TARGET ${TARGET_NAME} PROPERTY C_STANDARD 99)
+#set_property(TARGET ${TARGET_NAME} PROPERTY C_STANDARD 99)

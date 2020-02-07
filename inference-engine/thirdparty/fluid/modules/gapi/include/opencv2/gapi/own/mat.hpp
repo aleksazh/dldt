@@ -35,7 +35,7 @@ namespace cv { namespace gapi { namespace own {
 
         inline size_t default_step(int type, int cols)
         {
-            return CV_ELEM_SIZE(type) * cols;
+            return CV_ELEM_SIZ_E(type) * cols;
         }
         //Matrix header, i.e. fields that are unique to each Mat object.
         //Devoted class is needed to implement custom behavior on move (erasing state of moved from object)
@@ -128,7 +128,7 @@ namespace cv { namespace gapi { namespace own {
             #define TABLE_ENTRY(type)  {assign_row<type, 1>, assign_row<type, 2>, assign_row<type, 3>, assign_row<type, 4>}
             static constexpr func_p_t func_tbl[][max_channels] = {
                     TABLE_ENTRY(uchar),
-                    TABLE_ENTRY(schar),
+                    TABLE_ENTRY(schar_),
                     TABLE_ENTRY(ushort),
                     TABLE_ENTRY(short),
                     TABLE_ENTRY(int),
@@ -160,7 +160,7 @@ namespace cv { namespace gapi { namespace own {
          */
         size_t elemSize() const
         {
-            return CV_ELEM_SIZE(type());
+            return CV_ELEM_SIZ_E(type());
         }
         /** @brief Returns the type of a matrix element.
 
@@ -275,7 +275,7 @@ namespace cv { namespace gapi { namespace own {
         /** @overload */
         const uchar* ptr(int row, int col = 0) const
         {
-            return data + step * row + CV_ELEM_SIZE(type()) * col;
+            return data + step * row + CV_ELEM_SIZ_E(type()) * col;
         }
 
 

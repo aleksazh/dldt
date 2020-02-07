@@ -5,9 +5,6 @@
 #include "cpu_detector.hpp"
 #include "blob_transform.hpp"
 #include "ie_preprocess_data.hpp"
-#ifdef HAVE_SSE
-#include "ie_preprocess_data_sse42.hpp"
-#endif
 #include "ie_preprocess_gapi.hpp"
 #include "debug.h"
 #include "ie_compound_blob.h"
@@ -663,11 +660,6 @@ size_t resize_get_buffer_size(Blob::Ptr inBlob, Blob::Ptr outBlob, const ResizeA
     } else if (algorithm == RESIZE_AREA) {
         if (inBlob->getTensorDesc().getPrecision() == Precision::U8) {
             if (scale_x <= 1 && scale_y <= 1) {
-#ifdef HAVE_SSE
-                if (with_cpu_x86_sse42() && scale_x < 1 && scale_y < 1)
-                    return resize_area_u8_downscale_sse_buffer_size();
-                else
-#endif
                     return resize_area_downscale_buffer_size();
             } else {
                 return resize_area_upscale_buffer_size();
@@ -707,11 +699,6 @@ void resize(Blob::Ptr inBlob, Blob::Ptr outBlob, const ResizeAlgorithm &algorith
 
     if (algorithm == RESIZE_BILINEAR) {
         if (inBlob->getTensorDesc().getPrecision() == Precision::U8) {
-#ifdef HAVE_SSE
-            if (with_cpu_x86_sse42())
-                Resize::resize_bilinear_u8(inBlob, outBlob, buffer);
-            else
-#endif
                 resize_bilinear<uint8_t>(inBlob, outBlob, buffer);
         } else {
             resize_bilinear<float>(inBlob, outBlob, buffer);
@@ -719,11 +706,6 @@ void resize(Blob::Ptr inBlob, Blob::Ptr outBlob, const ResizeAlgorithm &algorith
     } else if (algorithm == RESIZE_AREA) {
         if (inBlob->getTensorDesc().getPrecision() == Precision::U8) {
             if (scale_x <= 1 && scale_y <= 1) {
-#ifdef HAVE_SSE
-                if (with_cpu_x86_sse42() && scale_x < 1 && scale_y < 1)
-                    Resize::resize_area_u8_downscale(inBlob, outBlob, buffer);
-                else
-#endif
                     resize_area_downscale<uint8_t>(inBlob, outBlob, buffer);
             } else {
                 resize_area_upscale<uint8_t>(inBlob, outBlob, buffer);

@@ -4,16 +4,16 @@ else()
     set(MV_COMMON_BASE ${CMAKE_CURRENT_LIST_DIR}/..)
 endif(EXISTS "$ENV{MV_COMMON_BASE}")
 
-if(NOT WIN32)
-    find_package(Threads REQUIRED)
+#if(NOT WIN32)
+#    find_package(Threads REQUIRED)
 
-    find_path(LIBUSB_INCLUDE_DIR NAMES libusb.h PATH_SUFFIXES "include" "libusb" "libusb-1.0")
-    find_library(LIBUSB_LIBRARY NAMES usb-1.0 PATH_SUFFIXES "lib")
+#    find_path(LIBUSB_INCLUDE_DIR NAMES libusb.h PATH_SUFFIXES "include" "libusb" "libusb-1.0")
+#    find_library(LIBUSB_LIBRARY NAMES usb-1.0 PATH_SUFFIXES "lib")
 
-    if(NOT LIBUSB_INCLUDE_DIR OR NOT LIBUSB_LIBRARY)
-        message(FATAL_ERROR "libusb is required")
-    endif()
-endif()
+#    if(NOT LIBUSB_INCLUDE_DIR OR NOT LIBUSB_LIBRARY)
+#        message(FATAL_ERROR "libusb is required")
+#    endif()
+#endif()
 
 set(XLINK_INCLUDE
         ${MV_COMMON_BASE}/XLink/pc

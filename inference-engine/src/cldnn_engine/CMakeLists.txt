@@ -9,6 +9,7 @@ file(GLOB LIBRARY_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 
 addVersionDefines(cldnn_engine.cpp CI_BUILD_NUMBER CLDNN_VERSION)
 
+message(STATUS "Add clDNN plugin")
 ie_add_plugin(NAME ${TARGET_NAME}
 	          DEVICE_NAME "GPU"
               SOURCES ${MAIN_SRC} ${LIBRARY_HEADERS}

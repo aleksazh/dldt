@@ -15,7 +15,7 @@
 #
 
 function(add_perfcheck_target TARGET_NAME PLUGIN_NAME)
-    find_package(Threads REQUIRED)
+    #find_package(Threads REQUIRED)
 
     file(GLOB SOURCES *.cpp)
 
@@ -25,7 +25,7 @@ function(add_perfcheck_target TARGET_NAME PLUGIN_NAME)
         list(APPEND SOURCES ${WIN_PTHREAD_SOURCES} ${SHARED})
     endif()
 
-    add_executable(${TARGET_NAME} ${SOURCES})
+    #add_executable(${TARGET_NAME} ${SOURCES})
 
     # TODO: enable some day and fix all warnings
 #    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -34,13 +34,13 @@ function(add_perfcheck_target TARGET_NAME PLUGIN_NAME)
 #                "-Wall")
 #    endif()
 
-    target_include_directories(${TARGET_NAME}
-        SYSTEM PRIVATE
-            "${IE_MAIN_SOURCE_DIR}/include"
-            "${IE_MAIN_SOURCE_DIR}/src/inference_engine"
-            "${IE_MAIN_SOURCE_DIR}/src/vpu/graph_transformer/include"
-            "${IE_MAIN_SOURCE_DIR}/samples/common/samples"
-            "${IE_MAIN_SOURCE_DIR}/samples/common/format_reader")
+#    target_include_directories(${TARGET_NAME}
+#        SYSTEM PRIVATE
+#            "${IE_MAIN_SOURCE_DIR}/include"
+#            "${IE_MAIN_SOURCE_DIR}/src/inference_engine"
+#            "${IE_MAIN_SOURCE_DIR}/src/vpu/graph_transformer/include"
+#            "${IE_MAIN_SOURCE_DIR}/samples/common/samples"
+#            "${IE_MAIN_SOURCE_DIR}/samples/common/format_reader")
 
     if(WIN32)
         target_include_directories(${TARGET_NAME}
@@ -65,5 +65,5 @@ function(add_perfcheck_target TARGET_NAME PLUGIN_NAME)
 endfunction()
 
 if(ENABLE_MYRIAD)
-    add_perfcheck_target(myriad_perfcheck myriadPlugin)
+#    add_perfcheck_target(myriad_perfcheck myriadPlugin)
 endif()

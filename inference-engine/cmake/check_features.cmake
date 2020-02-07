@@ -15,8 +15,10 @@ endif()
 
 if (NOT ARCH_64)
     if (UNIX OR APPLE)
+    message(STATUS "disable ENABLE_CLDNN flag")
         SET(ENABLE_CLDNN OFF)
     endif()
+    message(STATUS "disable ENABLE_MKL_DNN flag")
     SET(ENABLE_MKL_DNN OFF)
 endif()
 

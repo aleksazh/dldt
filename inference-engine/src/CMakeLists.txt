@@ -8,23 +8,27 @@ set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 ####################################
 
+message(STATUS "check if enable ENABLE_MKL_DNN flag")
 if(ENABLE_MKL_DNN)
+    message(STATUS "ENABLE_MKL_DNN is enabled")
     add_subdirectory(mkldnn_plugin)
 endif()
 
+message(STATUS "check if enable ENABLE_CLDNN flag")
 if(ENABLE_CLDNN)
+    message(STATUS "ENABLE_CLDNN is enabled")
     add_subdirectory(cldnn_engine)
 endif()
 
 if(ENABLE_VPU)
-  add_subdirectory(vpu)
+#  add_subdirectory(vpu)
 endif()
 
 if (ENABLE_GNA)
-    add_subdirectory(gna_plugin)
+#    add_subdirectory(gna_plugin)
 endif()
 
-add_subdirectory(hetero_plugin)
+#add_subdirectory(hetero_plugin)
 
 add_subdirectory(inference_engine)
 
@@ -37,8 +41,8 @@ set(InferenceEngine_SRC_DIRS ${CMAKE_SOURCE_DIR}/src)
 function(set_target_cpu_flags TARGET_NAME)
 endfunction()
 
-add_subdirectory(extension EXCLUDE_FROM_ALL)
-add_library(IE::ie_cpu_extension ALIAS ie_cpu_extension)
+#add_subdirectory(extension EXCLUDE_FROM_ALL)
+#add_library(IE::ie_cpu_extension ALIAS ie_cpu_extension)
 
-file(GLOB_RECURSE EXTENSION_SOURCES extension/*.cpp extension/*.hpp extension/*.h)
-add_cpplint_target(ie_cpu_extension_cpplint FOR_SOURCES ${EXTENSION_SOURCES})
+#file(GLOB_RECURSE EXTENSION_SOURCES extension/*.cpp extension/*.hpp extension/*.h)
+#add_cpplint_target(ie_cpu_extension_cpplint FOR_SOURCES ${EXTENSION_SOURCES})

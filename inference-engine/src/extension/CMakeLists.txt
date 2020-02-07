@@ -43,6 +43,7 @@ include_directories (PRIVATE
 )
 
 add_library(${TARGET_NAME} SHARED ${SRC} ${HDR})
+#add_library(${TARGET_NAME} STATIC ${SRC} ${HDR})
 set_ie_threading_interface_for(${TARGET_NAME})
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME "cpu_extension")

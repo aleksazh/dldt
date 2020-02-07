@@ -40,12 +40,12 @@ file(REMOVE "${CMAKE_BINARY_DIR}/targets_developer.cmake")
 add_subdirectory(src)
 
 if(ENABLE_TESTS)
-    add_subdirectory(tests)
+#    add_subdirectory(tests)
 endif()
 
 add_subdirectory(thirdparty)
 
-add_subdirectory(tools)
+#add_subdirectory(tools)
 
 if (ENABLE_SAMPLES)
     # hint for find_package(InferenceEngine in the samples folder)
@@ -54,15 +54,15 @@ endif()
 
 # gflags and format_reader targets are kept inside of samples directory and
 # they must be built even if samples build is disabled (required for tests and tools).
-add_subdirectory(samples)
+#add_subdirectory(samples)
 
-file(GLOB_RECURSE SAMPLES_SOURCES samples/*.cpp samples/*.hpp samples/*.h)
-add_cpplint_target(sample_cpplint
-    FOR_SOURCES ${SAMPLES_SOURCES}
-    EXCLUDE_PATTERNS "thirdparty/*" "pugixml/*")
+#file(GLOB_RECURSE SAMPLES_SOURCES samples/*.cpp samples/*.hpp samples/*.h)
+#add_cpplint_target(sample_cpplint
+#    FOR_SOURCES ${SAMPLES_SOURCES}
+#    EXCLUDE_PATTERNS "thirdparty/*" "pugixml/*")
 
 if (ENABLE_PYTHON)
-    add_subdirectory(ie_bridges/python)
+#    add_subdirectory(ie_bridges/python)
 endif()
 
 add_cpplint_report_target()
