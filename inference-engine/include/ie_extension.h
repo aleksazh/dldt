@@ -13,6 +13,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <stdio.h>
 
 namespace InferenceEngine {
 namespace details {
@@ -192,6 +193,7 @@ protected:
  */
 template<>
 inline std::shared_ptr<IShapeInferExtension> make_so_pointer(const file_name_t &name) {
+    printf("dldt ie_extension.h make_so_pointer IShapeInferExtension file name: %s\n", name.c_str());
     return std::make_shared<ShapeInferExtension>(name);
 }
 
@@ -202,6 +204,7 @@ inline std::shared_ptr<IShapeInferExtension> make_so_pointer(const file_name_t &
  */
 template<>
 inline std::shared_ptr<IExtension> make_so_pointer(const file_name_t &name) {
+    printf("dldt ie_extension.h make_so_pointer IExtension file name: %s\n", name.c_str());
     return std::make_shared<Extension>(name);
 }
 

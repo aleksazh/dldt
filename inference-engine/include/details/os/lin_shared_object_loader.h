@@ -13,6 +13,7 @@
 #include "../../ie_api.h"
 #include "../ie_exception.hpp"
 #include <iostream>
+#include <stdio.h>
 
 namespace InferenceEngine {
 namespace details {
@@ -32,6 +33,8 @@ public:
      */
     explicit SharedObjectLoader(const char* pluginName) {
         std::cerr << "DLDT pluginName: " << pluginName << std::endl;
+        fprintf(stderr, "DLDT pluginName 1 \n");
+        fprintf(stdout, "DLDT pluginName 2 \n");
         shared_object = dlopen(pluginName, RTLD_LAZY);
 
         if (shared_object == nullptr)

@@ -7,18 +7,18 @@ include (options)
 #these options are aimed to optimize build time on development system
 
 #backed targets
-ie_option (ENABLE_GNA "GNA support for inference engine" ON)
-ie_option (ENABLE_ROCKHOPER "use Rockhopper decoder for converting / output scores" ON)
+ie_option (ENABLE_GNA "GNA support for inference engine" OFF)
+ie_option (ENABLE_ROCKHOPER "use Rockhopper decoder for converting / output scores" OFF)
 
-ie_option (ENABLE_MKL_DNN "MKL-DNN plugin for inference engine" ON)
+ie_option (ENABLE_MKL_DNN "MKL-DNN plugin for inference engine" OFF)
 
-ie_option (ENABLE_CLDNN "clDnn based plugin for inference engine" ON)
+ie_option (ENABLE_CLDNN "clDnn based plugin for inference engine" OFF)
 
 ie_option (ENABLE_CLDNN_TESTS "Enable clDNN unit tests" OFF)
 
 ie_option (ENABLE_CLDNN_BUILD "build clDnn from sources" OFF)
 
-ie_option (ENABLE_PROFILING_ITT "ITT tracing of IE and plugins internals" ON)
+ie_option (ENABLE_PROFILING_ITT "ITT tracing of IE and plugins internals" OFF)
 
 ie_option (ENABLE_PROFILING_RAW "Raw counters profiling (just values, no start/stop time or timeline)" OFF)
 
@@ -43,9 +43,9 @@ endif()
 set(THREADING "${THREADING}" CACHE STRING "Threading" FORCE)
 list (APPEND IE_OPTIONS THREADING)
 
-ie_option (ENABLE_VPU "vpu targeted plugins for inference engine" ON)
+ie_option (ENABLE_VPU "vpu targeted plugins for inference engine" OFF)
 
-ie_option (ENABLE_MYRIAD "myriad targeted plugin for inference engine" ON)
+ie_option (ENABLE_MYRIAD "myriad targeted plugin for inference engine" OFF)
 
 ie_option (ENABLE_MYRIAD_NO_BOOT "myriad plugin will skip device boot" OFF)
 
@@ -75,15 +75,15 @@ ie_option (ENABLE_UNSAFE_LOCATIONS "skip check for MD5 for dependency" OFF)
 
 ie_option (ENABLE_ALTERNATIVE_TEMP "in case of dependency conflict, to avoid modification in master, use local copy of dependency" ON)
 
-ie_option (ENABLE_SEGMENTATION_TESTS "segmentation tests" ON)
+ie_option (ENABLE_SEGMENTATION_TESTS "segmentation tests" OFF)
 
-ie_option (ENABLE_OBJECT_DETECTION_TESTS "object detection tests" ON)
+ie_option (ENABLE_OBJECT_DETECTION_TESTS "object detection tests" OFF)
 
-ie_option (ENABLE_OPENCV "enables OpenCV" ON)
+ie_option (ENABLE_OPENCV "enables OpenCV" OFF)
 
 ie_option (OS_FOLDER "create OS dedicated folder in output" OFF)
 
-ie_option (ENABLE_PLUGIN_RPATH "enables rpath information to be present in plugins binary, and in corresponding test_applications" ON)
+ie_option (ENABLE_PLUGIN_RPATH "enables rpath information to be present in plugins binary, and in corresponding test_applications" OFF)
 
 ie_option (ENABLE_AFFINITY_GENERATOR "enables affinity generator build" OFF)
 
@@ -97,7 +97,7 @@ ie_option (TREAT_WARNING_AS_ERROR "Treat build warnings as errors" ON)
 
 ie_option (ENABLE_CPP_CCT "enables C++ version of Cross Check Tool" OFF)
 
-ie_option (ENABLE_UNICODE_PATH_SUPPORT "Enable loading models from Unicode paths" ON)
+ie_option (ENABLE_UNICODE_PATH_SUPPORT "Enable loading models from Unicode paths" OFF)
 
 ie_option (ENABLE_LTO "Enable Link Time Optimization" OFF)
 

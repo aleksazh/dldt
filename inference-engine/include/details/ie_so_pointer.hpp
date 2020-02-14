@@ -16,6 +16,7 @@
 #include "details/ie_no_release.hpp"
 #include <string>
 #include <cassert>
+#include <iostream>
 
 namespace InferenceEngine {
 namespace details {
@@ -90,6 +91,7 @@ public:
         : _so_loader(new Loader(name.c_str()))
         , _pointedObj(details::shared_from_irelease(
             SymbolLoader<Loader>(_so_loader).template instantiateSymbol<T>(SOCreatorTrait<T>::name))) {
+                std::cerr << "dldt ie_so_pointer.hpp in SOPointer class" << std::endl;
     }
 
     /**

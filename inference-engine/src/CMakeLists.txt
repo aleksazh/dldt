@@ -42,7 +42,8 @@ function(set_target_cpu_flags TARGET_NAME)
 endfunction()
 
 #add_subdirectory(extension EXCLUDE_FROM_ALL)
-#add_library(IE::ie_cpu_extension ALIAS ie_cpu_extension)
+add_subdirectory(extension)
+add_library(IE::ie_cpu_extension ALIAS ie_cpu_extension)
 
-#file(GLOB_RECURSE EXTENSION_SOURCES extension/*.cpp extension/*.hpp extension/*.h)
-#add_cpplint_target(ie_cpu_extension_cpplint FOR_SOURCES ${EXTENSION_SOURCES})
+file(GLOB_RECURSE EXTENSION_SOURCES extension/*.cpp extension/*.hpp extension/*.h)
+add_cpplint_target(ie_cpu_extension_cpplint FOR_SOURCES ${EXTENSION_SOURCES})

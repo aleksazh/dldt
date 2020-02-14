@@ -370,15 +370,19 @@ Core::Core(const std::string & xmlConfigFile) {
     std::cerr << "dldt ie_core.cpp Core::Core std::string xmlConfigFile_ = xmlConfigFile;" << std::endl;
     std::string xmlConfigFile_ = xmlConfigFile;
     if (xmlConfigFile_.empty()) {
-        std::cerr << "dldt ie_core.cpp Core::Core xmlConfigFile = " << xmlConfigFile_ << std::endl;
+        std::cerr << "dldt ie_core.cpp Core::Core xmlConfigFile is empty" << xmlConfigFile_ << std::endl;
         // register plugins from default plugins.xml config
         // Failing here
-        xmlConfigFile_ = FileUtils::makePath(getIELibraryPath(), "plugins.xml");
-        std::cerr << "dldt ie_core.cpp Core::Core xmlConfigFile = " << xmlConfigFile_ << std::endl;
-    }
+        //xmlConfigFile_ = FileUtils::makePath(getIELibraryPath(), "plugins.xml");
+        //std::cerr << "dldt ie_core.cpp Core::Core xmlConfigFile = " << xmlConfigFile_ << std::endl;
+        //THROW_IE_EXCEPTION << "xmlConfigFile_ detected: " << xmlConfigFile_;
+    } //else {
+        //THROW_IE_EXCEPTION << "xmlConfigFile_ was defined: " << xmlConfigFile_;
+    //}
 
-    std::cerr << "dldt ie_core.cpp Core::Core RegisterPlugins(xmlConfigFile_);" << std::endl;
-    RegisterPlugins(xmlConfigFile_);
+    //std::cerr << "dldt ie_core.cpp Core::Core RegisterPlugins(xmlConfigFile_);" << std::endl;
+    //RegisterPlugins(xmlConfigFile_);
+    std::cerr << "dldt ie_core.cpp Core::Core the end" << std::endl;
 }
 
 std::map<std::string, Version> Core::GetVersions(const std::string & deviceName) const {
@@ -413,6 +417,7 @@ void Core::SetLogCallback(IErrorListener &listener) const {
     _impl->SetErrorListener(&listener);
 }
 
+
 ExecutableNetwork Core::LoadNetwork(CNNNetwork network, const std::string & deviceName,
                                     const std::map<std::string, std::string> & config) {
     std::map<std::string, std::string> config_ = config;
@@ -425,15 +430,21 @@ ExecutableNetwork Core::LoadNetwork(CNNNetwork network, const std::string & devi
         deviceName_ = "MULTI";
         config_[InferenceEngine::MultiDeviceConfigParams::KEY_MULTI_DEVICE_PRIORITIES] = deviceName.substr(6);
     } else {
+        std::cerr << "dldt LoadNetwork DeviceIDParser parser(deviceName_);" << std::endl;
         DeviceIDParser parser(deviceName_);
+        std::cerr << "dldt LoadNetwork deviceName_ = parser.getDeviceName();" << std::endl;
         deviceName_ = parser.getDeviceName();
+        std::cerr << "dldt LoadNetwork std::string deviceIDLocal = parser.getDeviceID();" << std::endl;
         std::string deviceIDLocal = parser.getDeviceID();
 
+        std::cerr << "dldt LoadNetwork if (!deviceIDLocal.empty()) {" << std::endl;
         if (!deviceIDLocal.empty()) {
+            std::cerr << "dldt LoadNetwork config_[KEY_DEVICE_ID] = deviceIDLocal;" << std::endl;
             config_[KEY_DEVICE_ID] = deviceIDLocal;
         }
     }
 
+    std::cerr << "return _impl->GetCPPPluginByName(deviceName_).LoadNetwork(network, config_);" << std::endl;
     return _impl->GetCPPPluginByName(deviceName_).LoadNetwork(network, config_);
 }
 

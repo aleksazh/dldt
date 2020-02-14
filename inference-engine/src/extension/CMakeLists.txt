@@ -35,15 +35,18 @@ endif()
 file(GLOB_RECURSE SRC *.cpp)
 file(GLOB_RECURSE HDR *.hpp)
 
+#set(CMAKE_INSTALL_RPATH "/home/sasha/workspace/projects/opencv/build_wasm/modules/js")
+#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 add_definitions(-DIMPLEMENT_INFERENCE_ENGINE_API)
 
 include_directories (PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/common
         ${InferenceEngine_INCLUDE_DIRS}
 )
-
 add_library(${TARGET_NAME} SHARED ${SRC} ${HDR})
 #add_library(${TARGET_NAME} STATIC ${SRC} ${HDR})
+message(STATUS "add_library cpu_extension static")
 set_ie_threading_interface_for(${TARGET_NAME})
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME "cpu_extension")

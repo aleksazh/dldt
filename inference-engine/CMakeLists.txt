@@ -11,6 +11,10 @@ endif()
 
 project(InferenceEngine)
 
+# Added to try to build shared libs with emscripten (not unsuccessful - error in the end:
+# shared:Assuming object file output in the absence of `-c`, based on output filename)
+#SET_PROPERTY(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 set(IE_MAIN_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
