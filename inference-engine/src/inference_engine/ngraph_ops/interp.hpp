@@ -12,7 +12,8 @@
 
 namespace ngraph {
 namespace op {
-typedef struct {
+struct InterpolateIEAttrs {
+//typedef struct {
     int height = -1;
     int width = -1;
     float zoom_factor = 0;
@@ -23,7 +24,8 @@ typedef struct {
     std::string mode = "";
     int pad_beg = 0;
     int pad_end = 0;
-} InterpolateIEAttrs;
+};
+//} InterpolateIEAttrs;
 
 class Interp : public Op {
 public:
