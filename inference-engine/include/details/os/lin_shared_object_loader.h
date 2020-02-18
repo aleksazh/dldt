@@ -14,6 +14,9 @@
 #include "../ie_exception.hpp"
 #include <iostream>
 #include <stdio.h>
+#include <errno.h>
+
+//extern int errno ;
 
 namespace InferenceEngine {
 namespace details {
@@ -32,9 +35,13 @@ public:
      * @param pluginName Full or relative path to the library
      */
     explicit SharedObjectLoader(const char* pluginName) {
-        std::cerr << "DLDT pluginName: " << pluginName << std::endl;
+        //int errnum = errno;
+        //perror("DLDT SharedObjectLoader");
+        //std::cerr << "DLDT pluginName: " << pluginName << std::endl;
         fprintf(stderr, "DLDT pluginName 1 \n");
         fprintf(stdout, "DLDT pluginName 2 \n");
+        printf("DLDT pluginName 3 \n");
+        //fflush( stderr );
         shared_object = dlopen(pluginName, RTLD_LAZY);
 
         if (shared_object == nullptr)

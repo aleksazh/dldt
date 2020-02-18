@@ -128,7 +128,7 @@ if(WIN32)
 endif()
 
 # Properties->C/C++->General->Additional Include Directories
-target_include_directories(${TARGET_NAME} PUBLIC ${PUBLIC_HEADERS_DIR}
+target_include_directories(${TARGET_NAME} PUBLIC "${PUBLIC_HEADERS_DIR}"
                                           PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 target_include_directories(${TARGET_NAME} SYSTEM PRIVATE "${IE_MAIN_SOURCE_DIR}/thirdparty/pugixml/src")
