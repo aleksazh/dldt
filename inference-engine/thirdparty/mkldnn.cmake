@@ -82,15 +82,15 @@ function(detect_mkl LIBNAME)
     endif()
 endfunction()
 
-if (THREADING STREQUAL "TBB")
-    add_definitions(-DMKLDNN_THR=MKLDNN_THR_TBB)
-elseif (THREADING STREQUAL "TBB_AUTO")
-    add_definitions(-DMKLDNN_THR=MKLDNN_THR_TBB_AUTO)
-elseif (THREADING STREQUAL "OMP")
-    add_definitions(-DMKLDNN_THR=MKLDNN_THR_OMP)
-else()
+#if (THREADING STREQUAL "TBB")
+#    add_definitions(-DMKLDNN_THR=MKLDNN_THR_TBB)
+#elseif (THREADING STREQUAL "TBB_AUTO")
+#    add_definitions(-DMKLDNN_THR=MKLDNN_THR_TBB_AUTO)
+#elseif (THREADING STREQUAL "OMP")
+#    add_definitions(-DMKLDNN_THR=MKLDNN_THR_OMP)
+#else()
     add_definitions(-DMKLDNN_THR=MKLDNN_THR_SEQ)
-endif ()
+#endif ()
 
 file(GLOB_RECURSE HDR
         ${MKLDNN_ROOT}/include/*.h

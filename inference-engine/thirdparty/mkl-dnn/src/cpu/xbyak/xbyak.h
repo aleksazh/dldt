@@ -136,7 +136,7 @@
 #endif
 #if !defined(XBYAK64) && !defined(XBYAK32)
 	#if defined(XBYAK64_GCC) || defined(XBYAK64_WIN)
-		#define XBYAK64
+		//#define XBYAK64
 	#else
 		#define XBYAK32
 	#endif

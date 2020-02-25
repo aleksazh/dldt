@@ -102,9 +102,9 @@ inline int ilog2q(size_t v) {
         return -1;
 
     int p = 0;
-#   define CP(pw) do { if (v >= (1ull << pw)) { v >>= pw; p += pw; } } while(0)
-    CP(32); CP(16); CP(8); CP(4); CP(2); CP(1);
-#   undef CP
+//#   define CP(pw) do { if (v >= (1ull << pw)) { v >>= pw; p += pw; } } while(0)
+//    CP(32); CP(16); CP(8); CP(4); CP(2); CP(1);
+//#   undef CP
     return p;
 }
 

@@ -8,13 +8,13 @@ set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 ####################################
 
-message(STATUS "check if enable ENABLE_MKL_DNN flag")
+message(STATUS "check if ENABLE_MKL_DNN flag is enabled")
 if(ENABLE_MKL_DNN)
     message(STATUS "ENABLE_MKL_DNN is enabled")
     add_subdirectory(mkldnn_plugin)
 endif()
 
-message(STATUS "check if enable ENABLE_CLDNN flag")
+message(STATUS "check if ENABLE_CLDNN flag is enabled")
 if(ENABLE_CLDNN)
     message(STATUS "ENABLE_CLDNN is enabled")
     add_subdirectory(cldnn_engine)

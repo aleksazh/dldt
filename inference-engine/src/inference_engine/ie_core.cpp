@@ -128,17 +128,25 @@ public:
      * @param xmlConfigFile - an .xml configuraion with device / plugin information
      */
     void RegisterPluginsInRegistry(const std::string & xmlConfigFile) {
+        std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry" << std::endl;
         pugi::xml_document xmlDoc;
+        std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 1" << std::endl;
         pugi::xml_parse_result res = xmlDoc.load_file(xmlConfigFile.c_str());
 
+        std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 2" << std::endl;
         if (res.status != pugi::status_ok) {
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 3" << std::endl;
             std::ifstream t(xmlConfigFile);
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 4" << std::endl;
             std::string str((std::istreambuf_iterator<char>(t)),
                             std::istreambuf_iterator<char>());
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 5" << std::endl;
 
             int line = 1;
             int pos = 0;
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 6" << std::endl;
             for (auto && token : str) {
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 7" << std::endl;
                 if (token == '\n') {
                     line++;
                     pos = 0;
@@ -150,51 +158,68 @@ public:
                 }
             }
 
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 8" << std::endl;
             THROW_IE_EXCEPTION << "Error loading xmlfile: " << xmlConfigFile << ", " << res.description()
                                            << " at line: " << line << " pos: " << pos;
         }
 
+        std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 9" << std::endl;
         using namespace XMLParseUtils;
         pugi::xml_node ieNode = xmlDoc.document_element();
+        std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 10" << std::endl;
         pugi::xml_node devicesNode = ieNode.child("plugins");
 
         for (auto pluginNode = devicesNode.child("plugin"); !pluginNode.empty();
              pluginNode = pluginNode.next_sibling("plugin")) {
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 11" << std::endl;
             std::string deviceName = GetStrAttr(pluginNode, "name");
             file_name_t pluginPath = GetStrAttr(pluginNode, "location");
 
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 12" << std::endl;
             if (deviceName.find('.') != std::string::npos) {
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 13" << std::endl;
                 THROW_IE_EXCEPTION << "Device name must not contain dot '.' symbol";
             }
 
             // append IR library path for default IE plugins
             {
+                std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 14" << std::endl;
                 std::string absPluginPath = FileUtils::makePath(getIELibraryPath(), pluginPath);
-                if (FileUtils::fileExist(absPluginPath))
+                if (FileUtils::fileExist(absPluginPath)) {
+                    std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 15" << std::endl;
                     pluginPath = absPluginPath;
+                }
             }
 
             // check properties
             auto propertiesNode = pluginNode.child("properties");
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 16" << std::endl;
             std::map<std::string, std::string> config;
 
             if (propertiesNode) {
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 17" << std::endl;
                 for (auto propertyNode = propertiesNode.child("property"); !propertyNode.empty();
                      propertyNode = propertyNode.next_sibling("property")) {
+                    std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 18" << std::endl;
                     std::string key = GetStrAttr(propertyNode, "key");
                     std::string value = GetStrAttr(propertyNode, "value");
+                    std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 19" << std::endl;
                     config[key] = value;
                 }
             }
 
             // check extensions
             auto extensionsNode = pluginNode.child("extensions");
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 20" << std::endl;
             std::vector<std::string> listOfExtentions;
 
             if (extensionsNode) {
+                std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 21" << std::endl;
                 for (auto extensionNode = extensionsNode.child("extension"); !extensionNode.empty();
                      extensionNode = extensionNode.next_sibling("extension")) {
+                    std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 22" << std::endl;
                     std::string extensionLocation = GetStrAttr(extensionNode, "location");
+                    std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 23" << std::endl;
                     listOfExtentions.push_back(extensionLocation);
                 }
             }
@@ -202,9 +227,12 @@ public:
             // fill value in plugin registry for later lazy initialization
             {
                 PluginDescriptor desc = { pluginPath, config, listOfExtentions };
+                std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 24" << std::endl;
                 pluginRegistry[deviceName] = desc;
+                std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry 25" << std::endl;
             }
         }
+        std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry the end" << std::endl;
     }
 
     //
@@ -234,22 +262,36 @@ public:
      * @return Reference to a CPP plugin wrapper
      */
     InferencePlugin GetCPPPluginByName(const std::string & deviceName) const {
+        std::cerr << "dldt ie_core.cpp GetCPPPluginByName" << std::endl;
         auto it = pluginRegistry.find(deviceName);
+        for (auto && pluginDesc : pluginRegistry) {
+            std::cerr << "dldt ie_core.cpp GetCPPPluginByName device: " << pluginDesc.first << std::endl;
+        }
+        std::cerr << "dldt ie_core.cpp GetCPPPluginByName 1" << std::endl;
         if (it == pluginRegistry.end()) {
+        std::cerr << "dldt ie_core.cpp GetCPPPluginByName 2 deviceName:" << deviceName << std::endl;
             THROW_IE_EXCEPTION << "Device with \"" << deviceName << "\" name is not registered in the InferenceEngine";
         }
 
         // Plugin is in registry, but not created, let's create
 
+        std::cerr << "dldt ie_core.cpp GetCPPPluginByName 3" << std::endl;
         if (plugins.find(deviceName) == plugins.end()) {
+            std::cerr << "dldt ie_core.cpp GetCPPPluginByName 4" << std::endl;
             PluginDescriptor desc = it->second;
 
+            std::cerr << "dldt ie_core.cpp GetCPPPluginByName 5" << std::endl;
             try {
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName 6" << std::endl;
                 InferenceEnginePluginPtr plugin(desc.libraryLocation);
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName 7" << std::endl;
                 IInferencePlugin * pplugin = static_cast<IInferencePlugin *>(plugin.operator->());
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName 8" << std::endl;
                 IInferencePluginAPI * iplugin_api_ptr = dynamic_cast<IInferencePluginAPI *>(pplugin);
 
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName 9" << std::endl;
                 if (iplugin_api_ptr != nullptr) {
+                    std::cerr << "dldt ie_core.cpp GetCPPPluginByName 10" << std::endl;
                     iplugin_api_ptr->SetName(deviceName);
 
                     // Set Inference Engine class reference to plugins
@@ -257,28 +299,36 @@ public:
                     iplugin_api_ptr->SetCore(mutableCore);
                 }
 
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName 11" << std::endl;
                 InferencePlugin cppPlugin(plugin);
 
                 // configuring
                 {
+                    std::cerr << "dldt ie_core.cpp GetCPPPluginByName 12" << std::endl;
                     cppPlugin.SetConfig(desc.defaultConfig);
 
                     for (auto && extensionLocation : desc.listOfExtentions) {
+                        std::cerr << "dldt ie_core.cpp GetCPPPluginByName 13" << std::endl;
                         cppPlugin.AddExtension(make_so_pointer<IExtension>(extensionLocation));
                     }
 
                     if (listener)
+                        std::cerr << "dldt ie_core.cpp GetCPPPluginByName 14" << std::endl;
                         plugin->SetLogCallback(*listener);
                 }
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName 15" << std::endl;
 
                 plugins[deviceName] = cppPlugin;
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName 16" << std::endl;
             } catch (const details::InferenceEngineException & ex) {
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName 17" << std::endl;
                 THROW_IE_EXCEPTION << "Failed to create plugin " << desc.libraryLocation << " for device " << deviceName << "\n"
                                    << "Please, check your environment\n"
                                    << ex.what() << "\n";
             }
         }
 
+        std::cerr << "dldt ie_core.cpp GetCPPPluginByName 18" << std::endl;
         return plugins[deviceName];
     }
 
@@ -373,16 +423,13 @@ Core::Core(const std::string & xmlConfigFile) {
         std::cerr << "dldt ie_core.cpp Core::Core xmlConfigFile is empty" << xmlConfigFile_ << std::endl;
         // register plugins from default plugins.xml config
         // Failing here
-        //xmlConfigFile_ = FileUtils::makePath(getIELibraryPath(), "plugins.xml");
-        //std::cerr << "dldt ie_core.cpp Core::Core xmlConfigFile = " << xmlConfigFile_ << std::endl;
-        //THROW_IE_EXCEPTION << "xmlConfigFile_ detected: " << xmlConfigFile_;
-    } //else {
-        //THROW_IE_EXCEPTION << "xmlConfigFile_ was defined: " << xmlConfigFile_;
-    //}
+    //    xmlConfigFile_ = FileUtils::makePath(getIELibraryPath(), "plugins.xml");
+    //    std::cerr << "dldt ie_core.cpp Core::Core xmlConfigFile = " << xmlConfigFile_ << std::endl;
+    }
 
     //std::cerr << "dldt ie_core.cpp Core::Core RegisterPlugins(xmlConfigFile_);" << std::endl;
     //RegisterPlugins(xmlConfigFile_);
-    std::cerr << "dldt ie_core.cpp Core::Core the end" << std::endl;
+    //std::cerr << "dldt ie_core.cpp Core::Core the end" << std::endl;
 }
 
 std::map<std::string, Version> Core::GetVersions(const std::string & deviceName) const {
@@ -430,35 +477,35 @@ ExecutableNetwork Core::LoadNetwork(CNNNetwork network, const std::string & devi
         deviceName_ = "MULTI";
         config_[InferenceEngine::MultiDeviceConfigParams::KEY_MULTI_DEVICE_PRIORITIES] = deviceName.substr(6);
     } else {
-        std::cerr << "dldt LoadNetwork DeviceIDParser parser(deviceName_);" << std::endl;
         DeviceIDParser parser(deviceName_);
-        std::cerr << "dldt LoadNetwork deviceName_ = parser.getDeviceName();" << std::endl;
         deviceName_ = parser.getDeviceName();
-        std::cerr << "dldt LoadNetwork std::string deviceIDLocal = parser.getDeviceID();" << std::endl;
         std::string deviceIDLocal = parser.getDeviceID();
 
-        std::cerr << "dldt LoadNetwork if (!deviceIDLocal.empty()) {" << std::endl;
         if (!deviceIDLocal.empty()) {
-            std::cerr << "dldt LoadNetwork config_[KEY_DEVICE_ID] = deviceIDLocal;" << std::endl;
             config_[KEY_DEVICE_ID] = deviceIDLocal;
         }
     }
 
-    std::cerr << "return _impl->GetCPPPluginByName(deviceName_).LoadNetwork(network, config_);" << std::endl;
+    std::cerr << "dldt ie_core.cpp LoadNetwork the end" << std::endl;
     return _impl->GetCPPPluginByName(deviceName_).LoadNetwork(network, config_);
 }
 
 void Core::AddExtension(IExtensionPtr extension, const std::string & deviceName_) {
     if (deviceName_.find("HETERO") == 0) {
+        std::cerr << "dldt ie_core.cpp AddExtension if (deviceName_.find(HETERO) == 0)" << std::endl;
         THROW_IE_EXCEPTION << "HETERO device does not support extensions. Please, set extensions directly to fallback devices";
     }
     if (deviceName_.find("MULTI") == 0) {
+        std::cerr << "dldt ie_core.cpp AddExtension if (deviceName_.find(MULTI) == 0)" << std::endl;
         THROW_IE_EXCEPTION << "MULTI device does not support extensions. Please, set extensions directly to fallback devices";
     }
 
+    std::cerr << "dldt ie_core.cpp AddExtension DeviceIDParser parser(deviceName_);" << std::endl;
     DeviceIDParser parser(deviceName_);
+    std::cerr << "dldt ie_core.cpp AddExtension std::string deviceName = parser.getDeviceName();" << std::endl;
     std::string deviceName = parser.getDeviceName();
 
+    std::cerr << "dldt AddExtension _impl->GetCPPPluginByName(deviceName).AddExtension(extension);" << std::endl;
     _impl->GetCPPPluginByName(deviceName).AddExtension(extension);
 }
 

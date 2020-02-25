@@ -48,15 +48,15 @@ ie_add_plugin(NAME ${TARGET_NAME}
 
 set_ie_threading_interface_for(${TARGET_NAME})
 
-if (THREADING STREQUAL "TBB")
-    set(MKLDNN_THR MKLDNN_THR_TBB)
-elseif (THREADING STREQUAL "TBB_AUTO")
-    set(MKLDNN_THR MKLDNN_THR_TBB_AUTO)
-elseif (THREADING STREQUAL "OMP")
-    set(MKLDNN_THR MKLDNN_THR_OMP)
-else()
+#if (THREADING STREQUAL "TBB")
+#    set(MKLDNN_THR MKLDNN_THR_TBB)
+#elseif (THREADING STREQUAL "TBB_AUTO")
+#    set(MKLDNN_THR MKLDNN_THR_TBB_AUTO)
+#elseif (THREADING STREQUAL "OMP")
+#    set(MKLDNN_THR MKLDNN_THR_OMP)
+#else()
     set(MKLDNN_THR MKLDNN_THR_SEQ)
-endif()
+#endif()
 
 target_compile_definitions(${TARGET_NAME} PUBLIC -DMKLDNN_THR=${MKLDNN_THR})
 target_link_libraries(${TARGET_NAME} PRIVATE inference_engine ${INTEL_ITT_LIBS} mkldnn)

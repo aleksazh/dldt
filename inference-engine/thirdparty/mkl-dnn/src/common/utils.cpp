@@ -16,7 +16,7 @@
 
 #include <string.h>
 
-#define XBYAK64
+//#define XBYAK64
 #define XBYAK_NO_OP_NAMES
 
 #include <cpu/xbyak/xbyak_util.h>

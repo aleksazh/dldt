@@ -40,6 +40,7 @@ public:
         //std::cerr << "DLDT pluginName: " << pluginName << std::endl;
         fprintf(stderr, "DLDT pluginName 1 \n");
         fprintf(stdout, "DLDT pluginName 2 \n");
+        //abort();
         printf("DLDT pluginName 3 \n");
         //fflush( stderr );
         shared_object = dlopen(pluginName, RTLD_LAZY);

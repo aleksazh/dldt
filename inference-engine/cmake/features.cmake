@@ -10,7 +10,7 @@ include (options)
 ie_option (ENABLE_GNA "GNA support for inference engine" OFF)
 ie_option (ENABLE_ROCKHOPER "use Rockhopper decoder for converting / output scores" OFF)
 
-ie_option (ENABLE_MKL_DNN "MKL-DNN plugin for inference engine" OFF)
+ie_option (ENABLE_MKL_DNN "MKL-DNN plugin for inference engine" ON)
 
 ie_option (ENABLE_CLDNN "clDnn based plugin for inference engine" OFF)
 

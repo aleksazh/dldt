@@ -19,7 +19,7 @@
 
 #include <type_traits>
 
-#define XBYAK64
+//#define XBYAK64
 #define XBYAK_NO_OP_NAMES
 /* in order to make selinux happy memory that would be marked with X-bit should
  * be obtained with mmap */
