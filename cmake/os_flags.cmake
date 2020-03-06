@@ -146,6 +146,12 @@ else()
     ie_add_compiler_flags(-Wundef)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
 
+    if (ENABLE_EMSCRIPTEN)
+        ie_add_compiler_flags(-Wno-non-c-typedef-for-linkage)
+        ie_add_compiler_flags(-Wno-tautological-constant-out-of-range-compare)
+
+    endif()
+
     # Disable noisy warnings
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")

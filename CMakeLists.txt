@@ -87,7 +87,7 @@ function(build_ngraph)
     ngraph_set(NGRAPH_DYNAMIC_COMPONENTS_ENABLE FALSE)
     ngraph_set(NGRAPH_NATIVE_ARCH_ENABLE FALSE)
 
-    if (NOT ANDROID)
+    if (NOT ANDROID AND NOT ENABLE_EMSCRIPTEN)
         ngraph_set(NGRAPH_UNIT_TEST_ENABLE TRUE)
         ngraph_set(NGRAPH_UNIT_TEST_OPENVINO_ENABLE TRUE)
     else()

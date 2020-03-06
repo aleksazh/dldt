@@ -7,7 +7,11 @@ include (options)
 
 #these options are aimed to optimize build time on development system
 
-ie_option (ENABLE_GNA "GNA support for inference engine" ON)
+if (ENABLE_EMSCRIPTEN)
+    ie_option (ENABLE_GNA "GNA support for inference engine" OFF)
+else()
+    ie_option (ENABLE_GNA "GNA support for inference engine" ON)
+endif()
 
 ie_option (ENABLE_CLDNN_TESTS "Enable clDNN unit tests" OFF)
 
@@ -30,6 +34,9 @@ set(GEMM "${GEMM}" CACHE STRING "Gemm implementation" FORCE)
 list (APPEND IE_OPTIONS GEMM)
 
 # "MKL-DNN library based on OMP or TBB or Sequential implementation: TBB|OMP|SEQ"
+if (ENABLE_EMSCRIPTEN)
+    set (THREADING "SEQ")
+endif()
 if (NOT THREADING STREQUAL "TBB"
         AND NOT THREADING STREQUAL "TBB_AUTO"
         AND NOT THREADING STREQUAL "OMP"
@@ -44,9 +51,13 @@ endif()
 set(THREADING "${THREADING}" CACHE STRING "Threading" FORCE)
 list (APPEND IE_OPTIONS THREADING)
 
-ie_option (ENABLE_VPU "vpu targeted plugins for inference engine" ON)
-
-ie_option (ENABLE_MYRIAD "myriad targeted plugin for inference engine" ON)
+if (ENABLE_EMSCRIPTEN)
+    ie_option (ENABLE_VPU "vpu targeted plugins for inference engine" OFF)
+    ie_option (ENABLE_MYRIAD "myriad targeted plugin for inference engine" OFF)
+else()
+    ie_option (ENABLE_VPU "vpu targeted plugins for inference engine" ON)
+    ie_option (ENABLE_MYRIAD "myriad targeted plugin for inference engine" ON)
+endif()
 
 ie_option (ENABLE_MYRIAD_NO_BOOT "myriad plugin will skip device boot" OFF)
 
@@ -58,11 +69,17 @@ ie_option (GAPI_TEST_PERF "if GAPI unit tests should examine performance" OFF)
 
 ie_option (ENABLE_MYRIAD_MVNC_TESTS "functional and behavior tests for mvnc api" OFF)
 
-ie_option (ENABLE_BEH_TESTS "tests oriented to check inference engine API corecteness" ON)
-
-ie_option (ENABLE_FUNCTIONAL_TESTS "functional tests" ON)
-
-ie_option (ENABLE_SAMPLES "console samples are part of inference engine package" ON)
+if (ENABLE_EMSCRIPTEN)
+    ie_option (ENABLE_SAMPLES "console samples are part of inference engine package" OFF)
+    ie_option (ENABLE_BEH_TESTS "tests oriented to check inference engine API corecteness" OFF)
+    ie_option (ENABLE_FUNCTIONAL_TESTS "functional tests" OFF)
+    ie_option (ENABLE_OPENCV "enables OpenCV" OFF)
+else()
+    ie_option (ENABLE_SAMPLES "console samples are part of inference engine package" ON)
+    ie_option (ENABLE_BEH_TESTS "tests oriented to check inference engine API corecteness" ON)
+    ie_option (ENABLE_FUNCTIONAL_TESTS "functional tests" ON)
+    ie_option (ENABLE_OPENCV "enables OpenCV" ON)
+endif()
 
 ie_option (ENABLE_FUZZING "instrument build for fuzzing" OFF)
 
@@ -75,8 +92,6 @@ ie_option (ENABLE_UNSAFE_LOCATIONS "skip check for MD5 for dependency" OFF)
 ie_option (ENABLE_ALTERNATIVE_TEMP "in case of dependency conflict, to avoid modification in master, use local copy of dependency" ON)
 
 ie_option (ENABLE_DUMP "enables mode for dumping per layer information" OFF)
-
-ie_option (ENABLE_OPENCV "enables OpenCV" ON)
 
 ie_option (ENABLE_DEBUG_SYMBOLS "generates symbols for debugging" OFF)
 
@@ -100,6 +115,6 @@ ie_option(ENABLE_CPPCHECK "Enable cppcheck during the build" OFF)
 
 set(IE_EXTRA_PLUGINS "" CACHE STRING "Extra paths for plugins to include into DLDT build tree")
 
-if (LINUX)
+if (LINUX AND NOT ENABLE_EMSCRIPTEN)
     ie_option(ENABLE_TBB_RELEASE_ONLY "Only Release TBB libraries are linked to the Inference Engine binaries" ON)
 endif()

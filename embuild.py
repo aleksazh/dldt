@@ -80,7 +80,7 @@ class Builder:
         cmd = ["emconfigure", "cmake",
                "-DCMAKE_BUILD_TYPE=Release",
                #"-DCMAKE_TOOLCHAIN_FILE='%s'" % self.get_toolchain_file(),
-               #"-DENABLE_EMSCRIPTEN=ON"
+               "-DENABLE_EMSCRIPTEN=ON"
                ]
 
         if self.options.cmake_option:
