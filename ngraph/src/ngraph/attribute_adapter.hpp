@@ -231,6 +231,23 @@ namespace ngraph
         void set(const int64_t& value) override;
     };
 
+
+    template <>
+    class NGRAPH_API AttributeAdapter<unsigned long> : public ValueReference<unsigned long>,
+                                                  public ValueAccessor<int64_t>
+    {
+    public:
+        AttributeAdapter(unsigned long& value)
+            : ValueReference<unsigned long>(value)
+        {
+        }
+
+        static constexpr DiscreteTypeInfo type_info{"AttributeAdapter<unsigned long>", 0};
+        const DiscreteTypeInfo& get_type_info() const override { return type_info; }
+        const int64_t& get() override;
+        void set(const int64_t& value) override;
+    };
+
     template <>
     class NGRAPH_API AttributeAdapter<uint64_t> : public ValueReference<uint64_t>,
                                                   public ValueAccessor<int64_t>
