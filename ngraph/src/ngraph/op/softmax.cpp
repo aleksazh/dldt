@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 #include <algorithm>
 
+#include "ngraph/attribute_visitor.hpp"
 #include "ngraph/builder/autobroadcast.hpp"
 #include "ngraph/op/constant.hpp"
 #include "ngraph/op/multiply.hpp"
@@ -162,6 +163,12 @@ op::v1::Softmax::Softmax(const Output<Node>& arg, const size_t axis)
     , m_axis(axis)
 {
     constructor_validate_and_infer_types();
+}
+
+bool ngraph::op::v1::Softmax::visit_attributes(AttributeVisitor& visitor)
+{
+    visitor.on_attribute("axis", m_axis);
+    return true;
 }
 
 void op::v1::Softmax::validate_and_infer_types()

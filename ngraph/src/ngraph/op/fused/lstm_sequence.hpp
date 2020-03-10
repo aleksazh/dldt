@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -135,6 +135,7 @@ namespace ngraph
                 {
                 }
 
+                bool visit_attributes(AttributeVisitor& visitor) override;
                 virtual NodeVector decompose_op() const override;
 
                 virtual std::shared_ptr<Node>
@@ -185,4 +186,21 @@ namespace ngraph
         }
         using v0::LSTMSequence;
     } // namespace op
+
+    std::ostream& operator<<(std::ostream& s, const op::v0::LSTMSequence::direction& type);
+
+    template <>
+    class NGRAPH_API AttributeAdapter<op::v0::LSTMSequence::direction>
+        : public EnumAttributeAdapterBase<op::v0::LSTMSequence::direction>
+    {
+    public:
+        AttributeAdapter(op::v0::LSTMSequence::direction& value)
+            : EnumAttributeAdapterBase<op::v0::LSTMSequence::direction>(value)
+        {
+        }
+
+        static constexpr DiscreteTypeInfo type_info{
+            "AttributeAdapter<op::v0::LSTMSequence::direction>", 1};
+        const DiscreteTypeInfo& get_type_info() const override { return type_info; }
+    };
 } // namespace ngraph

@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,11 @@ op::Tile::Tile(const Output<Node>& data, const Output<Node>& repeats)
     : Op({data, repeats})
 {
     constructor_validate_and_infer_types();
+}
+
+bool ngraph::op::v0::Tile::visit_attributes(AttributeVisitor& visitor)
+{
+    return true;
 }
 
 void op::Tile::validate_and_infer_types()

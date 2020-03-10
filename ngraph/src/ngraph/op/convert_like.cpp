@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,6 +32,11 @@ op::v1::ConvertLike::ConvertLike(const Output<Node>& data, const Output<Node>& l
 void op::v1::ConvertLike::validate_and_infer_types()
 {
     set_output_type(0, get_input_element_type(1), get_input_partial_shape(0));
+}
+
+bool op::v1::ConvertLike::visit_attributes(AttributeVisitor& visitor)
+{
+    return true;
 }
 
 shared_ptr<Node> op::v1::ConvertLike::copy_with_new_args(const NodeVector& new_args) const

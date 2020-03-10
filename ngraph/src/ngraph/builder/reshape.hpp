@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -148,6 +148,15 @@ namespace ngraph
             ///
             /// \return     Reshape:v1 op.
             std::shared_ptr<Node> expand_dims(const Output<Node>& value, std::size_t axis = 0);
+
+            /// \brief      Remove empty axes from input tensor.
+            ///
+            /// \param[in]  value  The value to be squeezed.
+            /// \param[in]  axes   The vector defining indexes of axes to be removed.
+            ///
+            /// \return     Reshape:v1 op.
+            std::shared_ptr<Node> squeeze(const Output<Node>& value,
+                                          std::vector<std::size_t> axes = {0});
         }
     } // namespace  builder
 } // namespace  ngraph

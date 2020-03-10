@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <mkldnn.hpp>
 
 #include "ngraph/descriptor/output.hpp"
+#include "ngraph/log.hpp"
 #include "ngraph/op/add.hpp"
 #include "ngraph/op/avg_pool.hpp"
 #include "ngraph/op/batch_norm.hpp"
@@ -548,11 +549,14 @@ namespace ngraph
                 void CPUAssignment::ASSIGN_DECL(ngraph::op::LRN)
                 {
                     (void)external_function;
+                    auto lrn = static_cast<ngraph::op::LRN*>(node);
+                    AxisSet axes = lrn->get_reduction_axes();
                     auto arg0_shape = node->get_input_shape(0);
                     auto arg0_rank = arg0_shape.size();
                     auto result_shape = node->get_output_shape(0);
 
-                    if ((arg0_rank == 4) && node->get_input_element_type(0) == element::f32)
+                    if ((arg0_rank == 4) && node->get_input_element_type(0) == element::f32 &&
+                        axes == AxisSet{1})
                     {
                         runtime::cpu::mkldnn_utils::assign_mkldnn_kernel(node);
                     }

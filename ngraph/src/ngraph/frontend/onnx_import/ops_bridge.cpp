@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@
 #include "op/clip.hpp"
 #include "op/concat.hpp"
 #include "op/constant.hpp"
+#include "op/constant_of_shape.hpp"
 #include "op/conv.hpp"
 #include "op/conv_integer.hpp"
 #include "op/conv_transpose.hpp"
@@ -101,6 +102,7 @@
 #include "op/relu.hpp"
 #include "op/reshape.hpp"
 #include "op/reverse_sequence.hpp"
+#include "op/round.hpp"
 #include "op/scatter_nd.hpp"
 #include "op/selu.hpp"
 #include "op/shape.hpp"
@@ -257,6 +259,7 @@ namespace ngraph
             REGISTER_OPERATOR("Clip", 11, clip);
             REGISTER_OPERATOR("Concat", 1, concat);
             REGISTER_OPERATOR("Constant", 1, constant);
+            REGISTER_OPERATOR("ConstantOfShape", 1, constant_of_shape);
             REGISTER_OPERATOR("Conv", 1, conv);
             REGISTER_OPERATOR("ConvInteger", 1, conv_integer);
             REGISTER_OPERATOR("ConvTranspose", 1, conv_transpose);
@@ -301,7 +304,6 @@ namespace ngraph
             REGISTER_OPERATOR("Max", 1, max);
             REGISTER_OPERATOR("Max", 8, max);
             REGISTER_OPERATOR("Mean", 1, mean);
-            REGISTER_OPERATOR("Mean", 8, mean);
             REGISTER_OPERATOR("MeanVarianceNormalization", 1, mean_variance_normalization);
             REGISTER_OPERATOR("MeanVarianceNormalization", 9, mean_variance_normalization);
             REGISTER_OPERATOR("Min", 1, min);
@@ -315,6 +317,7 @@ namespace ngraph
             REGISTER_OPERATOR("Or", 1, logical_or);
             REGISTER_OPERATOR("OneHot", 1, onehot);
             REGISTER_OPERATOR("Pad", 1, pad);
+            REGISTER_OPERATOR("Pad", 11, pad);
             REGISTER_OPERATOR("Pow", 1, pow);
             REGISTER_OPERATOR("PRelu", 1, prelu);
             REGISTER_OPERATOR("QLinearConv", 1, quant_conv);
@@ -334,6 +337,7 @@ namespace ngraph
             REGISTER_OPERATOR("Relu", 1, relu);
             REGISTER_OPERATOR("Reshape", 1, reshape);
             REGISTER_OPERATOR("ReverseSequence", 1, reverse_sequence);
+            REGISTER_OPERATOR("Round", 1, round);
             REGISTER_OPERATOR("ScatterND", 1, scatter_nd);
             REGISTER_OPERATOR("Selu", 1, selu);
             REGISTER_OPERATOR("Shape", 1, shape);

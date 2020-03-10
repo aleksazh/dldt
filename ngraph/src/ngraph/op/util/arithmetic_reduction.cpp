@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ void op::util::ArithmeticReduction::set_reduction_axes(const AxisSet& reduction_
 void op::util::ArithmeticReduction::validate_and_infer_types()
 {
     auto input_shape = get_input_partial_shape(0);
-    auto input_rank = input_shape.rank();
+    const auto input_rank = input_shape.rank();
 
     PartialShape result_shape{PartialShape::dynamic()};
 
@@ -79,9 +79,9 @@ void op::util::ArithmeticReduction::validate_and_infer_types()
         {
             try
             {
-                axis = normalize_axis(this, axis, size_t(input_rank));
+                axis = normalize_axis(this, axis, input_rank);
             }
-            catch (const ngraph_error& err)
+            catch (const ngraph_error&)
             {
                 NODE_VALIDATION_CHECK(this,
                                       false,

@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -156,12 +156,18 @@ op::v1::Reshape::Reshape(const Output<Node>& arg, const Output<Node>& pattern, b
     constructor_validate_and_infer_types();
 }
 
+bool op::v1::Reshape::visit_attributes(AttributeVisitor& visitor)
+{
+    visitor.on_attribute("special_zero", m_special_zero);
+    return true;
+}
+
 void op::v1::Reshape::validate_and_infer_types()
 {
     auto pattern_et = get_input_element_type(1);
     // check data types
     NODE_VALIDATION_CHECK(
-        this, pattern_et.compatible(element::Type_t::i64), "Pattern must have element type i64.");
+        this, pattern_et.is_integral_number(), "Pattern must be an integral number.");
 
     // check shapes
     const PartialShape& pattern_shape = get_input_partial_shape(1);
@@ -176,7 +182,7 @@ void op::v1::Reshape::validate_and_infer_types()
 
     if (auto const_shape = as_type_ptr<op::Constant>(input_value(1).get_node_shared_ptr()))
     {
-        std::vector<int64_t> out_shape_val = const_shape->get_vector<int64_t>();
+        std::vector<int64_t> out_shape_val = const_shape->cast_vector<int64_t>();
         NODE_VALIDATION_CHECK(this,
                               std::none_of(out_shape_val.begin(),
                                            out_shape_val.end(),

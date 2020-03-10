@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@
 #include "ngraph/op/quantized_dot.hpp"
 #include "ngraph/op/softmax.hpp"
 #include "ngraph/runtime/cpu/cpu_executor.hpp"
-#include "ngraph/runtime/cpu/cpu_tensor_view_wrapper.hpp"
+#include "ngraph/runtime/cpu/cpu_tensor_wrapper.hpp"
 #include "ngraph/runtime/cpu/mkldnn_invoke.hpp"
 #include "ngraph/runtime/cpu/mkldnn_utils.hpp"
 #include "ngraph/runtime/cpu/op/bounded_relu.hpp"
@@ -73,7 +73,7 @@ namespace ngraph
         namespace cpu
         {
             class CPU_ExternalFunction;
-            class TensorViewWrapper;
+            class TensorWrapper;
 
             // TODO (nbpatel) Templatize the return type when we have double scales
             template <typename OP>
@@ -139,7 +139,9 @@ namespace ngraph
                 // reserve the space for primitives for each op, different op requires different
                 // number of primitives.
                 // some ops require a new workspace.
-                size_t reserve_primitive_space(size_t count, bool new_workspace = false);
+                size_t reserve_primitive_space(size_t count,
+                                               bool fwd_bwd = false,
+                                               bool new_workspace = false);
                 size_t insert_primitive(mkldnn::primitive* primitive);
                 size_t insert_memory(mkldnn::memory* memory);
                 size_t insert_workspace(std::unique_ptr<MKLDNNWorkspace>& workspace);
@@ -175,8 +177,8 @@ namespace ngraph
 
                 template <typename OP>
                 size_t build_deconvolution(const ngraph::Node* node,
-                                           const std::vector<TensorViewWrapper>& /* args */,
-                                           const std::vector<TensorViewWrapper>& /* out */)
+                                           const std::vector<TensorWrapper>& /* args */,
+                                           const std::vector<TensorWrapper>& /* out */)
                 {
                     auto convolution = static_cast<const OP*>(node);
 
@@ -238,8 +240,8 @@ namespace ngraph
 
                 template <typename OP>
                 size_t build_inner_product(const ngraph::Node* node,
-                                           const std::vector<TensorViewWrapper>& /* args */,
-                                           const std::vector<TensorViewWrapper>& /* out */)
+                                           const std::vector<TensorWrapper>& /* args */,
+                                           const std::vector<TensorWrapper>& /* out */)
                 {
                     auto data_desc = mkldnn_utils::get_input_mkldnn_md(node, 0);
                     auto weights_desc = mkldnn_utils::get_input_mkldnn_md(node, 1);
@@ -1193,9 +1195,9 @@ namespace ngraph
                                          size_t gelu_index);
 
 #if MKLDNN_VERSION_MAJOR >= 1
-                // TODO(jmenon): Get rid of TensorViewWrappers at some point
+                // TODO(jmenon): Get rid of TensorWrappers at some point
                 mkldnn::memory::desc
-                    build_memory_descriptor(const TensorViewWrapper& tvw,
+                    build_memory_descriptor(const TensorWrapper& tvw,
                                             mkldnn::memory::format_tag fmt_tag) const;
                 mkldnn::memory::desc
                     build_memory_descriptor(const Shape& shape,
@@ -1237,8 +1239,8 @@ namespace ngraph
                 template <typename OP>
                 mkldnn::lstm_forward::desc
                     get_rnn_forward_desc(const ngraph::Node* node,
-                                         const std::vector<TensorViewWrapper>& args,
-                                         const std::vector<TensorViewWrapper>& out)
+                                         const std::vector<TensorWrapper>& args,
+                                         const std::vector<TensorWrapper>& out)
                 {
                     auto rnn_node = static_cast<const OP*>(node);
                     auto src_sequence_length_max =
@@ -1464,8 +1466,8 @@ namespace ngraph
                 size_t query_scratchpad_softmax_forward(const mkldnn::softmax_forward::desc& desc);
 
 #else
-                // TODO(jmenon): Get rid of TensorViewWrappers at some point
-                mkldnn::memory::desc build_memory_descriptor(const TensorViewWrapper& tvw,
+                // TODO(jmenon): Get rid of TensorWrappers at some point
+                mkldnn::memory::desc build_memory_descriptor(const TensorWrapper& tvw,
                                                              mkldnn::memory::format fmt) const;
                 mkldnn::memory::desc build_memory_descriptor(const Shape& shape,
                                                              const ngraph::element::Type& et,
@@ -1502,8 +1504,8 @@ namespace ngraph
                 template <typename OP>
                 mkldnn::rnn_forward::desc
                     get_rnn_forward_desc(const ngraph::Node* node,
-                                         const std::vector<TensorViewWrapper>& args,
-                                         const std::vector<TensorViewWrapper>& out)
+                                         const std::vector<TensorWrapper>& args,
+                                         const std::vector<TensorWrapper>& out)
                 {
                     auto rnn_node = static_cast<const OP*>(node);
                     auto src_sequence_length_max =

@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,11 @@ op::v1::VariadicSplit::VariadicSplit(const Output<Node>& data,
     constructor_validate_and_infer_types();
 }
 
+bool ngraph::op::v1::VariadicSplit::visit_attributes(AttributeVisitor& visitor)
+{
+    return true;
+}
+
 void ngraph::op::v1::VariadicSplit::validate_and_infer_types()
 {
     set_input_is_relevant_to_value(0);
@@ -60,15 +65,14 @@ void ngraph::op::v1::VariadicSplit::validate_and_infer_types()
         if (data_shape.is_static() && axis_input->is_constant() &&
             split_lengths_input->is_constant())
         {
-            auto data_rank = static_cast<size_t>(data_shape.rank());
             const auto axis_input = as_type_ptr<op::Constant>(input_value(1).get_node_shared_ptr());
             auto axis_val = axis_input->cast_vector<int64_t>()[0];
 
             // Adjust split axis in case of negatives
-            int64_t axis = ngraph::normalize_axis(this, axis_val, data_rank);
+            int64_t axis = ngraph::normalize_axis(this, axis_val, data_shape.rank());
 
             auto split_lengths =
-                as_type_ptr<op::Constant>(split_lengths_input)->get_vector<int64_t>();
+                as_type_ptr<op::Constant>(split_lengths_input)->cast_vector<int64_t>();
             // Adjust split lengths in case of negatives
             size_t sum_of_splits = 0;
             int64_t negative_one = -1;

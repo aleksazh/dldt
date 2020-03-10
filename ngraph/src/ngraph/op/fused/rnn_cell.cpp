@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,6 +63,11 @@ op::RNNCell::RNNCell(const Output<Node>& X,
     , m_activation_f{get_activation_function(0)}
 {
     constructor_validate_and_infer_types();
+}
+
+bool op::RNNCell::visit_attributes(AttributeVisitor& visitor)
+{
+    return op::util::RNNCellBase::visit_attributes(visitor);
 }
 
 void op::RNNCell::pre_validate_and_infer_types()

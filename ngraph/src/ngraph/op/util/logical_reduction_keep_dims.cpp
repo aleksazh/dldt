@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 //*****************************************************************************
 
 #include "ngraph/op/util/logical_reduction_keep_dims.hpp"
+#include "ngraph/attribute_visitor.hpp"
 #include "ngraph/op/constant.hpp"
 #include "ngraph/validation_util.hpp"
 
@@ -28,6 +29,12 @@ op::util::LogicalReductionKeepDims::LogicalReductionKeepDims(
     : LogicalReduction(arg, reduction_axes)
     , m_keep_dims{keep_dims}
 {
+}
+
+bool ngraph::op::util::LogicalReductionKeepDims::visit_attributes(AttributeVisitor& visitor)
+{
+    visitor.on_attribute("keep_dims", m_keep_dims);
+    return true;
 }
 
 void op::util::LogicalReductionKeepDims::validate_and_infer_types()
@@ -47,14 +54,14 @@ void op::util::LogicalReductionKeepDims::validate_and_infer_types()
         {
             AxisSet reduction_axes;
             auto reduction_axes_val =
-                as_type<op::Constant>(input_value(1).get_node())->get_vector<int64_t>();
+                as_type<op::Constant>(input_value(1).get_node())->cast_vector<int64_t>();
             for (auto axis : reduction_axes_val)
             {
                 try
                 {
-                    axis = normalize_axis(this, axis, size_t(input_rank));
+                    axis = normalize_axis(this, axis, input_rank);
                 }
-                catch (const ngraph_error& err)
+                catch (const ngraph_error&)
                 {
                     NODE_VALIDATION_CHECK(this,
                                           false,

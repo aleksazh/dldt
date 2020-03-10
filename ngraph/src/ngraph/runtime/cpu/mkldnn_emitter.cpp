@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@
 #include "ngraph/op/softmax.hpp"
 #include "ngraph/runtime/cpu/cpu_executor.hpp"
 #include "ngraph/runtime/cpu/cpu_layout_descriptor.hpp"
-#include "ngraph/runtime/cpu/cpu_tensor_view_wrapper.hpp"
+#include "ngraph/runtime/cpu/cpu_tensor_wrapper.hpp"
 #include "ngraph/runtime/cpu/mkldnn_invoke.hpp"
 #include "ngraph/runtime/cpu/mkldnn_utils.hpp"
 #include "ngraph/runtime/cpu/op/convert_layout.hpp"
@@ -478,17 +478,31 @@ size_t MKLDNNEmitter::inner_product_forward_init(bool with_bias)
     return m_mkldnn_primitives.size() - 1;
 }
 
-size_t MKLDNNEmitter::reserve_primitive_space(size_t count, bool new_workspace)
+size_t MKLDNNEmitter::reserve_primitive_space(size_t count, bool fwd_bwd, bool new_workspace)
 {
     size_t size = m_mkldnn_primitives.size();
 #if MKLDNN_VERSION_MAJOR >= 1
     size_t mem_size = m_mkldnn_memories.size();
-    m_mkldnn_primitives.resize(size + 1, nullptr);
-    m_mkldnn_scratchpad_mds.resize(size + 1, nullptr);
-    m_mkldnn_memories.resize(mem_size + count - 1, nullptr);
-    for (auto i = 0; i < count - 1; i++)
+    if (fwd_bwd)
     {
-        m_primitive_deps[m_mkldnn_primitives.size() - 1].push_back(mem_size + i);
+        m_mkldnn_primitives.resize(size + 2, nullptr);
+        m_mkldnn_memories.resize(mem_size + count - 2, nullptr);
+        m_mkldnn_scratchpad_mds.resize(size + 2, nullptr);
+        for (auto i = 0; i < count - 2; i++)
+        {
+            m_primitive_deps[m_mkldnn_primitives.size() - 2].push_back(mem_size + i);
+            m_primitive_deps[m_mkldnn_primitives.size() - 1].push_back(mem_size + i);
+        }
+    }
+    else
+    {
+        m_mkldnn_primitives.resize(size + 1, nullptr);
+        m_mkldnn_memories.resize(mem_size + count - 1, nullptr);
+        m_mkldnn_scratchpad_mds.resize(size + 1, nullptr);
+        for (auto i = 0; i < count - 1; i++)
+        {
+            m_primitive_deps[m_mkldnn_primitives.size() - 1].push_back(mem_size + i);
+        }
     }
 #else
     m_mkldnn_primitives.resize(size + count, nullptr);
@@ -501,6 +515,10 @@ size_t MKLDNNEmitter::reserve_primitive_space(size_t count, bool new_workspace)
     if (new_workspace)
     {
         m_primitive_deps[m_mkldnn_primitives.size() - 1].push_back(0);
+        if (fwd_bwd)
+        {
+            m_primitive_deps[m_mkldnn_primitives.size() - 2].push_back(0);
+        }
     }
     return m_mkldnn_primitives.size() - 1;
 }
@@ -622,7 +640,7 @@ size_t MKLDNNEmitter::build_quantized_inner_product_forward(
 
 #if MKLDNN_VERSION_MAJOR >= 1
 mkldnn::memory::desc
-    MKLDNNEmitter::build_memory_descriptor(const TensorViewWrapper& tvw,
+    MKLDNNEmitter::build_memory_descriptor(const TensorWrapper& tvw,
                                            mkldnn::memory::format_tag fmt_tag) const
 {
     return mkldnn::memory::desc(
@@ -1636,7 +1654,7 @@ size_t MKLDNNEmitter::query_scratchpad_softmax_forward(const mkldnn::softmax_for
 }
 
 #else
-mkldnn::memory::desc MKLDNNEmitter::build_memory_descriptor(const TensorViewWrapper& tvw,
+mkldnn::memory::desc MKLDNNEmitter::build_memory_descriptor(const TensorWrapper& tvw,
                                                             mkldnn::memory::format fmt) const
 {
     if (fmt == mkldnn::memory::format::blocked)

@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -419,7 +419,7 @@ bool ngraph::runtime::cpu::pass::CPUConvertLayoutConstantFolding::run_on_functio
                 continue;
             }
 
-            auto arg = m_convertlayout->input(0).get_source_output().get_node_shared_ptr();
+            auto arg = m_convertlayout->get_input_node_shared_ptr(0);
             if (is_type<ngraph::op::Constant>(arg))
             {
                 auto m_input = static_pointer_cast<ngraph::op::Constant>(arg);

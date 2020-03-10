@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,11 @@ op::Result::Result(const Output<Node>& arg, bool needs_default_layout)
     constructor_validate_and_infer_types();
     // always borrow the placement conf even the default one
     set_placement_index(input_value(0).get_node()->get_placement_index());
+}
+
+bool ngraph::op::v0::Result::visit_attributes(AttributeVisitor& visitor)
+{
+    return true;
 }
 
 void op::Result::validate_and_infer_types()

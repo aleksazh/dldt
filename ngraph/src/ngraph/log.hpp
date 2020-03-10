@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,8 +29,6 @@
 #include <unistd.h>
 #endif
 #include <vector>
-
-#include "ngraph/distributed.hpp"
 
 namespace ngraph
 {
@@ -170,22 +168,5 @@ namespace ngraph
 
 #define NGRAPH_DEBUG                                                                               \
     ::ngraph::NullLogger {}
-#endif
-
-#if defined(__linux) || defined(__APPLE__)
-    std::string get_timestamp();
-    void LogPrintf(const char* fmt, ...);
-    extern bool DISABLE_LOGGING;
-
-#define NGRAPH_DEBUG_PRINT(fmt, ...)                                                               \
-    do                                                                                             \
-    {                                                                                              \
-        if (!ngraph::DISABLE_LOGGING)                                                              \
-        {                                                                                          \
-            ngraph::LogPrintf(fmt, __VA_ARGS__);                                                   \
-        }                                                                                          \
-    } while (0)
-#else
-#define NGRAPH_DEBUG_PRINT(fmt, ...)
 #endif
 }

@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -188,4 +188,17 @@ TEST(opset, new_op)
     // Fred should be in the copy
     fred = shared_ptr<Node>(opset1_copy.create("Fred"));
     EXPECT_TRUE(fred);
+    // Fred should not be in the registry
+    ASSERT_FALSE(FactoryRegistry<Node>::get().has_factory<NewOp>());
+}
+
+TEST(opset, dump)
+{
+    OpSet opset1_copy(get_opset1());
+    cout << "All opset1 operations: ";
+    for (const auto& t : opset1_copy.get_types_info())
+    {
+        std::cout << t.name << " ";
+    }
+    cout << endl;
 }

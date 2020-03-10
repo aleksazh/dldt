@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #include <numeric>
 
 #include "matmul.hpp"
+#include "ngraph/attribute_visitor.hpp"
 #include "ngraph/builder/matmul_factory.hpp"
 #include "ngraph/builder/reshape.hpp"
 #include "ngraph/op/reshape.hpp"
@@ -35,6 +36,13 @@ op::MatMul::MatMul(const Output<Node>& A,
     , m_transpose_b{transpose_b}
 {
     constructor_validate_and_infer_types();
+}
+
+bool ngraph::op::v0::MatMul::visit_attributes(AttributeVisitor& visitor)
+{
+    visitor.on_attribute("transpose_a", m_transpose_a);
+    visitor.on_attribute("transpose_b", m_transpose_b);
+    return true;
 }
 
 void op::MatMul::pre_validate_and_infer_types()

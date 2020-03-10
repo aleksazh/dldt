@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -141,13 +141,6 @@ shared_ptr<op::TensorIterator::OutputDescription>
 
 Input<Node> op::TensorIterator::input_for_value(const Output<Node>& value)
 {
-    for (auto input : inputs())
-    {
-        if (input.get_source_output() == value)
-        {
-            return input;
-        }
-    }
     auto input_index = get_input_size();
     set_argument(input_index, value);
     return Input<Node>(this, input_index);

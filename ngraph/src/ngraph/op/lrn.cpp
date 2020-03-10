@@ -1,5 +1,5 @@
 //*****************************************************************************
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 //*****************************************************************************
 
 #include "ngraph/op/lrn.hpp"
+#include "ngraph/attribute_visitor.hpp"
 #include "ngraph/op/constant.hpp"
 #include "ngraph/op/multiply.hpp"
 
@@ -105,10 +106,19 @@ void op::LRN::validate_and_infer_types()
 
     const auto& axes_type = get_input_element_type(1);
     NODE_VALIDATION_CHECK(this,
-                          axes_type.compatible(element::Type_t::i64),
-                          "Axes input must have element type i64 (axes type: ",
+                          axes_type.is_integral_number(),
+                          "Axes input must be integral numbers, but are: ",
                           axes_type,
                           ").");
+}
+
+bool ngraph::op::v0::LRN::visit_attributes(AttributeVisitor& visitor)
+{
+    visitor.on_attribute("alpha", m_alpha);
+    visitor.on_attribute("beta", m_beta);
+    visitor.on_attribute("bias", m_bias);
+    visitor.on_attribute("size", m_size);
+    return true;
 }
 
 shared_ptr<Node> op::LRN::copy_with_new_args(const NodeVector& new_args) const

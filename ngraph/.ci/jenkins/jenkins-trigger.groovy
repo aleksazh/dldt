@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Intel Corporation
+// Copyright 2017-2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 // original script -- we only need to provide this new trigger hook.
 //
 
-String JENKINS_BRANCH = "aslepko/ov_ci"
+String JENKINS_BRANCH = "master"
 String TIMEOUTTIME = "3600"
 
 // Constants

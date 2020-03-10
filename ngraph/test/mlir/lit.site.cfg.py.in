@@ -1,5 +1,5 @@
 #*****************************************************************************
-# Copyright 2017-2019 Intel Corporation
+# Copyright 2017-2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 
 import lit.llvm
 
-config.llvm_tools_dir = "@MLIR_TOOLS_DIR@"
-config.mlir_obj_root = "@MLIR_BUILD_DIR@"
-config.mlir_tools_dir = "@MLIR_TOOLS_DIR@"
+config.llvm_tools_dir = "@MLIR_LLVM_TOOLS_DIR@"
+config.mlir_obj_root = "@MLIR_LLVM_BUILD_DIR@"
+config.mlir_tools_dir = "@MLIR_LLVM_TOOLS_DIR@"
 config.suffixes = ['.mlir']
 
 config.ngraph_mlir_tools_dir = "@NGRAPH_BUILD_BIN@"
