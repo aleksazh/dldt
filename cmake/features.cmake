@@ -11,7 +11,7 @@ ie_option (ENABLE_NGRAPH "Enable nGraph build" ON)
 
 ie_option (ENABLE_INFERENCE_ENGINE "Enable Inference Engine build" ON)
 
-ie_option (ENABLE_MKL_DNN "MKL-DNN plugin for inference engine" OFF)
+ie_option (ENABLE_MKL_DNN "MKL-DNN plugin for inference engine" ON)
 
 if (ENABLE_EMSCRIPTEN)
     ie_option (ENABLE_CLDNN "clDnn based plugin for inference engine" OFF)

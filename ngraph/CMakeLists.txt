@@ -113,7 +113,9 @@ endif()
 ngraph_var(NGRAPH_USE_PREBUILT_MLIR DEFAULT "FALSE")
 ngraph_var(NGRAPH_USE_PREBUILT_LLVM DEFAULT "FALSE")
 
-option(NGRAPH_UNIT_TEST_ENABLE "Control the building of unit tests" TRUE)
+# Set NGRAPH_UNIT_TEST_ENABLE to FALSE when build by Emscripten.
+#option(NGRAPH_UNIT_TEST_ENABLE "Control the building of unit tests" TRUE)
+option(NGRAPH_UNIT_TEST_ENABLE "Control the building of unit tests" FALSE)
 option(NGRAPH_TEST_UTIL_ENABLE "Control the building of test utility" TRUE)
 option(NGRAPH_DOC_BUILD_ENABLE "Control the building of documentation" FALSE)
 option(NGRAPH_TOOLS_ENABLE "Control the building of tool" TRUE)
@@ -616,10 +618,10 @@ endif()
 add_subdirectory(src)
 
 if (NGRAPH_TEST_UTIL_ENABLE)
-    include(cmake/external_gtest.cmake)
+    #include(cmake/external_gtest.cmake)
 endif()
 
-add_subdirectory(test)
+#add_subdirectory(test)
 
 if (NGRAPH_DOC_BUILD_ENABLE)
     add_subdirectory(doc)
