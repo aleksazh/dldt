@@ -26,7 +26,8 @@ if(NOT ARCH_64)
     if(UNIX)
         set(ENABLE_CLDNN OFF)
     endif()
-    set(ENABLE_MKL_DNN OFF)
+    # Do not disable MKL_DNN plugin when detect 32-bit system.
+    # set(ENABLE_MKL_DNN OFF)
 endif()
 
 # Apple specific
