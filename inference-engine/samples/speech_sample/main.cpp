@@ -285,7 +285,7 @@ inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
     *ecx = static_cast<uint32_t>(regs[2]);
     *edx = static_cast<uint32_t>(regs[3]);
 #else
-    __get_cpuid(level, eax, ebx, ecx, edx);
+    //__get_cpuid(level, eax, ebx, ecx, edx);
 #endif
 }
 

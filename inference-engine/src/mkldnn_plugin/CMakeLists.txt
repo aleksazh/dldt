@@ -160,11 +160,17 @@ else()
     set(MKLDNN_THR MKLDNN_THR_SEQ)
 endif()
 
-# Define CPU capabilities 
+# Define CPU capabilities
 
-set(ENABLE_SSE42   ON)
-set(ENABLE_AVX2    ON)
-set(ENABLE_AVX512F ON)
+if(ENABLE_EMSCRIPTEN)
+    set(ENABLE_SSE42   OFF)
+    set(ENABLE_AVX2    OFF)
+    set(ENABLE_AVX512F OFF)
+else()
+    set(ENABLE_SSE42   ON)
+    set(ENABLE_AVX2    ON)
+    set(ENABLE_AVX512F ON)
+endif()
 
 if (ENABLE_AVX512F)
     if ((CMAKE_CXX_COMPILER_ID MATCHES MSVC) AND (MSVC_VERSION VERSION_LESS 1920))

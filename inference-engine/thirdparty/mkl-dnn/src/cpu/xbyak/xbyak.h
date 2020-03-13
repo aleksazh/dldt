@@ -1659,8 +1659,8 @@ private:
 	{
 		size_t disp64 = e.getDisp();
 #ifdef XBYAK64
-		size_t high = disp64 >> 32;
-		if (high != 0 && high != 0xFFFFFFFF) throw Error(ERR_OFFSET_IS_TOO_BIG);
+		//size_t high = disp64 >> 32;
+		//if (high != 0 && high != 0xFFFFFFFF) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
 		uint32 disp = static_cast<uint32>(disp64);
 		const Reg& base = e.getBase();

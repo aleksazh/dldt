@@ -149,6 +149,9 @@ else()
     if (ENABLE_EMSCRIPTEN)
         ie_add_compiler_flags(-Wno-non-c-typedef-for-linkage)
         ie_add_compiler_flags(-Wno-tautological-constant-out-of-range-compare)
+        ie_add_compiler_flags(-Wunsequenced)
+        ie_add_compiler_flags(-Wno-constant-conversion)
+        ie_add_compiler_flags(-Wno-c++11-narrowing)
 
     endif()
 

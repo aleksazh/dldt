@@ -80,7 +80,8 @@ bool pin_thread_to_vacant_core(int thr_idx, int hyperthreads, int ncores, const 
     // Find index of 'cpu_idx'-th bit that equals to 1
     int mapped_idx = -1;
     while (cpu_idx >= 0) {
-        if (CPU_ISSET_S(++mapped_idx, size, proc_mask))
+        ++mapped_idx;
+        if (CPU_ISSET_S(mapped_idx, size, proc_mask))
             --cpu_idx;
     }
 

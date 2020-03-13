@@ -387,8 +387,8 @@ class BuildExt(build_ext):
         for ext in self.extensions:
             ext.extra_compile_args += [cpp_flag(self.compiler)]
 
-            if not self._add_extra_compile_arg('-fstack-protector-strong', ext.extra_compile_args):
-                self._add_extra_compile_arg('-fstack-protector', ext.extra_compile_args)
+            #if not self._add_extra_compile_arg('-fstack-protector-strong', ext.extra_compile_args):
+            #    self._add_extra_compile_arg('-fstack-protector', ext.extra_compile_args)
 
             self._add_extra_compile_arg('-fvisibility=hidden', ext.extra_compile_args)
             self._add_extra_compile_arg('-flto', ext.extra_compile_args)

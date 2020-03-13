@@ -181,7 +181,8 @@ add_clang_format_target(${TARGET_NAME}_clang_format FOR_TARGETS ${TARGET_NAME}_o
 
 # Create shared library file from object library
 
-add_library(${TARGET_NAME} SHARED
+#add_library(${TARGET_NAME} SHARED
+add_library(${TARGET_NAME} STATIC
             $<TARGET_OBJECTS:${TARGET_NAME}_obj>)
 
 set_ie_threading_interface_for(${TARGET_NAME})

@@ -228,12 +228,12 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9")
     intel_flag_register_settings(
         CompilerOptions
-        ALIAS StackProtector "-fstack-protector"
+        #ALIAS StackProtector "-fstack-protector"
       )
   else()
     intel_flag_register_settings(
         CompilerOptions
-        ALIAS StackProtector "-fstack-protector-strong"
+        #ALIAS StackProtector "-fstack-protector-strong"
       )
   endif()
   

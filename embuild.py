@@ -77,7 +77,7 @@ class Builder:
             rm_one(d)
 
     def get_cmake_cmd(self):
-        cmd = ["emconfigure", "cmake",
+        cmd = ["emcmake", "cmake",
                "-DCMAKE_BUILD_TYPE=Release",
                #"-DCMAKE_TOOLCHAIN_FILE='%s'" % self.get_toolchain_file(),
                "-DENABLE_EMSCRIPTEN=ON"

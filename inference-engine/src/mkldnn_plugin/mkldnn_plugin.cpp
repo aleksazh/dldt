@@ -17,7 +17,7 @@
 #include <intrin.h>
 #include <windows.h>
 #else
-#include <cpuid.h>
+//#include <cpuid.h>
 #endif
 #endif
 
@@ -93,7 +93,7 @@ static bool hasAVX512() {
 #if defined(_WIN32) || defined(WIN32)
     __cpuid(reinterpret_cast<int*>(regs), regs[0]);
 #else
-    __cpuid_count(regs[0], regs[1], regs[0], regs[1], regs[2], regs[3]);
+    //__cpuid_count(regs[0], regs[1], regs[0], regs[1], regs[2], regs[3]);
 #endif
     if (regs[1] & (1U << 16))
         return true;
@@ -122,7 +122,7 @@ Parameter Engine::GetMetric(const std::string& name, const std::map<std::string,
 #if defined(_WIN32) || defined(WIN32)
             __cpuid(reinterpret_cast<int*>(regs), regs[0]);
 #else
-            __get_cpuid(regs[0], &regs[0], &regs[1], &regs[2], &regs[3]);
+            //__get_cpuid(regs[0], &regs[0], &regs[1], &regs[2], &regs[3]);
 #endif
             char *ch = reinterpret_cast<char*>(&regs[0]);
             for (size_t j = 0; j < sizeof(regs); j++)

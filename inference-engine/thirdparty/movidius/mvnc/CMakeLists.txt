@@ -41,13 +41,13 @@ if(NOT WIN32)
             -Wformat-security
             -Wall)
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 4.8.5)
-        target_compile_options(${TARGET_NAME}
-                PRIVATE
-                -fstack-protector-strong)
+        #target_compile_options(${TARGET_NAME}
+        #        PRIVATE
+        #        -fstack-protector-strong)
     else()
-        target_compile_options(${TARGET_NAME}
-                PRIVATE
-                -fstack-protector)
+        #target_compile_options(${TARGET_NAME}
+        #        PRIVATE
+        #        -fstack-protector)
     endif()
 
     set_property(TARGET ${TARGET_NAME}
