@@ -131,7 +131,8 @@ install(DIRECTORY ${ie_python_api_SOURCE_DIR}/sample/
 
 # Custom target to build only Inference Engine Developer Package targets
 
-add_custom_target(ie_dev_targets ALL DEPENDS inference_engine HeteroPlugin)
+#add_custom_target(ie_dev_targets ALL DEPENDS inference_engine HeteroPlugin)
+add_custom_target(ie_dev_targets ALL DEPENDS inference_engine)
 
 # Developer package
 ie_developer_export_targets(format_reader)

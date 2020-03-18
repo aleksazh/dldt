@@ -184,6 +184,23 @@ namespace ngraph
         m_buffer_valid = false;
     }
 
+    constexpr DiscreteTypeInfo AttributeAdapter<unsigned long>::type_info;
+    const int64_t& AttributeAdapter<unsigned long>::get()
+    {
+        if (!m_buffer_valid)
+        {
+            m_buffer = m_value;
+            m_buffer_valid = true;
+        }
+        return m_buffer;
+    }
+
+    void AttributeAdapter<unsigned long>::set(const int64_t& value)
+    {
+        m_value = value;
+        m_buffer_valid = false;
+    }
+
     constexpr DiscreteTypeInfo AttributeAdapter<uint64_t>::type_info;
     const int64_t& AttributeAdapter<uint64_t>::get()
     {

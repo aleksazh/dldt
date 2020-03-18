@@ -17,7 +17,7 @@
 #include <random>
 
 #include "bernoulli_rng_state.hpp"
-#include "except.hpp"
+#include "../except.hpp"
 
 using namespace std;
 using namespace ngraph;

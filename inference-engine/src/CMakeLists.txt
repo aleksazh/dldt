@@ -20,6 +20,6 @@ if (ENABLE_GNA)
     add_subdirectory(gna_plugin)
 endif()
 
-add_subdirectory(hetero_plugin)
+#add_subdirectory(hetero_plugin)
 
 add_subdirectory(inference_engine)

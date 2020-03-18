@@ -21,7 +21,7 @@
 #include "ngraph/util.hpp"
 #ifndef NGRAPH_JSON_DISABLE
 #include "ngraph/serializer.hpp"
-#include "nlohmann/json.hpp"
+//#include "nlohmann/json.hpp"
 #endif
 
 using namespace std;

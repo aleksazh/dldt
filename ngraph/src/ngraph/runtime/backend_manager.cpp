@@ -144,8 +144,10 @@ DL_HANDLE runtime::BackendManager::open_shared_library(string type)
 {
     DL_HANDLE handle = nullptr;
 #ifdef NGRAPH_DYNAMIC_COMPONENTS_ENABLE
-    string lib_prefix = SHARED_LIB_PREFIX;
-    string lib_suffix = SHARED_LIB_SUFFIX;
+    //string lib_prefix = SHARED_LIB_PREFIX;
+    //string lib_suffix = SHARED_LIB_SUFFIX;
+    string lib_prefix = "unknown_lib_prefix";
+    string lib_suffix = "unknown_lib_suffix";
 
     // strip off attributes, IE:CPU becomes IE
     auto colon = type.find(":");
@@ -208,8 +210,10 @@ bool runtime::BackendManager::is_backend_name(const string& file, string& backen
 {
     bool rc = false;
     string name = file_util::get_file_name(file);
-    string lib_prefix = SHARED_LIB_PREFIX;
-    string lib_suffix = SHARED_LIB_SUFFIX;
+    //string lib_prefix = SHARED_LIB_PREFIX;
+    //string lib_suffix = SHARED_LIB_SUFFIX;
+    string lib_prefix = "unknown_lib_prefix";
+    string lib_suffix = "unknown_lib_suffix";
     if ((name.size() > lib_prefix.size() + lib_suffix.size()) &
         !name.compare(0, lib_prefix.size(), lib_prefix))
     {

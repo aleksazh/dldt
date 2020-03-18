@@ -107,6 +107,10 @@ class Builder:
         if self.options.build_flags:
             flags += self.options.build_flags
 
+        flags +="-s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=2 "
+        #flags += "-s EXPORT_ALL=1 "
+        #flags += "-s EXPORTED_FUNCTIONS=\"['__ZTI21mkldnn_primitive_desc']\" "
+
         return flags
 
     def config(self):

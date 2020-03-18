@@ -22,14 +22,16 @@ using namespace std;
 
 extern "C" const char* get_ngraph_version_string()
 {
-    return NGRAPH_VERSION;
+    //return NGRAPH_VERSION;
+    return "unknown_ngraph_version";
 }
 
 namespace ngraph
 {
     void get_version(size_t& major, size_t& minor, size_t& patch, std::string& extra)
     {
-        string version = NGRAPH_VERSION;
+        //string version = NGRAPH_VERSION;
+        string version = "unknown_ngraph_version";
         ngraph::parse_version_string(version, major, minor, patch, extra);
     }
 }

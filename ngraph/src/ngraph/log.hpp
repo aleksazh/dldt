@@ -113,21 +113,24 @@ namespace ngraph
 
 #define NGRAPH_ERR                                                                                 \
     ngraph::LogHelper(ngraph::LOG_TYPE::_LOG_TYPE_ERROR,                                           \
-                      ngraph::trim_file_name(PROJECT_ROOT_DIR, __FILE__),                          \
+                      /*ngraph::trim_file_name(PROJECT_ROOT_DIR, __FILE__),*/                      \
+                      ngraph::trim_file_name("ngraph", __FILE__),                          \
                       __LINE__,                                                                    \
                       ngraph::default_logger_handler_func)                                         \
         .stream()
 
 #define NGRAPH_WARN                                                                                \
     ngraph::LogHelper(ngraph::LOG_TYPE::_LOG_TYPE_WARNING,                                         \
-                      ngraph::trim_file_name(PROJECT_ROOT_DIR, __FILE__),                          \
+                      /*ngraph::trim_file_name(PROJECT_ROOT_DIR, __FILE__),*/                      \
+                      ngraph::trim_file_name("ngraph", __FILE__),                          \
                       __LINE__,                                                                    \
                       ngraph::default_logger_handler_func)                                         \
         .stream()
 
 #define NGRAPH_INFO                                                                                \
     ngraph::LogHelper(ngraph::LOG_TYPE::_LOG_TYPE_INFO,                                            \
-                      ngraph::trim_file_name(PROJECT_ROOT_DIR, __FILE__),                          \
+                      /*ngraph::trim_file_name(PROJECT_ROOT_DIR, __FILE__),*/                      \
+                      ngraph::trim_file_name("ngraph", __FILE__),                          \
                       __LINE__,                                                                    \
                       ngraph::default_logger_handler_func)                                         \
         .stream()
@@ -135,7 +138,8 @@ namespace ngraph
 #ifdef NGRAPH_DEBUG_ENABLE
 #define NGRAPH_DEBUG                                                                               \
     ngraph::LogHelper(ngraph::LOG_TYPE::_LOG_TYPE_DEBUG,                                           \
-                      ngraph::trim_file_name(PROJECT_ROOT_DIR, __FILE__),                          \
+                      /*ngraph::trim_file_name(PROJECT_ROOT_DIR, __FILE__),*/                      \
+                      ngraph::trim_file_name("ngraph", __FILE__),                          \
                       __LINE__,                                                                    \
                       ngraph::default_logger_handler_func)                                         \
         .stream()

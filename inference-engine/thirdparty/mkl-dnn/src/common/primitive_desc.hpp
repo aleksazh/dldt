@@ -25,16 +25,17 @@
 #include "type_helpers.hpp"
 #include "primitive_attr.hpp"
 #include "verbose.hpp"
+#include <emscripten.h>
 
 struct mkldnn_primitive_desc: public mkldnn::impl::c_compatible {
     using memory_pd_t = mkldnn::impl::memory_pd_t;
 
-    mkldnn_primitive_desc(mkldnn::impl::engine_t *engine,
+    EMSCRIPTEN_KEEPALIVE mkldnn_primitive_desc(mkldnn::impl::engine_t *engine,
             const mkldnn::impl::primitive_attr_t *attr,
             mkldnn::impl::primitive_kind_t kind)
         : engine_(engine), attr_(*attr), kind_(kind) { info_[0] = '\0'; }
 
-    mkldnn_primitive_desc(mkldnn::impl::engine_t *engine,
+    EMSCRIPTEN_KEEPALIVE mkldnn_primitive_desc(mkldnn::impl::engine_t *engine,
             mkldnn::impl::primitive_kind_t kind)
         : engine_(engine), kind_(kind) { info_[0] = '\0'; }
 

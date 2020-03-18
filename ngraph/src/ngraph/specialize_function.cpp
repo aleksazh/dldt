@@ -15,7 +15,7 @@
 //*****************************************************************************
 
 #include "ngraph/specialize_function.hpp"
-#include <pass/constant_folding.hpp>
+#include "pass/constant_folding.hpp"
 #include "ngraph/op/constant.hpp"
 #include "ngraph/op/tensor_iterator.hpp"
 

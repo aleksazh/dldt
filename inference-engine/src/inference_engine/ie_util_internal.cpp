@@ -15,6 +15,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include "cpp/ie_plugin_cpp.hpp"
 #include "details/caseless.hpp"
@@ -623,7 +624,9 @@ std::wstring getIELibraryPathW() {
     return getPathName(std::wstring(ie_library_path));
 #else
     Dl_info info;
+    std::cerr << "dldt ie_util_internal.cpp getIELibraryPathW: before dladdr" << std::endl;
     dladdr(reinterpret_cast<void*>(getIELibraryPath), &info);
+    std::cerr << "dldt ie_util_internal.cpp getIELibraryPathW: after dladdr" << std::endl;
     return details::multiByteCharToWString(getIELibraryPathUnix().c_str());
 #endif
 }

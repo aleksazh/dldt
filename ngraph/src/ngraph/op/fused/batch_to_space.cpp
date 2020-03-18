@@ -16,7 +16,8 @@
 #include <cmath>
 #include <cstddef>
 #include <memory>
-#include <ops.hpp>
+//#include <ops.hpp>
+#include "../../ops.hpp"
 
 #include "ngraph/builder/make_constant.hpp"
 #include "ngraph/builder/reshape.hpp"

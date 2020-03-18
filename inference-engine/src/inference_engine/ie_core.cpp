@@ -14,6 +14,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include <ngraph/opsets/opset.hpp>
 #include "cpp_interfaces/base/ie_plugin_base.hpp"
@@ -143,8 +144,10 @@ public:
      * @param xmlConfigFile - an .xml configuraion with device / plugin information
      */
     void RegisterPluginsInRegistry(const std::string& xmlConfigFile) {
+        std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry: begin" << std::endl;
         auto parse_result = ParseXml(xmlConfigFile.c_str());
         if (!parse_result.error_msg.empty()) {
+            std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry: THROW_IE_EXCEPTION " << parse_result.error_msg << std::endl;
             THROW_IE_EXCEPTION << parse_result.error_msg;
         }
 
@@ -162,11 +165,13 @@ public:
             if (deviceName.find('.') != std::string::npos) {
                 THROW_IE_EXCEPTION << "Device name must not contain dot '.' symbol";
             }
-
             // append IR library path for default IE plugins
             {
-                FileUtils::FilePath absFilePath = FileUtils::makePath(getInferenceEngineLibraryPath(), pluginPath);
-                if (FileUtils::fileExist(absFilePath)) pluginPath = absFilePath;
+                std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry: add empty path" << std::endl;
+                //FileUtils::FilePath absFilePath = FileUtils::makePath(getInferenceEngineLibraryPath(), pluginPath);
+                FileUtils::FilePath absFilePath = FileUtils::makePath(FileUtils::toFilePath(""), pluginPath);
+                //if (FileUtils::fileExist(absFilePath)) pluginPath = absFilePath;
+                pluginPath = absFilePath;
             }
 
             // check properties
@@ -196,10 +201,12 @@ public:
 
             // fill value in plugin registry for later lazy initialization
             {
+                std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry: PluginDescriptor" << std::endl;
                 PluginDescriptor desc = {pluginPath, config, listOfExtentions};
                 pluginRegistry[deviceName] = desc;
             }
         }
+        std::cerr << "dldt ie_core.cpp RegisterPluginsInRegistry: end" << std::endl;
     }
 
     //
@@ -232,19 +239,22 @@ public:
      */
     InferencePlugin GetCPPPluginByName(const std::string& deviceName) const {
         IE_SUPPRESS_DEPRECATED_START
-
+        std::cerr << "dldt ie_core.cpp GetCPPPluginByName: begin" << std::endl;
         auto it = pluginRegistry.find(deviceName);
         if (it == pluginRegistry.end()) {
             THROW_IE_EXCEPTION << "Device with \"" << deviceName << "\" name is not registered in the InferenceEngine";
         }
 
         // Plugin is in registry, but not created, let's create
-
+        std::cerr << "dldt ie_core.cpp GetCPPPluginByName: Plugin is in registry, but not created, let's create" << std::endl;
         if (plugins.find(deviceName) == plugins.end()) {
+            std::cerr << "dldt ie_core.cpp GetCPPPluginByName: it->second" << std::endl;
             PluginDescriptor desc = it->second;
 
             try {
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName: try desc.libraryLocation" << std::endl;
                 InferenceEnginePluginPtr plugin(desc.libraryLocation);
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName: try plugin.operator->()" << std::endl;
                 IInferencePlugin* pplugin = static_cast<IInferencePlugin*>(plugin.operator->());
                 IInferencePluginAPI* iplugin_api_ptr = dynamic_cast<IInferencePluginAPI*>(pplugin);
 
@@ -260,6 +270,7 @@ public:
 
                 // configuring
                 {
+                    std::cerr << "dldt ie_core.cpp GetCPPPluginByName: configuring" << std::endl;
                     cppPlugin.SetConfig(desc.defaultConfig);
 
                     for (auto&& extensionLocation : desc.listOfExtentions) {
@@ -273,6 +284,7 @@ public:
 
                 plugins[deviceName] = cppPlugin;
             } catch (const details::InferenceEngineException& ex) {
+                std::cerr << "dldt ie_core.cpp GetCPPPluginByName: THROW_IE_EXCEPTION Failed to create plugin" << std::endl;
                 THROW_IE_EXCEPTION << "Failed to create plugin " << FileUtils::fromFilePath(desc.libraryLocation) << " for device " << deviceName
                                    << "\n"
                                    << "Please, check your environment\n"
@@ -337,6 +349,7 @@ public:
     }
 
     void SetConfigForPlugins(const std::map<std::string, std::string>& config, const std::string& deviceName) {
+        std::cerr << "dldt ie_core.cpp SetConfigForPlugins: begin" << std::endl;
         // set config for plugins in registry
         for (auto& desc : pluginRegistry) {
             if (deviceName.empty() || deviceName == desc.first) {
@@ -397,7 +410,8 @@ Core::Core(const std::string& xmlConfigFile) {
     std::string xmlConfigFile_ = xmlConfigFile;
     if (xmlConfigFile_.empty()) {
         // register plugins from default plugins.xml config
-        FileUtils::FilePath xmlConfigFileDefault = FileUtils::makePath(getInferenceEngineLibraryPath(), FileUtils::toFilePath("plugins.xml"));
+        //FileUtils::FilePath xmlConfigFileDefault = FileUtils::makePath(getInferenceEngineLibraryPath(), FileUtils::toFilePath("plugins.xml"));
+        FileUtils::FilePath xmlConfigFileDefault = FileUtils::makePath(FileUtils::toFilePath("."), FileUtils::toFilePath("plugins.xml"));
         xmlConfigFile_ = FileUtils::fromFilePath(xmlConfigFileDefault);
     }
 

@@ -12,6 +12,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <iostream>
 
 #include "cpp/ie_executable_network.hpp"
 #include "details/ie_exception_conversion.hpp"
@@ -167,6 +168,7 @@ public:
      * @return Wrapped object
      */
     operator InferenceEngine::InferenceEnginePluginPtr() {
+        std::cerr << "dldt ie_plugin_cpp.cpp InferenceEnginePluginPtr: return actual" << std::endl;
         return actual;
     }
 
