@@ -2,10 +2,10 @@
 
 echo "Creating wasm from static library"
 cd bin/x86/Release/lib/
-emcc libMKLDNNPlugin.a -s SIDE_MODULE=1 -s EXTRA_EXPORTED_RUNTIME_METHODS=['__ZTI21mkldnn_primitive_desc'] -s EXPORTED_FUNCTIONS=['__ZTI21mkldnn_primitive_desc'] --use-preload-plugins -o libMKLDNNPlugin.wasm
+emcc libMKLDNNPlugin.a -s SIDE_MODULE=1 -s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=0 -O3 -g3  -s LINKABLE=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS=['_ZTVN6ngraph4pass8ValidateE','__ZTV21mkldnn_primitive_desc'] -o libMKLDNNPlugin.wasm
 echo "Rename .wasm to .so"
 mv libMKLDNNPlugin.wasm libMKLDNNPlugin.so
 echo "Copy files to opencv project"
-mv libMKLDNNPlugin.so ../../../../../opencv/build_wasm/modules/js/
+mv libMKLDNNPlugin.so ../../../../../WebCamera/samples/faceDetection/
 cp plugins.xml ../../../../../opencv/build_wasm/modules/js/
 echo "Done."

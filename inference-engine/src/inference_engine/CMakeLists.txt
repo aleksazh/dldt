@@ -550,7 +550,7 @@ set(ngraph_src
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pass/shape_relevance.hpp
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pass/validate_graph.cpp
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pass/validate_graph.hpp
-/home/sasha/workspace/projects/dldt/ngraph/src/ngraph//home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pass/validate.cpp
+/home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pass/validate.cpp
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pass/validate.hpp
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pass/visualize_tree.cpp
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pass/visualize_tree.hpp
@@ -563,7 +563,7 @@ set(ngraph_src
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pass/pass_util.hpp
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pass/pass_util.cpp
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pattern/matcher.cpp
-/home/sasha/workspace/projects/dldt/ngraph/src/ngraph//home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pattern/matcher.hpp
+/home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pattern/matcher.hpp
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pattern/op/any.cpp
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pattern/op/any.hpp
 /home/sasha/workspace/projects/dldt/ngraph/src/ngraph/pattern/op/any_of.cpp

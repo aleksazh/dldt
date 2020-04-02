@@ -119,6 +119,12 @@ file(GLOB SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/utils/*.cpp
         ${LAYERS}
         ${OS_SPECIFIC_SRC}
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common/*.cpp
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/*.cpp
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/xbyak/*.cpp
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/rnn/*.cpp
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/gemm/*.cpp
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/*.cpp
 )
 
 file(GLOB HEADERS
@@ -131,6 +137,20 @@ file(GLOB HEADERS
         ${CMAKE_CURRENT_SOURCE_DIR}/nodes/*.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/nodes/common/*.h
         ${CMAKE_CURRENT_SOURCE_DIR}/nodes/common/*.hpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common/primitive_desc.hpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/mkldnn_types.h
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common/*.h
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common/*.hpp
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/*.h
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/*.hpp
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/xbyak/*.h
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/xbyak/*.hpp
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/rnn/*.h
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/rnn/*.hpp
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/gemm/*.h
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/gemm/*.hpp
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/*.h
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/*.hpp
 )
 
 addVersionDefines(mkldnn_plugin.cpp CI_BUILD_NUMBER MKL_VERSION)
@@ -140,6 +160,7 @@ include_directories(
         $<TARGET_PROPERTY:inference_engine_plugin_api,INTERFACE_INCLUDE_DIRECTORIES>
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/mkldnn
+        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include
@@ -310,7 +331,7 @@ if (ENABLE_AVX512F)
 endif()
 
 # create plugin
-
+message(STATUS "MKLDNNPlugin: ${SOURCES} ${HEADERS}")
 ie_add_plugin(NAME ${TARGET_NAME}
               DEVICE_NAME "CPU"
               OBJECT_LIBRARIES ${object_libraries}
