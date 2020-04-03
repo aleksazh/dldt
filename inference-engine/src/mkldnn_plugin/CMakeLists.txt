@@ -120,11 +120,17 @@ file(GLOB SOURCES
         ${LAYERS}
         ${OS_SPECIFIC_SRC}
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common/*.cpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/cpu_engine.cpp
+
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/primitive.cpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/primitive_attr.cpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/primitive_desc.cpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/primitive_iterator.cpp
+
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/*.cpp
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/xbyak/*.cpp
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/rnn/*.cpp
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/gemm/*.cpp
-        ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/*.cpp
 )
 
 file(GLOB HEADERS
@@ -137,10 +143,15 @@ file(GLOB HEADERS
         ${CMAKE_CURRENT_SOURCE_DIR}/nodes/*.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/nodes/common/*.h
         ${CMAKE_CURRENT_SOURCE_DIR}/nodes/common/*.hpp
-        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common/primitive_desc.hpp
-        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/mkldnn_types.h
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common/*.h
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common/*.hpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/cpu_engine.hpp
+
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common/primitive.hpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/primitive_attr.hpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/primitive_desc.hpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/primitive_iterator.hpp
+
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/*.h
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/*.hpp
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/xbyak/*.h
@@ -149,6 +160,10 @@ file(GLOB HEADERS
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/rnn/*.hpp
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/gemm/*.h
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/cpu/gemm/*.hpp
+
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/src/common/primitive_desc.hpp
+        #${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/mkldnn_types.h
+
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/*.h
         ${IE_MAIN_SOURCE_DIR}/thirdparty/mkl-dnn/include/*.hpp
 )

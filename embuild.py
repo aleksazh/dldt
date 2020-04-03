@@ -107,10 +107,11 @@ class Builder:
         if self.options.build_flags:
             flags += self.options.build_flags
 
-        flags +="-s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=2 -s LINKABLE=1 "
-        flags +="-s ALLOW_MEMORY_GROWTH=1 -s TOTAL_MEMORY=10MB -s RESERVED_FUNCTION_POINTERS=100 --use-preload-plugins -s NO_EXIT_RUNTIME=1 "
-        flags += "-O3 -g3 "
-        flags += "-s EXPORTED_FUNCTIONS=\"['__ZNK6mkldnn4impl3cpu17_ref_rnn_common_tIL18mkldnn_prop_kind_t64EL18mkldnn_data_type_t1ELS4_1EE13bias_finalizeERKNS1_9rnn_utils10rnn_conf_tEPfPKfSC_','__ZN6mkldnn4impl3cpu14engine_factoryE','__ZTV21mkldnn_primitive_desc']\" "
+        #flags +="-s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=2 "
+        #flags +="-s ALLOW_MEMORY_GROWTH=1 -s TOTAL_MEMORY=10MB -s RESERVED_FUNCTION_POINTERS=100 --use-preload-plugins "
+        #flags += "-s NO_EXIT_RUNTIME=1 "
+        #flags += "-s LINKABLE=1 "
+        #flags += "-s EXPORTED_FUNCTIONS=\"['__ZNK6mkldnn4impl3cpu17_ref_rnn_common_tIL18mkldnn_prop_kind_t64EL18mkldnn_data_type_t1ELS4_1EE13bias_finalizeERKNS1_9rnn_utils10rnn_conf_tEPfPKfSC_','__ZN6mkldnn4impl3cpu14engine_factoryE','__ZTV21mkldnn_primitive_desc']\" "
 
         return flags
 
