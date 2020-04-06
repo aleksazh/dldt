@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -66,11 +67,13 @@ void jit_avx2_convolution_fwd_t::execute_forward() const {
         * jcp.oh;
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         size_t start{0}, end{0};
         balance211(work_amount, nthr, ithr, start, end);
 
         int icbb = 0;
         while (icbb < jcp.nb_ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:          while (icbb < jcp.nb_ic) {" << std::endl;
             int icb_step = jcp.nb_ic_blocking;
             int icb_step_rem = jcp.nb_ic - icbb;
             if (icb_step_rem < jcp.nb_ic_blocking_max)
@@ -80,10 +83,12 @@ void jit_avx2_convolution_fwd_t::execute_forward() const {
             nd_iterator_init(start, n, MB, g, jcp.ngroups, ocbb, ocb_work,
                              od, jcp.od, oh, jcp.oh);
             for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:              for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
                 int ocb = ocbb * jcp.nb_oc_blocking;
                 int ocb_num = jcp.nb_oc_blocking;
 
                 for (int icb = icbb; icb < icbb + icb_step; ++icb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                  for (int icb = icbb; icb < icbb + icb_step; ++icb) {" << std::endl;
                     auto par_conv = jit_conv_call_s();
 
                     const int ij = oh * jcp.stride_h;
@@ -118,6 +123,7 @@ void jit_avx2_convolution_fwd_t::execute_forward() const {
                             jcp.ic == 3 ? 0 : icb, wd, wh, 0)];
 
                     if (icb == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                      if (icb == 0) {" << std::endl;
                         if (bias)
                             par_conv.bias =
                                     &bias[bias_d.blk_off(_oc * jcp.oc_block)];
@@ -125,6 +131,7 @@ void jit_avx2_convolution_fwd_t::execute_forward() const {
                     }
 
                     if (icb + 1 == jcp.nb_ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                      if (icb + 1 == jcp.nb_ic) {" << std::endl;
                         par_conv.flags |= FLAG_IC_LAST;
                     }
 
@@ -154,6 +161,7 @@ void jit_avx2_convolution_fwd_t::execute_forward() const {
     };
 
     if (pd()->wants_padded_bias()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:      if (pd()->wants_padded_bias()) {" << std::endl;
         auto padded_bias = scratchpad().get<data_t>(key_conv_padded_bias);
         utils::array_copy(padded_bias, bias, jcp.oc_without_padding);
         utils::array_set(padded_bias + jcp.oc_without_padding, 0.f,
@@ -187,15 +195,21 @@ void jit_avx2_convolution_fwd_t::execute_forward_with_dw_conv() const {
     const size_t work_amount = MB * jcp.ngroups * ocb_work * jcp.oh;
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         auto compute_row_gen = [&](float* ws_p, int n, int g, int ocb, int ocb_num, int oh, int num_rows) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:          auto compute_row_gen = [&](float* ws_p, int n, int g, int ocb, int ocb_num, int oh, int num_rows) {" << std::endl;
             for (int h = 0; h < num_rows; h++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:              for (int h = 0; h < num_rows; h++) {" << std::endl;
                 if ((oh + h) < 0 || (oh + h) >= jcp.oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                  if ((oh + h) < 0 || (oh + h) >= jcp.oh) {" << std::endl;
                     for (int chb = ocb; chb < ocb + ocb_num; chb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                      for (int chb = ocb; chb < ocb + ocb_num; chb++) {" << std::endl;
                         memset(ws_p + (((oh + h) + 1) % jcp_dw.kh) * jcp.ow * jcp.oc_block +
                                (chb - ocb) * jcp_dw.kh * jcp.ow * jcp.oc_block, 0, jcp.ow * jcp.oc_block * sizeof(float));
                     }
                 } else {
                     for (int icb = 0; icb < jcp.nb_ic; ++icb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                      for (int icb = 0; icb < jcp.nb_ic; ++icb) {" << std::endl;
                         auto par_conv = jit_conv_call_s();
 
                         const int ij = (oh + h) * jcp.stride_h;
@@ -224,6 +238,7 @@ void jit_avx2_convolution_fwd_t::execute_forward_with_dw_conv() const {
                                                                      jcp.ic == 3 ? 0 : icb, wh, 0)];
 
                         if (icb == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                          if (icb == 0) {" << std::endl;
                             if (bias)
                                 par_conv.bias =
                                         &bias[bias_d.blk_off(_oc * jcp.oc_block)];
@@ -231,6 +246,7 @@ void jit_avx2_convolution_fwd_t::execute_forward_with_dw_conv() const {
                         }
 
                         if (icb + 1 == jcp.nb_ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                          if (icb + 1 == jcp.nb_ic) {" << std::endl;
                             par_conv.flags |= FLAG_IC_LAST;
                         }
 
@@ -252,7 +268,9 @@ void jit_avx2_convolution_fwd_t::execute_forward_with_dw_conv() const {
 
         auto compute_row_dw = [&](const float* ws_p, int n, int ocb, int ocb_num,
                                   int dst_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                                    int dst_idx) {" << std::endl;
             for (int chb = ocb; chb < nstl::min(ocb + ocb_num, jcp.nb_oc); chb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:              for (int chb = ocb; chb < nstl::min(ocb + ocb_num, jcp.nb_oc); chb++) {" << std::endl;
                 auto par_conv_dw = jit_conv_call_s();
 
                 par_conv_dw.src_row0 = &ws_p[(((dst_idx+1) - 1) % jcp_dw.kh) * jcp_dw.iw * jcp_dw.ch_block +
@@ -287,20 +305,24 @@ void jit_avx2_convolution_fwd_t::execute_forward_with_dw_conv() const {
         nd_iterator_init(start, n, MB, g, jcp.ngroups, ocbb, ocb_work,
                          oh, jcp.oh);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int ocb = ocbb * jcp.nb_oc_blocking;
             int ocb_num = jcp.nb_oc_blocking;
 
             if (iwork == start || oh == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:              if (iwork == start || oh == 0) {" << std::endl;
                 compute_row_gen(pbuf, n, g, ocb, ocb_num, oh - 1, 2);
             } else {
                 compute_row_gen(pbuf, n, g, ocb, ocb_num, oh, 1);
             }
 
             if (iwork > start && ((oh - 1) % jcp_dw.stride_h == 0) && oh > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:              if (iwork > start && ((oh - 1) % jcp_dw.stride_h == 0) && oh > 0) {" << std::endl;
                 compute_row_dw(pbuf, n, ocb, ocb_num, oh - 1);
             }
 
             if ((iwork == end - 1 || (int) oh == jcp.oh - 1) && ((oh) % jcp_dw.stride_h == 0)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:              if ((iwork == end - 1 || (int) oh == jcp.oh - 1) && ((oh) % jcp_dw.stride_h == 0)) {" << std::endl;
                 compute_row_gen(pbuf, n, g, ocb, ocb_num, oh + 1, 1);
                 compute_row_dw(pbuf, n, ocb, ocb_num, oh);
             }
@@ -311,6 +333,7 @@ void jit_avx2_convolution_fwd_t::execute_forward_with_dw_conv() const {
     };
 
     if (pd()->wants_padded_bias()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:      if (pd()->wants_padded_bias()) {" << std::endl;
         auto padded_bias = scratchpad().get<data_t>(key_conv_padded_bias);
         utils::array_copy(padded_bias, bias, jcp.oc_without_padding);
         utils::array_set(padded_bias + jcp.oc_without_padding, 0.f,
@@ -347,12 +370,14 @@ void jit_avx2_convolution_bwd_data_t::execute_backward_data() const {
     int num_ih_blocks = utils::div_up(jcp.ih, ih_block_size);
     size_t work_amount = MB * jcp.ngroups * icb_work * num_ih_blocks;
     if (work_amount < (size_t)2 * mkldnn_get_max_threads()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:      if (work_amount < (size_t)2 * mkldnn_get_max_threads()) {" << std::endl;
         ih_block_size = 1;
         num_ih_blocks = utils::div_up(jcp.ih, ih_block_size);
         work_amount *= num_ih_blocks;
     }
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         size_t start{0}, end{0};
         balance211(work_amount, nthr, ithr, start, end);
 
@@ -361,8 +386,10 @@ void jit_avx2_convolution_bwd_data_t::execute_backward_data() const {
                          ihb, num_ih_blocks);
 
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             for (int oc = 0; oc < jcp.nb_oc; oc += jcp.nb_oc_blocking)
             for (int id = 0; id < jcp.id; ++id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:              for (int id = 0; id < jcp.id; ++id) {" << std::endl;
                 auto par_conv = jit_conv_call_s();
 
                 const int idp = jcp.id + 2 * jcp.f_pad;
@@ -376,6 +403,7 @@ void jit_avx2_convolution_bwd_data_t::execute_backward_data() const {
                 int ih_start = ihb * ih_block_size;
                 int ih_end = nstl::min(jcp.ih, ih_start + ih_block_size);
                 for (int ih = ih_start; ih < ih_end; ++ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                  for (int ih = ih_start; ih < ih_end; ++ih) {" << std::endl;
 
                     const int i_t_overflow = nstl::max(0, (jcp.kh - 1
                                         - ih - jcp.t_pad) / jcp.stride_h);
@@ -449,6 +477,7 @@ void jit_avx2_convolution_bwd_weights_t::execute_backward_weights() const {
     rw->init(reducer_wei_scratchpad);
 
     auto ker = [&](int ithr, int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:      auto ker = [&](int ithr, int nthr) {" << std::endl;
         assert(nthr == rw->balancer().nthr_);
 
         const int w_job_start = rw->balancer().ithr_job_off(ithr);
@@ -471,6 +500,7 @@ void jit_avx2_convolution_bwd_weights_t::execute_backward_weights() const {
                 jcp.nb_oc, icb_start, jcp.nb_ic);
 
         while (img_start < img_end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:          while (img_start < img_end) {" << std::endl;
             int g = g_start, ocb = ocb_start, icb = icb_start;
 
             const int work_rem = img_end - img_start;
@@ -480,6 +510,7 @@ void jit_avx2_convolution_bwd_weights_t::execute_backward_weights() const {
 
             if (id_s < idp - jcp.back_pad - jcp.kd + 1)
             for (int w_job_loc = 0; w_job_loc < w_njobs; ++w_job_loc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:              for (int w_job_loc = 0; w_job_loc < w_njobs; ++w_job_loc) {" << std::endl;
                 const size_t _oc = g * jcp.nb_oc + ocb;
                 const size_t _ic = g * jcp.nb_ic + icb;
 
@@ -491,6 +522,7 @@ void jit_avx2_convolution_bwd_weights_t::execute_backward_weights() const {
                             rw->balancer().job_size_);
 
                 for (int od = od_s; od < od_e; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                  for (int od = od_s; od < od_e; ++od) {" << std::endl;
                     const int id = od * jcp.stride_d;
                     if (id >= jcp.id - jcp.back_pad - jcp.kd + 1) break;
 
@@ -513,6 +545,7 @@ void jit_avx2_convolution_bwd_weights_t::execute_backward_weights() const {
     };
 
     auto ker_bias = [&](int ithr, int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:      auto ker_bias = [&](int ithr, int nthr) {" << std::endl;
         assert(nthr == rb->balancer().nthr_);
 
         const int b_job_start = rb->balancer().ithr_job_off(ithr);
@@ -531,8 +564,10 @@ void jit_avx2_convolution_bwd_weights_t::execute_backward_weights() const {
                 jcp.nb_oc);
 
         for (int img = img_start; img < img_end; ++img) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:          for (int img = img_start; img < img_end; ++img) {" << std::endl;
             int g = g_start, ocb = ocb_start;
             for (int b_job_loc = 0; b_job_loc < b_njobs; ++b_job_loc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:              for (int b_job_loc = 0; b_job_loc < b_njobs; ++b_job_loc) {" << std::endl;
                 const size_t _oc = g * jcp.nb_oc + ocb;
 
                 const data_t *d_dst = &diff_dst[diff_dst_d.blk_off(img, _oc)];
@@ -545,6 +580,7 @@ void jit_avx2_convolution_bwd_weights_t::execute_backward_weights() const {
                         d_bias[o] = 0.;
 
                 for (int dhw = 0; dhw < jcp.od * jcp.oh * jcp.ow; ++dhw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:                  for (int dhw = 0; dhw < jcp.od * jcp.oh * jcp.ow; ++dhw) {" << std::endl;
                     PRAGMA_OMP_SIMD()
                     for (int o = 0; o < 8; ++o)
                         d_bias[o] += d_dst[o];
@@ -558,6 +594,7 @@ void jit_avx2_convolution_bwd_weights_t::execute_backward_weights() const {
     };
 
     parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:      parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {" << std::endl;
         ker(ithr, nthr);
         if (pd()->with_bias())
             ker_bias(ithr, nthr);
@@ -565,6 +602,7 @@ void jit_avx2_convolution_bwd_weights_t::execute_backward_weights() const {
 
     /* TODO: put this in ker_bias */
     if (pd()->wants_padded_bias()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx2_convolution.cpp:      if (pd()->wants_padded_bias()) {" << std::endl;
         assert(jcp.ngroups == 1);
         for (int oc = 0; oc < jcp.oc_without_padding; ++oc)
             diff_bias_in[oc] = diff_bias[oc];

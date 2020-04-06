@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -50,6 +51,7 @@ void ref_shuffle_t<data_type_size>::execute_() const {
     const bool has_spatial = utils::one_of(data_d.ndims(), 3, 4, 5);
     if (has_spatial)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:      if (has_spatial)     {" << std::endl;
         D = pd()->D();
         H = pd()->H();
         W = pd()->W();
@@ -61,16 +63,19 @@ void ref_shuffle_t<data_type_size>::execute_() const {
 
     if (axis == 1 && one_of(fmt, nChw16c, nChw8c, nChw4c, nCdhw16c, nCdhw8c,
             nCdhw4c)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:              nCdhw4c)) {" << std::endl;
 #if MKLDNN_THR == MKLDNN_THR_OMP
 #       pragma omp parallel for collapse(3) schedule(static)
         for (int mb = 0; mb < MB; ++mb)
         for (int cb = 0; cb < C; cb += blksize)
         for (int sp = 0; sp < SP; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:          for (int sp = 0; sp < SP; ++sp) {" << std::endl;
             const size_t off = mb * stride_mb + sp * blksize;
             const size_t output_off = off + cb * SP;
             PRAGMA_OMP_SIMD()
             for (int cc = 0; cc < nstl::min(blksize, C - cb); ++cc)
             {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:              for (int cc = 0; cc < nstl::min(blksize, C - cb); ++cc)             {" << std::endl;
                 int input_c = rev_transposed_[cb + cc];
                 const size_t input_off = off + input_c / blksize * SP * blksize
                                            + input_c % blksize;
@@ -80,11 +85,13 @@ void ref_shuffle_t<data_type_size>::execute_() const {
 #else
         parallel_nd(MB, utils::div_up(C, blksize), SP, [&](int mb, int c,
                   int sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:                    int sp) {" << std::endl;
             const size_t off = mb * stride_mb + sp * blksize;
             const int cb = c * blksize;
             const size_t output_off = off + cb * SP;
             for (int cc = 0; cc < nstl::min(blksize, C - cb); ++cc)
             {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:              for (int cc = 0; cc < nstl::min(blksize, C - cb); ++cc)             {" << std::endl;
                 int input_c = rev_transposed_[cb + cc];
                 const size_t input_off = off + input_c / blksize * SP * blksize
                                            + input_c % blksize;
@@ -93,18 +100,23 @@ void ref_shuffle_t<data_type_size>::execute_() const {
         });
 #endif
     } else if (axis == 1 && one_of(fmt, nhwc, ndhwc)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:      } else if (axis == 1 && one_of(fmt, nhwc, ndhwc)) {" << std::endl;
         parallel_nd(MB, SP, [&](int mb, int sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:          parallel_nd(MB, SP, [&](int mb, int sp) {" << std::endl;
             const size_t off = mb * stride_mb + sp * C;
             PRAGMA_OMP_SIMD()
             for (int c = 0; c < C; ++c)
                 output[off + c] = input[off + rev_transposed_[c]];
         });
     } else if (axis == 1 && one_of(fmt, nchw, ncdhw)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:      } else if (axis == 1 && one_of(fmt, nchw, ncdhw)) {" << std::endl;
         parallel_nd(MB, C, [&](int mb, int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:          parallel_nd(MB, C, [&](int mb, int c) {" << std::endl;
             const size_t output_off = mb * stride_mb + c * SP;
             const size_t input_off = mb * stride_mb + rev_transposed_[c] * SP;
             PRAGMA_OMP_SIMD()
             for (int sp = 0; sp < SP; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:              for (int sp = 0; sp < SP; ++sp) {" << std::endl;
                 output[output_off + sp] = input[input_off + sp];
             }
         });
@@ -119,6 +131,7 @@ void ref_shuffle_t<data_type_size>::execute_() const {
         parallel_nd(outer_size, axis_size, inner_size, [&](size_t ou, int a,
                size_t in)
         {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_shuffle.cpp:                 size_t in)         {" << std::endl;
             const size_t off = ou * dim + in;
             auto &o = output[data_d.off_l(off + a * inner_size)];
             o = input[data_d.off_l(off + rev_transposed_[a] * inner_size)];

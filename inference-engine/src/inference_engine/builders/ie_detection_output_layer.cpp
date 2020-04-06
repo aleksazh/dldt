@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -12,20 +13,24 @@
 using namespace InferenceEngine;
 
 Builder::DetectionOutputLayer::DetectionOutputLayer(const std::string& name): LayerDecorator("DetectionOutput", name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer::DetectionOutputLayer(const std::string& name): LayerDecorator('DetectionOutput', name) {" << std::endl;
     getLayer()->getOutputPorts().resize(1);
     getLayer()->getInputPorts().resize(2);
     setBackgroudLabelId(-1);
 }
 
 Builder::DetectionOutputLayer::DetectionOutputLayer(const Layer::Ptr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer::DetectionOutputLayer(const Layer::Ptr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("DetectionOutput");
 }
 
 Builder::DetectionOutputLayer::DetectionOutputLayer(const Layer::CPtr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer::DetectionOutputLayer(const Layer::CPtr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("DetectionOutput");
 }
 
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setName(const std::string& name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setName(const std::string& name) {" << std::endl;
     getLayer()->setName(name);
     return *this;
 }
@@ -35,6 +40,7 @@ const std::vector<Port>& Builder::DetectionOutputLayer::getInputPorts() const {
 }
 
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setInputPorts(const std::vector<Port> &ports) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setInputPorts(const std::vector<Port> &ports) {" << std::endl;
     if (ports.size() != 3)
         THROW_IE_EXCEPTION << "Incorrect number of inputs for DetectionOutput getLayer().";
     getLayer()->getInputPorts() = ports;
@@ -46,6 +52,7 @@ const Port& Builder::DetectionOutputLayer::getOutputPort() const {
 }
 
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setOutputPort(const Port &port) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setOutputPort(const Port &port) {" << std::endl;
     getLayer()->getOutputPorts()[0] = port;
     return *this;
 }
@@ -54,6 +61,7 @@ size_t Builder::DetectionOutputLayer::getNumClasses() const {
     return getLayer()->getParameters().at("num_classes");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setNumClasses(size_t num) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setNumClasses(size_t num) {" << std::endl;
     getLayer()->getParameters()["num_classes"] = num;
     return *this;
 }
@@ -61,6 +69,7 @@ int Builder::DetectionOutputLayer::getBackgroudLabelId() const {
     return getLayer()->getParameters().at("background_label_id");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setBackgroudLabelId(int labelId) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setBackgroudLabelId(int labelId) {" << std::endl;
     getLayer()->getParameters()["background_label_id"] = labelId;
     return *this;
 }
@@ -68,6 +77,7 @@ int Builder::DetectionOutputLayer::getTopK() const {
     return getLayer()->getParameters().at("top_k");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setTopK(int topK) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setTopK(int topK) {" << std::endl;
     getLayer()->getParameters()["top_k"] = topK;
     return *this;
 }
@@ -75,6 +85,7 @@ int Builder::DetectionOutputLayer::getKeepTopK() const {
     return getLayer()->getParameters().at("keep_top_k");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setKeepTopK(int topK) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setKeepTopK(int topK) {" << std::endl;
     getLayer()->getParameters()["keep_top_k"] = topK;
     return *this;
 }
@@ -82,6 +93,7 @@ int Builder::DetectionOutputLayer::getNumOrientClasses() const {
     return getLayer()->getParameters().at("num_orient_classes");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setNumOrientClasses(int numClasses) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setNumOrientClasses(int numClasses) {" << std::endl;
     getLayer()->getParameters()["num_orient_classes"] = numClasses;
     return *this;
 }
@@ -89,6 +101,7 @@ std::string Builder::DetectionOutputLayer::getCodeType() const {
     return getLayer()->getParameters().at("code_type");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setCodeType(std::string type) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setCodeType(std::string type) {" << std::endl;
     getLayer()->getParameters()["code_type"] = type;
     return *this;
 }
@@ -96,6 +109,7 @@ int Builder::DetectionOutputLayer::getInterpolateOrientation() const {
     return getLayer()->getParameters().at("interpolate_orientation");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setInterpolateOrientation(int orient) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setInterpolateOrientation(int orient) {" << std::endl;
     getLayer()->getParameters()["interpolate_orientation"] = orient;
     return *this;
 }
@@ -103,6 +117,7 @@ float Builder::DetectionOutputLayer::getNMSThreshold() const {
     return getLayer()->getParameters().at("nms_threshold");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setNMSThreshold(float threshold) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setNMSThreshold(float threshold) {" << std::endl;
     getLayer()->getParameters()["nms_threshold"] = threshold;
     return *this;
 }
@@ -110,6 +125,7 @@ float Builder::DetectionOutputLayer::getConfidenceThreshold() const {
     return getLayer()->getParameters().at("confidence_threshold");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setConfidenceThreshold(float threshold) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setConfidenceThreshold(float threshold) {" << std::endl;
     getLayer()->getParameters()["confidence_threshold"] = threshold;
     return *this;
 }
@@ -117,6 +133,7 @@ bool Builder::DetectionOutputLayer::getShareLocation() const {
     return getLayer()->getParameters().at("share_location");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setShareLocation(bool flag) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setShareLocation(bool flag) {" << std::endl;
     getLayer()->getParameters()["share_location"] = flag;
     return *this;
 }
@@ -124,36 +141,44 @@ bool Builder::DetectionOutputLayer::getVariantEncodedInTarget() const {
     return getLayer()->getParameters().at("variance_encoded_in_target");
 }
 Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setVariantEncodedInTarget(bool flag) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  Builder::DetectionOutputLayer& Builder::DetectionOutputLayer::setVariantEncodedInTarget(bool flag) {" << std::endl;
     getLayer()->getParameters()["variance_encoded_in_target"] = flag;
     return *this;
 }
 
 REG_VALIDATOR_FOR(DetectionOutput, [](const InferenceEngine::Builder::Layer::CPtr& input_layer, bool partial) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  REG_VALIDATOR_FOR(DetectionOutput, [](const InferenceEngine::Builder::Layer::CPtr& input_layer, bool partial) {" << std::endl;
     Builder::DetectionOutputLayer layer(input_layer);
     if (layer.getNumClasses() == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:      if (layer.getNumClasses() == 0) {" << std::endl;
         THROW_IE_EXCEPTION << "NumClasses parameter is wrong in layer " << layer.getName() <<
                            ". It should be > 0.";
     }
     if (layer.getCodeType() != "caffe.PriorBoxParameter.CENTER_SIZE" &&
         layer.getCodeType() != "caffe.PriorBoxParameter.CORNER") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:          layer.getCodeType() != 'caffe.PriorBoxParameter.CORNER') {" << std::endl;
         THROW_IE_EXCEPTION << "CodeType parameter is wrong in layer " << layer.getName() <<
                            ". It should be equal to 'caffe.PriorBoxParameter.CORNER' or 'caffe.PriorBoxParameter.CENTER_SIZE'";
     }
     if (layer.getBackgroudLabelId() < -1) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:      if (layer.getBackgroudLabelId() < -1) {" << std::endl;
         THROW_IE_EXCEPTION << "BackgroundLabelId parameter is wrong in layer " << layer.getName() <<
                            ". It should be >= 0 if this one is an Id of existing label else it should be equal to -1";
     }
     if (layer.getNMSThreshold() < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:      if (layer.getNMSThreshold() < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "NMSThreshold parameter is wrong in layer " << layer.getName() <<
                            ". It should be >= 0.";
     }
     if (layer.getConfidenceThreshold() < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:      if (layer.getConfidenceThreshold() < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "ConfidenceThreshold parameter is wrong in layer " << layer.getName() <<
                            ". It should be >= 0.";
     }
 });
 
 REG_CONVERTER_FOR(DetectionOutput, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_detection_output_layer.cpp:  REG_CONVERTER_FOR(DetectionOutput, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {" << std::endl;
     layer.getParameters()["num_classes"] = static_cast<size_t>(cnnLayer->GetParamAsUInt("num_classes"));
     layer.getParameters()["background_label_id"] = cnnLayer->GetParamAsInt("background_label_id", 0);
     layer.getParameters()["top_k"] = cnnLayer->GetParamAsInt("top_k", -1);

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,6 +21,7 @@ namespace Extensions {
 namespace Cpu {
 
 inline int div_up(const int a, const int b) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:  inline int div_up(const int a, const int b) {" << std::endl;
     assert(b);
     return (a + b - 1) / b;
 }
@@ -28,6 +30,7 @@ template<mkldnn::impl::cpu::cpu_isa_t Type>
 class ResampleImpl: public ExtLayerBase {
 public:
     explicit ResampleImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:      explicit ResampleImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 1 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -58,9 +61,11 @@ public:
 
             // WA to enable the implementation only for equal input and output precisions
             for (auto &conf : confs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              for (auto &conf : confs) {" << std::endl;
                 conf.inConfs[0].desc.setPrecision(conf.outConfs[0].desc.getPrecision());
             }
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -88,8 +93,10 @@ public:
         size_t OW = outputs[0]->getTensorDesc().getDims()[ndims - 1];
 
         if (IW == OW && IH == OH && type == "caffe.ResampleParameter.LINEAR") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:          if (IW == OW && IH == OH && type == 'caffe.ResampleParameter.LINEAR') {" << std::endl;
             size_t size = IN * IC * IH * IW;
             if (inputs[0]->getTensorDesc().getPrecision() == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              if (inputs[0]->getTensorDesc().getPrecision() == Precision::FP32) {" << std::endl;
                 size *= sizeof(float);
             }
             simple_copy(dst_data, outputs[0]->byteSize(), src_data, size);
@@ -103,9 +110,13 @@ public:
         bool isDownsample = (fx > 1) || (fy > 1) || (fz > 1);
 
         if (type == "caffe.ResampleParameter.NEAREST") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:          if (type == 'caffe.ResampleParameter.NEAREST') {" << std::endl;
             if (!isDownsample && fx == 0.25f && fy == 0.25f && fz == 0.25f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              if (!isDownsample && fx == 0.25f && fy == 0.25f && fz == 0.25f) {" << std::endl;
                 if (layout == NCHW || layout == NHWC || layout == NCDHW || layout == NDHWC) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  if (layout == NCHW || layout == NHWC || layout == NCDHW || layout == NDHWC) {" << std::endl;
                     if (precision == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      if (precision == Precision::FP32) {" << std::endl;
                         Upsample_Nearest_PLN<float, 4>(src_data, dst_data, IN, IC, ID, IH, IW, layout);
                     } else {
                         Upsample_Nearest_PLN<uint8_t, 4>(reinterpret_cast<const uint8_t*>(src_data),
@@ -115,8 +126,11 @@ public:
                     Upsample_Nearest_BLK<4>(src_data, dst_data, IN, IC, ID, IH, IW, ndims);
                 }
             } else if (!isDownsample && fx == 0.5f && fy == 0.5f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              } else if (!isDownsample && fx == 0.5f && fy == 0.5f) {" << std::endl;
                 if (layout == NCHW || layout == NHWC || layout == NCDHW || layout == NDHWC) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  if (layout == NCHW || layout == NHWC || layout == NCDHW || layout == NDHWC) {" << std::endl;
                     if (precision == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      if (precision == Precision::FP32) {" << std::endl;
                         Upsample_Nearest_PLN<float, 2>(src_data, dst_data, IN, IC, ID, IH, IW, layout);
                     } else {
                         Upsample_Nearest_PLN<uint8_t, 2>(reinterpret_cast<const uint8_t*>(src_data),
@@ -127,12 +141,14 @@ public:
                 }
             } else {
                 if (layout == NCHW || layout == NCDHW) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  if (layout == NCHW || layout == NCDHW) {" << std::endl;
                     NearestNeighborKernel_PLN(src_data, dst_data, IN, IC, ID, IH, IW, fx, fy, fz, OD, OH, OW);
                 } else {
                     NearestNeighborKernel_BLK(src_data, dst_data, IN, IC, ID, IH, IW, fx, fy, fz, OD, OH, OW);
                 }
             }
         } else if (type == "caffe.ResampleParameter.LINEAR") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:          } else if (type == 'caffe.ResampleParameter.LINEAR') {" << std::endl;
             size_t kernel_width = 2;
 
 #if defined(HAVE_SSE) || defined(HAVE_AVX2)
@@ -150,6 +166,7 @@ private:
     bool antialias;
 
     static inline float triangleCoeff(float x) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:      static inline float triangleCoeff(float x) {" << std::endl;
         return (std::max)(0.0f, 1 - std::abs(x));
     }
 
@@ -159,13 +176,18 @@ private:
                                     float *out_ptr_,
                                     const size_t ow, const size_t oh, const size_t channels, const size_t batch,
                                     size_t kernel_width, bool antialias) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                                      size_t kernel_width, bool antialias) {" << std::endl;
         for (size_t b = 0; b < batch; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:          for (size_t b = 0; b < batch; b++) {" << std::endl;
             for (size_t c = 0; c < channels; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              for (size_t c = 0; c < channels; c++) {" << std::endl;
                 const float *in_ptr = in_ptr_ + iw * ih * channels * b + iw * ih * c;
                 float *out_ptr = out_ptr_ + ow * oh * channels * b + ow * oh * c;
 
                 for (size_t oy = 0; oy < oh; oy++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  for (size_t oy = 0; oy < oh; oy++) {" << std::endl;
                     for (size_t ox = 0; ox < ow; ox++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (size_t ox = 0; ox < ow; ox++) {" << std::endl;
                         float ix = ox * fx + fx / 2.0f - 0.5f;
                         float iy = oy * fy + fy / 2.0f - 0.5f;
 
@@ -182,7 +204,9 @@ private:
                         int ry = (fy < 1.0f) ? 2 : static_cast<int>(ceil(static_cast<float>(kernel_width) / ay));
 
                         for (int y = iy_r - ry; y <= iy_r + ry; y++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (int y = iy_r - ry; y <= iy_r + ry; y++) {" << std::endl;
                             for (int x = ix_r - rx; x <= ix_r + rx; x++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              for (int x = ix_r - rx; x <= ix_r + rx; x++) {" << std::endl;
                                 if (y < 0 || x < 0 || y >= static_cast<int>(ih) || x >= static_cast<int>(iw))
                                     continue;
 
@@ -205,14 +229,20 @@ private:
 
     static void NearestNeighborKernel_PLN(const float *in_ptr_, float *out_ptr_, int B, int C, int ID, int IH, int IW,
                                           float fx, float fy, float fz, int OD, int OH, int OW) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                                            float fx, float fy, float fz, int OD, int OH, int OW) {" << std::endl;
         for (int b = 0; b < B; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:          for (int b = 0; b < B; b++) {" << std::endl;
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 const float *in_ptr = in_ptr_ + IW * IH * ID * C * b + IW * IH * ID * c;
                 float *out_ptr = out_ptr_ + OW * OH * OD * C * b + OW * OH * OD * c;
 
                 for (int oz = 0; oz < OD; oz++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  for (int oz = 0; oz < OD; oz++) {" << std::endl;
                     for (int oy = 0; oy < OH; oy++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (int oy = 0; oy < OH; oy++) {" << std::endl;
                         for (int ox = 0; ox < OW; ox++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (int ox = 0; ox < OW; ox++) {" << std::endl;
                             float ix = ox * fx + fx / 2.0f - 0.5f;
                             float iy = oy * fy + fy / 2.0f - 0.5f;
                             float iz = oz * fz + fz / 2.0f - 0.5f;
@@ -231,6 +261,7 @@ private:
 
     static void NearestNeighborKernel_BLK(const float *in_ptr_, float *out_ptr_, int B, int C, int ID, int IH, int IW,
                                           float fx, float fy, float fz, int OD, int OH, int OW) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                                            float fx, float fy, float fz, int OD, int OH, int OW) {" << std::endl;
 #if defined(HAVE_AVX512F)
         auto blk_size = 16;
 #else
@@ -239,13 +270,18 @@ private:
         int CB = div_up(C, blk_size);
 
         for (int b = 0; b < B; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:          for (int b = 0; b < B; b++) {" << std::endl;
             for (int cb = 0; cb < CB; cb++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              for (int cb = 0; cb < CB; cb++) {" << std::endl;
                 const float *in_ptr = in_ptr_ + IW * IH * ID * CB * blk_size * b + IW * IH * ID * cb * blk_size;
                 float *out_ptr = out_ptr_ + OW * OH * OD * CB * blk_size * b + OW * OH * OD * cb * blk_size;
 
                 for (int oz = 0; oz < OD; oz++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  for (int oz = 0; oz < OD; oz++) {" << std::endl;
                     for (int oy = 0; oy < OH; oy++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (int oy = 0; oy < OH; oy++) {" << std::endl;
                         for (int ox = 0; ox < OW; ox++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (int ox = 0; ox < OW; ox++) {" << std::endl;
                             float ix = ox * fx + fx / 2.0f - 0.5f;
                             float iy = oy * fy + fy / 2.0f - 0.5f;
                             float iz = oz * fz + fz / 2.0f - 0.5f;
@@ -255,6 +291,7 @@ private:
                             size_t iz_r = static_cast<size_t>(round(iz));
 
                             for (int c = 0; c < blk_size; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              for (int c = 0; c < blk_size; c++) {" << std::endl;
                                 float value = in_ptr[iz_r * IH * IW * blk_size + iy_r * IW * blk_size + ix_r * blk_size + c];
 
                                 out_ptr[oz * OH * OW * blk_size + oy * OW * blk_size + ox * blk_size + c] = value;
@@ -268,6 +305,7 @@ private:
 
     template <typename T, int factor>
     static void Upsample_Nearest_PLN(const T *in_ptr_, T *out_ptr_, int B, int C, int ID, int IH, int IW, Layout layout) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:      static void Upsample_Nearest_PLN(const T *in_ptr_, T *out_ptr_, int B, int C, int ID, int IH, int IW, Layout layout) {" << std::endl;
         int factor_d = layout == NCDHW || layout == NDHWC ? factor : 1;
 
         int OD = factor_d * ID;
@@ -275,22 +313,31 @@ private:
         int OW = factor * IW;
 
         if (layout == NCHW || layout == NCDHW) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:          if (layout == NCHW || layout == NCDHW) {" << std::endl;
             for (int b = 0; b < B; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              for (int b = 0; b < B; b++) {" << std::endl;
                 for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  for (int c = 0; c < C; c++) {" << std::endl;
                     const T *in_ptr = in_ptr_ + IW * IH * ID * C * b + IW * IH * ID * c;
                     T *out_ptr = out_ptr_ + OW * OH * OD * C * b + OW * OH * OD * c;
 
                     for (int iz = 0; iz < ID; iz++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (int iz = 0; iz < ID; iz++) {" << std::endl;
                         for (int iy = 0; iy < IH; iy++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (int iy = 0; iy < IH; iy++) {" << std::endl;
                             for (int ix = 0; ix < IW; ix++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              for (int ix = 0; ix < IW; ix++) {" << std::endl;
                                 int oz = factor_d * iz;
                                 int oy = factor * iy;
                                 int ox = factor * ix;
                                 float value = in_ptr[iz * IH * IW + iy * IW + ix];
 
                                 for (int fd = 0; fd < factor_d; fd++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                                  for (int fd = 0; fd < factor_d; fd++) {" << std::endl;
                                     for (int fh = 0; fh < factor; fh++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                                      for (int fh = 0; fh < factor; fh++) {" << std::endl;
                                         for (int fw = 0; fw < factor; fw++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                                          for (int fw = 0; fw < factor; fw++) {" << std::endl;
                                             out_ptr[(oz + fd) * OH * OW + (oy + fh) * OW + ox + fw] = static_cast<T>(value);
                                         }
                                     }
@@ -312,21 +359,25 @@ private:
             int stepY = factor;
 
             parallel_for2d(B, (OH / stepY), [&](size_t mb, size_t oh) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              parallel_for2d(B, (OH / stepY), [&](size_t mb, size_t oh) {" << std::endl;
                 size_t dst_off = mb * OCOWOH + oh * stepY * OW * block_size;
                 size_t src_off = mb * ICIWIH + oh * IW * block_size;
 
                 for (int ow = 0; ow < OW; ow += stepX) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  for (int ow = 0; ow < OW; ow += stepX) {" << std::endl;
                     size_t dst_off_curr = dst_off + ow * block_size;
                     size_t src_off_curr = src_off + ow / stepX * block_size;
 
                     memcpy(&out_ptr_[dst_off_curr], &in_ptr_[src_off_curr], block_size_bytes);
 
                     for (int owx = 1; owx < stepX; owx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (int owx = 1; owx < stepX; owx++) {" << std::endl;
                         memcpy(&out_ptr_[dst_off_curr + block_size * owx], &in_ptr_[src_off_curr], block_size_bytes);
                     }
                 }
 
                 for (int ohy = 1; ohy < stepY; ohy++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  for (int ohy = 1; ohy < stepY; ohy++) {" << std::endl;
                     memcpy(&out_ptr_[dst_off + OW * block_size * ohy], &out_ptr_[dst_off], block_size_bytes * OW);
                 }
             });
@@ -335,6 +386,7 @@ private:
 
     template <int factor>
     static void Upsample_Nearest_BLK(const float *in_ptr_, float *out_ptr_, int B, int C, int ID, int IH, int IW, int ndims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:      static void Upsample_Nearest_BLK(const float *in_ptr_, float *out_ptr_, int B, int C, int ID, int IH, int IW, int ndims) {" << std::endl;
 #if defined(HAVE_AVX512F)
         int blk_size = 16;
 #else
@@ -356,13 +408,17 @@ private:
         int OW = factor * IW;
 
         parallel_for2d(B, CB, [&](int b, int cb) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:          parallel_for2d(B, CB, [&](int b, int cb) {" << std::endl;
 #if defined(HAVE_AVX2) || defined(HAVE_AVX512F)
             const float *in_ptr = in_ptr_ + IW * IH * ID * CB * blk_size * b + IW * IH * ID * cb * blk_size;
             float *out_ptr = out_ptr_ + OW * OH * OD * CB * blk_size * b + OW * OH * OD * cb * blk_size;
 
             for (int iz = 0; iz < ID; iz++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              for (int iz = 0; iz < ID; iz++) {" << std::endl;
                 for (int iy = 0; iy < IH; iy++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  for (int iy = 0; iy < IH; iy++) {" << std::endl;
                     for (int ix = 0; ix < IW; ix++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (int ix = 0; ix < IW; ix++) {" << std::endl;
                         int oz = factor_d * iz;
                         int oy = factor * iy;
                         int ox = factor * ix;
@@ -370,8 +426,11 @@ private:
                         vec_type vsrc = _mm_uni_loadu_ps(in_ptr + iz * IH * IW * blk_size + iy * IW * blk_size + ix * blk_size);
 
                         for (int fz = 0; fz < factor_d; fz++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (int fz = 0; fz < factor_d; fz++) {" << std::endl;
                             for (int fh = 0; fh < factor; fh++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              for (int fh = 0; fh < factor; fh++) {" << std::endl;
                                 for (int fw = 0; fw < factor; fw++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                                  for (int fw = 0; fw < factor; fw++) {" << std::endl;
                                     _mm_uni_storeu_ps(out_ptr + (oz + fz) * OH * OW * blk_size + (oy + fh) * OW * blk_size + (ox + fw) * blk_size, vsrc);
                                 }
                             }
@@ -384,18 +443,25 @@ private:
             float *out_ptr = out_ptr_ + OW * OH * OD * CB * blk_size * b + OW * OH * OD * cb * blk_size;
 
             for (int iz = 0; iz < ID; iz++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              for (int iz = 0; iz < ID; iz++) {" << std::endl;
                 for (int iy = 0; iy < IH; iy++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  for (int iy = 0; iy < IH; iy++) {" << std::endl;
                     for (int ix = 0; ix < IW; ix++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (int ix = 0; ix < IW; ix++) {" << std::endl;
                         int oz = factor_d * iz;
                         int oy = factor * iy;
                         int ox = factor * ix;
 
                         for (int c = 0; c < blk_size; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (int c = 0; c < blk_size; c++) {" << std::endl;
                             float value = in_ptr[iz * IH * IW * blk_size + iy * IW * blk_size + ix * blk_size + c];
 
                             for (int fz = 0; fz < factor_d; fz++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              for (int fz = 0; fz < factor_d; fz++) {" << std::endl;
                                 for (int fh = 0; fh < factor; fh++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                                  for (int fh = 0; fh < factor; fh++) {" << std::endl;
                                     for (int fw = 0; fw < factor; fw++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                                      for (int fw = 0; fw < factor; fw++) {" << std::endl;
                                         out_ptr[(oz + fz) * OH * OW * blk_size + (oy + fh) * OW * blk_size + (ox + fw) * blk_size + c] = value;
                                     }
                                 }
@@ -415,6 +481,7 @@ private:
                                                  const float fx, const float fy,
                                                  float *out_ptr_,
                                                  const size_t ow, const size_t oh, const size_t channels, const size_t batch) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                                                   const size_t ow, const size_t oh, const size_t channels, const size_t batch) {" << std::endl;
     #if defined(HAVE_AVX2)
         static float table_avx2[4][8*4] = {
                 {
@@ -473,7 +540,9 @@ private:
         };
     #endif
         for (size_t b = 0; b < batch; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:          for (size_t b = 0; b < batch; b++) {" << std::endl;
             for (size_t c = 0; c < channels; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:              for (size_t c = 0; c < channels; c++) {" << std::endl;
                 const float *in_ptr = in_ptr_ + b * channels * iw * ih + c * iw * ih;
                 float *out_ptr = out_ptr_ + b * channels * ow * oh + c * ow * oh;
 
@@ -485,6 +554,7 @@ private:
                     size_t ox = 0;
         #if defined(HAVE_AVX2)
                     for (; ox <= ow - 8; ox += 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (; ox <= ow - 8; ox += 8) {" << std::endl;
                         float ix = (ox + 0) * fx + fy / 2.0f - 0.5f;
                         size_t ix_r = static_cast<size_t>(round(ix));
 
@@ -510,16 +580,19 @@ private:
                         __m256 vx22 = _mm256_insertf128_ps(_mm256_castps128_ps256(vx22_), vx23_, 1);
 
                         for (size_t i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (size_t i = 0; i < 4; i++) {" << std::endl;
                             __m256 vc0 = i < 2 ? _mm256_setzero_ps() : _mm256_loadu_ps(table_avx2[i] + 0);
                             __m256 vc1 = i < 2 ? _mm256_setzero_ps() : _mm256_loadu_ps(table_avx2[i] + 8);
                             __m256 vc2 = _mm256_loadu_ps(table_avx2[i] + 16);
                             __m256 vc3 = _mm256_loadu_ps(table_avx2[i] + 24);
 
                             if (ox == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              if (ox == 0) {" << std::endl;
                                 if (i > 1)
                                     vc0 = _mm256_insertf128_ps(vc0, _mm_shuffle_ps(_mm_setzero_ps(), _mm256_extractf128_ps(vc0, 0), 0xD0), 0);
                                 vc2 = _mm256_insertf128_ps(vc2, _mm_shuffle_ps(_mm_setzero_ps(), _mm256_extractf128_ps(vc2, 0), 0xD0), 0);
                             } else if (ox == ow - 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              } else if (ox == ow - 8) {" << std::endl;
                                 if (i > 1)
                                     vc0 = _mm256_insertf128_ps(vc0, _mm_shuffle_ps(_mm256_extractf128_ps(vc0, 1), _mm_setzero_ps(), 0x07), 1);
                                 vc2 = _mm256_insertf128_ps(vc2, _mm_shuffle_ps(_mm256_extractf128_ps(vc2, 1), _mm_setzero_ps(), 0x07), 1);
@@ -547,6 +620,7 @@ private:
 
         #if defined(HAVE_SSE) || defined(HAVE_AVX2)
                     for (; ox <= ow - 4; ox += 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (; ox <= ow - 4; ox += 4) {" << std::endl;
                         float ix = (ox + 0) * fx + fy / 2.0f - 0.5f;
                         size_t ix_r = static_cast<size_t>(round(ix));
 
@@ -563,16 +637,19 @@ private:
                         __m128 vx22 = _mm_load_ss(in_ptr+(iy_r+1)*iw+ix_r+1);
 
                         for (size_t i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (size_t i = 0; i < 4; i++) {" << std::endl;
                             __m128 vc0 = i < 2 ? _mm_setzero_ps() : _mm_loadu_ps(table_sse[i] + 0);
                             __m128 vc1 = i < 2 ? _mm_setzero_ps() : _mm_loadu_ps(table_sse[i] + 4);
                             __m128 vc2 = _mm_loadu_ps(table_sse[i] +  8);
                             __m128 vc3 = _mm_loadu_ps(table_sse[i] + 12);
 
                             if (ox == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              if (ox == 0) {" << std::endl;
                                 if (i > 1)
                                     vc0 = _mm_shuffle_ps(_mm_setzero_ps(), vc0, 0xD0);
                                 vc2 = _mm_shuffle_ps(_mm_setzero_ps(), vc2, 0xD0);
                             } else if (ox == ow - 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              } else if (ox == ow - 4) {" << std::endl;
                                 if (i > 1)
                                     vc0 = _mm_shuffle_ps(vc0, _mm_setzero_ps() , 0x07);
                                 vc2 = _mm_shuffle_ps(vc2, _mm_setzero_ps() , 0x07);
@@ -600,12 +677,14 @@ private:
                 }
 
                 for (oy = 4; oy <= oh - 8; oy += 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                  for (oy = 4; oy <= oh - 8; oy += 4) {" << std::endl;
                     float iy = oy * fy + fx / 2.0f - 0.5f;
                     size_t iy_r = static_cast<size_t>(round(iy));
 
                     size_t ox = 0;
         #if defined(HAVE_AVX2)
                     for (; ox <= ow - 8; ox += 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (; ox <= ow - 8; ox += 8) {" << std::endl;
                         float ix = (ox + 0) * fx + fy / 2.0f - 0.5f;
                         size_t ix_r = static_cast<size_t>(round(ix));
 
@@ -637,15 +716,18 @@ private:
                         __m256 vx22 = _mm256_insertf128_ps(_mm256_castps128_ps256(vx22_), vx23_, 1);
 
                         for (size_t i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (size_t i = 0; i < 4; i++) {" << std::endl;
                             __m256 vc0 = _mm256_loadu_ps(table_avx2[i] + 0);
                             __m256 vc1 = _mm256_loadu_ps(table_avx2[i] + 8);
                             __m256 vc2 = _mm256_loadu_ps(table_avx2[i] + 16);
                             __m256 vc3 = _mm256_loadu_ps(table_avx2[i] + 24);
 
                             if (ox == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              if (ox == 0) {" << std::endl;
                                 vc0 = _mm256_insertf128_ps(vc0, _mm_shuffle_ps(_mm_setzero_ps(), _mm256_extractf128_ps(vc0, 0), 0xD0), 0);
                                 vc2 = _mm256_insertf128_ps(vc2, _mm_shuffle_ps(_mm_setzero_ps(), _mm256_extractf128_ps(vc2, 0), 0xD0), 0);
                             } else if (ox == ow - 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              } else if (ox == ow - 8) {" << std::endl;
                                 vc0 = _mm256_insertf128_ps(vc0, _mm_shuffle_ps(_mm256_extractf128_ps(vc0, 1), _mm_setzero_ps(), 0x07), 1);
                                 vc2 = _mm256_insertf128_ps(vc2, _mm_shuffle_ps(_mm256_extractf128_ps(vc2, 1), _mm_setzero_ps(), 0x07), 1);
                             }
@@ -663,6 +745,7 @@ private:
                             res = _mm256_fmadd_ps(vsrc3, vc3, res);
 
                             if (ox == 0 || ox == ow - 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              if (ox == 0 || ox == ow - 8) {" << std::endl;
                                 __m256 wei = _mm256_add_ps(_mm256_add_ps(vc0, vc1), _mm256_add_ps(vc2, vc3));
 
                                 res = _mm256_div_ps(res, wei);
@@ -675,6 +758,7 @@ private:
 
         #if defined(HAVE_SSE) || defined(HAVE_AVX2)
                     for (; ox <= ow - 4; ox += 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (; ox <= ow - 4; ox += 4) {" << std::endl;
                         float ix = (ox + 0) * fx + fy / 2.0f - 0.5f;
                         size_t ix_r = static_cast<size_t>(round(ix));
 
@@ -691,15 +775,18 @@ private:
                         __m128 vx22 = _mm_load_ss(in_ptr+(iy_r+1)*iw+ix_r+1);
 
                         for (size_t i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (size_t i = 0; i < 4; i++) {" << std::endl;
                             __m128 vc0 = _mm_loadu_ps(table_sse[i] +  0);
                             __m128 vc1 = _mm_loadu_ps(table_sse[i] +  4);
                             __m128 vc2 = _mm_loadu_ps(table_sse[i] +  8);
                             __m128 vc3 = _mm_loadu_ps(table_sse[i] + 12);
 
                             if (ox == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              if (ox == 0) {" << std::endl;
                                 vc0 = _mm_shuffle_ps(_mm_setzero_ps(), vc0, 0xD0);
                                 vc2 = _mm_shuffle_ps(_mm_setzero_ps(), vc2, 0xD0);
                             } else if (ox == ow - 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              } else if (ox == ow - 4) {" << std::endl;
                                 vc0 = _mm_shuffle_ps(vc0, _mm_setzero_ps() , 0x07);
                                 vc2 = _mm_shuffle_ps(vc2, _mm_setzero_ps() , 0x07);
                             }
@@ -716,6 +803,7 @@ private:
 
                             __m128 res = _mm_add_ps(_mm_add_ps(vres0, vres1), _mm_add_ps(vres2, vres3));
                             if (ox == 0 || ox == ow - 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              if (ox == 0 || ox == ow - 4) {" << std::endl;
                                 __m128 wei = _mm_add_ps(_mm_add_ps(vc0, vc1), _mm_add_ps(vc2, vc3));
 
                                 res = _mm_div_ps(res, wei);
@@ -736,6 +824,7 @@ private:
 
         #if defined(HAVE_AVX2)
                     for (; ox <= ow - 8; ox += 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (; ox <= ow - 8; ox += 8) {" << std::endl;
                         float ix = (ox + 0) * fx + fy / 2.0f - 0.5f;
                         size_t ix_r = static_cast<size_t>(round(ix));
 
@@ -762,16 +851,19 @@ private:
                         __m256 vx22 = _mm256_setzero_ps();
 
                         for (size_t i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (size_t i = 0; i < 4; i++) {" << std::endl;
                             __m256 vc0 = _mm256_loadu_ps(table_avx2[i] + 0);
                             __m256 vc1 = _mm256_loadu_ps(table_avx2[i] + 8);
                             __m256 vc2 = i < 2 ? _mm256_loadu_ps(table_avx2[i] + 16) : _mm256_setzero_ps();
                             __m256 vc3 = i < 2 ? _mm256_loadu_ps(table_avx2[i] + 24) : _mm256_setzero_ps();
 
                             if (ox == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              if (ox == 0) {" << std::endl;
                                 vc0 = _mm256_insertf128_ps(vc0, _mm_shuffle_ps(_mm_setzero_ps(), _mm256_extractf128_ps(vc0, 0), 0xD0), 0);
                                 if (i < 2)
                                     vc2 = _mm256_insertf128_ps(vc2, _mm_shuffle_ps(_mm_setzero_ps(), _mm256_extractf128_ps(vc2, 0), 0xD0), 0);
                             } else if (ox == ow - 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              } else if (ox == ow - 8) {" << std::endl;
                                 vc0 = _mm256_insertf128_ps(vc0, _mm_shuffle_ps(_mm256_extractf128_ps(vc0, 1), _mm_setzero_ps(), 0x07), 1);
                                 if (i < 2)
                                     vc2 = _mm256_insertf128_ps(vc2, _mm_shuffle_ps(_mm256_extractf128_ps(vc2, 1), _mm_setzero_ps(), 0x07), 1);
@@ -800,6 +892,7 @@ private:
 
         #if defined(HAVE_SSE) || defined(HAVE_AVX2)
                     for (; ox <= ow - 4; ox += 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                      for (; ox <= ow - 4; ox += 4) {" << std::endl;
                         float ix = (ox + 0) * fx + fy / 2.0f - 0.5f;
                         size_t ix_r = static_cast<size_t>(round(ix));
 
@@ -816,16 +909,19 @@ private:
                         __m128 vx22 = _mm_setzero_ps();
 
                         for (size_t i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                          for (size_t i = 0; i < 4; i++) {" << std::endl;
                             __m128 vc0 = _mm_loadu_ps(table_sse[i] +  0);
                             __m128 vc1 = _mm_loadu_ps(table_sse[i] +  4);
                             __m128 vc2 = i < 2 ?_mm_loadu_ps(table_sse[i] +  8) : _mm_setzero_ps();
                             __m128 vc3 = i < 2 ?_mm_loadu_ps(table_sse[i] + 12) : _mm_setzero_ps();
 
                             if (ox == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              if (ox == 0) {" << std::endl;
                                 vc0 = _mm_shuffle_ps(_mm_setzero_ps(), vc0, 0xD0);
                                 if (i < 2)
                                     vc2 = _mm_shuffle_ps(_mm_setzero_ps(), vc2, 0xD0);
                             } else if (ox == ow - 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/resample.cpp:                              } else if (ox == ow - 4) {" << std::endl;
                                 vc0 = _mm_shuffle_ps(vc0, _mm_setzero_ps() , 0x07);
                                 if (i < 2)
                                     vc2 = _mm_shuffle_ps(vc2, _mm_setzero_ps() , 0x07);

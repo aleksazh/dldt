@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -11,56 +12,74 @@
 using namespace InferenceEngine;
 
 Builder::EltwiseLayer::EltwiseLayer(const std::string& name): LayerDecorator("Eltwise", name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:  Builder::EltwiseLayer::EltwiseLayer(const std::string& name): LayerDecorator('Eltwise', name) {" << std::endl;
     getLayer()->getOutputPorts().resize(1);
     getLayer()->getInputPorts().resize(2);
     setEltwiseType(EltwiseType::SUM);
 }
 
 Builder::EltwiseLayer::EltwiseLayer(const Layer::Ptr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:  Builder::EltwiseLayer::EltwiseLayer(const Layer::Ptr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("Eltwise");
 
     std::string operatorStr = getLayer()->getParameters()["operation"];
     if (operatorStr == "max") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      if (operatorStr == 'max') {" << std::endl;
         type = MAX;
     } else if (operatorStr == "sum") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'sum') {" << std::endl;
         type = SUM;
     } else if (operatorStr == "mul") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'mul') {" << std::endl;
         type = MUL;
     } else if (operatorStr == "sub") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'sub') {" << std::endl;
         type = SUB;
     } else if (operatorStr == "div") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'div') {" << std::endl;
         type = DIV;
     } else if (operatorStr == "min") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'min') {" << std::endl;
         type = MIN;
     } else if (operatorStr == "squared_diff") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'squared_diff') {" << std::endl;
         type = SQUARED_DIFF;
     }
 }
 
 Builder::EltwiseLayer::EltwiseLayer(const Layer::CPtr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:  Builder::EltwiseLayer::EltwiseLayer(const Layer::CPtr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("Eltwise");
 
     const auto cLayer = static_cast<const EltwiseLayer*>(this)->getLayer();
 
     std::string operatorStr = cLayer->getParameters().at("operation");
     if (operatorStr == "max") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      if (operatorStr == 'max') {" << std::endl;
         type = MAX;
     } else if (operatorStr == "sum") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'sum') {" << std::endl;
         type = SUM;
     } else if (operatorStr == "mul") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'mul') {" << std::endl;
         type = MUL;
     } else if (operatorStr == "sub") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'sub') {" << std::endl;
         type = SUB;
     } else if (operatorStr == "div") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'div') {" << std::endl;
         type = DIV;
     } else if (operatorStr == "min") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'min') {" << std::endl;
         type = MIN;
     } else if (operatorStr == "squared_diff") {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      } else if (operatorStr == 'squared_diff') {" << std::endl;
         type = SQUARED_DIFF;
     }
 }
 
 Builder::EltwiseLayer& Builder::EltwiseLayer::setName(const std::string& name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:  Builder::EltwiseLayer& Builder::EltwiseLayer::setName(const std::string& name) {" << std::endl;
     getLayer()->setName(name);
     return *this;
 }
@@ -70,6 +89,7 @@ const std::vector<Port>& Builder::EltwiseLayer::getInputPorts() const {
 }
 
 Builder::EltwiseLayer& Builder::EltwiseLayer::setInputPorts(const std::vector<Port>& ports) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:  Builder::EltwiseLayer& Builder::EltwiseLayer::setInputPorts(const std::vector<Port>& ports) {" << std::endl;
     getLayer()->getInputPorts() = ports;
     return *this;
 }
@@ -79,6 +99,7 @@ const Port& Builder::EltwiseLayer::getOutputPort() const {
 }
 
 Builder::EltwiseLayer& Builder::EltwiseLayer::setOutputPort(const Port &port) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:  Builder::EltwiseLayer& Builder::EltwiseLayer::setOutputPort(const Port &port) {" << std::endl;
     getLayer()->getOutputPorts()[0] = port;
     return *this;
 }
@@ -89,6 +110,7 @@ const std::vector<float> Builder::EltwiseLayer::getScales() const {
 
 // TODO: IR doesn't contain Scales!!!
 Builder::EltwiseLayer& Builder::EltwiseLayer::setScales(const std::vector<float>& scales) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:  Builder::EltwiseLayer& Builder::EltwiseLayer::setScales(const std::vector<float>& scales) {" << std::endl;
     getLayer()->getParameters()["scales"] = scales;
     return *this;
 }
@@ -98,9 +120,11 @@ Builder::EltwiseLayer::EltwiseType Builder::EltwiseLayer::getEltwiseType() const
 }
 
 Builder::EltwiseLayer& Builder::EltwiseLayer::setEltwiseType(Builder::EltwiseLayer::EltwiseType type) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:  Builder::EltwiseLayer& Builder::EltwiseLayer::setEltwiseType(Builder::EltwiseLayer::EltwiseType type) {" << std::endl;
     this->type = type;
     std::string operatorStr;
     switch (type) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      switch (type) {" << std::endl;
         case MAX:
             operatorStr = "max";
             break;
@@ -128,9 +152,11 @@ Builder::EltwiseLayer& Builder::EltwiseLayer::setEltwiseType(Builder::EltwiseLay
 }
 
 REG_VALIDATOR_FOR(Eltwise, [](const InferenceEngine::Builder::Layer::CPtr& input_layer, bool partial) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:  REG_VALIDATOR_FOR(Eltwise, [](const InferenceEngine::Builder::Layer::CPtr& input_layer, bool partial) {" << std::endl;
     Builder::EltwiseLayer layer(input_layer);
 
     if (layer.getInputPorts().size() < 2) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      if (layer.getInputPorts().size() < 2) {" << std::endl;
         THROW_IE_EXCEPTION << "Input ports are incorrect in the layer " << layer.getName()
                            << ". Number of input ports should be >= 2.";
     }
@@ -139,17 +165,20 @@ REG_VALIDATOR_FOR(Eltwise, [](const InferenceEngine::Builder::Layer::CPtr& input
         return;
 
     if (layer.getInputPorts()[0].shape() != layer.getInputPorts()[1].shape()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      if (layer.getInputPorts()[0].shape() != layer.getInputPorts()[1].shape()) {" << std::endl;
         THROW_IE_EXCEPTION << "Input ports are incorrect in the layer " << layer.getName()
                            << ". They should have equal dimensions";
     }
 
     if (layer.getInputPorts()[0].shape() != layer.getOutputPort().shape()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:      if (layer.getInputPorts()[0].shape() != layer.getOutputPort().shape()) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer " << layer.getName() << " have different input and output ports. "
                            << "They should have equal dimensions.";
     }
 });
 
 REG_CONVERTER_FOR(Eltwise, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_eltwise_layer.cpp:  REG_CONVERTER_FOR(Eltwise, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {" << std::endl;
     layer.getParameters()["scales"] = cnnLayer->GetParamAsFloats("scales", {});
     layer.getParameters()["operation"] = cnnLayer->GetParamAsString("operation");
 });

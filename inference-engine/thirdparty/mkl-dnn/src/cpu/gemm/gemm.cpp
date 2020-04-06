@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018-2019 Intel Corporation
 *
@@ -49,6 +50,7 @@ mkldnn_status_t check_gemm_input(const char *transa, const char *transb,
         const int *M, const int *N, const int *K, const int *lda,
         const int *ldb, const int *ldc, const float *alpha, const float *beta,
         const bool with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          const bool with_bias) {" << std::endl;
     if (utils::any_null(transa, transb, M, N, K, lda, ldb, ldc, alpha, beta))
         return mkldnn_invalid_arguments;
     if (with_bias && *beta != 0)
@@ -80,6 +82,7 @@ mkldnn_status_t check_gemm_x8x8x32_input(const char *offsetc,
         const char *transa, const char *transb, const int *M, const int *N,
         const int *K, const int *lda, const int *ldb, const int *ldc,
         const float *alpha, const float *beta, const bool with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          const float *alpha, const float *beta, const bool with_bias) {" << std::endl;
     if (offsetc == nullptr)
         return mkldnn_invalid_arguments;
     if (!utils::one_of(*offsetc, 'F', 'f', 'C', 'c', 'R', 'r'))
@@ -94,6 +97,7 @@ mkldnn_status_t extended_sgemm(const char *transa, const char *transb,
         const float *A, const int *lda, const float *B, const int *ldb,
         const float *beta, float *C, const int *ldc,
         const float *bias, const bool force_jit_nocopy_gemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          const float *bias, const bool force_jit_nocopy_gemm) {" << std::endl;
     mkldnn_status_t status = check_gemm_input(transa, transb, M, N, K,
             lda, ldb, ldc, alpha, beta, bias != nullptr);
     if (status != mkldnn_success)
@@ -101,6 +105,7 @@ mkldnn_status_t extended_sgemm(const char *transa, const char *transb,
 
 #ifdef USE_CBLAS
     if (!force_jit_nocopy_gemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:      if (!force_jit_nocopy_gemm) {" << std::endl;
         bool trA = *transa == 't' || *transa == 'T';
         bool trB = *transb == 't' || *transb == 'T';
         CBLAS_TRANSPOSE Cblas_trA = trA ? CblasTrans : CblasNoTrans;
@@ -109,9 +114,11 @@ mkldnn_status_t extended_sgemm(const char *transa, const char *transb,
                 *M, *N, *K, *alpha, A, *lda, B, *ldb, *beta, C, *ldc);
 
         if (bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          if (bias) {" << std::endl;
             // Add bias if necessary (bias is applied to columns of C)
             cblas_int incx = 1, incy = 1;
             parallel_nd(*N, [&](int n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:              parallel_nd(*N, [&](int n) {" << std::endl;
                 ptrdiff_t offset = (ptrdiff_t)n * (*ldc);
                 cblas_saxpy(*M, 1.0, bias, incx, C + offset, incy);
             });
@@ -121,9 +128,11 @@ mkldnn_status_t extended_sgemm(const char *transa, const char *transb,
 #endif
 
     if (mayiuse(avx512_mic)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:      if (mayiuse(avx512_mic)) {" << std::endl;
         return jit_avx512_common_gemm_f32(transa, transb,
                 M, N, K, alpha, A, lda, B, ldb, beta, C, ldc, bias);
     } else if (mayiuse(avx)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:      } else if (mayiuse(avx)) {" << std::endl;
         float *dummy_ao = NULL;
         float *dummy_bo = NULL;
 
@@ -142,6 +151,7 @@ mkldnn_status_t gemm_s8x8s32(const char *transa, const char *transb,
         const float *alpha, const int8_t *A, const int *LDA, const int8_t *ao,
         const b_dt *B, const int *LDB, const int8_t *bo, const float *beta,
         int32_t *C, const int *LDC, const int32_t *co) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          int32_t *C, const int *LDC, const int32_t *co) {" << std::endl;
     mkldnn_status_t status = check_gemm_x8x8x32_input(offsetc, transa, transb,
         M, N, K, LDA, LDB, LDC, alpha, beta, false);
     if (status != mkldnn_success)
@@ -157,6 +167,7 @@ mkldnn_status_t gemm_s8x8s32(const char *transa, const char *transb,
         bool BisN = (*transb == 'N' || *transb == 'n');
 
     if (data_traits<b_dt>::data_type == data_type::u8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:      if (data_traits<b_dt>::data_type == data_type::u8) {" << std::endl;
         CBLAS_TRANSPOSE Cblas_trA = AisN ? CblasNoTrans : CblasTrans;
         CBLAS_TRANSPOSE Cblas_trB = BisN ? CblasNoTrans : CblasTrans;
         CBLAS_OFFSET Cblas_offsetc =
@@ -174,6 +185,7 @@ mkldnn_status_t gemm_s8x8s32(const char *transa, const char *transb,
         // TODO CBLAS implementation of gemm_s8s8s32 goes here.
         // mkldnn_gemm_s8s8s32 doesn't support non-zero ao and bo
         if (utils::everyone_is(0, *ao, *bo)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          if (utils::everyone_is(0, *ao, *bo)) {" << std::endl;
             return simple_gemm_s8s8s32(transa, transb, offsetc, M,
                     N, K, alpha, A, LDA, ao, (int8_t *)B, LDB, bo, beta,
                     C, LDC, co);
@@ -185,13 +197,17 @@ mkldnn_status_t gemm_s8x8s32(const char *transa, const char *transb,
 #else
     cpu_isa_t isa = isa_any;
     if (mayiuse(avx512_core_vnni)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:      if (mayiuse(avx512_core_vnni)) {" << std::endl;
         isa = avx512_core_vnni;
     } else if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:      } else if (mayiuse(avx512_core)) {" << std::endl;
         isa = avx512_core;
     }
 
     if (data_traits<b_dt>::data_type == data_type::u8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:      if (data_traits<b_dt>::data_type == data_type::u8) {" << std::endl;
         switch (isa) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          switch (isa) {" << std::endl;
         case avx512_core:
         case avx512_core_vnni:
             return gemm_driver(transa, transb, offsetc, M,
@@ -206,6 +222,7 @@ mkldnn_status_t gemm_s8x8s32(const char *transa, const char *transb,
         // mkldnn_gemm_s8s8s32 doesn't support non-zero ao and bo
         if ((mayiuse(avx512_core) || mayiuse(avx512_core_vnni))
                 && *ao == 0 && *bo == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:                  && *ao == 0 && *bo == 0) {" << std::endl;
             return simple_gemm_s8s8s32(transa, transb, offsetc, M,
                     N, K, alpha, A, LDA, ao, (int8_t *)B, LDB, bo, beta,
                     C, LDC, co);
@@ -228,6 +245,7 @@ mkldnn_status_t mkldnn_sgemm(const char *transa, const char *transb,
         const int *M, const int *N, const int *K, const float *alpha,
         const float *A, const int *lda, const float *B, const int *ldb,
         const float *beta, float *C, const int *ldc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          const float *beta, float *C, const int *ldc) {" << std::endl;
     return extended_sgemm(
             transa, transb, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
 }
@@ -237,6 +255,7 @@ mkldnn_status_t mkldnn_gemm_s8u8s32(const char *transa, const char *transb,
         const float *alpha, const int8_t *A, const int *lda, const int8_t *ao,
         const uint8_t *B, const int *ldb, const int8_t *bo, const float *beta,
         int32_t *C, const int *ldc, const int32_t *co) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          int32_t *C, const int *ldc, const int32_t *co) {" << std::endl;
     return gemm_s8x8s32(
         transa, transb, offsetc, M, N, K, alpha, A, lda, ao, B, ldb, bo,
         beta, C, ldc, co);
@@ -247,6 +266,7 @@ mkldnn_status_t mkldnn_gemm_s8s8s32(const char *transa, const char *transb,
         const float *alpha, const int8_t *A, const int *lda, const int8_t *ao,
         const int8_t *B, const int *ldb, const int8_t *bo, const float *beta,
         int32_t *C, const int *ldc, const int32_t *co) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          int32_t *C, const int *ldc, const int32_t *co) {" << std::endl;
     return gemm_s8x8s32(
         transa, transb, offsetc, M, N, K, alpha, A, lda, ao, B, ldb, bo,
         beta, C, ldc, co);
@@ -256,6 +276,7 @@ mkldnn_status_t mkldnn_gemm_bf16bf16f32(const char *transa, const char *transb,
         const int *M, const int *N, const int *K, const float *alpha,
         const mkldnn_bfloat16_t *A, const int *lda, const mkldnn_bfloat16_t *B,
         const int *ldb, const float *beta, float *C, const int *ldc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:          const int *ldb, const float *beta, float *C, const int *ldc) {" << std::endl;
     mkldnn_status_t status = check_gemm_input(transa, transb, M, N, K, lda,
             ldb, ldc, alpha, beta, false);
     if (status != mkldnn_success)
@@ -267,6 +288,7 @@ mkldnn_status_t mkldnn_gemm_bf16bf16f32(const char *transa, const char *transb,
     float *dummy_co = NULL;
 
     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm.cpp:      if (mayiuse(avx512_core)) {" << std::endl;
         return gemm_driver(transa, transb, dummyOffsetC, M, N, K,
                 alpha, A, lda, dummy_ao, B, ldb, dummy_bo, beta, C, ldc,
                 dummy_co, false);

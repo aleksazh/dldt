@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018-2019 Intel Corporation
 *
@@ -35,6 +36,7 @@ mkldnn_status_t ref_gemm_s8x8s32(const char *transa, const char *transb,
         const float *alpha, const int8_t *A, const int *LDA, const int8_t *ao,
         const b_dt *B, const int *LDB, const int8_t *bo, const float *beta,
         int32_t *C, const int *LDC, const int32_t *co) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:          int32_t *C, const int *LDC, const int32_t *co) {" << std::endl;
 
     if (*M == 0 || *N == 0 || *K == 0)
         return mkldnn_success;
@@ -54,21 +56,27 @@ mkldnn_status_t ref_gemm_s8x8s32(const char *transa, const char *transb,
     double *dC = (double *)malloc(sizeC * sizeof(double), PAGE_4K);
 
     if (utils::any_null(dA, dB, dC)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:      if (utils::any_null(dA, dB, dC)) {" << std::endl;
         free(dA);
         free(dB);
         free(dC);
         return mkldnn_out_of_memory;
     }
 
-    auto da_setter = [=] (int i, int j, double v) { dA[j * lda + i] = v; };
-    auto db_setter = [=] (int i, int j, double v) { dB[j * ldb + i] = v; };
+    auto da_setter = [=] (int i, int j, double v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:      auto da_setter = [=] (int i, int j, double v) {" << std::endl; dA[j * lda + i] = v; };
+    auto db_setter = [=] (int i, int j, double v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:      auto db_setter = [=] (int i, int j, double v) {" << std::endl; dB[j * ldb + i] = v; };
 
-    auto ia_accessor = [=] (int i, int j) { return A[j * lda + i]; };
-    auto ib_accessor = [=] (int i, int j) { return B[j * ldb + i]; };
+    auto ia_accessor = [=] (int i, int j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:      auto ia_accessor = [=] (int i, int j) {" << std::endl; return A[j * lda + i]; };
+    auto ib_accessor = [=] (int i, int j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:      auto ib_accessor = [=] (int i, int j) {" << std::endl; return B[j * ldb + i]; };
 
     const int a_rows = AisN ? m : k;
     const int a_cols = AisN ? k : m;
     mkldnn::impl::parallel_nd(a_cols, a_rows, [&](int j, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:      mkldnn::impl::parallel_nd(a_cols, a_rows, [&](int j, int i) {" << std::endl;
         da_setter(i, j,
             static_cast<double>(ia_accessor(i, j))
             + static_cast<double>(ao[0]));
@@ -77,6 +85,7 @@ mkldnn_status_t ref_gemm_s8x8s32(const char *transa, const char *transb,
     const int b_rows = BisN ? k : n;
     const int b_cols = BisN ? n : k;
     mkldnn::impl::parallel_nd(b_cols, b_rows, [&](int j, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:      mkldnn::impl::parallel_nd(b_cols, b_rows, [&](int j, int i) {" << std::endl;
         db_setter(i, j,
             static_cast<double>(ib_accessor(i, j))
             + static_cast<double>(bo[0]));
@@ -85,10 +94,13 @@ mkldnn_status_t ref_gemm_s8x8s32(const char *transa, const char *transb,
     ref_gemm<double>(transa, transb, M, N, K, &one, dA, LDA, dB, LDB, &zero,
         dC, LDC, nullptr);
 
-    auto i2d = [=] (int32_t v) { return static_cast<double>(v); };
-    auto f2d = [=] (float v)   { return static_cast<double>(v); };
+    auto i2d = [=] (int32_t v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:      auto i2d = [=] (int32_t v) {" << std::endl; return static_cast<double>(v); };
+    auto f2d = [=] (float v)   {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:      auto f2d = [=] (float v)   {" << std::endl; return static_cast<double>(v); };
 
     mkldnn::impl::parallel_nd(n, m, [&] (int j, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/ref_gemm_s8x8s32.cpp:      mkldnn::impl::parallel_nd(n, m, [&] (int j, int i) {" << std::endl;
         double coffset = OCisR ? i2d(co[j]) : OCisC ? i2d(co[i]) : i2d(co[0]);
         double val = ((*beta == 0.0f) ? 0.0 : f2d(*beta) * i2d(C[i + j * ldc]))
             + f2d(*alpha) * dC[i + j * ldc] + coffset;

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -35,7 +36,9 @@ using namespace rnn_utils;
 
 template <>
 rnn_cell_execution_sig(ref_rnn_fwd_f32_t::cell_execution_gru_lbr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/cell_gru_lbr.cpp:  rnn_cell_execution_sig(ref_rnn_fwd_f32_t::cell_execution_gru_lbr) {" << std::endl;
     if (!rnn.merge_gemm_layer) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/cell_gru_lbr.cpp:      if (!rnn.merge_gemm_layer) {" << std::endl;
         (this->*gemm_layer_func)('N', 'N', rnn.n_gates * rnn.dic, rnn.mb,
                 rnn.slc, 1.0, w_layer_[0], rnn.weights_layer_ld,
                 states_t_lm1_, rnn.states_ws_ld, 0.0, ws_gates_,
@@ -52,12 +55,14 @@ rnn_cell_execution_sig(ref_rnn_fwd_f32_t::cell_execution_gru_lbr) {
 
 template <>
 rnn_cell_execution_sig(ref_rnn_fwd_u8s8_t::cell_execution_gru_lbr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/cell_gru_lbr.cpp:  rnn_cell_execution_sig(ref_rnn_fwd_u8s8_t::cell_execution_gru_lbr) {" << std::endl;
     assert(!"GRU LBR int8 is not supported");
 }
 
 
 template <>
 rnn_cell_execution_sig(ref_rnn_bwd_f32_t::cell_execution_gru_lbr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/cell_gru_lbr.cpp:  rnn_cell_execution_sig(ref_rnn_bwd_f32_t::cell_execution_gru_lbr) {" << std::endl;
     ws_gates_aoc_t ws_gates_r(rnn, ws_cell_);
     ws_diff_states_aoc_t diff_states_t_l(rnn, diff_states_t_l_);
 
@@ -67,6 +72,7 @@ rnn_cell_execution_sig(ref_rnn_bwd_f32_t::cell_execution_gru_lbr) {
                 bias_[0], ws_grid_, ws_cell_);
 
     if (!rnn.merge_gemm_layer) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/cell_gru_lbr.cpp:      if (!rnn.merge_gemm_layer) {" << std::endl;
         //  dx = dG * Wx^t
         (this->*gemm_layer_func)('N', 'N', rnn.slc, rnn.mb,
                 rnn.n_gates * rnn.dic, 1.0, w_layer_[0],
@@ -92,7 +98,9 @@ rnn_cell_execution_sig(ref_rnn_bwd_f32_t::cell_execution_gru_lbr) {
     gates_reduction(rnn, ws_gates_, diff_bias_);
 
     parallel_nd(rnn.dic, [&](int j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/cell_gru_lbr.cpp:      parallel_nd(rnn.dic, [&](int j) {" << std::endl;
         for (int i = 0; i < rnn.mb; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/cell_gru_lbr.cpp:          for (int i = 0; i < rnn.mb; i++) {" << std::endl;
             diff_bias_[3 * rnn.dic + j] += ws_gates_r(i, 2, j);
         }
     });

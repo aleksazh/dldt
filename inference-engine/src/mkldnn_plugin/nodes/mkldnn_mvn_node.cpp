@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -38,9 +39,11 @@ struct jit_uni_mvn_mean_variance_kernel_f32 : public jit_uni_mvn_mean_variance_k
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_uni_mvn_mean_kernel_f32)
 
     explicit jit_uni_mvn_mean_variance_kernel_f32(jit_mvn_config_params jcp) : jit_uni_mvn_mean_variance_kernel(jcp), jit_generator() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      explicit jit_uni_mvn_mean_variance_kernel_f32(jit_mvn_config_params jcp) : jit_uni_mvn_mean_variance_kernel(jcp), jit_generator() {" << std::endl;
         this->preamble();
         mov(reg_src, ptr[reg_params + GET_OFF(src)]);
         if (jcp_.normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (jcp_.normalize_variance) {" << std::endl;
             mov(reg_mean, ptr[reg_params + GET_OFF(mean)]);
             mov(reg_variance, ptr[reg_params + GET_OFF(variance)]);
         } else {
@@ -51,13 +54,16 @@ struct jit_uni_mvn_mean_variance_kernel_f32 : public jit_uni_mvn_mean_variance_k
 
         int repeats = (!jcp_.planar_layout && !jcp_.across_channels && isa == cpu::sse42) ? 2 : 1;  // block size is also 8 on cpu::sse42
         for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          for (int i = 0; i < repeats; i++) {" << std::endl;
             int offset_sse42 = i * 4;
             if (i > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (i > 0) {" << std::endl;
                 mov(reg_src, ptr[reg_params + GET_OFF(src)]);
                 mov(reg_work_amount, ptr[reg_params + GET_OFF(work_amount)]);
 
                 add(reg_src, offset_sse42 * jcp_.src_data_size);
                 if (jcp_.normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (jcp_.normalize_variance) {" << std::endl;
                     add(reg_mean, offset_sse42 * sizeof(float));
                     add(reg_variance, offset_sse42 * sizeof(float));
                 } else {
@@ -69,9 +75,11 @@ struct jit_uni_mvn_mean_variance_kernel_f32 : public jit_uni_mvn_mean_variance_k
             Xbyak::Label loop_end_label;
 
             if (jcp_.normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (jcp_.normalize_variance) {" << std::endl;
                 uni_vpxor(vmm_variance, vmm_variance, vmm_variance);
 
                 if (jcp_.planar_layout || jcp_.across_channels) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (jcp_.planar_layout || jcp_.across_channels) {" << std::endl;
                     uni_vbroadcastss(vmm_mean, ptr[reg_mean]);
                 } else {
                     uni_vmovups(vmm_mean, ptr[reg_mean]);
@@ -88,6 +96,7 @@ struct jit_uni_mvn_mean_variance_kernel_f32 : public jit_uni_mvn_mean_variance_k
                 load_vector(vmm_val, ptr[reg_src], jcp_.src_dt);
 
                 if (jcp_.normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (jcp_.normalize_variance) {" << std::endl;
                     if (jcp_.src_dt != memory::f32)
                         uni_vcvtdq2ps(vmm_val, vmm_val);
 
@@ -108,11 +117,14 @@ struct jit_uni_mvn_mean_variance_kernel_f32 : public jit_uni_mvn_mean_variance_k
             L(loop_end_label);
 
             if (jcp_.planar_layout) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (jcp_.planar_layout) {" << std::endl;
                 Vmm vmm_dst = jcp_.normalize_variance ? vmm_variance : vmm_sum;
                 // hsum+store
                 if (isa == cpu::sse42) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (isa == cpu::sse42) {" << std::endl;
                     hsum_store(vmm_dst);
                 } else if (isa == cpu::avx2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  } else if (isa == cpu::avx2) {" << std::endl;
                     Xbyak::Ymm ymm_sum = Xbyak::Ymm(vmm_dst.getIdx());
                     vextractf128(xmm_aux1, ymm_sum, 0);
                     vextractf128(xmm_aux2, ymm_sum, 1);
@@ -131,7 +143,9 @@ struct jit_uni_mvn_mean_variance_kernel_f32 : public jit_uni_mvn_mean_variance_k
                 }
             } else {
                 if (jcp_.normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (jcp_.normalize_variance) {" << std::endl;
                     if (!jcp_.planar_layout && !jcp_.across_channels) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      if (!jcp_.planar_layout && !jcp_.across_channels) {" << std::endl;
                         uni_vmovups(vmm_val, ptr[reg_variance]);
                         uni_vaddps(vmm_variance, vmm_variance, vmm_val);
                     }
@@ -142,6 +156,7 @@ struct jit_uni_mvn_mean_variance_kernel_f32 : public jit_uni_mvn_mean_variance_k
                         uni_vcvtdq2ps(vmm_sum, vmm_sum);
 
                     if (!jcp_.planar_layout && !jcp_.across_channels) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      if (!jcp_.planar_layout && !jcp_.across_channels) {" << std::endl;
                         uni_vmovups(vmm_val, ptr[reg_sum]);
                         uni_vaddps(vmm_sum, vmm_sum, vmm_val);
                     }
@@ -176,11 +191,13 @@ private:
     Xbyak::Xmm xmm_aux3 = Xbyak::Xmm(5);
 
     inline void hsum_store(Xbyak::Xmm xmm_sum) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      inline void hsum_store(Xbyak::Xmm xmm_sum) {" << std::endl;
         movshdup(xmm_aux3, xmm_sum);  //  sum:1,2,3,4; aux3:2,2,4,4
         addps(xmm_sum, xmm_aux3);     //  sum:1+2,2+2,3+4,4+4
         movhlps(xmm_aux3, xmm_sum);   //  aux3:3+4,4+4,4,4
         addps(xmm_sum, xmm_aux3);     //  sum:1+2+3+4,...
         if (jcp_.normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (jcp_.normalize_variance) {" << std::endl;
             movss(ptr[reg_variance], xmm_sum);
         } else {
             movss(ptr[reg_sum], xmm_sum);
@@ -188,7 +205,9 @@ private:
     }
 
     inline void load_vector(Vmm vmm_src, const Xbyak::Address &op, memory::data_type src_dt) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      inline void load_vector(Vmm vmm_src, const Xbyak::Address &op, memory::data_type src_dt) {" << std::endl;
         switch (src_dt) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          switch (src_dt) {" << std::endl;
             case memory::f32:
             case memory::s32:
                 uni_vmovups(vmm_src, op);
@@ -211,16 +230,20 @@ struct jit_uni_mvn_kernel_f32 : public jit_uni_mvn_kernel, public jit_generator 
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_uni_mvn_kernel_f32)
 
     explicit jit_uni_mvn_kernel_f32(jit_mvn_config_params jcp, const mkldnn_primitive_attr &attr) : jit_uni_mvn_kernel(jcp, attr), jit_generator() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      explicit jit_uni_mvn_kernel_f32(jit_mvn_config_params jcp, const mkldnn_primitive_attr &attr) : jit_uni_mvn_kernel(jcp, attr), jit_generator() {" << std::endl;
         const auto &p = attr_.post_ops_;
         for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          for (int i = 0; i < p.len_; i++) {" << std::endl;
             auto &post_op = p.entry_[i];
             if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (post_op.is_eltwise()) {" << std::endl;
                 eltwise_injectors.push_back(new jit_uni_eltwise_injector_f32<isa>(
                         this,
                         post_op.eltwise.alg,
                         post_op.eltwise.alpha,
                         post_op.eltwise.beta));
             } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (post_op.is_depthwise()) {" << std::endl;
                 depthwise_injectors.push_back(new jit_uni_depthwise_injector_f32<isa>(
                         this,
                         post_op.depthwise.alg));
@@ -244,8 +267,10 @@ struct jit_uni_mvn_kernel_f32 : public jit_uni_mvn_kernel, public jit_generator 
 
         int repeats = (!jcp_.planar_layout && !jcp_.across_channels && isa == cpu::sse42) ? 2 : 1;  // block size is also 8 on cpu::sse42
         for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          for (int i = 0; i < repeats; i++) {" << std::endl;
             int offset_sse42 = i * 4;
             if (i > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (i > 0) {" << std::endl;
                 mov(reg_src, ptr[reg_params + GET_OFF(src)]);
                 mov(reg_dst, ptr[reg_params + GET_OFF(dst)]);
                 mov(reg_work_amount, ptr[reg_params + GET_OFF(work_amount)]);
@@ -259,6 +284,7 @@ struct jit_uni_mvn_kernel_f32 : public jit_uni_mvn_kernel, public jit_generator 
             }
 
             if (jcp_.planar_layout || jcp_.across_channels) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (jcp_.planar_layout || jcp_.across_channels) {" << std::endl;
                 uni_vbroadcastss(vmm_mean, ptr[reg_mean]);
                 if (jcp_.normalize_variance)
                     uni_vbroadcastss(vmm_variance_inv, ptr[reg_variance_inv]);
@@ -337,7 +363,9 @@ private:
     nstl::vector<jit_uni_depthwise_injector_f32<isa>*> depthwise_injectors;
 
     inline void load_vector(Vmm vmm_src, const Xbyak::Address &op, memory::data_type src_dt) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      inline void load_vector(Vmm vmm_src, const Xbyak::Address &op, memory::data_type src_dt) {" << std::endl;
         switch (src_dt) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          switch (src_dt) {" << std::endl;
             case memory::f32:
             case memory::s32:
                 uni_vmovups(vmm_src, op);
@@ -357,14 +385,18 @@ private:
     }
 
     inline void store_vector(const Xbyak::Address &op, Vmm vmm_dst, memory::data_type dst_dt) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      inline void store_vector(const Xbyak::Address &op, Vmm vmm_dst, memory::data_type dst_dt) {" << std::endl;
         Ymm ymm_dst = Ymm(vmm_dst.getIdx());
         Xmm xmm_dst = Xmm(vmm_dst.getIdx());
 
         if (dst_dt == memory::f32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (dst_dt == memory::f32) {" << std::endl;
             uni_vmovups(op, vmm_dst);
         } else if (dst_dt == memory::u8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          } else if (dst_dt == memory::u8) {" << std::endl;
             uni_vcvtps2dq(vmm_dst, vmm_dst);
             if (isa == cpu::avx512_common) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (isa == cpu::avx512_common) {" << std::endl;
                 vpmaxsd(vmm_dst, vmm_dst, vmm_zero);
                 vpmovusdb(op, vmm_dst);
             } else {
@@ -378,8 +410,10 @@ private:
                     movd(op, xmm_dst);
             }
         } else if (dst_dt == memory::s8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          } else if (dst_dt == memory::s8) {" << std::endl;
             uni_vcvtps2dq(vmm_dst, vmm_dst);
             if (isa == cpu::avx512_common) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (isa == cpu::avx512_common) {" << std::endl;
                 vpmovsdb(op, vmm_dst);
             } else {
                 uni_vpackssdw(vmm_dst, vmm_dst, vmm_dst);
@@ -395,15 +429,19 @@ private:
     }
 
     void apply_post_ops(memory::data_type dst_dt) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      void apply_post_ops(memory::data_type dst_dt) {" << std::endl;
         const auto &p = attr_.post_ops_;
         int eltwise_inj_idx = 0;
         int depthwise_inj_idx = 0;
         for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          for (int i = 0; i < p.len_; i++) {" << std::endl;
             auto& post_op = p.entry_[i];
             if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (post_op.is_eltwise()) {" << std::endl;
                 eltwise_injectors[eltwise_inj_idx]->compute_vector_range(vmm_val.getIdx(), vmm_val.getIdx() + 1);
                 eltwise_inj_idx++;
             } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (post_op.is_depthwise()) {" << std::endl;
                 mov(reg_d_weights, reinterpret_cast<size_t>(post_op.depthwise.weights_data));
                 mov(reg_d_bias, reinterpret_cast<size_t>(post_op.depthwise.biases_data));
                 add(reg_d_weights, reg_oc_off);
@@ -411,6 +449,7 @@ private:
                 depthwise_injectors[depthwise_inj_idx]->compute_vector_range(vmm_val.getIdx(), vmm_val.getIdx() + 1, reg_d_weights, reg_d_bias);
                 depthwise_inj_idx++;
             } else if (post_op.is_quantization()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (post_op.is_quantization()) {" << std::endl;
                 bool do_dequantization = post_op.quantization.alg == alg_kind::quantization_quantize_dequantize;
                 bool do_rounding = do_dequantization || dst_dt == memory::f32 || i != p.len_ - 1;
 
@@ -434,6 +473,7 @@ private:
                     uni_vroundps(vmm_val, vmm_val, 0);
 
                 if (do_dequantization) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (do_dequantization) {" << std::endl;
                     mov(reg_d_weights, reinterpret_cast<size_t>(post_op.quantization.output_scale_data));
                     mov(reg_d_bias, reinterpret_cast<size_t>(post_op.quantization.output_shift_data));
                     add(reg_d_weights, reg_oc_off);
@@ -449,9 +489,11 @@ private:
 //////////////////////////////////////////////////////////////////////////////////
 
 MKLDNNMVNNode::MKLDNNMVNNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket)
-        : MKLDNNNode(layer, eng, socket) {}
+        : MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          : MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNMVNNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:  void MKLDNNMVNNode::getSupportedDescriptors() {" << std::endl;
     if (!descs.empty())
         return;
 
@@ -470,6 +512,7 @@ void MKLDNNMVNNode::getSupportedDescriptors() {
 }
 
 void MKLDNNMVNNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:  void MKLDNNMVNNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -479,14 +522,17 @@ void MKLDNNMVNNode::initSupportedPrimitiveDescriptors() {
     Precision outputPrecision = getCnnLayer()->outData[0]->getPrecision();
 
     if (!fusedWith.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      if (!fusedWith.empty()) {" << std::endl;
         auto lastFusedLayer = fusedWith[fusedWith.size() - 1].get()->getCnnLayer();
         if (lastFusedLayer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (lastFusedLayer) {" << std::endl;
             outputPrecision = lastFusedLayer->outData[0]->getPrecision();
         }
     }
 
     if (getParentEdgeAt(0)->getDims().ndims() < 4 || getParentEdgeAt(0)->getDims().ndims() > 5
         || across_channels != 0 || normalize_variance != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          || across_channels != 0 || normalize_variance != 1) {" << std::endl;
         inputPrecision = Precision::FP32;
         outputPrecision = Precision::FP32;
     }
@@ -511,35 +557,47 @@ void MKLDNNMVNNode::initSupportedPrimitiveDescriptors() {
     config.outConfs[0].inPlace = canBeInplace ? 0 : -1;
 
     auto pushDesc = [&](memory::format format) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      auto pushDesc = [&](memory::format format) {" << std::endl;
         config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, format);
         config.outConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), outputDataType, format);
         supportedPrimitiveDescriptors.push_back({config, impl_desc_type::unknown, format});
     };
 
     if (across_channels == 0 && normalize_variance == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      if (across_channels == 0 && normalize_variance == 1) {" << std::endl;
         if (getParentEdgeAt(0)->getDims().ndims() == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (getParentEdgeAt(0)->getDims().ndims() == 4) {" << std::endl;
             pushDesc(memory::nhwc);
         } else if (getParentEdgeAt(0)->getDims().ndims() == 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          } else if (getParentEdgeAt(0)->getDims().ndims() == 5) {" << std::endl;
             pushDesc(memory::ndhwc);
         }
     }
 
     if (inputPrecision == Precision::FP32 && outputPrecision == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      if (inputPrecision == Precision::FP32 && outputPrecision == Precision::FP32) {" << std::endl;
         if (getParentEdgeAt(0)->getDims().ndims() == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (getParentEdgeAt(0)->getDims().ndims() == 4) {" << std::endl;
             if (mayiuse(cpu::avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (mayiuse(cpu::avx512_common)) {" << std::endl;
                 pushDesc(memory::nChw16c);
             } else if (mayiuse(cpu::avx2) || mayiuse(cpu::sse42)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (mayiuse(cpu::avx2) || mayiuse(cpu::sse42)) {" << std::endl;
                 pushDesc(memory::nChw8c);
             }
         } else if (getParentEdgeAt(0)->getDims().ndims() == 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          } else if (getParentEdgeAt(0)->getDims().ndims() == 5) {" << std::endl;
             if (mayiuse(cpu::avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (mayiuse(cpu::avx512_common)) {" << std::endl;
                 pushDesc(memory::nCdhw16c);
             } else if (mayiuse(cpu::avx2) || mayiuse(cpu::sse42)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (mayiuse(cpu::avx2) || mayiuse(cpu::sse42)) {" << std::endl;
                 pushDesc(memory::nCdhw8c);
             }
         }
 
         if (fusedWith.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (fusedWith.empty()) {" << std::endl;
             if (canBeInplace)
                 config.inConfs[0].inPlace = 0;
             pushDesc(MKLDNNMemory::GetPlainFormat(getChildEdgeAt(0)->getDims()));
@@ -548,6 +606,7 @@ void MKLDNNMVNNode::initSupportedPrimitiveDescriptors() {
 }
 
 void MKLDNNMVNNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:  void MKLDNNMVNNode::createPrimitive() {" << std::endl;
     auto& dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
     auto& srcMemPtr = getParentEdgeAt(0)->getMemoryPtr();
     if (!dstMemPtr || !dstMemPtr->GetPrimitivePtr())
@@ -568,29 +627,35 @@ void MKLDNNMVNNode::createPrimitive() {
     jcp.across_channels = across_channels;
 
     if (mayiuse(cpu::avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      if (mayiuse(cpu::avx512_common)) {" << std::endl;
         mvn_kernel.reset(new jit_uni_mvn_kernel_f32<cpu::avx512_common>(jcp, *attr.get()));
 
         jcp.normalize_variance = false;
         mvn_mean_kernel.reset(new jit_uni_mvn_mean_variance_kernel_f32<cpu::avx512_common>(jcp));
         if (normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (normalize_variance) {" << std::endl;
             jcp.normalize_variance = true;
             mvn_variance_kernel.reset(new jit_uni_mvn_mean_variance_kernel_f32<cpu::avx512_common>(jcp));
         }
     } else if (mayiuse(cpu::avx2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      } else if (mayiuse(cpu::avx2)) {" << std::endl;
         mvn_kernel.reset(new jit_uni_mvn_kernel_f32<cpu::avx2>(jcp, *attr.get()));
 
         jcp.normalize_variance = false;
         mvn_mean_kernel.reset(new jit_uni_mvn_mean_variance_kernel_f32<cpu::avx2>(jcp));
         if (normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (normalize_variance) {" << std::endl;
             jcp.normalize_variance = true;
             mvn_variance_kernel.reset(new jit_uni_mvn_mean_variance_kernel_f32<cpu::avx2>(jcp));
         }
     } else if (mayiuse(cpu::sse42)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      } else if (mayiuse(cpu::sse42)) {" << std::endl;
         mvn_kernel.reset(new jit_uni_mvn_kernel_f32<cpu::sse42>(jcp, *attr.get()));
 
         jcp.normalize_variance = false;
         mvn_mean_kernel.reset(new jit_uni_mvn_mean_variance_kernel_f32<cpu::sse42>(jcp));
         if (normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (normalize_variance) {" << std::endl;
             jcp.normalize_variance = true;
             mvn_variance_kernel.reset(new jit_uni_mvn_mean_variance_kernel_f32<cpu::sse42>(jcp));
         }
@@ -598,13 +663,17 @@ void MKLDNNMVNNode::createPrimitive() {
 }
 
 void MKLDNNMVNNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:  void MKLDNNMVNNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights) {" << std::endl;
     int blob_idx = 0;
     mkldnn::post_ops ops;
 
     for (auto &node : fusedWith) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      for (auto &node : fusedWith) {" << std::endl;
         auto* quantizeNode = dynamic_cast<MKLDNNQuantizeNode *>(node.get());
         if (quantizeNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (quantizeNode) {" << std::endl;
             if (initWeights) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (initWeights) {" << std::endl;
                 MKLDNNDims weightsDims({static_cast<ptrdiff_t>(rnd_up(getParentEdgeAt(0)->getDims()[1], 16))});
                 MKLDNNMemoryDesc weightsDataDesc = {{(uint32_t)weightsDims[0]}, memory::f32, memory::x};
 
@@ -647,7 +716,9 @@ void MKLDNNMVNNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights) {
 
         auto* depthwiseNode = dynamic_cast<MKLDNNDepthwiseNode *>(node.get());
         if (depthwiseNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (depthwiseNode) {" << std::endl;
             if (initWeights) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (initWeights) {" << std::endl;
                 auto* depthwiseLayer = reinterpret_cast<WeightableLayer*>(depthwiseNode->getCnnLayer().get());
                 MKLDNNDims depthwiseDims({static_cast<ptrdiff_t>(rnd_up(getParentEdgeAt(0)->getDims()[1], 16))});
 
@@ -660,13 +731,16 @@ void MKLDNNMVNNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights) {
                                                         MKLDNNExtensionUtils::sizeOfDataType(memory::data_type::f32));
 
                 if (depthwiseNode->isBroadcast()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (depthwiseNode->isBroadcast()) {" << std::endl;
                     float broadcastValue = static_cast<float *>(PostOpsIntBlobMemory[blob_idx]->GetData())[0];
                     for (int i = 1; i < PostOpsIntBlobMemory[blob_idx]->GetPrimitiveDescriptor().desc().data.dims[0]; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (int i = 1; i < PostOpsIntBlobMemory[blob_idx]->GetPrimitiveDescriptor().desc().data.dims[0]; i++) {" << std::endl;
                         static_cast<float *>(PostOpsIntBlobMemory[blob_idx]->GetData())[i] = broadcastValue;
                     }
                 }
 
                 if (depthwiseNode->getAlgorithm() == depthwise_scale_shift) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (depthwiseNode->getAlgorithm() == depthwise_scale_shift) {" << std::endl;
                     PostOpsIntBlobMemory.push_back(MKLDNNMemoryPtr(new MKLDNNMemory(getEngine())));
                     PostOpsIntBlobMemory[blob_idx + 1]->Create(depthwiseDims, memory::data_type::f32,
                                                                memory::format::x);
@@ -676,8 +750,10 @@ void MKLDNNMVNNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights) {
                                                                 MKLDNNExtensionUtils::sizeOfDataType(memory::data_type::f32));
 
                     if (depthwiseNode->isBroadcast()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      if (depthwiseNode->isBroadcast()) {" << std::endl;
                         float broadcastValue = static_cast<float *>(PostOpsIntBlobMemory[blob_idx + 1]->GetData())[0];
                         for (int i = 1; i < PostOpsIntBlobMemory[blob_idx + 1]->GetPrimitiveDescriptor().desc().data.dims[0]; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (int i = 1; i < PostOpsIntBlobMemory[blob_idx + 1]->GetPrimitiveDescriptor().desc().data.dims[0]; i++) {" << std::endl;
                             static_cast<float *>(PostOpsIntBlobMemory[blob_idx + 1]->GetData())[i] = broadcastValue;
                         }
                     }
@@ -699,6 +775,7 @@ void MKLDNNMVNNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights) {
 
         auto* activationNode = dynamic_cast<MKLDNNActivationNode *>(node.get());
         if (activationNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (activationNode) {" << std::endl;
             ops.append_eltwise(1.0, activationNode->getAlgorithm(), activationNode->getAlpha(), activationNode->getBeta());
 
             continue;
@@ -709,6 +786,7 @@ void MKLDNNMVNNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights) {
 }
 
 void MKLDNNMVNNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:  void MKLDNNMVNNode::execute(mkldnn::stream strm) {" << std::endl;
     auto &dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
     auto &srcMemPtr = getParentEdgeAt(0)->getMemoryPtr();
 
@@ -718,41 +796,54 @@ void MKLDNNMVNNode::execute(mkldnn::stream strm) {
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
 
     if (layout == NCHW || layout == NCDHW) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      if (layout == NCHW || layout == NCDHW) {" << std::endl;
         mvn_pln(src_data, dst_data, getParentEdgeAt(0)->getDesc().getDims());
     } else {
         if (output_prec == Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (output_prec == Precision::U8) {" << std::endl;
             auto dst_data = reinterpret_cast<uint8_t *>(dstMemPtr->GetData());
             if (input_prec == Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (input_prec == Precision::U8) {" << std::endl;
                 auto src_data = reinterpret_cast<const uint8_t *>(srcMemPtr->GetData());
                 mvn_blk<uint8_t, uint8_t>(src_data, dst_data, getParentEdgeAt(0)->getDesc().getDims());
             } else if (input_prec == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (input_prec == Precision::I8) {" << std::endl;
                 auto src_data = reinterpret_cast<const int8_t *>(srcMemPtr->GetData());
                 mvn_blk<int8_t, uint8_t>(src_data, dst_data, getParentEdgeAt(0)->getDesc().getDims());
             } else if (input_prec == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (input_prec == Precision::FP32) {" << std::endl;
                 auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
                 mvn_blk<float, uint8_t>(src_data, dst_data, getParentEdgeAt(0)->getDesc().getDims());
             }
         } else if (output_prec == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          } else if (output_prec == Precision::I8) {" << std::endl;
             auto dst_data = reinterpret_cast<int8_t *>(dstMemPtr->GetData());
             if (input_prec == Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (input_prec == Precision::U8) {" << std::endl;
                 auto src_data = reinterpret_cast<const uint8_t *>(srcMemPtr->GetData());
                 mvn_blk<uint8_t, int8_t>(src_data, dst_data, getParentEdgeAt(0)->getDesc().getDims());
             } else if (input_prec == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (input_prec == Precision::I8) {" << std::endl;
                 auto src_data = reinterpret_cast<const int8_t *>(srcMemPtr->GetData());
                 mvn_blk<int8_t, int8_t>(src_data, dst_data, getParentEdgeAt(0)->getDesc().getDims());
             } else if (input_prec == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (input_prec == Precision::FP32) {" << std::endl;
                 auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
                 mvn_blk<float, int8_t>(src_data, dst_data, getParentEdgeAt(0)->getDesc().getDims());
             }
         } else if (output_prec == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          } else if (output_prec == Precision::FP32) {" << std::endl;
             auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
             if (input_prec == Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (input_prec == Precision::U8) {" << std::endl;
                 auto src_data = reinterpret_cast<const uint8_t *>(srcMemPtr->GetData());
                 mvn_blk<uint8_t, float>(src_data, dst_data, getParentEdgeAt(0)->getDesc().getDims());
             } else if (input_prec == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (input_prec == Precision::I8) {" << std::endl;
                 auto src_data = reinterpret_cast<const int8_t *>(srcMemPtr->GetData());
                 mvn_blk<int8_t, float>(src_data, dst_data, getParentEdgeAt(0)->getDesc().getDims());
             } else if (input_prec == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              } else if (input_prec == Precision::FP32) {" << std::endl;
                 auto src_data = reinterpret_cast<float *>(srcMemPtr->GetData());
                 mvn_blk<float, float>(src_data, dst_data, getParentEdgeAt(0)->getDesc().getDims());
             }
@@ -761,12 +852,16 @@ void MKLDNNMVNNode::execute(mkldnn::stream strm) {
 }
 
 void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVector& dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:  void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVector& dims) {" << std::endl;
     size_t blk_size = 1;  // blk size in vmm
     if (mayiuse(cpu::avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      if (mayiuse(cpu::avx512_common)) {" << std::endl;
         blk_size = 16;
     } else if (mayiuse(cpu::avx2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      } else if (mayiuse(cpu::avx2)) {" << std::endl;
         blk_size = 8;
     } else if (mayiuse(cpu::sse42)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      } else if (mayiuse(cpu::sse42)) {" << std::endl;
         blk_size = 4;
     }
 
@@ -782,14 +877,17 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
     size_t C3 = C2 * C;
 
     for (size_t b = 0lu; b < N; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      for (size_t b = 0lu; b < N; b++) {" << std::endl;
         size_t cb = b * C3;
         if (across_channels) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (across_channels) {" << std::endl;
             // Calculate mean value for one instance in batch
             // Parallel sum for each channel
             float C3inv = 1.f / static_cast<float>(C3);
             float mean_temp = 0.0f;
             size_t tail_across_channels = (C2 / blk_size) * blk_size;
             if (mvn_mean_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (mvn_mean_kernel) {" << std::endl;
                 mean_temp = parallel_sum(C, mean_temp, [&](size_t c)->float {
                     float mean_internal = 0.0f;
                     size_t cc = cb + c * C2;
@@ -800,6 +898,7 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
                     arg.work_amount = static_cast<size_t>(C2 / blk_size);
                     (*mvn_mean_kernel)(&arg);
                     for (size_t tail = tail_across_channels; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t tail = tail_across_channels; tail < C2; tail++) {" << std::endl;
                         mean_internal += src_data[cc + tail];
                     }
                     return mean_internal;
@@ -809,6 +908,7 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
                     float mean_internal = 0.0f;
                     size_t cc = cb + c * C2;
                     for (size_t tail = 0lu; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t tail = 0lu; tail < C2; tail++) {" << std::endl;
                         mean_internal += src_data[cc + tail];
                     }
                     return mean_internal;
@@ -819,8 +919,10 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
             // calculate variance value for one instance in batch
             // parallel sum for each channel
             if (normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (normalize_variance) {" << std::endl;
                 float variance_temp = 0.0f;
                 if (mvn_variance_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (mvn_variance_kernel) {" << std::endl;
                     variance_temp = parallel_sum(C, variance_temp, [&](size_t c)->float {
                         float variance_internal = 0.0f;
                         size_t cc = cb + c * C2;
@@ -833,6 +935,7 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
                         (*mvn_variance_kernel)(&arg);
 
                         for (size_t tail = tail_across_channels; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = tail_across_channels; tail < C2; tail++) {" << std::endl;
                             variance_internal += (src_data[cc + tail] - mean) * (src_data[cc + tail] - mean);
                         }
                         return variance_internal;
@@ -842,6 +945,7 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
                         float variance_internal = 0.0f;
                         size_t cc = cb + c * C2;
                         for (size_t tail = 0lu; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = 0lu; tail < C2; tail++) {" << std::endl;
                             variance_internal += (src_data[cc + tail] - mean) * (src_data[cc + tail] - mean);
                         }
                         return variance_internal;
@@ -850,7 +954,9 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
                 float variance = 1.f / sqrtf(variance_temp * C3inv + eps);
                 // mvn for one instance in batch
                 if (mvn_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (mvn_kernel) {" << std::endl;
                     parallel_for(C, [&](int c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      parallel_for(C, [&](int c) {" << std::endl;
                         size_t cc = cb + c * C2;
                         auto arg = jit_mvn_call_args();
                         arg.src = src_data + cc;
@@ -863,13 +969,16 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
                         (*mvn_kernel)(&arg);
 
                         for (size_t tail = tail_across_channels; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = tail_across_channels; tail < C2; tail++) {" << std::endl;
                             dst_data[cc + tail] = (src_data[cc + tail] - mean) * variance;
                         }
                     });
                 } else {
                     parallel_for(C, [&](int c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      parallel_for(C, [&](int c) {" << std::endl;
                         size_t cc = cb + c * C2;
                         for (size_t tail = 0lu; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = 0lu; tail < C2; tail++) {" << std::endl;
                             dst_data[cc + tail] = (src_data[cc + tail] - mean) * variance;
                         }
                     });
@@ -877,7 +986,9 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
             } else {
                 // mvn for one instance in batch
                 if (mvn_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (mvn_kernel) {" << std::endl;
                     parallel_for(C, [&](int c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      parallel_for(C, [&](int c) {" << std::endl;
                         size_t cc = cb + c * C2;
                         auto arg = jit_mvn_call_args();
                         arg.src = src_data + cc;
@@ -889,13 +1000,16 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
                         (*mvn_kernel)(&arg);
 
                         for (size_t tail = tail_across_channels; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = tail_across_channels; tail < C2; tail++) {" << std::endl;
                             dst_data[cc + tail] = src_data[cc + tail] - mean;
                         }
                     });
                 } else {
                     parallel_for(C, [&](int c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      parallel_for(C, [&](int c) {" << std::endl;
                         size_t cc = cb + c * C2;
                         for (size_t tail = 0lu; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = 0lu; tail < C2; tail++) {" << std::endl;
                             dst_data[cc + tail] = src_data[cc + tail] - mean;
                         }
                     });
@@ -904,7 +1018,9 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
         } else {  // per channel
             float C2inv = 1.f / static_cast<float>(C2);
             if (mvn_mean_kernel && mvn_variance_kernel && mvn_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (mvn_mean_kernel && mvn_variance_kernel && mvn_kernel) {" << std::endl;
                 parallel_for(C, [&](size_t c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  parallel_for(C, [&](size_t c) {" << std::endl;
                     // mean for this channel
                     size_t tail_per_channel = (C2 / blk_size) * blk_size;
                     float mean = 0.f;
@@ -920,18 +1036,21 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
                     (*mvn_mean_kernel)(&arg);
 
                     for (size_t tail = tail_per_channel; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t tail = tail_per_channel; tail < C2; tail++) {" << std::endl;
                         mean += src_data[cc + tail];
                     }
                     mean *= C2inv;
 
                     // variance for this channel
                     if (normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      if (normalize_variance) {" << std::endl;
                         float variance = 0.f;
                         arg.mean = static_cast<float*>(&mean);
                         arg.variance = static_cast<float*>(&variance);
                         (*mvn_variance_kernel)(&arg);
 
                         for (size_t tail = tail_per_channel; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = tail_per_channel; tail < C2; tail++) {" << std::endl;
                             variance += (src_data[cc + tail] - mean) * (src_data[cc + tail] - mean);
                         }
                         variance = 1.f / sqrtf(variance * C2inv + eps);
@@ -939,6 +1058,7 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
                         // mvn for this channel
                         (*mvn_kernel)(&arg);
                         for (size_t tail = tail_per_channel; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = tail_per_channel; tail < C2; tail++) {" << std::endl;
                             dst_data[cc + tail] = (src_data[cc + tail] - mean) * variance;
                         }
                     } else {
@@ -947,35 +1067,42 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
                         (*mvn_kernel)(&arg);
 
                         for (size_t tail = tail_per_channel; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = tail_per_channel; tail < C2; tail++) {" << std::endl;
                             dst_data[cc + tail] = src_data[cc + tail] - mean;
                         }
                     }
                 });
             } else {
                 parallel_for(C, [&](size_t c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  parallel_for(C, [&](size_t c) {" << std::endl;
                     // mean for this channel
                     float mean = 0.f;
                     size_t cc = cb + c * C2;
                     for (size_t tail = 0lu; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t tail = 0lu; tail < C2; tail++) {" << std::endl;
                         mean += src_data[cc + tail];
                     }
                     mean *= C2inv;
 
                     // variance for this channel
                     if (normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      if (normalize_variance) {" << std::endl;
                         float variance = 0.f;
                         for (size_t tail = 0lu; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = 0lu; tail < C2; tail++) {" << std::endl;
                             variance += (src_data[cc + tail] - mean) * (src_data[cc + tail] - mean);
                         }
                         variance = 1.f / sqrtf(variance * C2inv + eps);
 
                         // mvn for this channel
                         for (size_t tail = 0lu; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = 0lu; tail < C2; tail++) {" << std::endl;
                             dst_data[cc + tail] = (src_data[cc + tail] - mean) * variance;
                         }
                     } else {
                         // mvn for this channel
                         for (size_t tail = 0lu; tail < C2; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t tail = 0lu; tail < C2; tail++) {" << std::endl;
                             dst_data[cc + tail] = src_data[cc + tail] - mean;
                         }
                     }
@@ -987,12 +1114,15 @@ void MKLDNNMVNNode::mvn_pln(const float* src_data, float* dst_data, const SizeVe
 
 template <typename in_data_t, typename out_data_t>
 void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, const SizeVector& dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:  void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, const SizeVector& dims) {" << std::endl;
     size_t blk_size = 1;  // channel blk for memory layout
     size_t ele_in_vmm = 4;
     if (mayiuse(cpu::avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      if (mayiuse(cpu::avx512_common)) {" << std::endl;
         blk_size = 16;
         ele_in_vmm = 16;
     } else if (mayiuse(cpu::avx2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      } else if (mayiuse(cpu::avx2)) {" << std::endl;
         blk_size = 8;
         ele_in_vmm = 8;
     } else {
@@ -1026,8 +1156,10 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
     std::vector<float> variance_buffer(aux_buffer_size * threads_num);
 
     for (size_t b = 0lu; b < N; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:      for (size_t b = 0lu; b < N; b++) {" << std::endl;
         size_t ccb = is_nhwc ? b * C2 : b * C3;
         if (across_channels) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:          if (across_channels) {" << std::endl;
             // mean for this instance in batch
             float C5inv = 1.f / static_cast<float>(C5);
             float mean_temp = 0.0f;
@@ -1037,6 +1169,7 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
 
                 float mean_internal = 0.0f;
                 if ((min_cb == blk_size) && mvn_mean_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if ((min_cb == blk_size) && mvn_mean_kernel) {" << std::endl;
                     auto mean_buffer_ptr = &mean_buffer[blk_size * mkldnn_get_thread_num()];
                     for (int i = 0; i < blk_size; i++)
                         mean_buffer_ptr[i] = 0.f;
@@ -1054,8 +1187,10 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                     // no tail here due blk/ele_in_vmm is 1 or 2.
                 } else {
                     for (size_t w = 0lu; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t w = 0lu; w < W; w++) {" << std::endl;
                         size_t cw = ccbd + w * blk_size;
                         for (size_t c = 0lu; c < min_cb; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t c = 0lu; c < min_cb; c++) {" << std::endl;
                             mean_internal += src_data[cw + c];
                         }
                     }
@@ -1065,6 +1200,7 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
             float mean = mean_temp * C5inv;
 
             if (normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (normalize_variance) {" << std::endl;
                 // variance for one instance in batch
                 float variance_temp = 0.0f;
                 variance_temp = parallel_sum3d(CB, D, H, variance_temp, [&](size_t cb, size_t d, size_t h)->float {
@@ -1073,6 +1209,7 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
 
                     float variance_internal = 0.0f;
                     if ((blk_size == min_cb) && mvn_variance_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      if ((blk_size == min_cb) && mvn_variance_kernel) {" << std::endl;
                         auto variance_buffer_ptr = &variance_buffer[blk_size * mkldnn_get_thread_num()];
                         for (int i = 0; i < blk_size; i++)
                             variance_buffer_ptr[i] = 0.f;
@@ -1089,8 +1226,10 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                             variance_internal += variance_buffer_ptr[i];
                     } else {
                         for (size_t w = 0lu; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t w = 0lu; w < W; w++) {" << std::endl;
                             size_t cw = ccbd + w * blk_size;
                             for (size_t c = 0lu; c < min_cb; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                              for (size_t c = 0lu; c < min_cb; c++) {" << std::endl;
                                 variance_internal += (src_data[cw + c] - mean) * (src_data[cw + c] - mean);
                             }
                         }
@@ -1101,9 +1240,11 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                 float variance = 1.f / sqrtf(variance_temp * C5inv + eps);
                 // mvn for one instance in batch
                 parallel_for3d(CB, D, H, [&](size_t cb, size_t d, size_t h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  parallel_for3d(CB, D, H, [&](size_t cb, size_t d, size_t h) {" << std::endl;
                     size_t ccbd = ccb + cb * C2 + d * C1 + h * C0;
                     size_t min_cb = (std::min)(blk_size, C - cb * blk_size);
                     if ((blk_size == min_cb) && mvn_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      if ((blk_size == min_cb) && mvn_kernel) {" << std::endl;
                         auto arg = jit_mvn_call_args();
                         arg.src = src_data + ccbd;
                         arg.dst = dst_data + ccbd;
@@ -1115,8 +1256,10 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                         (*mvn_kernel)(&arg);
                     } else {
                         for (size_t w = 0lu; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t w = 0lu; w < W; w++) {" << std::endl;
                             size_t cw = ccbd + w * blk_size;
                             for (size_t c = 0lu; c < min_cb; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                              for (size_t c = 0lu; c < min_cb; c++) {" << std::endl;
                                 size_t src_offset = cw + c;
                                 dst_data[src_offset] = (src_data[src_offset] - mean) * variance;
                             }
@@ -1126,9 +1269,11 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
             } else {
                 // mvn for one instance in batch
                 parallel_for3d(CB, D, H, [&](size_t cb, size_t d, size_t h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  parallel_for3d(CB, D, H, [&](size_t cb, size_t d, size_t h) {" << std::endl;
                     size_t ccbd = ccb + cb * C2 + d * C1 + h * C0;
                     size_t min_cb = (std::min)(blk_size, C - cb * blk_size);
                     if ((blk_size == min_cb) && mvn_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      if ((blk_size == min_cb) && mvn_kernel) {" << std::endl;
                         auto arg = jit_mvn_call_args();
                         arg.src = src_data + ccbd;
                         arg.dst = dst_data + ccbd;
@@ -1139,8 +1284,10 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                         (*mvn_kernel)(&arg);
                     } else {
                         for (size_t w = 0lu; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t w = 0lu; w < W; w++) {" << std::endl;
                             size_t cw = ccbd + w * blk_size;
                             for (size_t c = 0lu; c < min_cb; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                              for (size_t c = 0lu; c < min_cb; c++) {" << std::endl;
                                 size_t src_offset = cw + c;
                                 dst_data[src_offset] = src_data[src_offset] - mean;
                             }
@@ -1155,13 +1302,16 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
             size_t tail_cb_start = 0;
             float size_inv = 1.f / static_cast<float>(D * H * W);
             if (mvn_mean_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (mvn_mean_kernel) {" << std::endl;
                 tail_cb_start = CB;
 
                 for (int i = 0; i < mean_buffer.size(); i++)
                     mean_buffer[i] = 0.f;
 
                 parallel_for2d(D, H, [&](size_t d, size_t h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  parallel_for2d(D, H, [&](size_t d, size_t h) {" << std::endl;
                     for (size_t cb = 0; cb < CB; cb++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t cb = 0; cb < CB; cb++) {" << std::endl;
                         size_t src_off = is_nhwc ? ccb + d * H * W * C + h * W * C + cb * blk_size
                                                  : ccb + d * H * W * blk_size + h * W * blk_size + cb * D * H * W * blk_size;
                         auto thr_idx = mkldnn_get_thread_num();
@@ -1177,6 +1327,7 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                 });
 
                 for (size_t i = 1; i < threads_num; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  for (size_t i = 1; i < threads_num; i++) {" << std::endl;
                     for (size_t c = 0; c < C; c++)
                         mean_buffer[c] += mean_buffer[c + aux_buffer_size * i];
                 }
@@ -1185,19 +1336,24 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
             }
 
             for (size_t cb = tail_cb_start; cb < tail_cb_end; cb++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              for (size_t cb = tail_cb_start; cb < tail_cb_end; cb++) {" << std::endl;
                 size_t src_off = is_nhwc ? ccb + cb * blk_size : ccb + cb * C2;
                 size_t min_cb = (std::min)(blk_size, C - cb * blk_size);
                 auto mean_buffer_ptr = &mean_buffer[blk_size * cb];
 
                 for (size_t c = 0lu; c < min_cb; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  for (size_t c = 0lu; c < min_cb; c++) {" << std::endl;
                     size_t cc = src_off + c;
 
                     mean_buffer_ptr[c] = 0.0f;
                     for (size_t d = 0; d < D; d++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t d = 0; d < D; d++) {" << std::endl;
                         size_t cd = cc + d * C1;
                         for (size_t h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t h = 0; h < H; h++) {" << std::endl;
                             size_t ch = cd + h * C0;
                             for (size_t w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                              for (size_t w = 0; w < W; w++) {" << std::endl;
                                 mean_buffer_ptr[c] += src_data[ch + w * src_stride];
                             }
                         }
@@ -1207,15 +1363,19 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
             }
 
             if (normalize_variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:              if (normalize_variance) {" << std::endl;
                 tail_cb_start = 0;
                 if (mvn_variance_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (mvn_variance_kernel) {" << std::endl;
                     tail_cb_start = CB;
 
                     for (int i = 0; i < variance_buffer.size(); i++)
                         variance_buffer[i] = 0.f;
 
                     parallel_for2d(D, H, [&](size_t d, size_t h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      parallel_for2d(D, H, [&](size_t d, size_t h) {" << std::endl;
                         for (size_t cb = 0; cb < CB; cb++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t cb = 0; cb < CB; cb++) {" << std::endl;
                             size_t src_off = is_nhwc ? ccb + d * H * W * C + h * W * C + cb * blk_size
                                                      : ccb + d * H * W * blk_size + h * W * blk_size + cb * D * H * W * blk_size;
                             auto thr_idx = mkldnn_get_thread_num();
@@ -1233,6 +1393,7 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                     });
 
                     for (size_t i = 1; i < threads_num; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t i = 1; i < threads_num; i++) {" << std::endl;
                         for (size_t c = 0; c < C; c++)
                             variance_buffer[c] += variance_buffer[c + aux_buffer_size * i];
                     }
@@ -1241,20 +1402,25 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                 }
 
                 for (size_t cb = tail_cb_start; cb < tail_cb_end; cb++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  for (size_t cb = tail_cb_start; cb < tail_cb_end; cb++) {" << std::endl;
                     size_t src_off = is_nhwc ? ccb + cb * blk_size : ccb + cb * C2;
                     size_t min_cb = (std::min)(blk_size, C - cb * blk_size);
                     auto mean_buffer_ptr = &mean_buffer[blk_size * cb];
                     auto variance_buffer_ptr = &variance_buffer[blk_size * cb];
 
                     for (size_t c = 0lu; c < min_cb; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t c = 0lu; c < min_cb; c++) {" << std::endl;
                         size_t cc = src_off + c;
 
                         variance_buffer_ptr[c] = 0.0f;
                         for (size_t d = 0lu; d < D; d++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t d = 0lu; d < D; d++) {" << std::endl;
                             size_t cd = cc + d * C1;
                             for (size_t h = 0lu; h < H; h++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                              for (size_t h = 0lu; h < H; h++) {" << std::endl;
                                 size_t ch = cd + h * C0;
                                 for (size_t w = 0lu; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                  for (size_t w = 0lu; w < W; w++) {" << std::endl;
                                     variance_buffer_ptr[c] +=
                                             (src_data[ch + w * src_stride] - mean_buffer_ptr[c]) *
                                             (src_data[ch + w * src_stride] - mean_buffer_ptr[c]);
@@ -1267,10 +1433,13 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
 
                 tail_cb_start = 0;
                 if (mvn_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (mvn_kernel) {" << std::endl;
                     tail_cb_start = CB;
 
                     parallel_for2d(D, H, [&](size_t d, size_t h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      parallel_for2d(D, H, [&](size_t d, size_t h) {" << std::endl;
                         for (size_t cb = 0; cb < CB; cb++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t cb = 0; cb < CB; cb++) {" << std::endl;
                             size_t src_off = is_nhwc ? ccb + d * H * W * C + h * W * C + cb * blk_size
                                                      : ccb + d * H * W * blk_size + h * W * blk_size + cb * D * H * W * blk_size;
                             auto mean_buffer_ptr = &mean_buffer[blk_size * cb];
@@ -1291,33 +1460,43 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                 }
 
                 for (size_t cb = tail_cb_start; cb < tail_cb_end; cb++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  for (size_t cb = tail_cb_start; cb < tail_cb_end; cb++) {" << std::endl;
                     size_t src_off = is_nhwc ? ccb + cb * blk_size : ccb + cb * C2;
                     size_t min_cb = (std::min)(blk_size, C - cb * blk_size);
                     auto mean_buffer_ptr = &mean_buffer[blk_size * cb];
                     auto variance_buffer_ptr = &variance_buffer[blk_size * cb];
 
                     for (size_t c = 0lu; c < min_cb; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t c = 0lu; c < min_cb; c++) {" << std::endl;
                         size_t cc = src_off + c;
 
                         for (size_t d = 0lu; d < D; d++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t d = 0lu; d < D; d++) {" << std::endl;
                             size_t cd = cc + d * C1;
                             for (size_t h = 0lu; h < H; h++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                              for (size_t h = 0lu; h < H; h++) {" << std::endl;
                                 size_t ch = cd + h * C0;
                                 for (size_t w = 0lu; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                  for (size_t w = 0lu; w < W; w++) {" << std::endl;
                                     float dst_value = (src_data[ch + w * src_stride] - mean_buffer_ptr[c]) * variance_buffer_ptr[c];
                                     if (!fusedWith.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                      if (!fusedWith.empty()) {" << std::endl;
                                         const auto &p = (*attr.get()).post_ops_;
                                         for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                          for (int i = 0; i < p.len_; i++) {" << std::endl;
                                             auto &post_op = p.entry_[i];
                                             if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                              if (post_op.is_eltwise()) {" << std::endl;
                                                 //  only eltwise_relu supported
                                                 if (dst_value < 0) dst_value = 0;
                                             } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                              } else if (post_op.is_depthwise()) {" << std::endl;
                                                 //  only ScaleShift supported
                                                 float scale = post_op.depthwise.weights_data[cb * blk_size + c];
                                                 float shift = post_op.depthwise.biases_data[cb * blk_size + c];
                                                 dst_value = dst_value * scale + shift;
                                             } else if (post_op.is_quantization()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                              } else if (post_op.is_quantization()) {" << std::endl;
                                                 bool do_dequantization = post_op.quantization.alg ==
                                                                          alg_kind::quantization_quantize_dequantize;
                                                 bool do_rounding = do_dequantization || output_prec == Precision::FP32 ||
@@ -1338,20 +1517,25 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                                                 dst_value = dst_value * input_scale + input_shift;
 
                                                 if (do_rounding) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                                  if (do_rounding) {" << std::endl;
                                                     dst_value = roundf(dst_value);
                                                 }
 
                                                 if (do_dequantization) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                                  if (do_dequantization) {" << std::endl;
                                                     dst_value = dst_value * output_scale + output_shift;
                                                 }
                                             }
                                         }
                                     }
                                     if (output_prec == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                      if (output_prec == Precision::FP32) {" << std::endl;
                                         dst_data[ch + w * src_stride] = dst_value;
                                     } else if (output_prec == Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                      } else if (output_prec == Precision::U8) {" << std::endl;
                                         dst_data[ch + w * src_stride] = (dst_value >= 0) ? lroundf(dst_value) : 0;
                                     } else if (output_prec == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                      } else if (output_prec == Precision::I8) {" << std::endl;
                                         dst_data[ch + w * src_stride] = lroundf(dst_value);
                                     }
                                 }
@@ -1362,10 +1546,13 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
             } else {
                 tail_cb_start = 0;
                 if (mvn_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  if (mvn_kernel) {" << std::endl;
                     tail_cb_start = CB;
 
                     parallel_for2d(D, H, [&](size_t d, size_t h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      parallel_for2d(D, H, [&](size_t d, size_t h) {" << std::endl;
                         for (size_t cb = 0; cb < CB; cb++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t cb = 0; cb < CB; cb++) {" << std::endl;
                             size_t src_off = is_nhwc ? ccb + d * H * W * C + h * W * C + cb * blk_size
                                                      : ccb + d * H * W * blk_size + h * W * blk_size + cb * D * H * W * blk_size;
                             auto mean_buffer_ptr = &mean_buffer[blk_size * cb];
@@ -1383,24 +1570,32 @@ void MKLDNNMVNNode::mvn_blk(const in_data_t* src_data, out_data_t* dst_data, con
                 }
 
                 for (size_t cb = tail_cb_start; cb < tail_cb_end; cb++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                  for (size_t cb = tail_cb_start; cb < tail_cb_end; cb++) {" << std::endl;
                     size_t src_off = is_nhwc ? ccb + cb * blk_size : ccb + cb * C2;
                     size_t min_cb = (std::min)(blk_size, C - cb * blk_size);
                     auto mean_buffer_ptr = &mean_buffer[blk_size * cb];
 
                     for (size_t c = 0lu; c < min_cb; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                      for (size_t c = 0lu; c < min_cb; c++) {" << std::endl;
                         size_t cc = src_off + c;
 
                         for (size_t d = 0lu; d < D; d++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                          for (size_t d = 0lu; d < D; d++) {" << std::endl;
                             size_t cd = cc + d * C1;
                             for (size_t h = 0lu; h < H; h++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                              for (size_t h = 0lu; h < H; h++) {" << std::endl;
                                 size_t ch = cd + h * C0;
                                 for (size_t w = 0lu; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                  for (size_t w = 0lu; w < W; w++) {" << std::endl;
                                     float dst_value = src_data[ch + w * src_stride] - mean_buffer_ptr[c];
                                     if (output_prec == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                      if (output_prec == Precision::FP32) {" << std::endl;
                                         dst_data[ch + w * src_stride] = dst_value;
                                     } else if (output_prec == Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                      } else if (output_prec == Precision::U8) {" << std::endl;
                                         dst_data[ch + w * src_stride] = (dst_value >= 0) ? lroundf(dst_value) : 0;
                                     } else if (output_prec == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_mvn_node.cpp:                                      } else if (output_prec == Precision::I8) {" << std::endl;
                                         dst_data[ch + w * src_stride] = lroundf(dst_value);
                                     }
                                 }

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018-2019 Intel Corporation
 *
@@ -31,13 +32,16 @@ namespace cpu {
 
 void compensation_init(const char *offsetC, int32_t *compensation, int len,
         const int32_t *oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:          const int32_t *oc) {" << std::endl;
     bool OCisC = (*offsetC == 'C' || *offsetC == 'c');
     bool OCisF = (*offsetC == 'F' || *offsetC == 'f');
 
    if (OCisF && (*oc) != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:     if (OCisF && (*oc) != 0) {" << std::endl;
        for (int i = 0; i < len; i++)
            compensation[i] = *oc;
    } else if (OCisC) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:     } else if (OCisC) {" << std::endl;
        for (int i = 0; i < len; i++)
            compensation[i] = oc[i];
    } else {
@@ -48,19 +52,24 @@ void compensation_init(const char *offsetC, int32_t *compensation, int len,
 
 void compensation_compute(bool transa, int m, int k, float alpha,
         const int8_t *a, int lda, int32_t *compensation) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:          const int8_t *a, int lda, int32_t *compensation) {" << std::endl;
     if (!transa) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:      if (!transa) {" << std::endl;
         const int L2_cache_size = get_cache_size(2, true);
         const int blocking_factor = nstl::min(k, L2_cache_size / lda + 1);
         const int npanels = k / blocking_factor;
         const bool has_tile = k % blocking_factor > 0;
 
         parallel_nd(npanels, m, [&](int j, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:          parallel_nd(npanels, m, [&](int j, int i) {" << std::endl;
             int32_t val = 0;
             for (int jb = 0; jb < blocking_factor; jb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:              for (int jb = 0; jb < blocking_factor; jb++) {" << std::endl;
                 val += a[(i + (ptrdiff_t)j * blocking_factor * lda)
                     + (ptrdiff_t)jb * lda];
             }
             if (alpha != 1.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:              if (alpha != 1.0f) {" << std::endl;
                 val = math::out_round<int32_t>(math::saturate<int32_t>(
                     (double)val * alpha * -128.0));
             } else {
@@ -70,12 +79,16 @@ void compensation_compute(bool transa, int m, int k, float alpha,
         });
 
         if (has_tile) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:          if (has_tile) {" << std::endl;
             parallel_nd(m, [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:              parallel_nd(m, [=](int i) {" << std::endl;
                 int32_t val = 0;
                 for (int j = npanels * blocking_factor; j < k; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:                  for (int j = npanels * blocking_factor; j < k; j++) {" << std::endl;
                     val += a[i + (ptrdiff_t)j * lda];
                 }
                 if (alpha != 1.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:                  if (alpha != 1.0f) {" << std::endl;
                     val = math::out_round<int32_t>(math::saturate<int32_t>(
                         (double)val * alpha * -128.0));
                 } else {
@@ -86,11 +99,14 @@ void compensation_compute(bool transa, int m, int k, float alpha,
         }
     } else {
         parallel_nd(m, [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:          parallel_nd(m, [=](int i) {" << std::endl;
             int32_t val = 0;
             for (int j = 0; j < k; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:              for (int j = 0; j < k; j++) {" << std::endl;
                 val += a[j + (ptrdiff_t)i * lda];
             }
             if (alpha != 1.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:              if (alpha != 1.0f) {" << std::endl;
                 val = math::out_round<int32_t>(math::saturate<int32_t>(
                     (double)val * alpha * -128.0));
             } else {
@@ -103,15 +119,18 @@ void compensation_compute(bool transa, int m, int k, float alpha,
 
 void copy_and_shift_b(bool transb, int k, int n, uint8_t *b_u8, int ldb_u8,
         const int8_t *b_s8, int ldb_s8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:          const int8_t *b_s8, int ldb_s8) {" << std::endl;
     const int b_cols = transb ? k : n;
 
     parallel_nd(b_cols, [=](int j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:      parallel_nd(b_cols, [=](int j) {" << std::endl;
         const int b_rows = transb ? n : k;
 
         uint8_t *pb_u8 = b_u8 + j * ldb_u8;
         const int8_t *pb_s8 = b_s8 + j * ldb_s8;
 
         for (int i = 0; i < b_rows; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:          for (int i = 0; i < b_rows; i++) {" << std::endl;
             (*pb_u8) = (*pb_s8) + 128;
             pb_u8++;
             pb_s8++;
@@ -148,6 +167,7 @@ mkldnn_status_t simple_gemm_s8s8s32(
         const float *alpha, const int8_t *a, const int *lda, const int8_t *oa,
         const int8_t *b, const int *ldb, const int8_t *ob,
         const float *beta, int32_t *c, const int *ldc, const int32_t *oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:          const float *beta, int32_t *c, const int *ldc, const int32_t *oc) {" << std::endl;
     if (*oa != 0 || *ob != 0) return mkldnn_unimplemented;
 
     int M = *m, N = *n, K = *k;
@@ -159,6 +179,7 @@ mkldnn_status_t simple_gemm_s8s8s32(
     int32_t *compensation = (int32_t *)malloc(sizeof(int32_t) * M, 64);
 
     if (utils::any_null(b_u8, compensation)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:      if (utils::any_null(b_u8, compensation)) {" << std::endl;
         free(b_u8);
         free(compensation);
         return mkldnn_out_of_memory;
@@ -173,7 +194,8 @@ mkldnn_status_t simple_gemm_s8s8s32(
 
     if ((*offsetC == 'R' || *offsetC == 'r'))
         parallel_nd(M, N,
-            [=](int i, int j) { c[i + (ptrdiff_t)j * *ldc] += oc[j]; });
+            [=](int i, int j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/simple_gemm_s8s8s32.cpp:              [=](int i, int j) {" << std::endl; c[i + (ptrdiff_t)j * *ldc] += oc[j]; });
 
     free(b_u8);
     free(compensation);

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,12 +21,14 @@ namespace Cpu {
 template <typename T>
 static bool SortScorePairDescend(const std::pair<float, T>& pair1,
                                  const std::pair<float, T>& pair2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                                   const std::pair<float, T>& pair2) {" << std::endl;
     return pair1.first > pair2.first;
 }
 
 class DetectionOutputImpl: public ExtLayerBase {
 public:
     explicit DetectionOutputImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      explicit DetectionOutputImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 3)
                 THROW_IE_EXCEPTION << "Incorrect number of input edges for layer " << layer->name;
@@ -114,6 +117,7 @@ public:
                        DataConfigurator(ConfLayout::PLN),
                        DataConfigurator(ConfLayout::PLN)}, {DataConfigurator(ConfLayout::PLN)});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -137,21 +141,26 @@ public:
         int *num_priors_actual     = _num_priors_actual->buffer();
 
         for (int n = 0; n < N; ++n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          for (int n = 0; n < N; ++n) {" << std::endl;
             const float *ppriors = prior_data;
             const float *prior_variances = prior_data + _num_priors*_prior_size;
             if (_priors_batches) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              if (_priors_batches) {" << std::endl;
                 ppriors += _variance_encoded_in_target ? n*_num_priors*_prior_size : 2*n*_num_priors*_prior_size;
                 prior_variances += _variance_encoded_in_target ? 0 : n*_num_priors*_prior_size;
             }
 
             if (_share_location) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              if (_share_location) {" << std::endl;
                 const float *ploc = loc_data + n*4*_num_priors;
                 float *pboxes = decoded_bboxes_data + n*4*_num_priors;
                 float *psizes = bbox_sizes_data + n*_num_priors;
                 decodeBBoxes(ppriors, ploc, prior_variances, pboxes, psizes, num_priors_actual, n);
             } else {
                 for (int c = 0; c < _num_loc_classes; ++c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                  for (int c = 0; c < _num_loc_classes; ++c) {" << std::endl;
                     if (c == _background_label_id) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                      if (c == _background_label_id) {" << std::endl;
                         continue;
                     }
 
@@ -164,8 +173,11 @@ public:
         }
 
         for (int n = 0; n < N; ++n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          for (int n = 0; n < N; ++n) {" << std::endl;
             for (int c = 0; c < _num_classes; ++c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              for (int c = 0; c < _num_classes; ++c) {" << std::endl;
                 for (int p = 0; p < _num_priors; ++p) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                  for (int p = 0; p < _num_priors; ++p) {" << std::endl;
                     reordered_conf_data[n*_num_priors*_num_classes + c*_num_priors + p] = conf_data[n*_num_priors*_num_classes + p*_num_classes + c];
                 }
             }
@@ -174,12 +186,16 @@ public:
         memset(detections_data, 0, N*_num_classes*sizeof(int));
 
         for (int n = 0; n < N; ++n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          for (int n = 0; n < N; ++n) {" << std::endl;
             int detections_total = 0;
 
             if (!_decrease_label_id) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              if (!_decrease_label_id) {" << std::endl;
                 // Caffe style
                 parallel_for(_num_classes, [&](int c) {
-                    if (c != _background_label_id) {  // Ignore background class
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                  parallel_for(_num_classes, [&](int c) {" << std::endl;
+                    if (c != _background_label_id) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                      if (c != _background_label_id) {" << std::endl;  // Ignore background class
                         int *pindices    = indices_data + n*_num_classes*_num_priors + c*_num_priors;
                         int *pbuffer     = buffer_data + c*_num_priors;
                         int *pdetections = detections_data + n*_num_classes + c;
@@ -188,6 +204,7 @@ public:
                         const float *pboxes;
                         const float *psizes;
                         if (_share_location) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                          if (_share_location) {" << std::endl;
                             pboxes = decoded_bboxes_data + n*4*_num_priors;
                             psizes = bbox_sizes_data + n*_num_priors;
                         } else {
@@ -212,18 +229,22 @@ public:
             }
 
             for (int c = 0; c < _num_classes; ++c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              for (int c = 0; c < _num_classes; ++c) {" << std::endl;
                 detections_total += detections_data[n*_num_classes + c];
             }
 
             if (_keep_top_k > -1 && detections_total > _keep_top_k) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              if (_keep_top_k > -1 && detections_total > _keep_top_k) {" << std::endl;
                 std::vector<std::pair<float, std::pair<int, int>>> conf_index_class_map;
 
                 for (int c = 0; c < _num_classes; ++c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                  for (int c = 0; c < _num_classes; ++c) {" << std::endl;
                     int detections = detections_data[n*_num_classes + c];
                     int *pindices = indices_data + n*_num_classes*_num_priors + c*_num_priors;
                     float *pconf  = reordered_conf_data + n*_num_classes*_num_priors + c*_num_priors;
 
                     for (int i = 0; i < detections; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                      for (int i = 0; i < detections; ++i) {" << std::endl;
                         int idx = pindices[i];
                         conf_index_class_map.push_back(std::make_pair(pconf[idx], std::make_pair(c, idx)));
                     }
@@ -237,6 +258,7 @@ public:
                 memset(detections_data + n*_num_classes, 0, _num_classes * sizeof(int));
 
                 for (size_t j = 0; j < conf_index_class_map.size(); ++j) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                  for (size_t j = 0; j < conf_index_class_map.size(); ++j) {" << std::endl;
                     int label = conf_index_class_map[j].second.first;
                     int idx = conf_index_class_map[j].second.second;
                     int *pindices = indices_data + n * _num_classes * _num_priors + label * _num_priors;
@@ -248,12 +270,14 @@ public:
 
         const int DETECTION_SIZE = outputs[0]->getTensorDesc().getDims()[3];
         if (DETECTION_SIZE != 7) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          if (DETECTION_SIZE != 7) {" << std::endl;
             return NOT_IMPLEMENTED;
         }
 
         auto dst_data_size = N * _keep_top_k * DETECTION_SIZE * sizeof(float);
 
         if (dst_data_size > outputs[0]->byteSize()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          if (dst_data_size > outputs[0]->byteSize()) {" << std::endl;
             return OUT_OF_BOUNDS;
         }
 
@@ -261,12 +285,15 @@ public:
 
         int count = 0;
         for (int n = 0; n < N; ++n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          for (int n = 0; n < N; ++n) {" << std::endl;
             const float *pconf   = reordered_conf_data + n * _num_priors * _num_classes;
             const float *pboxes  = decoded_bboxes_data + n*_num_priors*4*_num_loc_classes;
             const int *pindices  = indices_data + n*_num_classes*_num_priors;
 
             for (int c = 0; c < _num_classes; ++c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              for (int c = 0; c < _num_classes; ++c) {" << std::endl;
                 for (int i = 0; i < detections_data[n*_num_classes + c]; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                  for (int i = 0; i < detections_data[n*_num_classes + c]; ++i) {" << std::endl;
                     int idx = pindices[c*_num_priors + i];
 
                     dst_data[count * DETECTION_SIZE + 0] = static_cast<float>(n);
@@ -283,6 +310,7 @@ public:
                                  pboxes[c*4*_num_priors + idx*4 + 3];
 
                     if (_clip_after_nms) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                      if (_clip_after_nms) {" << std::endl;
                         xmin = (std::max)(0.0f, (std::min)(1.0f, xmin));
                         ymin = (std::max)(0.0f, (std::min)(1.0f, ymin));
                         xmax = (std::max)(0.0f, (std::min)(1.0f, xmax));
@@ -300,6 +328,7 @@ public:
         }
 
         if (count < N*_keep_top_k) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          if (count < N*_keep_top_k) {" << std::endl;
             // marker at end of boxes list
             dst_data[count * DETECTION_SIZE + 0] = -1;
         }
@@ -363,9 +392,11 @@ private:
 };
 
 struct ConfidenceComparator {
-    explicit ConfidenceComparator(const float* conf_data) : _conf_data(conf_data) {}
+    explicit ConfidenceComparator(const float* conf_data) : _conf_data(conf_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      explicit ConfidenceComparator(const float* conf_data) : _conf_data(conf_data) {" << std::endl;}
 
     bool operator()(int idx1, int idx2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      bool operator()(int idx1, int idx2) {" << std::endl;
         if (_conf_data[idx1] > _conf_data[idx2]) return true;
         if (_conf_data[idx1] < _conf_data[idx2]) return false;
         return idx1 < idx2;
@@ -378,6 +409,7 @@ static inline float JaccardOverlap(const float *decoded_bbox,
                                    const float *bbox_sizes,
                                    const int idx1,
                                    const int idx2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                                     const int idx2) {" << std::endl;
     float xmin1 = decoded_bbox[idx1*4 + 0];
     float ymin1 = decoded_bbox[idx1*4 + 1];
     float xmax1 = decoded_bbox[idx1*4 + 2];
@@ -389,6 +421,7 @@ static inline float JaccardOverlap(const float *decoded_bbox,
     float xmax2 = decoded_bbox[idx2*4 + 2];
 
     if (xmin2 > xmax1 || xmax2 < xmin1 || ymin2 > ymax1 || ymax2 < ymin1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      if (xmin2 > xmax1 || xmax2 < xmin1 || ymin2 > ymax1 || ymax2 < ymin1) {" << std::endl;
         return 0.0f;
     }
 
@@ -401,6 +434,7 @@ static inline float JaccardOverlap(const float *decoded_bbox,
     float intersect_height = intersect_ymax - intersect_ymin;
 
     if (intersect_width <= 0 || intersect_height <= 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      if (intersect_width <= 0 || intersect_height <= 0) {" << std::endl;
         return 0.0f;
     }
 
@@ -418,12 +452,16 @@ void DetectionOutputImpl::decodeBBoxes(const float *prior_data,
                                    float *decoded_bbox_sizes,
                                    int* num_priors_actual,
                                    int n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                                     int n) {" << std::endl;
     num_priors_actual[n] = _num_priors;
     if (!_normalized) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      if (!_normalized) {" << std::endl;
         int num = 0;
         for (; num < _num_priors; ++num) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          for (; num < _num_priors; ++num) {" << std::endl;
             float batch_id = prior_data[num * _prior_size + 0];
             if (batch_id == -1.f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              if (batch_id == -1.f) {" << std::endl;
                 num_priors_actual[n] = num;
                 break;
             }
@@ -431,6 +469,7 @@ void DetectionOutputImpl::decodeBBoxes(const float *prior_data,
     }
 
     parallel_for(num_priors_actual[n], [&](int p) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      parallel_for(num_priors_actual[n], [&](int p) {" << std::endl;
         float new_xmin = 0.0f;
         float new_ymin = 0.0f;
         float new_xmax = 0.0f;
@@ -447,6 +486,7 @@ void DetectionOutputImpl::decodeBBoxes(const float *prior_data,
         float loc_ymax = loc_data[4*p*_num_loc_classes + 3];
 
         if (!_normalized) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          if (!_normalized) {" << std::endl;
             prior_xmin /= _image_width;
             prior_ymin /= _image_height;
             prior_xmax /= _image_width;
@@ -454,7 +494,9 @@ void DetectionOutputImpl::decodeBBoxes(const float *prior_data,
         }
 
         if (_code_type == CodeType::CORNER) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          if (_code_type == CodeType::CORNER) {" << std::endl;
             if (_variance_encoded_in_target) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              if (_variance_encoded_in_target) {" << std::endl;
                 // variance is encoded in target, we simply need to add the offset predictions.
                 new_xmin = prior_xmin + loc_xmin;
                 new_ymin = prior_ymin + loc_ymin;
@@ -467,6 +509,7 @@ void DetectionOutputImpl::decodeBBoxes(const float *prior_data,
                 new_ymax = prior_ymax + variance_data[p*4 + 3] * loc_ymax;
             }
         } else if (_code_type == CodeType::CENTER_SIZE) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          } else if (_code_type == CodeType::CENTER_SIZE) {" << std::endl;
             float prior_width    =  prior_xmax - prior_xmin;
             float prior_height   =  prior_ymax - prior_ymin;
             float prior_center_x = (prior_xmin + prior_xmax) / 2.0f;
@@ -476,6 +519,7 @@ void DetectionOutputImpl::decodeBBoxes(const float *prior_data,
             float decode_bbox_width, decode_bbox_height;
 
             if (_variance_encoded_in_target) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              if (_variance_encoded_in_target) {" << std::endl;
                 // variance is encoded in target, we simply need to restore the offset predictions.
                 decode_bbox_center_x = loc_xmin * prior_width  + prior_center_x;
                 decode_bbox_center_y = loc_ymin * prior_height + prior_center_y;
@@ -496,6 +540,7 @@ void DetectionOutputImpl::decodeBBoxes(const float *prior_data,
         }
 
         if (_clip_before_nms) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          if (_clip_before_nms) {" << std::endl;
             new_xmin = (std::max)(0.0f, (std::min)(1.0f, new_xmin));
             new_ymin = (std::max)(0.0f, (std::min)(1.0f, new_ymin));
             new_xmax = (std::max)(0.0f, (std::min)(1.0f, new_xmax));
@@ -518,9 +563,12 @@ void DetectionOutputImpl::nms_cf(const float* conf_data,
                           int* indices,
                           int& detections,
                           int num_priors_actual) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                            int num_priors_actual) {" << std::endl;
     int count = 0;
     for (int i = 0; i < num_priors_actual; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      for (int i = 0; i < num_priors_actual; ++i) {" << std::endl;
         if (conf_data[i] > _confidence_threshold) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          if (conf_data[i] > _confidence_threshold) {" << std::endl;
             indices[count] = i;
             count++;
         }
@@ -533,18 +581,22 @@ void DetectionOutputImpl::nms_cf(const float* conf_data,
                            ConfidenceComparator(conf_data));
 
     for (int i = 0; i < num_output_scores; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      for (int i = 0; i < num_output_scores; ++i) {" << std::endl;
         const int idx = buffer[i];
 
         bool keep = true;
         for (int k = 0; k < detections; ++k) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          for (int k = 0; k < detections; ++k) {" << std::endl;
             const int kept_idx = indices[k];
             float overlap = JaccardOverlap(bboxes, sizes, idx, kept_idx);
             if (overlap > _nms_threshold) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              if (overlap > _nms_threshold) {" << std::endl;
                 keep = false;
                 break;
             }
         }
         if (keep) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          if (keep) {" << std::endl;
             indices[detections] = idx;
             detections++;
         }
@@ -558,19 +610,24 @@ void DetectionOutputImpl::nms_mx(const float* conf_data,
                           int* indices,
                           int* detections,
                           int num_priors_actual) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:                            int num_priors_actual) {" << std::endl;
     int count = 0;
     for (int i = 0; i < num_priors_actual; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      for (int i = 0; i < num_priors_actual; ++i) {" << std::endl;
         float conf = -1;
         int id = 0;
         for (int c = 1; c < _num_classes; ++c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          for (int c = 1; c < _num_classes; ++c) {" << std::endl;
             float temp = conf_data[c*_num_priors + i];
             if (temp > conf) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              if (temp > conf) {" << std::endl;
                 conf = temp;
                 id = c;
             }
         }
 
         if (id > 0 && conf >= _confidence_threshold) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          if (id > 0 && conf >= _confidence_threshold) {" << std::endl;
             indices[count++] = id*_num_priors + i;
         }
     }
@@ -582,6 +639,7 @@ void DetectionOutputImpl::nms_mx(const float* conf_data,
                            ConfidenceComparator(conf_data));
 
     for (int i = 0; i < num_output_scores; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:      for (int i = 0; i < num_output_scores; ++i) {" << std::endl;
         const int idx = buffer[i];
         const int cls = idx/_num_priors;
         const int prior = idx%_num_priors;
@@ -591,14 +649,17 @@ void DetectionOutputImpl::nms_mx(const float* conf_data,
 
         bool keep = true;
         for (int k = 0; k < ndetection; ++k) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          for (int k = 0; k < ndetection; ++k) {" << std::endl;
             const int kept_idx = pindices[k];
             float overlap = JaccardOverlap(bboxes, sizes, prior, kept_idx);
             if (overlap > _nms_threshold) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:              if (overlap > _nms_threshold) {" << std::endl;
                 keep = false;
                 break;
             }
         }
         if (keep) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/detectionoutput.cpp:          if (keep) {" << std::endl;
             pindices[ndetection++] = prior;
         }
     }

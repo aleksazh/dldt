@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -34,6 +35,7 @@ op::DeconvolutionIE::DeconvolutionIE(const Output<Node>& data,
         , m_auto_pad(auto_pad)
         , m_group(group)
         , m_output_shape(output_shape) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/deconvolution_ie.cpp:          , m_output_shape(output_shape) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
@@ -55,15 +57,18 @@ op::DeconvolutionIE::DeconvolutionIE(const Output<Node>& data,
         , m_auto_pad(auto_pad)
         , m_group(group)
         , m_output_shape(output_shape) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/deconvolution_ie.cpp:          , m_output_shape(output_shape) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 void op::DeconvolutionIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/deconvolution_ie.cpp:  void op::DeconvolutionIE::validate_and_infer_types() {" << std::endl;
     set_output_type(0, get_input_element_type(0), m_output_shape);
 }
 
 shared_ptr<Node> op::DeconvolutionIE::copy_with_new_args(const NodeVector& new_args) const {
     if (new_args.size() == 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/deconvolution_ie.cpp:      if (new_args.size() == 2) {" << std::endl;
         return make_shared<DeconvolutionIE>(new_args.at(0),
                                           new_args.at(1),
                                           m_strides,
@@ -89,6 +94,7 @@ shared_ptr<Node> op::DeconvolutionIE::copy_with_new_args(const NodeVector& new_a
 
 shared_ptr<Node> op::DeconvolutionIE::copy(const OutputVector& new_args) const {
     if (new_args.size() == 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/deconvolution_ie.cpp:      if (new_args.size() == 2) {" << std::endl;
         return make_shared<DeconvolutionIE>(new_args.at(0),
                                             new_args.at(1),
                                             m_strides,

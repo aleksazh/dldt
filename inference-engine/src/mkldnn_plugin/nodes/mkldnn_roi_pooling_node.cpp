@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -14,9 +15,11 @@ using namespace mkldnn;
 using namespace MKLDNNPlugin;
 using namespace InferenceEngine;
 
-MKLDNNROIPoolingNode::MKLDNNROIPoolingNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) : MKLDNNNode(layer, eng, socket) {}
+MKLDNNROIPoolingNode::MKLDNNROIPoolingNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) : MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_roi_pooling_node.cpp:  MKLDNNROIPoolingNode::MKLDNNROIPoolingNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) : MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNROIPoolingNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_roi_pooling_node.cpp:  void MKLDNNROIPoolingNode::getSupportedDescriptors() {" << std::endl;
     if (!descs.empty())
         return;
 
@@ -44,8 +47,10 @@ void MKLDNNROIPoolingNode::getSupportedDescriptors() {
     spatial_scale = genericLayer->GetParamAsFloat("spatial_scale");
     std::string m = genericLayer->GetParamAsString("method", "max");
     if (m == "max") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_roi_pooling_node.cpp:      if (m == 'max') {" << std::endl;
         method = mkldnn::algorithm::roi_pooling_max;
     } else if (m == "bilinear") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_roi_pooling_node.cpp:      } else if (m == 'bilinear') {" << std::endl;
         method = mkldnn::algorithm::roi_pooling_bilinear;
     } else {
         THROW_IE_EXCEPTION << "Unsupported roi pooling method";
@@ -53,6 +58,7 @@ void MKLDNNROIPoolingNode::getSupportedDescriptors() {
 
     auto parentDims = getParentEdgeAt(0)->getDims();
     for (auto format : getAvailableFormatsForDims(parentDims)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_roi_pooling_node.cpp:      for (auto format : getAvailableFormatsForDims(parentDims)) {" << std::endl;
         std::vector<InferenceEngine::TensorDesc> srcs;
         srcs.push_back(MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, format));
         srcs.push_back(MKLDNNMemoryDesc(getParentEdgeAt(1)->getDims(), inputDataType, memory::nc));
@@ -63,11 +69,13 @@ void MKLDNNROIPoolingNode::getSupportedDescriptors() {
 }
 
 void MKLDNNROIPoolingNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_roi_pooling_node.cpp:  void MKLDNNROIPoolingNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
     std::vector<memory::desc> srcs;
     for (size_t i = 0; i < getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_roi_pooling_node.cpp:      for (size_t i = 0; i < getParentEdges().size(); i++) {" << std::endl;
         srcs.push_back(getParentEdgeAt(i)->getMemory().GetDescriptor());
     }
 
@@ -89,6 +97,7 @@ void MKLDNNROIPoolingNode::createPrimitive() {
 
     std::vector<primitive::at> src_p;
     for (size_t i = 0; i < getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_roi_pooling_node.cpp:      for (size_t i = 0; i < getParentEdges().size(); i++) {" << std::endl;
         src_p.push_back(getParentEdgeAt(i)->getMemoryPtr()->GetPrimitive());
     }
     prim.reset(new roi_pooling_forward(prim_desc, src_p, getChildEdgeAt(0)->getMemory().GetPrimitive()));
@@ -100,6 +109,7 @@ bool MKLDNNROIPoolingNode::created() const {
 
 void MKLDNNROIPoolingNode::createDescriptor(const std::vector<InferenceEngine::TensorDesc> &inputDesc,
                                             const std::vector<InferenceEngine::TensorDesc> &outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_roi_pooling_node.cpp:                                              const std::vector<InferenceEngine::TensorDesc> &outputDesc) {" << std::endl;
     std::vector<memory::desc> srcs;
     srcs.push_back(MKLDNNMemoryDesc(inputDesc[0]));
     srcs.push_back(MKLDNNMemoryDesc(inputDesc[1]));

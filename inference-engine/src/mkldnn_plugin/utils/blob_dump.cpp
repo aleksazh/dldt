@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -37,6 +38,7 @@ struct IEB_HEADER {
 };
 
 static IEB_HEADER prepare_header(const TensorDesc& desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  static IEB_HEADER prepare_header(const TensorDesc& desc) {" << std::endl;
     IEB_HEADER header = {};
 
     header.magic[0] = IEB_MAGIC[0];
@@ -63,6 +65,7 @@ static IEB_HEADER prepare_header(const TensorDesc& desc) {
 }
 
 static TensorDesc parse_header(IEB_HEADER &header) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  static TensorDesc parse_header(IEB_HEADER &header) {" << std::endl;
     if (header.magic[0] != IEB_MAGIC[0] ||
         header.magic[1] != IEB_MAGIC[1] ||
         header.magic[2] != IEB_MAGIC[2] ||
@@ -83,6 +86,7 @@ static TensorDesc parse_header(IEB_HEADER &header) {
 
 
 bool is_plain(const Blob::Ptr &blob) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  bool is_plain(const Blob::Ptr &blob) {" << std::endl;
     bool res = true;
 
     auto orig_strides = blob->getTensorDesc().getBlockingDesc().getStrides();
@@ -90,6 +94,7 @@ bool is_plain(const Blob::Ptr &blob) {
     auto dims = blob->getTensorDesc().getDims();
 
     for (int stride = 1, i = dims.size() - 1; i >= 0; --i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:      for (int stride = 1, i = dims.size() - 1; i >= 0; --i) {" << std::endl;
         if (stride != orig_strides[i] || i != orig_order[i]) res = false;
         stride *= dims[i];
     }
@@ -98,6 +103,7 @@ bool is_plain(const Blob::Ptr &blob) {
 }
 
 static Blob::Ptr prepare_plain_data(Blob::Ptr blob) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  static Blob::Ptr prepare_plain_data(Blob::Ptr blob) {" << std::endl;
     // check if it already plain
     if (is_plain(blob)) return blob;
 
@@ -113,6 +119,7 @@ static Blob::Ptr prepare_plain_data(Blob::Ptr blob) {
 
     // TODO: make it with blob_copy utility
     switch (blob->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:      switch (blob->getTensorDesc().getPrecision()) {" << std::endl;
         case Precision::FP32:
         case Precision::I32: {
             auto *pln_blob_ptr = pln_blob->buffer().as<int32_t*>();
@@ -145,6 +152,7 @@ static Blob::Ptr prepare_plain_data(Blob::Ptr blob) {
 }
 
 void BlobDumper::dump(std::ostream &stream) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  void BlobDumper::dump(std::ostream &stream) {" << std::endl;
     if (!_blob)
         THROW_IE_EXCEPTION << "Dumper cannot dump empty Blob";
 
@@ -160,6 +168,7 @@ void BlobDumper::dump(std::ostream &stream) {
     header.scaling_data_size = 0;
 
     if (_scales) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:      if (_scales) {" << std::endl;
         header.scaling_axis = 1;
         header.scaling_data_offset = header.data_offset + header.data_size;
         header.scaling_data_size = _scales->byteSize();
@@ -169,11 +178,13 @@ void BlobDumper::dump(std::ostream &stream) {
     stream.write(pln_blob->buffer().as<char*>(), pln_blob->byteSize());
 
     if (_scales) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:      if (_scales) {" << std::endl;
         stream.write(_scales->buffer().as<char*>(), _scales->byteSize());
     }
 }
 
 void BlobDumper::dumpAsTxt(std::ostream &stream) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  void BlobDumper::dumpAsTxt(std::ostream &stream) {" << std::endl;
     if (!_blob)
         THROW_IE_EXCEPTION << "Dumper cannot dump empty Blob";
 
@@ -196,6 +207,7 @@ void BlobDumper::dumpAsTxt(std::ostream &stream) {
 
     size_t data_size = _blob->size();
     switch (_blob->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:      switch (_blob->getTensorDesc().getPrecision()) {" << std::endl;
         case Precision::FP32: {
             auto *blob_ptr = _blob->buffer().as<float*>();
             for (size_t i = 0; i < data_size; i++)
@@ -238,6 +250,7 @@ void BlobDumper::dumpAsTxt(std::ostream &stream) {
 }
 
 BlobDumper BlobDumper::read(std::istream &stream) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  BlobDumper BlobDumper::read(std::istream &stream) {" << std::endl;
     IEB_HEADER header;
     stream.read(reinterpret_cast<char*>(&header), sizeof(header));
 
@@ -252,6 +265,7 @@ BlobDumper BlobDumper::read(std::istream &stream) {
 
     // Parse scales fields.
     if (header.scaling_axis != NO_SCALES) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:      if (header.scaling_axis != NO_SCALES) {" << std::endl;
         if (header.scaling_axis != 1)
             THROW_IE_EXCEPTION << "Dumper support scaling only for channel dims.";
 
@@ -268,6 +282,7 @@ BlobDumper BlobDumper::read(std::istream &stream) {
 }
 
 BlobDumper BlobDumper::read(const std::string &file_path) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  BlobDumper BlobDumper::read(const std::string &file_path) {" << std::endl;
     std::ifstream file;
     file.open(file_path);
     if (!file.is_open())
@@ -279,6 +294,7 @@ BlobDumper BlobDumper::read(const std::string &file_path) {
 }
 
 void BlobDumper::dump(const std::string &dump_path) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  void BlobDumper::dump(const std::string &dump_path) {" << std::endl;
     std::ofstream dump_file;
     dump_file.open(dump_path);
     if (!dump_file.is_open())
@@ -289,6 +305,7 @@ void BlobDumper::dump(const std::string &dump_path) {
 }
 
 void BlobDumper::dumpAsTxt(const std::string dump_path) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  void BlobDumper::dumpAsTxt(const std::string dump_path) {" << std::endl;
     std::ofstream dump_file;
     dump_file.open(dump_path);
     if (!dump_file.is_open())
@@ -299,11 +316,13 @@ void BlobDumper::dumpAsTxt(const std::string dump_path) {
 }
 
 Blob::Ptr BlobDumper::get() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  Blob::Ptr BlobDumper::get() {" << std::endl;
     return _blob;
 }
 
 template <typename data_t>
 static void plain_copy(const Blob::Ptr &from, const Blob::Ptr &scls, Blob::Ptr &to) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  static void plain_copy(const Blob::Ptr &from, const Blob::Ptr &scls, Blob::Ptr &to) {" << std::endl;
     auto dims = from->getTensorDesc().getDims();
 
     size_t data_size = from->size();
@@ -316,6 +335,7 @@ static void plain_copy(const Blob::Ptr &from, const Blob::Ptr &scls, Blob::Ptr &
     auto from_data = from->buffer().as<data_t*>();
 
     if (scls) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:      if (scls) {" << std::endl;
         auto scls_data = scls->buffer().as<float*>();
 
         for (size_t o=0; o < outer_size; o++)
@@ -329,6 +349,7 @@ static void plain_copy(const Blob::Ptr &from, const Blob::Ptr &scls, Blob::Ptr &
 }
 
 Blob::Ptr BlobDumper::getRealValue() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  Blob::Ptr BlobDumper::getRealValue() {" << std::endl;
     if (_blob->getTensorDesc().getPrecision() == Precision::FP32 && !_scales)
         return _blob;
 
@@ -336,6 +357,7 @@ Blob::Ptr BlobDumper::getRealValue() {
     res->allocate();
 
     switch (_blob->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:      switch (_blob->getTensorDesc().getPrecision()) {" << std::endl;
         case Precision::U8: plain_copy<uint8_t>(_blob, _scales, res); break;
         case Precision::FP32: plain_copy<float>(_blob, _scales, res); break;
         case Precision::I8: plain_copy<int8_t >(_blob, _scales, res); break;
@@ -347,6 +369,7 @@ Blob::Ptr BlobDumper::getRealValue() {
 
 
 BlobDumper& BlobDumper::withScales(InferenceEngine::Blob::Ptr scales) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  BlobDumper& BlobDumper::withScales(InferenceEngine::Blob::Ptr scales) {" << std::endl;
     if ( _blob->getTensorDesc().getDims().size() < 2  ||
         scales->getTensorDesc().getDims().size() != 1 ||
         scales->getTensorDesc().getDims()[0] != _blob->getTensorDesc().getDims()[1] ||
@@ -358,6 +381,7 @@ BlobDumper& BlobDumper::withScales(InferenceEngine::Blob::Ptr scales) {
 }
 
 BlobDumper& BlobDumper::withoutScales() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/utils/blob_dump.cpp:  BlobDumper& BlobDumper::withoutScales() {" << std::endl;
     _scales.reset();
     return *this;
 }

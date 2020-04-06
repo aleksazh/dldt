@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,15 +17,18 @@
 #include "ngraph/pattern/matcher.hpp"
 
 void ngraph::pass::ConvertBroadcastToTiles::convert_broadcast_to_tiles() {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:  void ngraph::pass::ConvertBroadcastToTiles::convert_broadcast_to_tiles() {" << std::endl;
     auto weights = std::make_shared<pattern::op::Label>(element::f32, Shape {1});
     auto shp = std::make_shared<pattern::op::Label>(element::i64, Shape {1});
     auto axs = std::make_shared<pattern::op::Label>(element::i64, Shape {1});
     auto broadcast = std::make_shared<ngraph::op::v1::Broadcast>(weights, shp, axs);
 
     ngraph::graph_rewrite_callback callback = [](pattern::Matcher& m) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:      ngraph::graph_rewrite_callback callback = [](pattern::Matcher& m) {" << std::endl;
         auto broadcast = std::dynamic_pointer_cast<ngraph::op::v1::Broadcast>(m.get_match_root());
 
         if (!broadcast) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:          if (!broadcast) {" << std::endl;
             return false;
         }
 
@@ -42,20 +46,26 @@ void ngraph::pass::ConvertBroadcastToTiles::convert_broadcast_to_tiles() {
 
         // In case if input_shape and output_shape differ we insert Reshape to align shapes
         if (input_shape.size() != dims_count) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:          if (input_shape.size() != dims_count) {" << std::endl;
             if (input_shape.size() > dims_count) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:              if (input_shape.size() > dims_count) {" << std::endl;
                 return false;
             }
             Shape shape;
             auto broadcast_type = broadcast->get_broadcast_spec();
             if (broadcast_type == op::AutoBroadcastType::NUMPY) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:              if (broadcast_type == op::AutoBroadcastType::NUMPY) {" << std::endl;
                 shape = input_shape;
                 for (size_t i = 0; i < (dims_count - input_shape.size()); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:                  for (size_t i = 0; i < (dims_count - input_shape.size()); ++i) {" << std::endl;
                     shape.insert(shape.begin(), 1);
                 }
             } else if (broadcast_type == op::AutoBroadcastType::NONE) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:              } else if (broadcast_type == op::AutoBroadcastType::NONE) {" << std::endl;
                 auto axes = axes_node->get_vector<int64_t>();
                 shape.assign(output_shape.size(), 1);
                 for (size_t i = 0; i < input_shape.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:                  for (size_t i = 0; i < input_shape.size(); ++i) {" << std::endl;
                     shape[axes[i]] = input_shape[i];
                 }
             } else {
@@ -71,9 +81,12 @@ void ngraph::pass::ConvertBroadcastToTiles::convert_broadcast_to_tiles() {
         auto input_shape_it = input_shape.rbegin();
         auto output_shape_it = output_shape.rbegin();
         while (output_shape_it != output_shape.rend() && input_shape_it != input_shape.rend()) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:          while (output_shape_it != output_shape.rend() && input_shape_it != input_shape.rend()) {" << std::endl;
             int64_t in_dim = *input_shape_it, out_dim = *output_shape_it;
             if (in_dim != out_dim) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:              if (in_dim != out_dim) {" << std::endl;
                 if (in_dim != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/convert_broadcast_to_tiles.cpp:                  if (in_dim != 1) {" << std::endl;
                     return false;
                 }
                 dims[cur_dim_id] = out_dim;

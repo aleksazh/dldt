@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,6 +18,7 @@ namespace Cpu {
 class PSROIPoolingImpl: public ExtLayerBase {
 public:
     explicit PSROIPoolingImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:      explicit PSROIPoolingImpl(const CNNLayer* layer) {" << std::endl;
         try {
             mode_ = layer->GetParamAsString("mode", "average");
             if (mode_ != "bilinear_deformable")
@@ -48,12 +50,14 @@ public:
             trans_std_ = layer->GetParamAsFloat("trans_std", 1);
 
             if (no_trans_) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:              if (no_trans_) {" << std::endl;
                 addConfig(layer, {DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN)}, {DataConfigurator(ConfLayout::PLN)});
             } else {
                 addConfig(layer, {DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN),
                                   DataConfigurator(ConfLayout::PLN)}, {DataConfigurator(ConfLayout::PLN)});
             }
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -66,9 +70,11 @@ public:
 
         int real_rois = 0;
         for (; real_rois < nn; real_rois++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:          for (; real_rois < nn; real_rois++) {" << std::endl;
             const float *bottom_rois = bottom_rois_beginning + real_rois * 5;
             int roi_batch_ind = static_cast<int>(bottom_rois[0]);
             if (roi_batch_ind == -1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:              if (roi_batch_ind == -1) {" << std::endl;
                 break;
             }
         }
@@ -78,6 +84,7 @@ public:
         int num_classes = 1;
         int channels_each_class = output_dim_;
         if (!no_trans_) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:          if (!no_trans_) {" << std::endl;
             bottom_trans = inputs[2]->buffer();
             num_classes = static_cast<int>(inputs[2]->getTensorDesc().getDims()[1]) / 2;
             channels_each_class /= num_classes;
@@ -86,6 +93,7 @@ public:
         size_t num_bins = spatial_bins_x_*spatial_bins_y_;
 
         parallel_for(real_rois, [&](int n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:          parallel_for(real_rois, [&](int n) {" << std::endl;
             const float* bottom_rois = bottom_rois_beginning + n * 5;
             int roi_batch_ind = static_cast<int>(bottom_rois[0]);
             float roi_start_w = 0.0f;
@@ -96,6 +104,7 @@ public:
             float roi_height  = 0.0f;
 
             if (mode_ == "bilinear") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:              if (mode_ == 'bilinear') {" << std::endl;
                 roi_start_w = bottom_rois[1] * spatial_scale_;
                 roi_start_h = bottom_rois[2] * spatial_scale_;
                 roi_end_w = bottom_rois[3] * spatial_scale_;
@@ -103,6 +112,7 @@ public:
                 roi_width  = roi_end_w - roi_start_w;
                 roi_height = roi_end_h - roi_start_h;
             } else if (mode_ == "average") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:              } else if (mode_ == 'average') {" << std::endl;
                 roi_start_w = static_cast<float>(round(bottom_rois[1])) * spatial_scale_;
                 roi_start_h = static_cast<float>(round(bottom_rois[2])) * spatial_scale_;
                 roi_end_w   = static_cast<float>(round(bottom_rois[3]) + 1.0f) * spatial_scale_;
@@ -111,6 +121,7 @@ public:
                 roi_width  = std::max<float>(roi_end_w - roi_start_w, 0.1f);  // avoid 0
                 roi_height = std::max<float>(roi_end_h - roi_start_h, 0.1f);
             } else if (mode_ == "bilinear_deformable") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:              } else if (mode_ == 'bilinear_deformable') {" << std::endl;
                 roi_start_w = static_cast<float>(round(bottom_rois[1])) * spatial_scale_ - 0.5f;
                 roi_start_h = static_cast<float>(round(bottom_rois[2])) * spatial_scale_ - 0.5f;
                 roi_end_w   = static_cast<float>(round(bottom_rois[3]) + 1.0f) * spatial_scale_ - 0.5f;
@@ -121,12 +132,16 @@ public:
             }
 
             for (int c = 0; c < nc; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:              for (int c = 0; c < nc; c++) {" << std::endl;
                 for (int h = 0; h < nh; h++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                  for (int h = 0; h < nh; h++) {" << std::endl;
                     for (int w = 0; w < nw; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                      for (int w = 0; w < nw; w++) {" << std::endl;
                         size_t index = n*nc*nh*nw + c*nh*nw + h*nw + w;
                         dst_data[index] = 0.0f;
 
                         if (mode_ == "average") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                          if (mode_ == 'average') {" << std::endl;
                             float bin_size_h = roi_height / static_cast<float>(pooled_height_);
                             float bin_size_w = roi_width  / static_cast<float>(pooled_width_);
 
@@ -143,6 +158,7 @@ public:
 
                             float bin_area = static_cast<float>((hend - hstart) * (wend - wstart));
                             if (bin_area) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                              if (bin_area) {" << std::endl;
                                 int gc = (c * group_size_ + h) * group_size_ + w;
                                 const float *bottom_data =
                                         bottom_data_beginning + ((roi_batch_ind * channels + gc) * height * width);
@@ -155,8 +171,11 @@ public:
                                 dst_data[index] = out_sum / bin_area;
                             }
                         } else if (mode_ == "bilinear") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                          } else if (mode_ == 'bilinear') {" << std::endl;
                             for (size_t bin_y = 0; bin_y < spatial_bins_y_; bin_y++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                              for (size_t bin_y = 0; bin_y < spatial_bins_y_; bin_y++) {" << std::endl;
                                 for (size_t bin_x = 0; bin_x < spatial_bins_x_; bin_x++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                                  for (size_t bin_x = 0; bin_x < spatial_bins_x_; bin_x++) {" << std::endl;
                                     float box_xmin = roi_start_w + (bin_x + 0) * (roi_width / spatial_bins_x_);
                                     float box_xmax = roi_start_w + (bin_x + 1) * (roi_width / spatial_bins_x_);
                                     float box_ymin = roi_start_h + (bin_y + 0) * (roi_height / spatial_bins_y_);
@@ -177,6 +196,7 @@ public:
                                                         : 0.5f * (box_xmin + box_xmax) * (width - 1);
 
                                     if (!(in_y < 0 || in_y > height - 1 || in_x < 0 || in_x > width - 1)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                                      if (!(in_y < 0 || in_y > height - 1 || in_x < 0 || in_x > width - 1)) {" << std::endl;
                                         int top_y_index = static_cast<int>(floorf(in_y));
                                         int bottom_y_index = static_cast<int>(ceilf(in_y));
                                         int left_x_index = static_cast<int>(floorf(in_x));
@@ -202,6 +222,7 @@ public:
                             }
                             dst_data[index] /= num_bins;
                         } else if (mode_ == "bilinear_deformable") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                          } else if (mode_ == 'bilinear_deformable') {" << std::endl;
                             // Compute w and h at bottom
                             float bin_size_h = roi_height / static_cast<float>(pooled_height_);
                             float bin_size_w = roi_width  / static_cast<float>(pooled_width_);
@@ -231,7 +252,9 @@ public:
 
                             const float* offset_bottom_data = bottom_data_beginning + (roi_batch_ind * channels) * height * width;
                             for (size_t ih = 0; ih < spatial_bins_y_; ih++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                              for (size_t ih = 0; ih < spatial_bins_y_; ih++) {" << std::endl;
                                 for (size_t iw = 0; iw < spatial_bins_x_; iw++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:                                  for (size_t iw = 0; iw < spatial_bins_x_; iw++) {" << std::endl;
                                     float w1 = wstart + iw * sub_bin_size_w;
                                     float h1 = hstart + ih * sub_bin_size_h;
                                     // bilinear interpolation
@@ -253,7 +276,9 @@ public:
         });
 
         for (int n = real_rois; n < nn; n++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:          for (int n = real_rois; n < nn; n++) {" << std::endl;
             parallel_for3d(nc, nh, nw, [&](int c, int h, int w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:              parallel_for3d(nc, nh, nw, [&](int c, int h, int w) {" << std::endl;
                 int index = n * nc * nh * nw + c * nh * nw + h * nw + w;
                 dst_data[index] = 0.0f;
             });
@@ -263,6 +288,7 @@ public:
     }
 
     inline float bilinear_interp(const float* data, const float x, const float y, const int width) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/psroi.cpp:      inline float bilinear_interp(const float* data, const float x, const float y, const int width) {" << std::endl;
         int x1 = static_cast<int>(std::floor(x));
         int x2 = static_cast<int>(std::ceil(x));
         int y1 = static_cast<int>(std::floor(y));

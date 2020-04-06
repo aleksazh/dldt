@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -44,8 +45,10 @@ void jit_uni_roi_pooling_fwd_t<isa>::execute_forward() const {
 
     int real_rois = 0;
     for (; real_rois < MB; real_rois++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:      for (; real_rois < MB; real_rois++) {" << std::endl;
         int roi_off;
         if (src_roi_d.ndims() == 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:          if (src_roi_d.ndims() == 4) {" << std::endl;
             roi_off = src_roi_d.off(real_rois, 0, 0, 0);
         } else {
             roi_off = src_roi_d.off(real_rois, 0);
@@ -54,6 +57,7 @@ void jit_uni_roi_pooling_fwd_t<isa>::execute_forward() const {
         const data_t *src_roi_ptr = &src_roi[roi_off];
         int roi_batch_ind = src_roi_ptr[0];
         if (roi_batch_ind == -1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:          if (roi_batch_ind == -1) {" << std::endl;
             break;
         }
     }
@@ -61,6 +65,7 @@ void jit_uni_roi_pooling_fwd_t<isa>::execute_forward() const {
     const int work_amount = MB * cb_work * jpp.oh * jpp.ow;
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         int start{0}, end{0};
         balance211(work_amount, nthr, ithr, start, end);
 
@@ -68,6 +73,7 @@ void jit_uni_roi_pooling_fwd_t<isa>::execute_forward() const {
         utils::nd_iterator_init(start, n, MB, cbb, cb_work, oh, jpp.oh, ow, jpp.ow);
 
         for (int iwork = start; iwork < end; iwork++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:          for (int iwork = start; iwork < end; iwork++) {" << std::endl;
             auto arg = jit_roi_pool_call_s();
 
             int cb = cbb * jpp.nb_c_blocking;
@@ -76,6 +82,7 @@ void jit_uni_roi_pooling_fwd_t<isa>::execute_forward() const {
             arg.c_blocks = nstl::min(cb + cb_num, jpp.nb_c) - cb;
 
             if (n >= real_rois) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:              if (n >= real_rois) {" << std::endl;
                 arg.dst = &dst[dst_d.blk_off(n, cb, oh, ow)];
                 arg.bin_area = 0;
 
@@ -83,6 +90,7 @@ void jit_uni_roi_pooling_fwd_t<isa>::execute_forward() const {
             } else {
                 int roi_off;
                 if(src_roi_d.ndims() == 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:                  if(src_roi_d.ndims() == 4) {" << std::endl;
                     roi_off = src_roi_d.off((int)n, 0, 0, 0);
                 }
                 else {
@@ -93,6 +101,7 @@ void jit_uni_roi_pooling_fwd_t<isa>::execute_forward() const {
                 int roi_batch_ind = src_roi_ptr[0];
 
                 if (jpp.alg == mkldnn_roi_pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:                  if (jpp.alg == mkldnn_roi_pooling_max) {" << std::endl;
                     int roi_start_w = round(src_roi_ptr[1] * jpp.spatial_scale);
                     int roi_start_h = round(src_roi_ptr[2] * jpp.spatial_scale);
                     int roi_end_w = round(src_roi_ptr[3] * jpp.spatial_scale);
@@ -104,21 +113,25 @@ void jit_uni_roi_pooling_fwd_t<isa>::execute_forward() const {
 
                     int hstart = (oh * roi_height) / jpp.pooled_h;
                     if ((hstart * jpp.pooled_h) > (oh * roi_height)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:                      if ((hstart * jpp.pooled_h) > (oh * roi_height)) {" << std::endl;
                         --hstart;
                     }
 
                     int wstart = (ow * roi_width) / jpp.pooled_w;
                     if ((wstart * jpp.pooled_w) > (ow * roi_width)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:                      if ((wstart * jpp.pooled_w) > (ow * roi_width)) {" << std::endl;
                         --wstart;
                     }
 
                     int hend = ((oh + 1) * roi_height) / jpp.pooled_h;
                     if ((hend * jpp.pooled_h) < ((oh + 1) * roi_height)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:                      if ((hend * jpp.pooled_h) < ((oh + 1) * roi_height)) {" << std::endl;
                         ++hend;
                     }
 
                     int wend = ((ow + 1) * roi_width) / jpp.pooled_w;
                     if ((wend * jpp.pooled_w) < ((ow + 1) * roi_width)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:                      if ((wend * jpp.pooled_w) < ((ow + 1) * roi_width)) {" << std::endl;
                         ++wend;
                     }
 
@@ -147,6 +160,7 @@ void jit_uni_roi_pooling_fwd_t<isa>::execute_forward() const {
 
                     arg.dst = &dst[dst_d.blk_off(n, cb, oh, ow)];
                     if (in_y < 0 || in_y > jpp.ih - 1 || in_x < 0 || in_x > jpp.iw - 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pooling.cpp:                      if (in_y < 0 || in_y > jpp.ih - 1 || in_x < 0 || in_x > jpp.iw - 1) {" << std::endl;
                         arg.bin_area = 0;
                     } else {
                         int top_y_index    = static_cast<int>(floorf(in_y));

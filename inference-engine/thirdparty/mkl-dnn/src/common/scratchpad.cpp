@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -31,12 +32,14 @@ const size_t page_size = 2097152;
 */
 struct concurent_scratchpad_t : public scratchpad_t {
     concurent_scratchpad_t(size_t size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/scratchpad.cpp:      concurent_scratchpad_t(size_t size) {" << std::endl;
         size_ = size;
         scratchpad_ = (char *) malloc(size, page_size);
         assert(scratchpad_ != nullptr);
     }
 
     ~concurent_scratchpad_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/scratchpad.cpp:      ~concurent_scratchpad_t() {" << std::endl;
         free(scratchpad_);
     }
 
@@ -56,7 +59,9 @@ private:
 
 struct global_scratchpad_t : public scratchpad_t {
     global_scratchpad_t(size_t size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/scratchpad.cpp:      global_scratchpad_t(size_t size) {" << std::endl;
         if (size > size_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/scratchpad.cpp:          if (size > size_) {" << std::endl;
             if (scratchpad_ != nullptr) free(scratchpad_);
             size_ = size;
             scratchpad_ = (char *) malloc(size, page_size);
@@ -66,8 +71,10 @@ struct global_scratchpad_t : public scratchpad_t {
     }
 
     ~global_scratchpad_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/scratchpad.cpp:      ~global_scratchpad_t() {" << std::endl;
         reference_count_--;
         if (reference_count_ == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/scratchpad.cpp:          if (reference_count_ == 0) {" << std::endl;
             free(scratchpad_);
             scratchpad_ = nullptr;
             size_ = 0;
@@ -93,6 +100,7 @@ thread_local unsigned int global_scratchpad_t::reference_count_ = 0;
    Scratchpad creation routine
 */
 scratchpad_t *create_scratchpad(size_t size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/scratchpad.cpp:  scratchpad_t *create_scratchpad(size_t size) {" << std::endl;
 #ifndef MKLDNN_ENABLE_CONCURRENT_EXEC
     return new global_scratchpad_t(size);
 #else

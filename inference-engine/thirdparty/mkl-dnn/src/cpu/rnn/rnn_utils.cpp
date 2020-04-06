@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -38,6 +39,7 @@ void rnn_utils::init_conf(rnn_conf_t &rnn, const rnn_desc_t &rd,
         const memory_desc_wrapper &weights_layer_d,
         const memory_desc_wrapper &weights_iter_d,
         const memory_desc_wrapper &dst_layer_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:          const memory_desc_wrapper &dst_layer_d) {" << std::endl;
     rnn.is_fwd = utils::one_of(rd.prop_kind, prop_kind::forward_training,
             prop_kind::forward_inference);
     rnn.is_training = utils::one_of(
@@ -45,6 +47,7 @@ void rnn_utils::init_conf(rnn_conf_t &rnn, const rnn_desc_t &rd,
     rnn.is_lbr = rd.cell_desc.cell_kind == mkldnn_gru_linear_before_reset;
 
     switch (rd.direction) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:      switch (rd.direction) {" << std::endl;
     case mkldnn_unidirectional_left2right: rnn.exec_dir = l2r; break;
     case mkldnn_unidirectional_right2left: rnn.exec_dir = r2l; break;
     case mkldnn_bidirectional_concat: rnn.exec_dir = bi_concat; break;
@@ -56,6 +59,7 @@ void rnn_utils::init_conf(rnn_conf_t &rnn, const rnn_desc_t &rd,
                 weights_layer_d.data_type()))
         rnn.dt_conf = all_f32;
     else if (dst_layer_d.data_type() == u8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:      else if (dst_layer_d.data_type() == u8) {" << std::endl;
         if (IMPLICATION(src_iter_d._md, src_iter_d.data_type() == u8))
             rnn.dt_conf = u8u8u8u8;
         else
@@ -131,8 +135,10 @@ void rnn_utils::init_conf(rnn_conf_t &rnn, const rnn_desc_t &rd,
 
     /* Set packed gemm sizes */
     if (rnn.use_layer_packed_gemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:      if (rnn.use_layer_packed_gemm) {" << std::endl;
         rnn.weights_layer_pack_size = 0;
         for (int p = 0; p < rnn.n_parts_weights_layer; p++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:          for (int p = 0; p < rnn.n_parts_weights_layer; p++) {" << std::endl;
             int m_p = rnn.is_fwd
                 ? (rnn.parts_weights_layer[p] * rnn.dic)
                 : rnn.slc;
@@ -164,8 +170,10 @@ void rnn_utils::init_conf(rnn_conf_t &rnn, const rnn_desc_t &rd,
     }
 
     if (rnn.use_iter_packed_gemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:      if (rnn.use_iter_packed_gemm) {" << std::endl;
         rnn.weights_iter_pack_size = 0;
         for (int p = 0; p < rnn.n_parts_weights_iter; p++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:          for (int p = 0; p < rnn.n_parts_weights_iter; p++) {" << std::endl;
             int m_p = rnn.is_fwd ? (rnn.parts_weights_iter[p] * rnn.dic) :
                                    rnn.sic;
             int k_p = rnn.is_fwd ? rnn.sic :
@@ -201,6 +209,7 @@ void rnn_utils::set_conf(rnn_conf_t &rnn, const rnn_desc_t &rd,
         const memory_desc_wrapper &weights_iter_d,
         const memory_desc_wrapper &diff_weights_layer_d,
         const memory_desc_wrapper &diff_weights_iter_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:          const memory_desc_wrapper &diff_weights_iter_d) {" << std::endl;
 
     /* Set leading dimensions for input weights arrays depending on input format
      */
@@ -210,7 +219,9 @@ void rnn_utils::set_conf(rnn_conf_t &rnn, const rnn_desc_t &rd,
     rnn.weights_iter_is_packed = rnn.weights_iter_fmt == rnn_packed;
 
     auto set_dims = [&](const memory_desc_wrapper &md, int &ld, int &nld) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:      auto set_dims = [&](const memory_desc_wrapper &md, int &ld, int &nld) {" << std::endl;
         switch (md.format()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:          switch (md.format()) {" << std::endl;
         case ldigo:
             ld = (int)md.blocking_desc().strides[0][2];
             nld = md.dims()[2];
@@ -225,6 +236,7 @@ void rnn_utils::set_conf(rnn_conf_t &rnn, const rnn_desc_t &rd,
     set_dims(weights_layer_d, rnn.weights_layer_ld, rnn.weights_layer_nld);
     set_dims(weights_iter_d, rnn.weights_iter_ld, rnn.weights_iter_nld);
     if (!rnn.is_fwd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:      if (!rnn.is_fwd) {" << std::endl;
         set_dims(diff_weights_layer_d, rnn.diff_weights_layer_ld,
                 rnn.diff_weights_layer_nld);
         set_dims(diff_weights_iter_d, rnn.diff_weights_iter_ld,
@@ -272,6 +284,7 @@ void rnn_utils::set_conf(rnn_conf_t &rnn, const rnn_desc_t &rd,
 }
 
 int rnn_utils::get_good_ld(int dim, int sizeof_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:  int rnn_utils::get_good_ld(int dim, int sizeof_dt) {" << std::endl;
     // we want matrices leading dimentions to be 64-byte aligned,
     // and not divisible by 256 to avoid 4K aliasing effects
     int ld = rnd_up(dim, 64 / sizeof_dt);
@@ -283,6 +296,7 @@ void rnn_utils::set_offsets(const rnn_conf_t &rnn, size_t &ws_gates_offset,
         size_t &ws_diff_states_offset, size_t &ws_grid_comp_offset,
         size_t &ws_cell_comp_offset, size_t &ws_bias_offset,
         size_t &scratchpad_size, size_t &workspace_size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:          size_t &scratchpad_size, size_t &workspace_size) {" << std::endl;
 
     const size_t page_size = 4096; // 2097152;
     size_t current_offset;
@@ -321,6 +335,7 @@ void rnn_utils::set_offsets(const rnn_conf_t &rnn, size_t &ws_gates_offset,
     current_offset = rnn.use_workspace ? 0 : current_offset;
 
     if (rnn.copy_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:      if (rnn.copy_bias) {" << std::endl;
         current_offset = utils::rnd_up(current_offset, page_size);
         ws_bias_offset = current_offset;
         current_offset += rnn.ws_bias_size;
@@ -331,6 +346,7 @@ void rnn_utils::set_offsets(const rnn_conf_t &rnn, size_t &ws_gates_offset,
 
 void rnn_utils::get_scratchpad_and_workspace_sizes(const rnn_conf_t &rnn,
         size_t &scratchpad_size, size_t &workspace_size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:          size_t &scratchpad_size, size_t &workspace_size) {" << std::endl;
     size_t ws_gates_offset, ws_states_offset, ws_c_states_offset,
             ws_diff_states_offset, ws_grid_comp_offset, ws_cell_comp_offset,
             ws_bias_offset;
@@ -340,15 +356,18 @@ void rnn_utils::get_scratchpad_and_workspace_sizes(const rnn_conf_t &rnn,
 }
 
 status_t rnn_utils::set_good_strides(memory_desc_t &weights_md) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:  status_t rnn_utils::set_good_strides(memory_desc_t &weights_md) {" << std::endl;
     auto &strides = weights_md.layout_desc.blocking.strides[0];
     auto dims = weights_md.dims;
 
     if (weights_md.format == ldigo) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:      if (weights_md.format == ldigo) {" << std::endl;
         strides[2] = rnn_utils::get_good_ld((int)strides[2],
                 (int)types::data_type_size(weights_md.data_type));
         strides[1] = dims[2] * strides[2];
         strides[0] = dims[1] * strides[1];
     } else if (weights_md.format == ldgoi) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:      } else if (weights_md.format == ldgoi) {" << std::endl;
         strides[4] = rnn_utils::get_good_ld((int)strides[4],
                 (int)types::data_type_size(weights_md.data_type));
         strides[3] = dims[4] * strides[4];
@@ -362,14 +381,17 @@ status_t rnn_utils::set_good_strides(memory_desc_t &weights_md) {
 
 status_t rnn_utils::set_expected_desc(rnn_conf_t &rnn,
         memory_desc_t &weights_md, bool is_iter) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:          memory_desc_t &weights_md, bool is_iter) {" << std::endl;
     bool use_packed_gemm = is_iter
         ? rnn.use_iter_packed_gemm
         : rnn.use_layer_packed_gemm;
     if (use_packed_gemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:      if (use_packed_gemm) {" << std::endl;
         weights_md.format = rnn_packed;
         rnn_packed_data_t &rnn_pdata = weights_md.layout_desc.rnn_packed_desc;
         rnn_pdata.format = rnn.is_fwd ? mkldnn_ldigo_p : mkldnn_ldgoi_p;
         if (is_iter) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/rnn_utils.cpp:          if (is_iter) {" << std::endl;
             rnn_pdata.n = rnn.mb;
             rnn_pdata.n_parts = rnn.n_parts_weights_iter;
             array_copy(rnn_pdata.parts, rnn.parts_weights_iter,

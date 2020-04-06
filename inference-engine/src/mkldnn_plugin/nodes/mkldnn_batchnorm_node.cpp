@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -14,6 +15,7 @@ using namespace InferenceEngine;
 MKLDNNBatchNormalizationNode::MKLDNNBatchNormalizationNode(const InferenceEngine::CNNLayerPtr& layer,
                                                            const mkldnn::engine& eng, int socket)
         : MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:          : MKLDNNNode(layer, eng, socket) {" << std::endl;
     internalBlobDesc.emplace_back([&](primitive_desc_iterator &primitive_desc_it, size_t idx) -> MKLDNNMemoryDesc {
         return GetVarianceDesc(primitive_desc_it.fetch());
     });
@@ -29,12 +31,14 @@ MKLDNNBatchNormalizationNode::MKLDNNBatchNormalizationNode(const InferenceEngine
 }
 
 void MKLDNNBatchNormalizationNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:  void MKLDNNBatchNormalizationNode::getSupportedDescriptors() {" << std::endl;
     if (!descs.empty())
         return;
     auto * bnLayer = dynamic_cast<BatchNormalizationLayer*>(getCnnLayer().get());
     if (bnLayer == nullptr)
         THROW_IE_EXCEPTION << "Cannot convert batch normalization layer.";
     if (bnLayer->_weights == nullptr || bnLayer->_biases == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:      if (bnLayer->_weights == nullptr || bnLayer->_biases == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Weights/biases are empty for layer: " << bnLayer->name
                            << " used in MKLDNN node: " << getName() << "\n"
                            << "Use ReadWeights and SetWeights methods of InferenceEngine::CNNNetReader"
@@ -63,6 +67,7 @@ void MKLDNNBatchNormalizationNode::getSupportedDescriptors() {
         THROW_IE_EXCEPTION << "BatchNorm fusion is possible with only one layer!";
 
     for (const auto &node : fusedWith) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:      for (const auto &node : fusedWith) {" << std::endl;
         auto * scshLayer = dynamic_cast<ScaleShiftLayer*>(node->getCnnLayer().get());
         if (scshLayer == nullptr)
             THROW_IE_EXCEPTION << "Cannot cast to the ScaleShift layer to fuse with BatchNorm.";
@@ -86,6 +91,7 @@ void MKLDNNBatchNormalizationNode::getSupportedDescriptors() {
         blb = scshLayer->_biases;
 
         if (blb == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:          if (blb == nullptr) {" << std::endl;
             memset(data, 0, weightsByteSize);
         } else {
             if (weightsByteSize != blb->byteSize())
@@ -101,6 +107,7 @@ void MKLDNNBatchNormalizationNode::getSupportedDescriptors() {
     auto inputDataType = MKLDNNExtensionUtils::IEPrecisionToDataType(precision);
 
     for (auto format : getAvailableFormatsForDims(parentOutDims)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:      for (auto format : getAvailableFormatsForDims(parentOutDims)) {" << std::endl;
         MKLDNNMemoryDesc in_candidate(parentOutDims, inputDataType, format);
         createDescriptor({in_candidate}, {});
     }
@@ -164,10 +171,12 @@ bool MKLDNNBatchNormalizationNode::created() const {
 }
 
 void MKLDNNBatchNormalizationNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:  void MKLDNNBatchNormalizationNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
     if (fusedWithScale()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:      if (fusedWithScale()) {" << std::endl;
         auto prim_desc = createPrimitiveDescriptor<batch_normalization_forward::primitive_desc,
                 batch_normalization_forward::desc>();
         prim.reset(new batch_normalization_forward(prim_desc,
@@ -189,8 +198,10 @@ void MKLDNNBatchNormalizationNode::createPrimitive() {
 
 void MKLDNNBatchNormalizationNode::createDescriptor(const std::vector<InferenceEngine::TensorDesc> &inputDesc,
                                                     const std::vector<InferenceEngine::TensorDesc> &outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:                                                      const std::vector<InferenceEngine::TensorDesc> &outputDesc) {" << std::endl;
     MKLDNNMemoryDesc inDesc(inputDesc[0]);
     if (inDesc.getDims().ndims() == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:      if (inDesc.getDims().ndims() == 2) {" << std::endl;
         // Make it 4D
         MKLDNNDims dims = inDesc.getDims();
         dims.push_back(1);  // H
@@ -209,6 +220,7 @@ void MKLDNNBatchNormalizationNode::createDescriptor(const std::vector<InferenceE
 }
 
 void MKLDNNBatchNormalizationNode::initOptimalPrimitiveDescriptor() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:  void MKLDNNBatchNormalizationNode::initOptimalPrimitiveDescriptor() {" << std::endl;
     auto selected_pd = getSelectedPrimitiveDescriptor();
     if (selected_pd == nullptr)
         THROW_IE_EXCEPTION << "Preferable primitive descriptor is not set.";
@@ -221,8 +233,10 @@ void MKLDNNBatchNormalizationNode::initOptimalPrimitiveDescriptor() {
         THROW_IE_EXCEPTION << "Layer " << getName() << " has incorrect selected config!";
 
     if (!isUninitTensorDesc(config.inConfs[0].desc)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:      if (!isUninitTensorDesc(config.inConfs[0].desc)) {" << std::endl;
         config.outConfs[0].desc = config.inConfs[0].desc;
     } else if (!isUninitTensorDesc(config.outConfs[0].desc)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:      } else if (!isUninitTensorDesc(config.outConfs[0].desc)) {" << std::endl;
         config.inConfs[0].desc = config.outConfs[0].desc;
     } else {
         config.outConfs[0].desc = config.inConfs[0].desc = getConfiguredInputDesc(config, 0);
@@ -232,16 +246,20 @@ void MKLDNNBatchNormalizationNode::initOptimalPrimitiveDescriptor() {
 }
 
 void MKLDNNBatchNormalizationNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:  void MKLDNNBatchNormalizationNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
     // BN primitive doesn't support strides
     for (auto& desc : descs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:      for (auto& desc : descs) {" << std::endl;
         primitive_desc_iterator itpd = desc.createPrimitiveDescriptorIterator(getEngine());
         while (itpd.is_not_end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:          while (itpd.is_not_end()) {" << std::endl;
             InferenceEngine::LayerConfig config;
             config.dynBatchSupport = true;
             for (size_t i = 0; i < desc.inputNumbers(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:              for (size_t i = 0; i < desc.inputNumbers(); i++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = -1;
                 dataConfig.constant = false;
@@ -251,6 +269,7 @@ void MKLDNNBatchNormalizationNode::initSupportedPrimitiveDescriptors() {
 
             std::vector<memory::format> outFormats;
             for (size_t i = 0; i < desc.outputNumbers(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:              for (size_t i = 0; i < desc.outputNumbers(); i++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = canBeInPlace() ? 0 : -1;
                 dataConfig.constant = false;
@@ -269,9 +288,11 @@ void MKLDNNBatchNormalizationNode::initSupportedPrimitiveDescriptors() {
 
 MKLDNNMemoryDesc MKLDNNBatchNormalizationNode::getSrcMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it,
                                                              size_t idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:                                                               size_t idx) {" << std::endl;
     TensorDesc desc = MKLDNNMemoryDesc(primitive_desc_it.src_primitive_desc(idx).desc());
 
     if (getParentEdgeAt(0)->getDims().ndims() == 2 && desc.getLayout() == InferenceEngine::Layout::NCHW) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:      if (getParentEdgeAt(0)->getDims().ndims() == 2 && desc.getLayout() == InferenceEngine::Layout::NCHW) {" << std::endl;
         desc.reshape(getParentEdgeAt(idx)->getDims().ToSizeVector(), InferenceEngine::Layout::NC);
         return MKLDNNMemoryDesc(desc);
     }
@@ -287,9 +308,11 @@ MKLDNNMemoryDesc MKLDNNBatchNormalizationNode::getSrcMemDesc(mkldnn::primitive_d
 
 MKLDNNMemoryDesc MKLDNNBatchNormalizationNode::getDstMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it,
                                                              size_t idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:                                                               size_t idx) {" << std::endl;
     TensorDesc desc =  MKLDNNMemoryDesc(primitive_desc_it.dst_primitive_desc(idx).desc());
 
     if (getParentEdgeAt(0)->getDims().ndims() == 2 && desc.getLayout() == InferenceEngine::Layout::NCHW) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_batchnorm_node.cpp:      if (getParentEdgeAt(0)->getDims().ndims() == 2 && desc.getLayout() == InferenceEngine::Layout::NCHW) {" << std::endl;
         desc.reshape(getParentEdgeAt(idx)->getDims().ToSizeVector(), InferenceEngine::Layout::NC);
         return MKLDNNMemoryDesc(desc);
     }

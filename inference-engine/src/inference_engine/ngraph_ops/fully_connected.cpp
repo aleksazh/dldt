@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,6 +18,7 @@ using namespace ngraph;
 constexpr NodeTypeInfo op::FullyConnected::type_info;
 
 op::FullyConnected::FullyConnected(const Output<Node>& A, const Output<Node>& B, const Output<Node>& C): Op({A, B, C}) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/fully_connected.cpp:  op::FullyConnected::FullyConnected(const Output<Node>& A, const Output<Node>& B, const Output<Node>& C): Op({A, B, C}) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
@@ -26,6 +28,7 @@ shared_ptr<Node> op::FullyConnected::copy_with_new_args(const NodeVector& new_ar
 }
 
 void op::FullyConnected::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/fully_connected.cpp:  void op::FullyConnected::validate_and_infer_types() {" << std::endl;
     element::Type result_et;
     NODE_VALIDATION_CHECK(this, element::Type::merge(result_et, get_input_element_type(0), get_input_element_type(1)),
                           "Arguments do not have the same element type (arg0 element type: ", get_input_element_type(0),
@@ -35,6 +38,7 @@ void op::FullyConnected::validate_and_infer_types() {
     const PartialShape& arg1_shape = get_input_partial_shape(1);
 
     if (arg0_shape.is_dynamic() || arg1_shape.is_dynamic()) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/fully_connected.cpp:      if (arg0_shape.is_dynamic() || arg1_shape.is_dynamic()) {" << std::endl;
         set_output_type(0, result_et, PartialShape::dynamic());
     } else {
         // FullyConnected representation: [I, K] * [O, K] = [I, O]

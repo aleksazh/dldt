@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2019 Intel Corporation
 *
@@ -73,9 +74,11 @@ void nchw_pooling_fwd_t<d_type>::execute_forward() const {
     auto alg = pd()->desc()->alg_kind;
 
     auto set_ws = [=](int mb, int c, int od, int oh, int ow, int value) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      auto set_ws = [=](int mb, int c, int od, int oh, int ow, int value) {" << std::endl;
         // value = -1 means that pool window is placed outside of source domain
         // for current {od, oh, ow} point
         if (ws) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          if (ws) {" << std::endl;
             assert(ws_dt == data_type::u8 || ws_dt == data_type::s32);
             size_t ws_offset
                 = (size_t)OW * OH * OD * C * mb
@@ -84,6 +87,7 @@ void nchw_pooling_fwd_t<d_type>::execute_forward() const {
                 + (size_t)OW * oh
                 + (size_t)ow;
             if (ws_dt == data_type::u8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              if (ws_dt == data_type::u8) {" << std::endl;
                 const int u8_max = numeric_limits<
                     typename prec_traits<data_type::u8>::type>::max();
                 if (value == -1)
@@ -96,11 +100,15 @@ void nchw_pooling_fwd_t<d_type>::execute_forward() const {
     };
 
     auto ker_max = [=](data_t *d, const data_t *src_, int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      auto ker_max = [=](data_t *d, const data_t *src_, int mb, int c, int od, int oh, int ow) {" << std::endl;
         bool is_initialized = false;
         int current_pool_size = 0;
         for (int kd = 0; kd < KD; ++kd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          for (int kd = 0; kd < KD; ++kd) {" << std::endl;
             for (int kh = 0; kh < KH; ++kh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int kh = 0; kh < KH; ++kh) {" << std::endl;
                 for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int kw = 0; kw < KW; ++kw) {" << std::endl;
                     const int id = od * SD - padF + kd;
                     const int ih = oh * SH - padT + kh;
                     const int iw = ow * SW - padL + kw;
@@ -115,11 +123,13 @@ void nchw_pooling_fwd_t<d_type>::execute_forward() const {
                         + (size_t)kw;
                     auto s = src_[src_offset];
                     if (!is_initialized) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                      if (!is_initialized) {" << std::endl;
                         d[0] = s;
                         set_ws(mb, c, od, oh, ow, kd * KH * KW + kh * KW + kw);
                         is_initialized = true;
                     } else {
                         if (s > d[0]) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                          if (s > d[0]) {" << std::endl;
                             d[0] = s;
                             set_ws(mb, c, od, oh, ow, kd * KH * KW + kh * KW + kw);
                         }
@@ -137,6 +147,7 @@ void nchw_pooling_fwd_t<d_type>::execute_forward() const {
 
     auto ker_avg = [=](data_t *d, const data_t *src_,
                        int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                         int mb, int c, int od, int oh, int ow) {" << std::endl;
         auto id_start = od*SD - padF;
         auto ih_start = oh*SH - padT;
         auto iw_start = ow*SW - padL;
@@ -160,8 +171,11 @@ void nchw_pooling_fwd_t<d_type>::execute_forward() const {
         if (num_summands == 0) return;
 
         for (int id = id_start; id < id_end; ++id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          for (int id = id_start; id < id_end; ++id) {" << std::endl;
             for (int ih = ih_start; ih < ih_end; ++ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int ih = ih_start; ih < ih_end; ++ih) {" << std::endl;
                 for (int iw = iw_start; iw < iw_end; ++iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int iw = iw_start; iw < iw_end; ++iw) {" << std::endl;
                     auto src_offset
                         = (size_t)IW * IH * id
                         + (size_t)IW * ih
@@ -175,8 +189,10 @@ void nchw_pooling_fwd_t<d_type>::execute_forward() const {
     };
 
     if (pd()->desc()->alg_kind == pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      if (pd()->desc()->alg_kind == pooling_max) {" << std::endl;
         parallel_nd(MB, C, OD, OH, OW,
             [&](int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              [&](int mb, int c, int od, int oh, int ow) {" << std::endl;
 
             size_t dst_offset
                 = (size_t)OW * OH * OD * C * mb
@@ -203,6 +219,7 @@ void nchw_pooling_fwd_t<d_type>::execute_forward() const {
     } else {
         parallel_nd(MB, C, OD, OH, OW,
             [&](int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              [&](int mb, int c, int od, int oh, int ow) {" << std::endl;
             size_t dst_offset
                 = (size_t)OW * OH * OD * C * mb
                 + (size_t)OW * OH * OD * c
@@ -265,9 +282,11 @@ void nchw_pooling_fwd_t<data_type::bf16>::execute_forward() const {
     auto alg = pd()->desc()->alg_kind;
 
     auto set_ws = [=](int mb, int c, int od, int oh, int ow, int value) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      auto set_ws = [=](int mb, int c, int od, int oh, int ow, int value) {" << std::endl;
         // value = -1 means that pool window is placed outside of source domain
         // for current {od, oh, ow} point
         if (ws) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          if (ws) {" << std::endl;
             assert(ws_dt == data_type::u8 || ws_dt == data_type::s32);
             size_t ws_offset
                 = (size_t)OW * OH * OD * C * mb
@@ -276,6 +295,7 @@ void nchw_pooling_fwd_t<data_type::bf16>::execute_forward() const {
                 + (size_t)OW * oh
                 + (size_t)ow;
             if (ws_dt == data_type::u8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              if (ws_dt == data_type::u8) {" << std::endl;
                 const int u8_max = numeric_limits<
                     typename prec_traits<data_type::u8>::type>::max();
                 if (value == -1)
@@ -289,11 +309,15 @@ void nchw_pooling_fwd_t<data_type::bf16>::execute_forward() const {
 
     auto ker_max = [=](float *d, const float *src_,
             int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              int mb, int c, int od, int oh, int ow) {" << std::endl;
         bool is_initialized = false;
         int current_pool_size = 0;
         for (int kd = 0; kd < KD; ++kd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          for (int kd = 0; kd < KD; ++kd) {" << std::endl;
             for (int kh = 0; kh < KH; ++kh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int kh = 0; kh < KH; ++kh) {" << std::endl;
                 for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int kw = 0; kw < KW; ++kw) {" << std::endl;
                     const int id = od * SD - padF + kd;
                     const int ih = oh * SH - padT + kh;
                     const int iw = ow * SW - padL + kw;
@@ -308,11 +332,13 @@ void nchw_pooling_fwd_t<data_type::bf16>::execute_forward() const {
                         + (size_t)kw;
                     auto s = src_[src_offset];
                     if (!is_initialized) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                      if (!is_initialized) {" << std::endl;
                         d[0] = s;
                         set_ws(mb, c, od, oh, ow, kd*KH*KW + kh*KW + kw);
                         is_initialized = true;
                     } else {
                         if (s > d[0]) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                          if (s > d[0]) {" << std::endl;
                             d[0] = s;
                             set_ws(mb, c, od, oh, ow, kd*KH*KW + kh*KW + kw);
                         }
@@ -330,6 +356,7 @@ void nchw_pooling_fwd_t<data_type::bf16>::execute_forward() const {
 
     auto ker_avg = [=](float *d, const float *src_,
                        int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                         int mb, int c, int od, int oh, int ow) {" << std::endl;
         auto id_start = od*SD - padF;
         auto ih_start = oh*SH - padT;
         auto iw_start = ow*SW - padL;
@@ -353,8 +380,11 @@ void nchw_pooling_fwd_t<data_type::bf16>::execute_forward() const {
         if (num_summands == 0) return;
 
         for (int id = id_start; id < id_end; ++id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          for (int id = id_start; id < id_end; ++id) {" << std::endl;
             for (int ih = ih_start; ih < ih_end; ++ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int ih = ih_start; ih < ih_end; ++ih) {" << std::endl;
                 for (int iw = iw_start; iw < iw_end; ++iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int iw = iw_start; iw < iw_end; ++iw) {" << std::endl;
                     auto src_offset
                         = (size_t)IW * IH * id
                         + (size_t)IW * ih
@@ -368,6 +398,7 @@ void nchw_pooling_fwd_t<data_type::bf16>::execute_forward() const {
     };
 
     parallel_nd(blocked_size_, [&](size_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      parallel_nd(blocked_size_, [&](size_t i) {" << std::endl;
         cvt_bfloat16_to_float(&bf16cvt_wsp_[i * simd_w_],
             &src[i * simd_w_], simd_w_);});
     if (tail_size_)
@@ -375,8 +406,10 @@ void nchw_pooling_fwd_t<data_type::bf16>::execute_forward() const {
             &src[blocked_size_ * simd_w_], tail_size_);
 
     if (pd()->desc()->alg_kind == pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      if (pd()->desc()->alg_kind == pooling_max) {" << std::endl;
         parallel_nd(MB, C, OD, OH, OW,
             [&](int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              [&](int mb, int c, int od, int oh, int ow) {" << std::endl;
 
             size_t dst_offset
                 = (size_t)OW * OH * OD * C * mb
@@ -402,6 +435,7 @@ void nchw_pooling_fwd_t<data_type::bf16>::execute_forward() const {
     } else {
         parallel_nd(MB, C, OD, OH, OW,
             [&](int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              [&](int mb, int c, int od, int oh, int ow) {" << std::endl;
             size_t dst_offset
                 = (size_t)OW * OH * OD * C * mb
                 + (size_t)OW * OH * OD * c
@@ -453,14 +487,19 @@ void nchw_pooling_bwd_t<d_type>::execute_backward() const {
     auto alg = pd()->desc()->alg_kind;
 
     auto apply_offset = [=](int index, int offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      auto apply_offset = [=](int index, int offset) {" << std::endl;
         return (index > offset) ? index - offset : 0;
     };
 
     auto ker_zero = [=](data_t *diff_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      auto ker_zero = [=](data_t *diff_src) {" << std::endl;
         size_t diff_src_offset = 0;
         for (int id = 0; id < ID; ++id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          for (int id = 0; id < ID; ++id) {" << std::endl;
             for (int ih = 0; ih < IH; ++ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int ih = 0; ih < IH; ++ih) {" << std::endl;
                 for (int iw = 0; iw < IW; ++iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int iw = 0; iw < IW; ++iw) {" << std::endl;
                     diff_src[diff_src_offset++] = 0;
                 }
             }
@@ -469,6 +508,7 @@ void nchw_pooling_bwd_t<d_type>::execute_backward() const {
 
     auto ker_max = [=](const data_t *d,  data_t *diff_src_,
             int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              int mb, int c, int od, int oh, int ow) {" << std::endl;
         auto b_c = ws_d.blocking_desc().block_dims[1];
         auto ws_offset = is_3d
             ? ws_d.blk_off(mb, c / b_c, od, oh, ow) + c % b_c
@@ -508,6 +548,7 @@ void nchw_pooling_bwd_t<d_type>::execute_backward() const {
 
     auto ker_avg = [=](const data_t *d, data_t *diff_src_,
                         int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                          int mb, int c, int od, int oh, int ow) {" << std::endl;
         auto id_start = apply_offset(od*SD, padF);
         auto ih_start = apply_offset(oh*SH, padT);
         auto iw_start = apply_offset(ow*SW, padL);
@@ -521,8 +562,11 @@ void nchw_pooling_bwd_t<d_type>::execute_backward() const {
                 *(iw_end - iw_start);
 
         for (int id = id_start; id < id_end; ++id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          for (int id = id_start; id < id_end; ++id) {" << std::endl;
             for (int ih = ih_start; ih < ih_end; ++ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int ih = ih_start; ih < ih_end; ++ih) {" << std::endl;
                 for (int iw = iw_start; iw < iw_end; ++iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int iw = iw_start; iw < iw_end; ++iw) {" << std::endl;
                     size_t diff_src_offset
                         = (size_t)id*IH*IW
                         + (size_t)ih*IW
@@ -534,7 +578,9 @@ void nchw_pooling_bwd_t<d_type>::execute_backward() const {
     };
 
     if (pd()->desc()->alg_kind == pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      if (pd()->desc()->alg_kind == pooling_max) {" << std::endl;
         parallel_nd(MB, C, [&](int mb, int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          parallel_nd(MB, C, [&](int mb, int c) {" << std::endl;
             size_t diff_src_offset = (size_t)mb*C*ID*IH*IW + (size_t)c*ID*IH*IW;
             size_t diff_dst_offset = (size_t)mb*C*OD*OH*OW + (size_t)c*OD*OH*OW;
             const data_t* d =
@@ -544,8 +590,11 @@ void nchw_pooling_bwd_t<d_type>::execute_backward() const {
             ker_zero(diff_src_);
             size_t count = 0;
             for (int od = 0; od < OD; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int od = 0; od < OD; ++od) {" << std::endl;
                 for (int oh = 0; oh < OH; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int oh = 0; oh < OH; ++oh) {" << std::endl;
                     for (int ow = 0; ow < OW; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                      for (int ow = 0; ow < OW; ++ow) {" << std::endl;
                         const data_t* local_d = &d[count++];
                         ker_max(local_d, diff_src_, mb, c, od, oh, ow);
                     }
@@ -554,6 +603,7 @@ void nchw_pooling_bwd_t<d_type>::execute_backward() const {
         });
     } else {
         parallel_nd(MB, C, [&](int mb, int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          parallel_nd(MB, C, [&](int mb, int c) {" << std::endl;
             size_t diff_src_offset = (size_t)mb*C*ID*IH*IW + (size_t)c*ID*IH*IW;
             size_t diff_dst_offset = (size_t)mb*C*OD*OH*OW + (size_t)c*OD*OH*OW;
             const data_t* d =
@@ -563,8 +613,11 @@ void nchw_pooling_bwd_t<d_type>::execute_backward() const {
             ker_zero(diff_src_);
             size_t count  = 0;
             for (int od = 0; od < OD; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int od = 0; od < OD; ++od) {" << std::endl;
                 for (int oh = 0; oh < OH; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int oh = 0; oh < OH; ++oh) {" << std::endl;
                     for (int ow = 0; ow < OW; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                      for (int ow = 0; ow < OW; ++ow) {" << std::endl;
                         const data_t* local_d = &d[count++];
                         ker_avg(local_d, diff_src_, mb, c, od, oh, ow);
                     }
@@ -614,14 +667,19 @@ void nchw_pooling_bwd_t<data_type::bf16>::execute_backward() const {
     auto alg = pd()->desc()->alg_kind;
 
     auto apply_offset = [=](int index, int offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      auto apply_offset = [=](int index, int offset) {" << std::endl;
         return (index > offset) ? index - offset : 0;
     };
 
     auto ker_zero = [=](float *diff_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      auto ker_zero = [=](float *diff_src) {" << std::endl;
         size_t diff_src_offset = 0;
         for (int id = 0; id < ID; ++id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          for (int id = 0; id < ID; ++id) {" << std::endl;
             for (int ih = 0; ih < IH; ++ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int ih = 0; ih < IH; ++ih) {" << std::endl;
                 for (int iw = 0; iw < IW; ++iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int iw = 0; iw < IW; ++iw) {" << std::endl;
                     diff_src[diff_src_offset++] = 0.0f;
                 }
             }
@@ -630,6 +688,7 @@ void nchw_pooling_bwd_t<data_type::bf16>::execute_backward() const {
 
     auto ker_max = [=](const float *d,  float *diff_src_,
                         int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                          int mb, int c, int od, int oh, int ow) {" << std::endl;
         auto b_c = ws_d.blocking_desc().block_dims[1];
         auto ws_offset = is_3d
             ? ws_d.blk_off(mb, c / b_c, od, oh, ow) + c % b_c
@@ -669,6 +728,7 @@ void nchw_pooling_bwd_t<data_type::bf16>::execute_backward() const {
 
     auto ker_avg = [=](const float *d, float *diff_src_,
                         int mb, int c, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                          int mb, int c, int od, int oh, int ow) {" << std::endl;
         auto id_start = apply_offset(od*SD, padF);
         auto ih_start = apply_offset(oh*SH, padT);
         auto iw_start = apply_offset(ow*SW, padL);
@@ -682,8 +742,11 @@ void nchw_pooling_bwd_t<data_type::bf16>::execute_backward() const {
                 *(iw_end - iw_start);
 
         for (int id = id_start; id < id_end; ++id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          for (int id = id_start; id < id_end; ++id) {" << std::endl;
             for (int ih = ih_start; ih < ih_end; ++ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int ih = ih_start; ih < ih_end; ++ih) {" << std::endl;
                 for (int iw = iw_start; iw < iw_end; ++iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int iw = iw_start; iw < iw_end; ++iw) {" << std::endl;
                     size_t diff_src_offset
                         = (size_t)id*IH*IW
                         + (size_t)ih*IW
@@ -695,7 +758,9 @@ void nchw_pooling_bwd_t<data_type::bf16>::execute_backward() const {
     };
 
     if (pd()->desc()->alg_kind == pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:      if (pd()->desc()->alg_kind == pooling_max) {" << std::endl;
         parallel_nd(MB, C, [&](int mb, int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          parallel_nd(MB, C, [&](int mb, int c) {" << std::endl;
             size_t diff_src_offset = (size_t)mb*C*ID*IH*IW + (size_t)c*ID*IH*IW;
             size_t diff_dst_offset = (size_t)mb*C*OD*OH*OW + (size_t)c*OD*OH*OW;
             float *src_fp32_ = &bf16cvt_src_[mkldnn_get_thread_num()
@@ -709,8 +774,11 @@ void nchw_pooling_bwd_t<data_type::bf16>::execute_backward() const {
 
             size_t idx = 0;
             for (int od = 0; od < OD; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int od = 0; od < OD; ++od) {" << std::endl;
                 for (int oh = 0; oh < OH; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int oh = 0; oh < OH; ++oh) {" << std::endl;
                     for (int ow = 0; ow < OW; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                      for (int ow = 0; ow < OW; ++ow) {" << std::endl;
                         ker_max(&dst_fp32_[idx++], src_fp32_, mb, c, od, oh, ow);
                     }
                 }
@@ -720,6 +788,7 @@ void nchw_pooling_bwd_t<data_type::bf16>::execute_backward() const {
         });
     } else {
         parallel_nd(MB, C, [&](int mb, int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:          parallel_nd(MB, C, [&](int mb, int c) {" << std::endl;
             size_t diff_src_offset = (size_t)mb*C*ID*IH*IW + (size_t)c*ID*IH*IW;
             size_t diff_dst_offset = (size_t)mb*C*OD*OH*OW + (size_t)c*OD*OH*OW;
             float *src_fp32_ = &bf16cvt_src_[mkldnn_get_thread_num()
@@ -733,8 +802,11 @@ void nchw_pooling_bwd_t<data_type::bf16>::execute_backward() const {
 
             size_t idx = 0;
             for (int od = 0; od < OD; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:              for (int od = 0; od < OD; ++od) {" << std::endl;
                 for (int oh = 0; oh < OH; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                  for (int oh = 0; oh < OH; ++oh) {" << std::endl;
                     for (int ow = 0; ow < OW; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nchw_pooling.cpp:                      for (int ow = 0; ow < OW; ++ow) {" << std::endl;
                         ker_avg(&dst_fp32_[idx++], src_fp32_, mb, c, od, oh, ow);
                     }
                 }

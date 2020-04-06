@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -32,6 +33,7 @@ using namespace InferenceEngine::details;
 InferenceEngine::InferRequestInternal::Ptr
 MKLDNNExecNetwork::CreateInferRequestImpl(InferenceEngine::InputsDataMap networkInputs,
                                           InferenceEngine::OutputsDataMap networkOutputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:                                            InferenceEngine::OutputsDataMap networkOutputs) {" << std::endl;
     if (graphs.size() > 1)  // streams uses special requests that are not connected to graphs
         return std::make_shared<MKLDNNGraphlessInferRequest>(networkInputs, networkOutputs);
     else
@@ -41,12 +43,14 @@ MKLDNNExecNetwork::CreateInferRequestImpl(InferenceEngine::InputsDataMap network
 MKLDNNExecNetwork::MKLDNNExecNetwork(const InferenceEngine::ICNNNetwork &network,
                                      const Config &cfg,
                                      const MKLDNNExtensionManager::Ptr& extMgr) : extensionManager(extMgr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:                                       const MKLDNNExtensionManager::Ptr& extMgr) : extensionManager(extMgr) {" << std::endl;
     ICNNNetworkStats* pstats = nullptr;
     StatusCode s = network.getStats(&pstats, nullptr);
     // we are cloning network if we have statistics and we can transform network.
     auto clonedNetwork = cloneNet(network);
 
     if (Precision::FP16 == network.getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      if (Precision::FP16 == network.getPrecision()) {" << std::endl;
         clonedNetwork->setPrecision(Precision::FP32);
     }
 
@@ -57,10 +61,12 @@ MKLDNNExecNetwork::MKLDNNExecNetwork(const InferenceEngine::ICNNNetwork &network
     NetPass::ConvertPrecision(*clonedNetwork, Precision::BOOL, Precision::U8);
 
     if (s == StatusCode::OK && pstats && !pstats->isEmpty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      if (s == StatusCode::OK && pstats && !pstats->isEmpty()) {" << std::endl;
         CNNNetworkInt8Normalizer cnnorm;
         cnnorm.NormalizeNetwork(*clonedNetwork, *pstats);
     } else {
         if (cfg.lpTransformsMode == Config::LPTransformsMode::On) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:          if (cfg.lpTransformsMode == Config::LPTransformsMode::On) {" << std::endl;
             auto params = LayerTransformation::Params(true,  // updatePrecisions
                                                       true,  // quantizeOutputs
                                                       true,  // weightsToConst
@@ -82,8 +88,10 @@ MKLDNNExecNetwork::MKLDNNExecNetwork(const InferenceEngine::ICNNNetwork &network
     MKLDNNGraph::ApplyUnrollPasses(static_cast<ICNNNetwork&>(*clonedNetwork));
 
     if (cfg.batchLimit > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      if (cfg.batchLimit > 1) {" << std::endl;
         // check topology for applicability
         if (!CanProcessDynBatch(*clonedNetwork)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:          if (!CanProcessDynBatch(*clonedNetwork)) {" << std::endl;
             THROW_IE_EXCEPTION << "MKLDNNGraph::CreateGraph: such topology cannot be compiled for dynamic batch!";
         }
     }
@@ -102,9 +110,11 @@ MKLDNNExecNetwork::MKLDNNExecNetwork(const InferenceEngine::ICNNNetwork &network
     const int workers_per_socket = std::max(1,
             static_cast<int>(std::ceil(static_cast<float>(cfg.throughputStreams)/numa_nodes_num)));
     for (int n = 0; n < cfg.throughputStreams; n++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      for (int n = 0; n < cfg.throughputStreams; n++) {" << std::endl;
         MKLDNNGraph::Ptr _graph = std::make_shared<MKLDNNGraph>();
         graphs.push_back(_graph);
         tasks.push_back([=, &cfg, &clonedNetwork]() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:          tasks.push_back([=, &cfg, &clonedNetwork]() {" << std::endl;
         _graph->setConfig(cfg);
          const int node = n / workers_per_socket;
          if (cfg.useThreadBinding)
@@ -118,10 +128,12 @@ MKLDNNExecNetwork::MKLDNNExecNetwork(const InferenceEngine::ICNNNetwork &network
     }
 
     if (cfg.throughputStreams > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      if (cfg.throughputStreams > 1) {" << std::endl;
         // special executor with as many threads as requested #streams, each with it's own initialization task
         _taskExecutor = std::make_shared<MultiWorkerTaskExecutor>(tasks);
     } else {
         if (cfg.exclusiveAsyncRequests) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:          if (cfg.exclusiveAsyncRequests) {" << std::endl;
             // special case when all InferRequests are muxed into a single queue
             ExecutorManager *executorManager = ExecutorManager::getInstance();
             _taskExecutor = executorManager->getExecutor("CPU");
@@ -133,8 +145,11 @@ MKLDNNExecNetwork::MKLDNNExecNetwork(const InferenceEngine::ICNNNetwork &network
     // of MemoryLayer implementation. It uses output edge of MemoryLayer
     // producer as storage for tensor to keep it between infer calls.
     if (graphs.size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      if (graphs.size() == 1) {" << std::endl;
         for (auto &node : graphs[0]->GetNodes()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:          for (auto &node : graphs[0]->GetNodes()) {" << std::endl;
             if (node->getType() == MemoryInput) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:              if (node->getType() == MemoryInput) {" << std::endl;
                 auto state_store = node->getChildEdgeAt(0)->getMemoryPtr();
                 auto state_name = node->getName();
 
@@ -150,20 +165,24 @@ MKLDNNExecNetwork::MKLDNNExecNetwork(const InferenceEngine::ICNNNetwork &network
 }
 
 void MKLDNNExecNetwork::setProperty(const std::map<std::string, std::string> &properties) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:  void MKLDNNExecNetwork::setProperty(const std::map<std::string, std::string> &properties) {" << std::endl;
     for (auto g : graphs)
         g->setProperty(properties);
 }
 
 void MKLDNNExecNetwork::CreateInferRequest(InferenceEngine::IInferRequest::Ptr &asyncRequest) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:  void MKLDNNExecNetwork::CreateInferRequest(InferenceEngine::IInferRequest::Ptr &asyncRequest) {" << std::endl;
     auto syncRequestImpl = CreateInferRequestImpl(_networkInputs, _networkOutputs);
     syncRequestImpl->setPointerToExecutableNetworkInternal(shared_from_this());
     auto asyncRequestImpl = std::make_shared<MKLDNNAsyncInferRequest>(syncRequestImpl, _taskExecutor, _callbackExecutor);
     asyncRequest.reset(new InferRequestBase<MKLDNNAsyncInferRequest>(asyncRequestImpl),
-                       [](IInferRequest *p) { p->Release(); });
+                       [](IInferRequest *p) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:                         [](IInferRequest *p) {" << std::endl; p->Release(); });
 
     asyncRequestImpl->SetPointerToPublicInterface(asyncRequest);
 
-    if (graphs.size() == 1) {  // single-stream (legacy/hetero) case - single graph for all requests
+    if (graphs.size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      if (graphs.size() == 1) {" << std::endl;  // single-stream (legacy/hetero) case - single graph for all requests
         auto mkldnnSyncRequest = dynamic_cast<MKLDNNInferRequest *>(syncRequestImpl.get());
         if (!mkldnnSyncRequest)
             THROW_IE_EXCEPTION << " Cannot get mkldnn sync request.";
@@ -172,6 +191,7 @@ void MKLDNNExecNetwork::CreateInferRequest(InferenceEngine::IInferRequest::Ptr &
 }
 
 void MKLDNNExecNetwork::GetExecGraphInfo(InferenceEngine::ICNNNetwork::Ptr &graphPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:  void MKLDNNExecNetwork::GetExecGraphInfo(InferenceEngine::ICNNNetwork::Ptr &graphPtr) {" << std::endl;
     graphPtr = graphs[0]->dump();
 }
 
@@ -179,6 +199,7 @@ void MKLDNNExecNetwork::GetConfig(const std::string &name, Parameter &result, Re
     Config engConfig = graphs[0]->getProperty();
     auto option = engConfig._config.find(name);
     if (option != engConfig._config.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      if (option != engConfig._config.end()) {" << std::endl;
         result = option->second;
     } else {
         THROW_IE_EXCEPTION << "Unsupported ExecutableNetwork config key: " << name;
@@ -187,8 +208,10 @@ void MKLDNNExecNetwork::GetConfig(const std::string &name, Parameter &result, Re
 
 void MKLDNNExecNetwork::GetMetric(const std::string &name, Parameter &result, ResponseDesc *resp) const {
     if (name == METRIC_KEY(NETWORK_NAME)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      if (name == METRIC_KEY(NETWORK_NAME)) {" << std::endl;
         result = IE_SET_METRIC(NETWORK_NAME, graphs[0]->dump()->getName());
     } else if (name == METRIC_KEY(SUPPORTED_METRICS)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      } else if (name == METRIC_KEY(SUPPORTED_METRICS)) {" << std::endl;
         std::vector<std::string> metrics;
         metrics.push_back(METRIC_KEY(NETWORK_NAME));
         metrics.push_back(METRIC_KEY(SUPPORTED_METRICS));
@@ -196,12 +219,15 @@ void MKLDNNExecNetwork::GetMetric(const std::string &name, Parameter &result, Re
         metrics.push_back(METRIC_KEY(OPTIMAL_NUMBER_OF_INFER_REQUESTS));
         result = IE_SET_METRIC(SUPPORTED_METRICS, metrics);
     } else if (name == METRIC_KEY(SUPPORTED_CONFIG_KEYS)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      } else if (name == METRIC_KEY(SUPPORTED_CONFIG_KEYS)) {" << std::endl;
         std::vector<std::string> configKeys;
         for (auto && key : graphs[0]->getProperty()._config) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:          for (auto && key : graphs[0]->getProperty()._config) {" << std::endl;
             configKeys.push_back(key.first);
         }
         result = IE_SET_METRIC(SUPPORTED_CONFIG_KEYS, configKeys);
     } else if (name == METRIC_KEY(OPTIMAL_NUMBER_OF_INFER_REQUESTS)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      } else if (name == METRIC_KEY(OPTIMAL_NUMBER_OF_INFER_REQUESTS)) {" << std::endl;
         Config engConfig = graphs[0]->getProperty();
         auto option = engConfig._config.find(CONFIG_KEY(CPU_THROUGHPUT_STREAMS));
         IE_ASSERT(option != engConfig._config.end());
@@ -227,6 +253,7 @@ bool MKLDNNExecNetwork::CanProcessDynBatch(const InferenceEngine::ICNNNetwork &n
 
     bool check_result = true;
     details::UnorderedDFS(allLayers, secondLayers.begin()->second, [&](CNNLayerPtr layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:      details::UnorderedDFS(allLayers, secondLayers.begin()->second, [&](CNNLayerPtr layer) {" << std::endl;
         auto type = TypeFromName(layer->type);
         // This is WA for Tile layer
         auto tileLayer = dynamic_cast<TileLayer *>(layer.get());
@@ -251,6 +278,7 @@ bool MKLDNNExecNetwork::CanProcessDynBatch(const InferenceEngine::ICNNNetwork &n
             type != Crop &&
             type != BatchNormalization &&
             type != Copy) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:              type != Copy) {" << std::endl;
             check_result = false;
         }
     }, false);
@@ -259,5 +287,6 @@ bool MKLDNNExecNetwork::CanProcessDynBatch(const InferenceEngine::ICNNNetwork &n
 }
 
 std::vector<IMemoryStateInternal::Ptr> MKLDNNExecNetwork::QueryState() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_exec_network.cpp:  std::vector<IMemoryStateInternal::Ptr> MKLDNNExecNetwork::QueryState() {" << std::endl;
     return memoryStates;
 }

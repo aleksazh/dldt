@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,16 +17,19 @@ constexpr NodeTypeInfo op::ProposalIE::type_info;
 op::ProposalIE::ProposalIE(const Output<Node>& class_probs, const Output<Node>& class_logits,
                            const Output<Node>& image_shape, const ProposalAttrs& attrs)
     : Op({class_probs, class_logits, image_shape}), m_attrs(attrs) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/proposal_ie.cpp:      : Op({class_probs, class_logits, image_shape}), m_attrs(attrs) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 void op::ProposalIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/proposal_ie.cpp:  void op::ProposalIE::validate_and_infer_types() {" << std::endl;
     set_input_is_relevant_to_shape(2);
 
     const auto& class_probs_pshape = get_input_partial_shape(0);
     const auto& class_logits_pshape = get_input_partial_shape(1);
     const auto& image_shape_pshape = get_input_partial_shape(2);
     if (class_probs_pshape.is_static() && class_logits_pshape.is_static() && image_shape_pshape.is_static()) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/proposal_ie.cpp:      if (class_probs_pshape.is_static() && class_logits_pshape.is_static() && image_shape_pshape.is_static()) {" << std::endl;
         const Shape class_probs_shape {class_probs_pshape.to_shape()};
         const Shape class_logits_shape {class_logits_pshape.to_shape()};
         const Shape image_shape_shape {image_shape_pshape.to_shape()};

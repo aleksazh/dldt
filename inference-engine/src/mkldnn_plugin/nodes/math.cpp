@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,6 +18,7 @@ namespace Cpu {
 
 class MathImpl: public ExtLayerBase {
     static float error_function(float x) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:      static float error_function(float x) {" << std::endl;
         const float clip_bound = 2.86f;
         //  Points clip_bound and -clip_bound are extremums for this polynom
         //  So in order to provide better accuracy comparing to std::erf we have to clip input range
@@ -33,11 +35,13 @@ class MathImpl: public ExtLayerBase {
         float polynom = 9.60497379302978515625f;
         float x2 = x * x;
         for (float c : erfNumerator) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:          for (float c : erfNumerator) {" << std::endl;
             polynom = polynom * x2 + c;
         }
         x *= polynom;
         polynom = 1.0f;
         for (float c : erfDenominator) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:          for (float c : erfDenominator) {" << std::endl;
             polynom = polynom * x2 + c;
         }
         return x / polynom;
@@ -45,6 +49,7 @@ class MathImpl: public ExtLayerBase {
 
 public:
     explicit MathImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:      explicit MathImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -91,6 +96,7 @@ public:
 
             addConfig(layer, { { ConfLayout::PLN, false, 0 } }, { { ConfLayout::PLN, false, 0 } });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -103,63 +109,76 @@ public:
             outputs[0]->getTensorDesc().getBlockingDesc().getOffsetPadding();
 
         switch (mathFunction) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:          switch (mathFunction) {" << std::endl;
         case Math::Erf:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = error_function(src_data[i]);
             });
             break;
         case Math::Abs:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = (std::abs)(src_data[i]);
             });
             break;
         case Math::Acos:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = acosf(src_data[i]);
             });
             break;
         case Math::Acosh:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = acoshf(src_data[i]);
             });
             break;
         case Math::Asin:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = asinf(src_data[i]);
             });
             break;
         case Math::Asinh:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = asinhf(src_data[i]);
             });
             break;
         case Math::Atan:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = atanf(src_data[i]);
             });
             break;
         case Math::Atanh:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = atanhf(src_data[i]);
             });
             break;
         case Math::Ceil:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = ceilf(src_data[i]);
             });
             break;
         case Math::Cos:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = cosf(src_data[i]);
             });
             break;
         case Math::Cosh:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = coshf(src_data[i]);
             });
             break;
         case Math::Floor:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = floorf(src_data[i]);
             });
             break;
@@ -167,21 +186,25 @@ public:
             alpha = (alpha == 0.0f) ? 0.2f : alpha;
             beta = (beta == 0.0f) ? 0.5f : beta;
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = (std::max)(0.f, (std::min)(1.f, alpha * src_data[i] + beta));
             });
             break;
         case Math::Log:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = logf(src_data[i]);
             });
             break;
         case Math::Neg:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = -src_data[i];
             });
             break;
         case Math::Reciprocal:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = 1.0f / src_data[i];
             });
             break;
@@ -189,12 +212,14 @@ public:
             alpha = (alpha == 0.0f) ? 1.67326f : alpha;
             gamma = (gamma == 0.0f) ? 1.0507f : gamma;
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 float x = src_data[i];
                 dst_data[i] = (x > 0.0f) ? (gamma * x) : (gamma * alpha * (exp(x) - 1.0f));
             });
             break;
         case Math::Sign:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 if (src_data[i] > 0.0f)
                     dst_data[i] = 1.0f;
                 else if (src_data[i] < 0.0f)
@@ -205,32 +230,38 @@ public:
             break;
         case Math::Sin:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = sinf(src_data[i]);
             });
             break;
         case Math::Sinh:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = sinhf(src_data[i]);
             });
             break;
         case Math::Softplus:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = logf(expf(src_data[i]) + 1);
             });
             break;
         case Math::Softsign:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 float x = src_data[i];
                 dst_data[i] = x / (1.f + (std::abs)(x));
             });
             break;
         case Math::Tan:
             parallel_for(dataSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              parallel_for(dataSize, [&](size_t i) {" << std::endl;
                 dst_data[i] = tanf(src_data[i]);
             });
             break;
         default:
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/math.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Incorrect Reduce layer type";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -31,10 +32,13 @@ struct jit_args_logistic {
 struct jit_uni_logistic_kernel {
     void (*ker_)(const jit_args_logistic *);
 
-    void operator()(const jit_args_logistic *args) { assert(ker_); ker_(args); }
+    void operator()(const jit_args_logistic *args) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:      void operator()(const jit_args_logistic *args) {" << std::endl; assert(ker_); ker_(args); }
 
-    jit_uni_logistic_kernel() : ker_(nullptr) {}
-    virtual ~jit_uni_logistic_kernel() {}
+    jit_uni_logistic_kernel() : ker_(nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:      jit_uni_logistic_kernel() : ker_(nullptr) {" << std::endl;}
+    virtual ~jit_uni_logistic_kernel() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:      virtual ~jit_uni_logistic_kernel() {" << std::endl;}
 };
 
 template <cpu_isa_t isa>
@@ -42,6 +46,7 @@ struct jit_uni_logistic_kernel_f32 : public jit_uni_logistic_kernel, public jit_
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_uni_logistic_kernel_f32)
 
     jit_uni_logistic_kernel_f32() : jit_uni_logistic_kernel(), jit_generator() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:      jit_uni_logistic_kernel_f32() : jit_uni_logistic_kernel(), jit_generator() {" << std::endl;
         exp_injector.reset(new jit_uni_eltwise_injector_f32<isa>(this, alg_kind::eltwise_exp, 0.f, 0.f));
 
         this->preamble();
@@ -102,7 +107,8 @@ private:
     using Vmm = typename conditional3<isa == sse42, Xbyak::Xmm, isa == avx2, Xbyak::Ymm, Xbyak::Zmm>::type;
     size_t vlen = cpu_isa_traits<isa>::vlen;
 
-    Xbyak::Address table_val(int index) { return ptr[reg_table + index * vlen]; }
+    Xbyak::Address table_val(int index) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:      Xbyak::Address table_val(int index) {" << std::endl; return ptr[reg_table + index * vlen]; }
 
     Xbyak::Reg64 reg_src = r8;
     Xbyak::Reg64 reg_dst = r9;
@@ -123,6 +129,7 @@ private:
     std::shared_ptr<jit_uni_eltwise_injector_f32<isa>> exp_injector;
 
     void compute_kernel() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:      void compute_kernel() {" << std::endl;
         uni_vmovups(vmm_aux0, vmm_src);
         uni_vandps(vmm_aux0, vmm_aux0, table_val(0));
         uni_vorps(vmm_src, vmm_src, table_val(0));
@@ -137,9 +144,11 @@ private:
         uni_vsubps(vmm_aux2, vmm_aux2, vmm_src);
 
         if (isa == sse42) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:          if (isa == sse42) {" << std::endl;
             uni_vblendvps(vmm_aux2, vmm_aux2, vmm_src, vmm_aux0);
             uni_vmovups(vmm_src, vmm_aux2);
         } else if (isa == avx2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:          } else if (isa == avx2) {" << std::endl;
             uni_vblendvps(vmm_src, vmm_aux2, vmm_src, vmm_aux0);
         } else {
             vptestmd(k_mask, vmm_aux0, vmm_aux0);
@@ -148,8 +157,11 @@ private:
     }
 
     void prepare_table() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:      void prepare_table() {" << std::endl;
         auto broadcast_int = [&](int val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:          auto broadcast_int = [&](int val) {" << std::endl;
             for (size_t d = 0; d < vlen / sizeof(float); ++d) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:              for (size_t d = 0; d < vlen / sizeof(float); ++d) {" << std::endl;
                 dd(val);
             }
         };
@@ -170,6 +182,7 @@ private:
 class RegionYoloImpl: public ExtLayerBase {
 public:
     explicit RegionYoloImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:      explicit RegionYoloImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 1 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -182,12 +195,15 @@ public:
 
             block_size = 1;
             if (mayiuse(avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:              if (mayiuse(avx512_common)) {" << std::endl;
                 logistic_kernel.reset(new jit_uni_logistic_kernel_f32<avx512_common>());
                 block_size = 16;
             } else if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:              } else if (mayiuse(avx2)) {" << std::endl;
                 logistic_kernel.reset(new jit_uni_logistic_kernel_f32<avx2>());
                 block_size = 8;
             } else if (mayiuse(sse42)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:              } else if (mayiuse(sse42)) {" << std::endl;
                 logistic_kernel.reset(new jit_uni_logistic_kernel_f32<sse42>());
                 block_size = 4;
             }
@@ -196,6 +212,7 @@ public:
 
             addConfig(layer, {DataConfigurator(ConfLayout::PLN)}, {DataConfigurator(ConfLayout::PLN)});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -213,12 +230,14 @@ public:
         int B = (inputs[0]->getTensorDesc().getDims().size() > 0) ? inputs[0]->getTensorDesc().getDims()[0] : 1;
 
         parallel_for(B * IC * IH * IW, [&](int i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:          parallel_for(B * IC * IH * IW, [&](int i) {" << std::endl;
             dst_data[i] = src_data[i];
         });
 
         int end_index = 0;
         int num_ = 0;
         if (do_softmax) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:          if (do_softmax) {" << std::endl;
             // Region layer (Yolo v2)
             end_index = IW * IH;
             num_ = num;
@@ -231,7 +250,9 @@ public:
         int total_size = 2 * IH * IW;
 
         for (int b = 0; b < B; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:          for (int b = 0; b < B; b++) {" << std::endl;
             for (int n = 0; n < num_; n++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:              for (int n = 0; n < num_; n++) {" << std::endl;
                 int index = b * inputs_size + n * IW * IH * (classes + coords + 1);
                 calculate_logistic(index, total_size, dst_data);
 
@@ -241,6 +262,7 @@ public:
         }
 
         if (do_softmax) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:          if (do_softmax) {" << std::endl;
             int index = IW * IH * (coords + 1);
             int batch_offset = inputs_size / num;
             for (int b = 0; b < B * num; b++)
@@ -267,6 +289,7 @@ private:
     };
 
     inline float logistic_scalar(float src) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:      inline float logistic_scalar(float src) {" << std::endl;
         U aux2;
         aux2.as_float_value = src;
         int sign = aux2.as_int_value >> 31;
@@ -283,9 +306,12 @@ private:
     }
 
     inline void calculate_logistic(int start_index, int count, float* dst_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:      inline void calculate_logistic(int start_index, int count, float* dst_data) {" << std::endl;
         if (logistic_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:          if (logistic_kernel) {" << std::endl;
             int blocks_num = div_up(count, block_size);
             parallel_for(blocks_num, [&](int ib) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:              parallel_for(blocks_num, [&](int ib) {" << std::endl;
                 int idx = ib * block_size;
                 int work_amount = std::min(count - idx, block_size);
 
@@ -298,6 +324,7 @@ private:
             });
         } else {
             for (int i = 0; i < count; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/region_yolo.cpp:              for (int i = 0; i < count; i++) {" << std::endl;
                 dst_data[i + start_index] = logistic_scalar(dst_data[i + start_index]);
             }
         }

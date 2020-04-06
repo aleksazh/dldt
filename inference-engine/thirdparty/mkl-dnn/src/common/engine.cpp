@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -30,6 +31,7 @@ engine_factory_t *engine_factories[] = {
 };
 
 static inline engine_factory_t *get_engine_factory(engine_kind_t kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/engine.cpp:  static inline engine_factory_t *get_engine_factory(engine_kind_t kind) {" << std::endl;
     for (engine_factory_t **ef = engine_factories; *ef; ef++)
         if ((*ef)->kind() == kind)
             return *ef;
@@ -67,12 +69,14 @@ using namespace mkldnn::impl;
 using namespace mkldnn::impl::status;
 
 size_t mkldnn_engine_get_count(engine_kind_t kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/engine.cpp:  size_t mkldnn_engine_get_count(engine_kind_t kind) {" << std::endl;
     engine_factory_t *ef = get_engine_factory(kind);
     return ef != nullptr ? ef->count() : 0;
 }
 
 status_t mkldnn_engine_create(engine_t **engine,
         engine_kind_t kind, size_t index) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/engine.cpp:          engine_kind_t kind, size_t index) {" << std::endl;
     if (engine == nullptr)
         return invalid_arguments;
 
@@ -84,6 +88,7 @@ status_t mkldnn_engine_create(engine_t **engine,
 }
 
 status_t mkldnn_engine_get_kind(engine_t *engine, engine_kind_t *kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/engine.cpp:  status_t mkldnn_engine_get_kind(engine_t *engine, engine_kind_t *kind) {" << std::endl;
     if (engine == nullptr)
         return invalid_arguments;
     *kind = engine->kind();
@@ -91,6 +96,7 @@ status_t mkldnn_engine_get_kind(engine_t *engine, engine_kind_t *kind) {
 }
 
 status_t mkldnn_engine_destroy(engine_t *engine) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/engine.cpp:  status_t mkldnn_engine_destroy(engine_t *engine) {" << std::endl;
     /* TODO: engine->dec_ref_count(); */
     delete engine;
     return success;

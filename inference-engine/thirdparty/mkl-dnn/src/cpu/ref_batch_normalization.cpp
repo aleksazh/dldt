@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -48,11 +49,13 @@ typedef float acc_data_t;
 
 template <typename T>
 inline float maybe_up_convert(T x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:  inline float maybe_up_convert(T x) {" << std::endl;
     return x;
 }
 
 template <>
 inline float maybe_up_convert<mkldnn_bfloat16_t>(mkldnn_bfloat16_t x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:  inline float maybe_up_convert<mkldnn_bfloat16_t>(mkldnn_bfloat16_t x) {" << std::endl;
     return bf16_cvt_utils::cvt_bfloat16_to_float(x);
 }
 
@@ -91,6 +94,7 @@ const {
     dim_t H = 1, W = 1, D = 1;
     const bool has_spatial = utils::one_of(data_d.ndims(), 4, 5);
     if (has_spatial) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:      if (has_spatial) {" << std::endl;
         D = pd()->D();
         H = pd()->H();
         W = pd()->W();
@@ -105,6 +109,7 @@ const {
 
     const bool with_relu = pd()->with_relu_post_op();
     auto maybe_post_op = [&](acc_data_t res) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:      auto maybe_post_op = [&](acc_data_t res) {" << std::endl;
         return (with_relu && res < 0.0f) ? 0.0f : res;
     };
     const bool is_3d = data_d.ndims() == 5;
@@ -113,14 +118,17 @@ const {
     DECLARE_DATA_OFFSET;
 
     parallel_nd(C, [&](int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:      parallel_nd(C, [&](int c) {" << std::endl;
         acc_data_t v_mean = calculate_stats ? 0 : mean[c];
         acc_data_t v_variance = calculate_stats ? 0 : variance[c];
 
         if (calculate_stats) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:          if (calculate_stats) {" << std::endl;
             for (int n = 0; n < N; ++n)
             for (int d = 0; d < D; ++d)
             for (int h = 0; h < H; ++h)
             for (int w = 0; w < W; ++w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:              for (int w = 0; w < W; ++w) {" << std::endl;
                 v_mean += maybe_up_convert(src[data_offset(data_d, n, c, d, h, w)]);
             }
             v_mean /= W * N * H * D;
@@ -129,6 +137,7 @@ const {
             for (int d = 0; d < D; ++d)
             for (int h = 0; h < H; ++h)
             for (int w = 0; w < W; ++w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:              for (int w = 0; w < W; ++w) {" << std::endl;
                 acc_data_t m = maybe_up_convert(src[data_offset(data_d, n, c, d, h, w)]) - v_mean;
                 v_variance += m * m;
             }
@@ -145,10 +154,13 @@ const {
         for (dim_t d = 0; d < D; ++d)
         for (dim_t h = 0; h < H; ++h)
         for (dim_t w = 0; w < W; ++w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:          for (dim_t w = 0; w < W; ++w) {" << std::endl;
             auto d_off = data_offset(data_d, n, c, d, h, w);
             acc_data_t bn_res = sm * (maybe_up_convert(src[d_off]) - v_mean) + sv;
             if (fuse_bn_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:              if (fuse_bn_relu) {" << std::endl;
                 if (bn_res <= 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:                  if (bn_res <= 0) {" << std::endl;
                     bn_res = 0;
                     if (is_training)
                         ws[d_off] = 0;
@@ -158,9 +170,11 @@ const {
                 }
             }
             if (data_type == data_type::s8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:              if (data_type == data_type::s8) {" << std::endl;
                 dst[d_off] = qz_a1b0<float, data_t>()(
                         maybe_post_op(bn_res), round_mode::nearest);
             } else if (data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:              } else if (data_type == data_type::bf16) {" << std::endl;
                 const float bn_res_p = maybe_post_op(bn_res);
                 bf16_cvt_utils::cvt_float_to_bfloat16(
                         (mkldnn_bfloat16_t *)&dst[d_off], &bn_res_p);
@@ -170,7 +184,9 @@ const {
         }
 
         if (calculate_stats) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:          if (calculate_stats) {" << std::endl;
             if (save_stats) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:              if (save_stats) {" << std::endl;
                 mean[c] = v_mean;
                 variance[c] = v_variance;
             }
@@ -207,8 +223,11 @@ const {
 
     /* fast return */
     if (this->pd()->has_zero_dim_memory()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:      if (this->pd()->has_zero_dim_memory()) {" << std::endl;
         if (diff_scaleshift) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:          if (diff_scaleshift) {" << std::endl;
             for (dim_t c = 0; c < C; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:              for (dim_t c = 0; c < C; ++c) {" << std::endl;
                 diff_scaleshift[diff_scaleshift_d.off(0, c)] = 0;
                 diff_scaleshift[diff_scaleshift_d.off(1, c)] = 0;
             }
@@ -220,6 +239,7 @@ const {
     dim_t H = 1, W = 1, D = 1;
     const bool has_spatial = utils::one_of(data_d.ndims(), 4, 5);
     if (has_spatial) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:      if (has_spatial) {" << std::endl;
         D = pd()->D();
         H = pd()->H();
         W = pd()->W();
@@ -236,6 +256,7 @@ const {
     DECLARE_DATA_OFFSET;
 
     parallel_nd(C, [&](int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:      parallel_nd(C, [&](int c) {" << std::endl;
         acc_data_t v_mean = mean[mean_d.off(c)];
         acc_data_t v_variance = variance[variance_d.off(c)];
         acc_data_t sqrt_variance = static_cast<acc_data_t>(1.0f / sqrtf(v_variance + eps));
@@ -247,6 +268,7 @@ const {
         for (dim_t d = 0; d < D; ++d)
         for (dim_t h = 0; h < H; ++h)
         for (dim_t w = 0; w < W; ++w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:          for (dim_t w = 0; w < W; ++w) {" << std::endl;
             const size_t s_off = data_offset(data_d, n, c, d, h, w);
             acc_data_t dd;
             if (fuse_bn_relu && !ws[s_off])
@@ -260,6 +282,7 @@ const {
         diff_gamma *= sqrt_variance;
 
         if (diff_scaleshift) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:          if (diff_scaleshift) {" << std::endl;
             diff_scaleshift[diff_scaleshift_d.off(0, c)] = diff_gamma;
             diff_scaleshift[diff_scaleshift_d.off(1, c)] = diff_beta;
         }
@@ -268,6 +291,7 @@ const {
         for (dim_t d = 0; d < D; ++d)
         for (dim_t h = 0; h < H; ++h)
         for (dim_t w = 0; w < W; ++w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:          for (dim_t w = 0; w < W; ++w) {" << std::endl;
             const size_t s_off = data_offset(data_d, n, c, d, h, w);
             const size_t dd_off = data_offset(diff_data_d, n, c, d, h, w);
             acc_data_t dd;
@@ -277,11 +301,13 @@ const {
                 dd = maybe_up_convert(diff_dst[dd_off]);
             acc_data_t v_diff_src = dd;
             if (calculate_diff_stats) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:              if (calculate_diff_stats) {" << std::endl;
                 v_diff_src -= diff_beta / (D * W * H * N) +
                     (maybe_up_convert(src[s_off]) - v_mean) * diff_gamma * sqrt_variance / (D * W * H * N);
             }
             v_diff_src *= gamma * sqrt_variance;
             if (data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_batch_normalization.cpp:              if (data_type == data_type::bf16) {" << std::endl;
                 bf16_cvt_utils::cvt_float_to_bfloat16(
                         (mkldnn_bfloat16_t *)&diff_src[dd_off], &v_diff_src);
             } else {

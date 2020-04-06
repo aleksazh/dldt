@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -33,13 +34,17 @@ void jit_uni_lrn_fwd_kernel_f32<isa>::within_body(
         Xbyak::Ymm ysum, Xbyak::Ymm ydst, Xbyak::Ymm ytmp, Xbyak::Ymm ysum2,
         prop_kind_t pk)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          prop_kind_t pk) {" << std::endl;
     vxorps(ysum, ysum, ysum);
     for (int i = hoff; i <= Hoff; ++i)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      for (int i = hoff; i <= Hoff; ++i)     {" << std::endl;
         for (int j = woff; j <= Woff; ++j)
         {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          for (int j = woff; j <= Woff; ++j)         {" << std::endl;
             if (i == 0 && j == 0)
             {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:              if (i == 0 && j == 0)             {" << std::endl;
                 vmovups(ydst, ptr[src]);
                 vfmadd231ps(ysum, ydst, ydst);
             }
@@ -70,6 +75,7 @@ template<cpu_isa_t isa>
 void jit_uni_lrn_fwd_kernel_f32<isa>::within_body_sse42(
     int hoff, int Hoff, int woff, int Woff, int stride, prop_kind_t pk)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      int hoff, int Hoff, int woff, int Woff, int stride, prop_kind_t pk) {" << std::endl;
     Xbyak::Xmm xtmp_lo = xmm12;
     Xbyak::Xmm xtmp_hi = xmm13;
     Xbyak::Xmm xsum_lo = xmm8;
@@ -83,10 +89,13 @@ void jit_uni_lrn_fwd_kernel_f32<isa>::within_body_sse42(
     xorps(xsum_hi, xsum_hi);
     for (int i = hoff; i <= Hoff; ++i)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      for (int i = hoff; i <= Hoff; ++i)     {" << std::endl;
         for (int j = woff; j <= Woff; ++j)
         {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          for (int j = woff; j <= Woff; ++j)         {" << std::endl;
             if (i == 0 && j == 0)
             {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:              if (i == 0 && j == 0)             {" << std::endl;
                 movups(xdst_lo, ptr[src]);
                 movups(xdst_hi, ptr[src + 4 * sizeof(float)]);
                 mulps(xdst_lo, xdst_lo);
@@ -112,6 +121,7 @@ void jit_uni_lrn_fwd_kernel_f32<isa>::within_body_sse42(
     movaps(xtmp_lo, xsum_lo);
     movaps(xtmp_hi, xsum_hi);
     if (pk != prop_kind::forward_inference) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (pk != prop_kind::forward_inference) {" << std::endl;
         movups(ptr[scratch], xtmp_lo);
         movups(ptr[scratch + 4 * sizeof(float)], xtmp_hi);
     }
@@ -151,6 +161,7 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
         : jit_generator(code_ptr, code_size)
         , alpha(A), k(K)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          , alpha(A), k(K) {" << std::endl;
     Xbyak::Reg64 h = r9;
     Xbyak::Reg64 w = r10;
     Vmm ysum = Vmm(isa == avx2 ? 9 : 9);
@@ -168,6 +179,7 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
     mov(imm_addr64, float2int(this->alpha));
     movq(xalpha, imm_addr64);
     if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (isa == avx2) {" << std::endl;
         vbroadcastss(yalpha, xalpha);
     } else {
         shufps(xalpha, xalpha, 0);
@@ -176,6 +188,7 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
     mov(imm_addr64, float2int(this->k));
     movq(xk, imm_addr64);
     if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (isa == avx2) {" << std::endl;
         vbroadcastss(yk, xk);
     } else {
         shufps(xk, xk, 0);
@@ -185,9 +198,12 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
 
     for (int i = 0; i < s2; ++i)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      for (int i = 0; i < s2; ++i)     {" << std::endl;
         Label label_t;
         for (int j = 0; j < s2; ++j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          for (int j = 0; j < s2; ++j) {" << std::endl;
             if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:              if (isa == avx2) {" << std::endl;
                 within_body(-i, S2, -j, S2, J.W, ysum, ydst, ytmp, ysum2, pk);
             }
             else {
@@ -197,6 +213,7 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
         mov(w, J.W - J.size + 1);
         L(label_t);
         if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          if (isa == avx2) {" << std::endl;
             within_body(-i, S2, -s2, S2, J.W, ysum, ydst, ytmp, ysum2, pk);
         } else {
             within_body_sse42(-i, S2, -s2, S2, J.W, pk);
@@ -205,7 +222,9 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
         cmp(w, 0);
         jne(label_t, T_NEAR);
         for (int j = J.W - S2; j < J.W; ++j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          for (int j = J.W - S2; j < J.W; ++j) {" << std::endl;
             if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:              if (isa == avx2) {" << std::endl;
                 within_body(-i, S2, -s2, J.W - 1 - j, J.W,
                     ysum, ydst, ytmp, ysum2, pk);
             } else {
@@ -218,7 +237,9 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
     Label lrn_loop_h;
     L(lrn_loop_h);
     for (int j = 0; j < s2; ++j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      for (int j = 0; j < s2; ++j) {" << std::endl;
         if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          if (isa == avx2) {" << std::endl;
             within_body(-s2, S2, -j, S2, J.W, ysum, ydst, ytmp, ysum2, pk);
         } else {
             within_body_sse42(-s2, S2, -j, S2, J.W, pk);
@@ -228,6 +249,7 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
     Label lrn_loop_w;
     L(lrn_loop_w);
     if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (isa == avx2) {" << std::endl;
         within_body(-s2, S2, -s2, S2, J.W, ysum, ydst, ytmp, ysum2, pk);
     } else {
         within_body_sse42(-s2, S2, -s2, S2, J.W, pk);
@@ -236,7 +258,9 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
     cmp(w, 0);
     jne(lrn_loop_w, T_NEAR);
     for (int j = J.W - S2; j < J.W; ++j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      for (int j = J.W - S2; j < J.W; ++j) {" << std::endl;
         if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          if (isa == avx2) {" << std::endl;
             within_body(-s2, S2, -s2, J.W - 1 - j, J.W,
                 ysum, ydst, ytmp, ysum2, pk);
         } else {
@@ -249,8 +273,11 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
 
     for (int i = J.H - S2; i < J.H; ++i)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      for (int i = J.H - S2; i < J.H; ++i)     {" << std::endl;
         for (int j = 0; j < s2; ++j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          for (int j = 0; j < s2; ++j) {" << std::endl;
             if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:              if (isa == avx2) {" << std::endl;
                 within_body(-s2, J.H - 1 - i, -j, S2, J.W,
                     ysum, ydst, ytmp, ysum2, pk);
             } else {
@@ -262,6 +289,7 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
         Label label_b;
         L(label_b);
         if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          if (isa == avx2) {" << std::endl;
             within_body(-s2, J.H - 1 - i, -s2, S2, J.W,
                 ysum, ydst, ytmp, ysum2, pk);
         } else {
@@ -272,7 +300,9 @@ jit_uni_lrn_fwd_kernel_f32<isa>::jit_uni_lrn_fwd_kernel_f32(
         jne(label_b, T_NEAR);
 
         for (int j = J.W - S2; j < J.W; ++j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          for (int j = J.W - S2; j < J.W; ++j) {" << std::endl;
             if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:              if (isa == avx2) {" << std::endl;
                 within_body(-s2, J.H - 1 - i, -s2, J.W - 1 - j, J.W,
                     ysum, ydst, ytmp, ysum2, pk);
             } else {
@@ -298,6 +328,7 @@ jit_uni_lrn_fwd_kernel_f32<avx2>::jit_uni_lrn_fwd_kernel_f32(
         : jit_generator(code_ptr, code_size)
         , alpha(A), k(K)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          , alpha(A), k(K) {" << std::endl;
     Xbyak::Reg64 t = rsp;
     Xbyak::Reg64 hw = r9;
     Xbyak::Xmm xsrc_prev = xmm2;
@@ -330,11 +361,13 @@ jit_uni_lrn_fwd_kernel_f32<avx2>::jit_uni_lrn_fwd_kernel_f32(
 
     if (J.version == -1)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (J.version == -1)     {" << std::endl;
         vxorps(xsrc_prev, xsrc_prev, xsrc_prev);
         vmovups(ptr[t + 0], xsrc_prev);
     }
     if (J.version == +1)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (J.version == +1)     {" << std::endl;
         vxorps(xsrc_next, xsrc_next, xsrc_next);
         vmovups(ptr[t + 48], xsrc_next);
     }
@@ -399,6 +432,7 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
     : jit_generator(code_ptr, code_size)
     , alpha(A), k(K)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      , alpha(A), k(K) {" << std::endl;
     Xbyak::Reg64 t = rsp;
     Xbyak::Reg64 hw = r9;
 
@@ -438,11 +472,13 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
 
     if (J.version == -1)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (J.version == -1)     {" << std::endl;
         xorps(xsrc_prev, xsrc_prev);
         movups(ptr[t + 0], xsrc_prev);
     }
     if (J.version == +1)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (J.version == +1)     {" << std::endl;
         xorps(xsrc_next, xsrc_next);
         movups(ptr[t + 48], xsrc_next);
     }
@@ -498,6 +534,7 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
     movaps(xbase_lo, xsum_lo);
     movaps(xbase_hi, xsum_hi);
     if (pk != prop_kind::forward_inference) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (pk != prop_kind::forward_inference) {" << std::endl;
         movups(ptr[scratch], xbase_lo);
         movups(ptr[scratch + 4 * sizeof(float)], xbase_hi);
     }
@@ -540,6 +577,7 @@ jit_uni_lrn_fwd_kernel_f32<avx2>::jit_uni_lrn_fwd_kernel_f32(
     : jit_generator(code_ptr, code_size)
     , alpha(A), k(K)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      , alpha(A), k(K) {" << std::endl;
     static const uint32_t mask[] = {
         0, 0, 0x80000000, 0x80000000, 0x80000000, 0x80000000,
         0x80000000, 0x80000000, 0x80000000, 0, 0
@@ -667,6 +705,7 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
     : jit_generator(code_ptr, code_size)
     , alpha(A), k(K)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      , alpha(A), k(K) {" << std::endl;
     static const uint32_t mask[] = {
         0, 0, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
         0xffffffff, 0xffffffff, 0xffffffff, 0, 0
@@ -776,6 +815,7 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
     movaps(xbase_lo, xdst_lo);
     movaps(xbase_hi, xdst_hi);
     if (pk != prop_kind::forward_inference) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (pk != prop_kind::forward_inference) {" << std::endl;
         movups(ptr[scratch], xbase_lo);
         movups(ptr[scratch + 4 * sizeof(float)], xbase_hi);
     }
@@ -862,6 +902,7 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
     movaps(xbase_lo, xdst_lo);
     movaps(xbase_hi, xdst_hi);
     if (pk != prop_kind::forward_inference) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (pk != prop_kind::forward_inference) {" << std::endl;
         movups(ptr[scratch], xbase_lo);
         movups(ptr[scratch + 4 * sizeof(float)], xbase_hi);
     }
@@ -896,7 +937,8 @@ void jit_uni_lrn_fwd_kernel_f32<sse42>::nchw_body(
     Xbyak::Ymm yc,
     Xbyak::Ymm yd,
     Xbyak::Ymm ye,
-    Xbyak::Ymm ysum) {}
+    Xbyak::Ymm ysum) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      Xbyak::Ymm ysum) {" << std::endl;}
 
 template<>
 void jit_uni_lrn_fwd_kernel_f32<avx2>::nchw_body(
@@ -909,6 +951,7 @@ void jit_uni_lrn_fwd_kernel_f32<avx2>::nchw_body(
     Xbyak::Ymm ye,
     Xbyak::Ymm ysum)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      Xbyak::Ymm ysum) {" << std::endl;
     Xbyak::Ymm ydst = ymm14;
     Xbyak::Ymm ybase = ymm15;
 
@@ -920,6 +963,7 @@ void jit_uni_lrn_fwd_kernel_f32<avx2>::nchw_body(
     vmovaps(ybase, ydst);
     if (pk != prop_kind::forward_inference)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (pk != prop_kind::forward_inference)     {" << std::endl;
         if (tail != 0)
             vmaskmovps(ptr[scratch], ymask, ybase);
         else
@@ -947,17 +991,20 @@ void jit_uni_lrn_fwd_kernel_f32<avx2>::nchw_body(
 template<>
 void jit_uni_lrn_fwd_kernel_f32<avx2>::nchw_tail_sse42(
     int tail, Xbyak::Reg64 reg_dst, Xbyak::Xmm xtail_lo, Xbyak::Xmm xtail_hi)
-{}
+{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      int tail, Xbyak::Reg64 reg_dst, Xbyak::Xmm xtail_lo, Xbyak::Xmm xtail_hi) {" << std::endl;}
 
 template<>
 void jit_uni_lrn_fwd_kernel_f32<sse42>::nchw_tail_sse42(
     int tail, Xbyak::Reg64 reg_dst, Xbyak::Xmm xtail_lo, Xbyak::Xmm xtail_hi)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      int tail, Xbyak::Reg64 reg_dst, Xbyak::Xmm xtail_lo, Xbyak::Xmm xtail_hi) {" << std::endl;
     Xbyak::Xmm xmm_tmp = xmm10;
     movaps(xmm_tmp, xtail_lo);
     size_t offset = 0;
 
     if (tail > 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (tail > 4) {" << std::endl;
         movups(ptr[reg_dst], xtail_lo);
         movaps(xmm_tmp, xtail_hi);
         offset += 4 * sizeof(float);
@@ -966,6 +1013,7 @@ void jit_uni_lrn_fwd_kernel_f32<sse42>::nchw_tail_sse42(
     movss(ptr[reg_dst + offset], xmm_tmp);
     for (int i = 1; i < tail; i++)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      for (int i = 1; i < tail; i++)     {" << std::endl;
         psrldq(xmm_tmp, 4);
         movss(ptr[reg_dst + offset + i * sizeof(float)], xmm_tmp);
     }
@@ -978,6 +1026,7 @@ void jit_uni_lrn_fwd_kernel_f32<sse42>::nchw_body_sse42(
     Xbyak::Xmm xe_lo, Xbyak::Xmm xe_hi,
     Xbyak::Xmm xsum_lo, Xbyak::Xmm xsum_hi)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      Xbyak::Xmm xsum_lo, Xbyak::Xmm xsum_hi) {" << std::endl;
     Xbyak::Xmm xdst_lo = xmm0;
     Xbyak::Xmm xdst_hi = xmm1;
     Xbyak::Xmm xbase_lo = xmm6;
@@ -1014,7 +1063,9 @@ void jit_uni_lrn_fwd_kernel_f32<sse42>::nchw_body_sse42(
     movaps(xbase_hi, xdst_hi);
     if (pk != prop_kind::forward_inference)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (pk != prop_kind::forward_inference)     {" << std::endl;
         if (tail != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          if (tail != 0) {" << std::endl;
             nchw_tail_sse42(tail, scratch, xbase_lo, xbase_hi);
         }
         else {
@@ -1038,6 +1089,7 @@ void jit_uni_lrn_fwd_kernel_f32<sse42>::nchw_body_sse42(
     movaps(xdst_hi, xtmp_hi);
 
     if (tail != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (tail != 0) {" << std::endl;
         nchw_tail_sse42(tail, dst, xdst_lo, xdst_hi);
     }
     else {
@@ -1082,7 +1134,8 @@ void jit_uni_lrn_fwd_kernel_f32<avx2>::nchw_body_sse42(
     int tail, int HW, prop_kind_t pk,
     Xbyak::Xmm xmask_lo, Xbyak::Xmm xmask_hi,
     Xbyak::Xmm xe_lo, Xbyak::Xmm xe_hi,
-    Xbyak::Xmm xsum_lo, Xbyak::Xmm xsum_hi) {}
+    Xbyak::Xmm xsum_lo, Xbyak::Xmm xsum_hi) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      Xbyak::Xmm xsum_lo, Xbyak::Xmm xsum_hi) {" << std::endl;}
 
 template<>
 jit_uni_lrn_fwd_kernel_f32<avx2>::jit_uni_lrn_fwd_kernel_f32(
@@ -1095,6 +1148,7 @@ jit_uni_lrn_fwd_kernel_f32<avx2>::jit_uni_lrn_fwd_kernel_f32(
     : jit_generator(code_ptr, code_size)
     , alpha(A), k(K)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      , alpha(A), k(K) {" << std::endl;
     static const uint32_t mask[] = {
         0x80000000, 0x80000000, 0x80000000, 0x80000000, 0x80000000,
         0x80000000, 0x80000000, 0, 0, 0, 0, 0, 0, 0
@@ -1112,6 +1166,7 @@ jit_uni_lrn_fwd_kernel_f32<avx2>::jit_uni_lrn_fwd_kernel_f32(
 
     if (J.tail != 0)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (J.tail != 0)     {" << std::endl;
         mov(imm_addr64, reinterpret_cast<size_t>(&mask[7 - J.tail]));
         vmovups(ymask, ptr[imm_addr64]);
     }
@@ -1189,6 +1244,7 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
     : jit_generator(code_ptr, code_size)
     , alpha(A), k(K)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      , alpha(A), k(K) {" << std::endl;
     static const uint32_t mask[] = {
         0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
         0xffffffff, 0xffffffff, 0, 0, 0, 0, 0, 0, 0
@@ -1236,6 +1292,7 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
 
     if (J.tail != 0)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (J.tail != 0)     {" << std::endl;
         mov(imm_addr64, reinterpret_cast<size_t>(&mask[7 - J.tail]));
         movups(xmask_lo, ptr[imm_addr64]);
         movups(xmask_hi, ptr[imm_addr64 + 4 * sizeof(float)]);
@@ -1248,6 +1305,7 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
 
     // read xc, xd
     if (J.tail != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (J.tail != 0) {" << std::endl;
         movups(xc_lo, ptr[src + J.HW * 0]);
         movups(xc_hi, ptr[src + J.HW * 0 + 4 * sizeof(float)]);
         andps(xc_lo, xmask_lo);
@@ -1258,6 +1316,7 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
         movups(xc_hi, ptr[src + J.HW * 0 + 4 * sizeof(float)]);
     }
     if (J.tail != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (J.tail != 0) {" << std::endl;
         movups(xd_lo, ptr[src + J.HW * 4]);
         movups(xd_hi, ptr[src + J.HW * 4 + 4 * sizeof(float)]);
         andps(xd_lo, xmask_lo);
@@ -1294,6 +1353,7 @@ jit_uni_lrn_fwd_kernel_f32<sse42>::jit_uni_lrn_fwd_kernel_f32(
     L(lrn_loop);
 
     if (J.tail != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (J.tail != 0) {" << std::endl;
         movups(xe_lo, ptr[src + J.HW * 8]);
         movups(xe_hi, ptr[src + J.HW * 8 + 4 * sizeof(float)]);
         andps(xe_lo, xmask_lo);
@@ -1353,6 +1413,7 @@ jit_uni_lrn_bwd_kernel_f32<isa>::jit_uni_lrn_bwd_kernel_f32(
     , nalphabeta(-2 * A*B)
     , use_h_parallelizm(use_h_parallel)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      , use_h_parallelizm(use_h_parallel) {" << std::endl;
     Xbyak::Reg64 t = rsp;
     Xbyak::Reg64 hw = r10;
 
@@ -1390,10 +1451,12 @@ jit_uni_lrn_bwd_kernel_f32<isa>::jit_uni_lrn_bwd_kernel_f32(
     bool is_last = J.version == +1 || J.version == -2;
 
     if (is_first || is_single) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (is_first || is_single) {" << std::endl;
         vxorps(xsrc_prev, xsrc_prev, xsrc_prev);
         vmovups(ptr[t + 0], xsrc_prev);
     }
     if (is_last || is_single) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:      if (is_last || is_single) {" << std::endl;
         vxorps(xsrc_next, xsrc_next, xsrc_next);
         vmovups(ptr[t + 48], xsrc_next);
     }
@@ -1402,6 +1465,7 @@ jit_uni_lrn_bwd_kernel_f32<isa>::jit_uni_lrn_bwd_kernel_f32(
     L(lrn_loop);
     {
         if (!is_first && !is_single) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          if (!is_first && !is_single) {" << std::endl;
             vmovups(xws_prev, ptr[workspace - J.H*J.W * 32 + 16]);
             vmovups(xsrc_prev, ptr[src - J.H*J.W * 32 + 16]);
             vmovups(xdiffdst_prev, ptr[diffdst - J.H*J.W * 32 + 16]);
@@ -1426,6 +1490,7 @@ jit_uni_lrn_bwd_kernel_f32<isa>::jit_uni_lrn_bwd_kernel_f32(
         vmulps(ysum, ysum, ysrc);
 
         if (!is_last && !is_single) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn_kernel_f32.cpp:          if (!is_last && !is_single) {" << std::endl;
             vmovups(xws_next, ptr[workspace + J.H*J.W * 32]);
             vmovups(xsrc_next, ptr[src + J.H*J.W * 32]);
             vmovups(xdiffdst_next, ptr[diffdst + J.H*J.W * 32]);

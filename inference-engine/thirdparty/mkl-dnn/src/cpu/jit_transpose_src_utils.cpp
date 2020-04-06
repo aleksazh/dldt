@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -36,6 +37,7 @@ struct jit_trans_iw_ic_t: public jit_trans_src_t, public jit_generator {
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_trans_iw_ic_t)
 
     jit_trans_iw_ic_t(const jit_conv_conf_t *conf): jit_trans_src_t(conf) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      jit_trans_iw_ic_t(const jit_conv_conf_t *conf): jit_trans_src_t(conf) {" << std::endl;
         generate();
         ker_ = (decltype(ker_))this->getCode();
     }
@@ -72,17 +74,20 @@ private:
 
 void jit_trans_iw_ic_t::transpose(int nrows, int l_pad, int r_pad,
     bool nontemporal_stores) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      bool nontemporal_stores) {" << std::endl;
     assert(nrows >= 0 && nrows <= transpose_size);
     static_assert(transpose_size == 16, "Unsupported transpose size");
     if (!nrows)
         return;
 
     auto pf_src_t0 = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto pf_src_t0 = [=](int i) {" << std::endl;
         if(enable_prefetch) prefetcht0(EVEX_compress_addr(reg_src,
             (transpose_size + i) * src_stride));
     };
 
     auto pf_tr_src_t0 = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto pf_tr_src_t0 = [=](int i) {" << std::endl;
         int offset = (transpose_size) * typesize + i * tr_src_stride;
         if(enable_prefetch) prefetcht0(EVEX_compress_addr(reg_tr_src, offset));
         if(enable_prefetch) prefetcht0(EVEX_compress_addr(reg_tr_src,
@@ -90,36 +95,44 @@ void jit_trans_iw_ic_t::transpose(int nrows, int l_pad, int r_pad,
     };
 
     auto pf_src_t1 = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto pf_src_t1 = [=](int i) {" << std::endl;
         if(enable_prefetch) prefetcht1(EVEX_compress_addr(reg_src_prf,
             i * src_stride));
     };
 
     auto pf_tr_src_t1 = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto pf_tr_src_t1 = [=](int i) {" << std::endl;
         if(enable_prefetch) prefetchwt1(EVEX_compress_addr(reg_tr_src_prf,
             i * tr_src_stride));
     };
 
     auto src_zmm = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto src_zmm = [=](int i) {" << std::endl;
         assert(i >= 0 && i < 16);
         return Zmm(i);
     };
 
     auto tmp_zmm = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto tmp_zmm = [=](int i) {" << std::endl;
         assert(i >= 0 && i < 16);
         return Zmm(16 + i);
     };
 
     auto load = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto load = [=](int i) {" << std::endl;
         vmovups(src_zmm(i), EVEX_compress_addr(reg_src, i * src_stride));
     };
 
     auto store = [=](Zmm r, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto store = [=](Zmm r, int i) {" << std::endl;
         auto kmovw = [=](Opmask k, unsigned w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          auto kmovw = [=](Opmask k, unsigned w) {" << std::endl;
             mov(regw_tmp, w);
             jit_generator::kmovw(k, regw_tmp);
         };
 
         auto padding = [=] (Reg64 reg, int pad) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          auto padding = [=] (Reg64 reg, int pad) {" << std::endl;
             kmovw(kTail, (1 << pad) - 1);
             auto k = kTail;
             auto base = reg;
@@ -153,20 +166,24 @@ void jit_trans_iw_ic_t::transpose(int nrows, int l_pad, int r_pad,
             vmovups(addr, r);
 
         if (r_pad > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          if (r_pad > 0) {" << std::endl;
             add(reg_tr_src_tmp, tail * typesize);
             padding(reg_tr_src_tmp, r_pad);
         }
 
         if (l_pad > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          if (l_pad > 0) {" << std::endl;
             padding(reg_tr_src, l_pad);
         }
     };
 
     auto transpose16x8 = [=](int base_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto transpose16x8 = [=](int base_idx) {" << std::endl;
         assert(base_idx == 0 || base_idx == 8);
 
         // swap 1
         for (int i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          for (int i = 0; i < 4; i++) {" << std::endl;
             int src_idx0 = base_idx + i * 2;
             int src_idx1 = src_idx0 + 1;
 
@@ -175,6 +192,7 @@ void jit_trans_iw_ic_t::transpose(int nrows, int l_pad, int r_pad,
             bool load_next = base_idx == 0 || i < 3;
 
             if (base_idx == 0 && i == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:              if (base_idx == 0 && i == 0) {" << std::endl;
                 load(src_idx0);
                 load(src_idx1);
             }
@@ -199,6 +217,7 @@ void jit_trans_iw_ic_t::transpose(int nrows, int l_pad, int r_pad,
         }
         // swap 2
         for (int i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          for (int i = 0; i < 4; i++) {" << std::endl;
             int select_half = (i < 2) ? 0 : 2;
             int src_idx0 = base_idx + i + select_half + 0;
             int src_idx2 = src_idx0 + 2;
@@ -218,6 +237,7 @@ void jit_trans_iw_ic_t::transpose(int nrows, int l_pad, int r_pad,
 
         // swap 4
         for (int i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          for (int i = 0; i < 4; i++) {" << std::endl;
             int src_idx0 = base_idx + i;
             int src_idx4 = src_idx0 + 4;
 
@@ -234,26 +254,31 @@ void jit_trans_iw_ic_t::transpose(int nrows, int l_pad, int r_pad,
     };
 
     auto fixup16x16 = [=]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto fixup16x16 = [=]() {" << std::endl;
         // swap 8
         for (int i = 0; i < 8; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          for (int i = 0; i < 8; i++) {" << std::endl;
             auto tmp = tmp_zmm(i);
             auto src0 = src_zmm(i);
             auto src8 = src_zmm(8 + i);
             vshuff64x2(tmp, src0, src8, 0x44);
             store(tmp, i);
             if (i % 2 == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:              if (i % 2 == 0) {" << std::endl;
                 pf_tr_src_t1(8 + i / 2);
                 pf_tr_src_t0(8 + i / 2);
             }
         }
 
         for (int i = 0; i < 8; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          for (int i = 0; i < 8; i++) {" << std::endl;
             auto tmp = tmp_zmm(8 + i);
             auto src0 = src_zmm(i);
             auto src8 = src_zmm(8 + i);
             vshuff64x2(tmp, src0, src8, 0xee);
             store(tmp, 8 + i);
             if (i % 2 == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:              if (i % 2 == 0) {" << std::endl;
                 pf_tr_src_t1(12 + i / 2);
                 pf_tr_src_t0(12 + i / 2);
             }
@@ -266,6 +291,7 @@ void jit_trans_iw_ic_t::transpose(int nrows, int l_pad, int r_pad,
 }
 
 void jit_trans_iw_ic_t::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:  void jit_trans_iw_ic_t::generate() {" << std::endl;
     preamble();
 
     const int ic_block = conf_->ic_block;
@@ -295,6 +321,7 @@ void jit_trans_iw_ic_t::generate() {
     mov(reg_tr_src_prf, ptr [param1 + GET_OFF(tr_src_prf)]);
 
     auto kmovw = [=](Opmask k, unsigned w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto kmovw = [=](Opmask k, unsigned w) {" << std::endl;
         mov(regw_tmp, w);
         jit_generator::kmovw(k, regw_tmp);
     };
@@ -307,6 +334,7 @@ void jit_trans_iw_ic_t::generate() {
     kmovw(kF0F0, 0xf0f0); // 1111000011110000
 
     if (left_pad > 0 && loop_iters > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      if (left_pad > 0 && loop_iters > 0) {" << std::endl;
         loop_iters--;
         transpose(transpose_size, left_pad, 0, nontemporal_stores);
         add(reg_src, src_step);
@@ -316,6 +344,7 @@ void jit_trans_iw_ic_t::generate() {
     }
 
     if (loop_iters) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      if (loop_iters) {" << std::endl;
         mov(reg_loop, loop_iters);
         Label loop;
         L(loop); {
@@ -340,6 +369,7 @@ struct jit_trans_iw_ic_int16_t: public jit_trans_src_t, public jit_generator {
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_trans_iw_ic_int16_t)
     jit_trans_iw_ic_int16_t(const jit_conv_conf_t *conf):
         jit_trans_src_t(conf) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          jit_trans_src_t(conf) {" << std::endl;
         generate();
         ker_ = (decltype(ker_))this->getCode();
     }
@@ -386,32 +416,39 @@ private:
 
 void jit_trans_iw_ic_int16_t::transpose(int nrows, int l_pad, int r_pad,
     bool nontemporal_stores) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      bool nontemporal_stores) {" << std::endl;
     assert(nrows >= 0 && nrows <= transpose_size);
     static_assert(transpose_size == 16, "Unsupported transpose size");
     if (!nrows)
         return;
 
     auto src_zmm = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto src_zmm = [=](int i) {" << std::endl;
         return Zmm(i);
     };
 
     auto src_ymm = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto src_ymm = [=](int i) {" << std::endl;
         assert(i >= 0 && i < 16);
         return Ymm(i);
     };
 
     auto load_ymm = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto load_ymm = [=](int i) {" << std::endl;
         vmovups(src_ymm(i), EVEX_compress_addr(reg_src, i * src_stride));
     };
 
     auto kmovw = [=](Opmask k, unsigned w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto kmovw = [=](Opmask k, unsigned w) {" << std::endl;
         mov(regw_tmp, w);
         jit_generator::kmovw(k, regw_tmp);
     };
 
     auto store = [=](Zmm r, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto store = [=](Zmm r, int i) {" << std::endl;
 
         auto padding = [=] (Reg64 reg, int pad) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          auto padding = [=] (Reg64 reg, int pad) {" << std::endl;
             kmovw(kTail, (1 << pad) - 1);
             auto k = kTail;
             auto base = reg;
@@ -425,11 +462,13 @@ void jit_trans_iw_ic_int16_t::transpose(int nrows, int l_pad, int r_pad,
 
         mov(reg_tr_src_tmp, reg_tr_src);
         if (l_pad > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          if (l_pad > 0) {" << std::endl;
             int store_pad = div_up(l_pad, 2);
             padding(reg_tr_src, store_pad);
             add(reg_tr_src_tmp, l_pad * typesize);
         }
         if (r_pad > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          if (r_pad > 0) {" << std::endl;
             int store_pad = div_up(r_pad, 2);
             int addr_shift = r_pad % 2;
             add(reg_tr_src_tmp, (nrows - addr_shift) * typesize);
@@ -451,10 +490,12 @@ void jit_trans_iw_ic_int16_t::transpose(int nrows, int l_pad, int r_pad,
     kmovw(kFFFF, 0xffff);
     //all loads
     for (int i=0; i<16; i++){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      for (int i=0; i<16; i++){" << std::endl;
         vpxord(src_zmm(i), src_zmm(i), src_zmm(i));
     }
 
     for (int i = 0; i < nrows/2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      for (int i = 0; i < nrows/2; i++) {" << std::endl;
         auto src0 = src_ymm(2*i);
         auto src1 = src_ymm(2*i+1);
         auto zmm_src0 = src_zmm(2*i);
@@ -470,6 +511,7 @@ void jit_trans_iw_ic_int16_t::transpose(int nrows, int l_pad, int r_pad,
 
     // for odd numbers we need to mix row with zeroes
     if (nrows%2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      if (nrows%2) {" << std::endl;
         int i = nrows-1;
         auto src0 = src_ymm(i);
         auto src1 = src_ymm(i+1); //zero
@@ -491,6 +533,7 @@ void jit_trans_iw_ic_int16_t::transpose(int nrows, int l_pad, int r_pad,
 
     // swap 1
     for (int i=0; i<4; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      for (int i=0; i<4; i++) {" << std::endl;
         auto zmm0 = src_zmm(4*i);
         auto zmm1 = src_zmm(4*i+2);
         auto tmp0 = src_zmm(4*i+1);
@@ -506,6 +549,7 @@ void jit_trans_iw_ic_int16_t::transpose(int nrows, int l_pad, int r_pad,
     int base_idx;
     base_idx=0;
     for (int i=0; i<2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      for (int i=0; i<2; i++) {" << std::endl;
         auto zmm0 = src_zmm(base_idx+2*i+1);
         auto zmm1 = src_zmm(base_idx+2*i+5);
 
@@ -520,6 +564,7 @@ void jit_trans_iw_ic_int16_t::transpose(int nrows, int l_pad, int r_pad,
     }
     base_idx=8;
     for (int i=0; i<2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      for (int i=0; i<2; i++) {" << std::endl;
         auto zmm0 = src_zmm(base_idx+2*i+1);
         auto zmm1 = src_zmm(base_idx+2*i+5);
 
@@ -535,6 +580,7 @@ void jit_trans_iw_ic_int16_t::transpose(int nrows, int l_pad, int r_pad,
 
     // swap 3
     for (int i=0; i<4; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      for (int i=0; i<4; i++) {" << std::endl;
         auto zmm0 = src_zmm(2*i);
         auto zmm1 = src_zmm(2*i+8);
 
@@ -571,6 +617,7 @@ void jit_trans_iw_ic_int16_t::transpose(int nrows, int l_pad, int r_pad,
 }
 
 void jit_trans_iw_ic_int16_t::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:  void jit_trans_iw_ic_int16_t::generate() {" << std::endl;
     preamble();
 
     alignas(64) static constexpr const int64_t idx1[8]
@@ -593,6 +640,7 @@ void jit_trans_iw_ic_int16_t::generate() {
     assert(transpose_size == ic_block);
 
     auto kmovw = [=](Opmask k, unsigned w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto kmovw = [=](Opmask k, unsigned w) {" << std::endl;
         mov(regw_tmp, w);
         jit_generator::kmovw(k, regw_tmp);
     };
@@ -606,11 +654,13 @@ void jit_trans_iw_ic_int16_t::generate() {
     kmovw(k33, 0x33);
 
     auto vmovdqa64 = [=](Zmm z, const int64_t *addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto vmovdqa64 = [=](Zmm z, const int64_t *addr) {" << std::endl;
         mov(imm_addr64, reinterpret_cast<size_t>(addr));
         jit_generator::vmovdqa64(z, ptr[imm_addr64]);
     };
 
     auto vmovdqa32 = [=](Zmm z, const int32_t *addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto vmovdqa32 = [=](Zmm z, const int32_t *addr) {" << std::endl;
         mov(imm_addr64, reinterpret_cast<size_t>(addr));
         jit_generator::vmovdqa32(z, ptr[imm_addr64]);
     };
@@ -623,6 +673,7 @@ void jit_trans_iw_ic_int16_t::generate() {
 
     // Data for every strided case is placed consecutively
     for (int s = 0; s < str_w; s++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      for (int s = 0; s < str_w; s++) {" << std::endl;
         const int left_pad = div_up(conf_->l_pad - s, str_w);
         const int iw1 = iw + conf_->l_pad;
         const int iw_s = (s < (iw1 % str_w) ? div_up(iw1, str_w) : iw1 / str_w)
@@ -648,6 +699,7 @@ void jit_trans_iw_ic_int16_t::generate() {
         mov(reg_tr_src_prf, ptr [param1 + GET_OFF(tr_src_prf)]);
 
         if (str_w > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          if (str_w > 1) {" << std::endl;
             int tr_src_shift = s;
             int src_shift = (str_w - (conf_->l_pad % str_w) + s) % str_w;
             add(reg_src, src_shift * ic_block * typesize);
@@ -657,6 +709,7 @@ void jit_trans_iw_ic_int16_t::generate() {
         }
 
         if (left_pad > 0 && loop_iters > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          if (left_pad > 0 && loop_iters > 0) {" << std::endl;
             loop_iters--;
             transpose(transpose_size, left_pad, 0, nontemporal_stores);
             add(reg_src, src_step);
@@ -666,6 +719,7 @@ void jit_trans_iw_ic_int16_t::generate() {
         }
 
         if (loop_iters) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          if (loop_iters) {" << std::endl;
             mov(reg_loop, loop_iters);
             Label loop;
             L(loop); {
@@ -689,6 +743,7 @@ void jit_trans_iw_ic_int16_t::generate() {
 struct jit_trans_ow_oc_t: public jit_trans_dst_t, public jit_generator {
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_trans_ow_oc_t)
     jit_trans_ow_oc_t(const jit_conv_conf_t *conf): jit_trans_dst_t(conf) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      jit_trans_ow_oc_t(const jit_conv_conf_t *conf): jit_trans_dst_t(conf) {" << std::endl;
         generate();
         ker_ = (decltype(ker_))this->getCode();
     }
@@ -723,26 +778,31 @@ private:
 
 void jit_trans_ow_oc_t::transpose(int nrows, int l_pad, int r_pad,
     bool nontemporal_stores) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      bool nontemporal_stores) {" << std::endl;
     assert(nrows >= 0 && nrows <= transpose_size);
     static_assert(transpose_size == 16, "Unsupported transpose size");
     if (!nrows)
         return;
 
     auto src_zmm = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto src_zmm = [=](int i) {" << std::endl;
         return Zmm(i);
     };
 
     auto src_ymm = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto src_ymm = [=](int i) {" << std::endl;
         assert(i >= 0 && i < 16);
         return Ymm(i);
     };
 
     auto load_ymm = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto load_ymm = [=](int i) {" << std::endl;
         vmovups(src_ymm(i), EVEX_compress_addr(reg_src, i * src_stride));
     };
 
 
     auto store = [=](Zmm r, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto store = [=](Zmm r, int i) {" << std::endl;
         auto addr = EVEX_compress_addr(reg_tr_src, i * tr_src_stride);
         if (nontemporal_stores)
             vmovntps(addr, r);
@@ -751,6 +811,7 @@ void jit_trans_ow_oc_t::transpose(int nrows, int l_pad, int r_pad,
     };
 
     for (int i = 0; i < nrows/2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      for (int i = 0; i < nrows/2; i++) {" << std::endl;
         auto src0 = src_ymm(2*i);
         auto src1 = src_ymm(2*i+1);
         auto zmm_src0 = src_zmm(2*i);
@@ -764,6 +825,7 @@ void jit_trans_ow_oc_t::transpose(int nrows, int l_pad, int r_pad,
         store(zmm_src0, 2*i);
     }
     if (r_pad > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      if (r_pad > 0) {" << std::endl;
         auto src0 = src_ymm(nrows-1);
         auto src1 = src_ymm(nrows);
         auto zmm_src0 = src_zmm(30);
@@ -781,6 +843,7 @@ void jit_trans_ow_oc_t::transpose(int nrows, int l_pad, int r_pad,
 }
 
 void jit_trans_ow_oc_t::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:  void jit_trans_ow_oc_t::generate() {" << std::endl;
     preamble();
 
     alignas(64) static constexpr const int64_t idx1[8]
@@ -808,6 +871,7 @@ void jit_trans_ow_oc_t::generate() {
     mov(reg_tr_src_prf, ptr [param1 + GET_OFF(tr_src_prf)]);
 
     auto kmovw = [=](Opmask k, unsigned w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto kmovw = [=](Opmask k, unsigned w) {" << std::endl;
         mov(regw_tmp, w);
         jit_generator::kmovw(k, regw_tmp);
     };
@@ -815,12 +879,14 @@ void jit_trans_ow_oc_t::generate() {
     kmovw(kFF, 0xFF);
 
     auto vmovdqa64 = [=](Zmm z, const int64_t *addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto vmovdqa64 = [=](Zmm z, const int64_t *addr) {" << std::endl;
         mov(imm_addr64, reinterpret_cast<size_t>(addr));
         jit_generator::vmovdqa64(z, ptr[imm_addr64]);
     };
 
     vmovdqa64(vidx1, idx1);
     if (loop_iters) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      if (loop_iters) {" << std::endl;
         mov(reg_loop, loop_iters);
         Label loop;
         L(loop); {
@@ -842,6 +908,7 @@ struct jit_trans_iw_x4_4x_t: public jit_trans_src_t, public jit_generator {
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_trans_iw_x4_4x_t)
 
     jit_trans_iw_x4_4x_t(const jit_conv_conf_t *conf): jit_trans_src_t(conf) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      jit_trans_iw_x4_4x_t(const jit_conv_conf_t *conf): jit_trans_src_t(conf) {" << std::endl;
         generate();
         ker_ = (decltype(ker_))this->getCode();
     }
@@ -853,6 +920,7 @@ struct jit_trans_iw_x4_4x_t: public jit_trans_src_t, public jit_generator {
 /** @brief transposition of the form [:][iw/4][4] -> [:][4][iw/4]
  * required for 1st 4fma backward by weights convolution */
 void jit_trans_iw_x4_4x_t::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:  void jit_trans_iw_x4_4x_t::generate() {" << std::endl;
     using namespace utils;
 
     /* TODO: put into code */
@@ -880,18 +948,24 @@ void jit_trans_iw_x4_4x_t::generate() {
     Opmask kmsk = k7;
 
     auto emit_tr_sync = [&]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto emit_tr_sync = [&]() {" << std::endl;
         simple_barrier::generate(*this, reg_ptr_tr_src_bctx, reg_nthr_oc_b);
     };
 
     auto emit_tr_iw = [&]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto emit_tr_iw = [&]() {" << std::endl;
         auto vreg = [](int iter, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          auto vreg = [](int iter, int i) {" << std::endl;
             assert(4 * iter + i < 24);
             return Zmm(4 * iter + i);
         };
-        auto vtmp = [](int i) { return Zmm(24 + i); };
+        auto vtmp = [](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          auto vtmp = [](int i) {" << std::endl; return Zmm(24 + i); };
 
         auto emit_load = [&](int iter) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          auto emit_load = [&](int iter) {" << std::endl;
             for (int i = 0; i < 4; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:              for (int i = 0; i < 4; ++i) {" << std::endl;
                 auto v = vreg(iter, i);
                 const int off = (iter * 4 + i) * simd_w;
 
@@ -905,6 +979,7 @@ void jit_trans_iw_x4_4x_t::generate() {
         };
 
         auto emit_tr = [&](int iter) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          auto emit_tr = [&](int iter) {" << std::endl;
             for (int i = 0; i < 4; ++i)
                 vpermps(vreg(iter, i), vmsk, vreg(iter, i));
 
@@ -920,8 +995,11 @@ void jit_trans_iw_x4_4x_t::generate() {
         };
 
         auto emit_store = [&]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:          auto emit_store = [&]() {" << std::endl;
             for (int i = 0; i < 4; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:              for (int i = 0; i < 4; ++i) {" << std::endl;
                 for (int iter = 0; iter < niters; ++iter) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:                  for (int iter = 0; iter < niters; ++iter) {" << std::endl;
                     const size_t off = i * c.tr_ld + iter * simd_w;
                     vmovups(ptr[reg_ptr_tr_src + off * typesize], vreg(iter, i));
                 }
@@ -957,6 +1035,7 @@ void jit_trans_iw_x4_4x_t::generate() {
     vmovups(vmsk, ptr[reg_tmp]);
 
     if (c.iw % simd_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      if (c.iw % simd_w) {" << std::endl;
         const char load_mask = (1 << (c.iw % simd_w)) - 1;
         mov(reg_tmp, load_mask);
         kmovw(kmsk, reg_tmp.cvt32());
@@ -995,48 +1074,57 @@ void jit_trans_iw_x4_4x_t::generate() {
 
 void jit_transpose4x16_src::transpose(int nrows)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:  void jit_transpose4x16_src::transpose(int nrows) {" << std::endl;
     assert(nrows >= 0 && nrows <= transpose_size);
     static_assert(transpose_size == 4, "Unsupported transpose size");
     if (!nrows)
         return;
 
     auto pf_src_t0 = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto pf_src_t0 = [=](int i) {" << std::endl;
         if (tparams->src_pf0_distance)
             prefetcht0(EVEX_compress_addr(
                     reg_src, (tparams->src_pf0_distance + i) * src_stride));
     };
 
     auto pf_tr_src_t0 = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto pf_tr_src_t0 = [=](int i) {" << std::endl;
         if (tparams->tr_src_pf0_distance)
             prefetcht0(EVEX_compress_addr(reg_tr_src,
                     (tparams->tr_src_pf0_distance + i) * src_stride));
     };
 
     auto pf_src_t1 = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto pf_src_t1 = [=](int i) {" << std::endl;
         if (tparams->src_pf1)
             prefetcht1(EVEX_compress_addr(reg_src_prf, i * src_stride));
     };
 
     auto pf_tr_src_t1 = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto pf_tr_src_t1 = [=](int i) {" << std::endl;
         if (tparams->tr_src_pf1)
             prefetchwt1(EVEX_compress_addr(reg_tr_src_prf, i * tr_src_stride));
     };
 
     auto src_zmm = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto src_zmm = [=](int i) {" << std::endl;
         assert(i >= 0 && i < 4);
         return Zmm(i);
     };
 
     auto tmp_zmm = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto tmp_zmm = [=](int i) {" << std::endl;
         assert(i >= 0 && i < 4);
         return Zmm(4 + i);
     };
 
     auto load = [=](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto load = [=](int i) {" << std::endl;
         vmovups(src_zmm(i), EVEX_compress_addr(reg_src, i * src_stride));
     };
 
     auto store = [=](Zmm r, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto store = [=](Zmm r, int i) {" << std::endl;
         vmovups(EVEX_compress_addr(reg_tr_src, i * tr_src_stride), r);
     };
 
@@ -1050,10 +1138,12 @@ void jit_transpose4x16_src::transpose(int nrows)
     auto src2 = src_zmm(2);
     auto src3 = src_zmm(3);
     for (int i = 0; i < nrows; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      for (int i = 0; i < nrows; i++) {" << std::endl;
         load(i);
     }
 
     for (size_t i = nrows; i < 4; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      for (size_t i = nrows; i < 4; i++) {" << std::endl;
         vpxord(src_zmm(i), src_zmm(i), src_zmm(i));
     }
 
@@ -1119,6 +1209,7 @@ alignas(64) static constexpr const int32_t idxP[16]
 
 void jit_transpose4x16_src::generate()
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:  void jit_transpose4x16_src::generate() {" << std::endl;
     preamble();
 
     const int ic_block = params->ic_block;
@@ -1141,16 +1232,19 @@ void jit_transpose4x16_src::generate()
 #undef GET_TR_OFF
 
     auto kmovw = [=](Opmask k, unsigned w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto kmovw = [=](Opmask k, unsigned w) {" << std::endl;
         mov(regw_tmp, w);
         jit_generator::kmovw(k, regw_tmp);
     };
 
     auto vmovdqa64 = [=](Zmm z, const int64_t *addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto vmovdqa64 = [=](Zmm z, const int64_t *addr) {" << std::endl;
         mov(imm_addr64, reinterpret_cast<size_t>(addr));
         jit_generator::vmovdqa64(z, ptr[imm_addr64]);
     };
 
     auto vmovdqa32 = [=](Zmm z, const int32_t *addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:      auto vmovdqa32 = [=](Zmm z, const int32_t *addr) {" << std::endl;
         mov(imm_addr64, reinterpret_cast<size_t>(addr));
         jit_generator::vmovdqa32(z, ptr[imm_addr64]);
     };
@@ -1189,6 +1283,7 @@ void jit_transpose4x16_src::generate()
 }
 
 jit_trans_src_t *create_trans_src(const jit_conv_conf_t *conf) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:  jit_trans_src_t *create_trans_src(const jit_conv_conf_t *conf) {" << std::endl;
     if (conf->ver == ver_4fma && !conf->is_1stconv)
         return new jit_trans_iw_ic_t(conf);
     if ((conf->ver == ver_4vnni || conf->ver == ver_vnni) && !conf->is_1stconv)
@@ -1200,6 +1295,7 @@ jit_trans_src_t *create_trans_src(const jit_conv_conf_t *conf) {
 }
 
 jit_trans_dst_t *create_trans_dst(const jit_conv_conf_t *conf) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_transpose_src_utils.cpp:  jit_trans_dst_t *create_trans_dst(const jit_conv_conf_t *conf) {" << std::endl;
     if (conf->ver == ver_4vnni || conf->ver == ver_vnni)
         return new jit_trans_ow_oc_t(conf);
     assert(!"unsupported configuration");

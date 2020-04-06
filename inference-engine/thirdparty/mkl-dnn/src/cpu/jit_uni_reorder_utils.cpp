@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -47,6 +48,7 @@ struct layout_desc_t {
 
 status_t cvt_mem_desc_to_layout_desc(const memory_desc_t &md_,
         layout_desc_t &ld) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:          layout_desc_t &ld) {" << std::endl;
     using namespace mkldnn::impl::memory_format;
     using namespace mkldnn::impl::data_type;
 
@@ -57,6 +59,7 @@ status_t cvt_mem_desc_to_layout_desc(const memory_desc_t &md_,
     ld.dt = md.data_type();
 
     auto P = [&ld](int id, int dim, ptrdiff_t stride) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:      auto P = [&ld](int id, int dim, ptrdiff_t stride) {" << std::endl;
         assert((size_t)ld.ndims < sizeof(ld.dims) / sizeof(ld.dims[0]));
         ld.id[ld.ndims] = id;
         ld.dims[ld.ndims] = dim;
@@ -66,6 +69,7 @@ status_t cvt_mem_desc_to_layout_desc(const memory_desc_t &md_,
 
     /* special cases */
     switch (md.format()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:      switch (md.format()) {" << std::endl;
     case memory_format::undef:
     case memory_format::any:
     case hwio_s8s8:
@@ -197,6 +201,7 @@ status_t cvt_mem_desc_to_layout_desc(const memory_desc_t &md_,
 
     /* regular blocked format */
     for (int d = 0; d < md.ndims(); ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:      for (int d = 0; d < md.ndims(); ++d) {" << std::endl;
         P(d, bd.padding_dims[d] / bd.block_dims[d], bd.strides[0][d]);
         if (bd.block_dims[d] != 1)
             P(d, bd.block_dims[d], bd.strides[1][d]);
@@ -207,6 +212,7 @@ status_t cvt_mem_desc_to_layout_desc(const memory_desc_t &md_,
 
 status_t prb_init(prb_t &p, const memory_desc_t &imd, const memory_desc_t &omd,
         const primitive_attr_t *attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:          const primitive_attr_t *attr) {" << std::endl;
     auto im_d = memory_desc_wrapper(imd);
     auto om_d = memory_desc_wrapper(omd);
 
@@ -220,6 +226,7 @@ status_t prb_init(prb_t &p, const memory_desc_t &imd, const memory_desc_t &omd,
 
     /* padding_dim consistency check */
     for (int d = 0; d < im_d.ndims(); ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:      for (int d = 0; d < im_d.ndims(); ++d) {" << std::endl;
         const auto pdim = im_d.blocking_desc().padding_dims[d];
         bool ok = true
             && pdim == om_d.blocking_desc().padding_dims[d]
@@ -245,11 +252,14 @@ status_t prb_init(prb_t &p, const memory_desc_t &imd, const memory_desc_t &omd,
 
     ptrdiff_t ss[max_ndims] = {0};
     if (p.scale_type == scale_type_t::MANY) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:      if (p.scale_type == scale_type_t::MANY) {" << std::endl;
         ptrdiff_t last_ss = 1;
         for (int d = old.ndims - 1; d >=0; --d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:          for (int d = old.ndims - 1; d >=0; --d) {" << std::endl;
             assert((d == 0 || old.id[d - 1] <= old.id[d])
                     && "logical dimensions should be in ascending order");
             if (attr->output_scales_.mask_ & (1 << old.id[d])) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:              if (attr->output_scales_.mask_ & (1 << old.id[d])) {" << std::endl;
                 ss[d] = last_ss;
                 last_ss *= old.dims[d];
             }
@@ -262,6 +272,7 @@ status_t prb_init(prb_t &p, const memory_desc_t &imd, const memory_desc_t &omd,
     int o_pos = 0; /* state for output -- current dimension */
 
     while (i_pos < ild.ndims && o_pos < old.ndims) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:      while (i_pos < ild.ndims && o_pos < old.ndims) {" << std::endl;
         assert(ild.id[i_pos] == old.id[o_pos]);
         if (ild.id[i_pos] != old.id[o_pos])
             return runtime_error;
@@ -271,6 +282,7 @@ status_t prb_init(prb_t &p, const memory_desc_t &imd, const memory_desc_t &omd,
             return runtime_error;
 
         if (ild.dims[i_pos] == old.dims[o_pos]) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:          if (ild.dims[i_pos] == old.dims[o_pos]) {" << std::endl;
             p.nodes[ndims].n = ild.dims[i_pos];
             p.nodes[ndims].is = ild.strides[i_pos];
             p.nodes[ndims].os = old.strides[o_pos];
@@ -279,6 +291,7 @@ status_t prb_init(prb_t &p, const memory_desc_t &imd, const memory_desc_t &omd,
             ++i_pos;
             ++o_pos;
         } else if (ild.dims[i_pos] < old.dims[o_pos]) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:          } else if (ild.dims[i_pos] < old.dims[o_pos]) {" << std::endl;
             assert(old.dims[o_pos] % ild.dims[i_pos] == 0);
             int factor = old.dims[o_pos] / ild.dims[i_pos];
             p.nodes[ndims].n = ild.dims[i_pos];
@@ -289,6 +302,7 @@ status_t prb_init(prb_t &p, const memory_desc_t &imd, const memory_desc_t &omd,
             ++i_pos;
             old.dims[o_pos] = factor;
         } else if (ild.dims[i_pos] > old.dims[o_pos]) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:          } else if (ild.dims[i_pos] > old.dims[o_pos]) {" << std::endl;
             assert(ild.dims[i_pos] % old.dims[o_pos] == 0);
             int factor = ild.dims[i_pos] / old.dims[o_pos];
             p.nodes[ndims].n = old.dims[o_pos];
@@ -313,9 +327,12 @@ status_t prb_init(prb_t &p, const memory_desc_t &imd, const memory_desc_t &omd,
 }
 
 void prb_normalize(prb_t &p) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:  void prb_normalize(prb_t &p) {" << std::endl;
     for (int d = 0; d < p.ndims; ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:      for (int d = 0; d < p.ndims; ++d) {" << std::endl;
         int min_pos = d;
         for (int j = d + 1; j < p.ndims; ++j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:          for (int j = d + 1; j < p.ndims; ++j) {" << std::endl;
             bool new_min = false
                 || p.nodes[j].os < p.nodes[min_pos].os
                 || (true
@@ -329,6 +346,7 @@ void prb_normalize(prb_t &p) {
 }
 
 void prb_simplify(prb_t &p) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:  void prb_simplify(prb_t &p) {" << std::endl;
 #if defined(__GNUC__) && __GNUC__ >= 4
 /* GCC produces bogus array subscript is above array bounds warning for
  * the `p.nodes[j - 1] = p.nodes[j]` line below, so disable it for now. */
@@ -336,6 +354,7 @@ void prb_simplify(prb_t &p) {
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
     for (int d = 0; d < p.ndims - 1; ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:      for (int d = 0; d < p.ndims - 1; ++d) {" << std::endl;
         auto &this_node = p.nodes[d + 0];
         auto &next_node = p.nodes[d + 1];
         const bool fold = false
@@ -345,6 +364,7 @@ void prb_simplify(prb_t &p) {
                     && next_node.os == (ptrdiff_t)this_node.n * this_node.os
                     && next_node.ss == (ptrdiff_t)this_node.n * this_node.ss);
         if (fold) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:          if (fold) {" << std::endl;
             this_node.n *= next_node.n;
             for (int j = d + 2; j < p.ndims; ++j)
                 p.nodes[j - 1] = p.nodes[j];
@@ -358,6 +378,7 @@ void prb_simplify(prb_t &p) {
 }
 
 void prb_node_split(prb_t &p, int dim, size_t n1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:  void prb_node_split(prb_t &p, int dim, size_t n1) {" << std::endl;
     assert(dim < p.ndims);
     assert(p.ndims < max_ndims);
     assert(p.nodes[dim].n % n1 == 0);
@@ -376,6 +397,7 @@ void prb_node_split(prb_t &p, int dim, size_t n1) {
 }
 
 void prb_node_swap(prb_t &p, int d0, int d1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:  void prb_node_swap(prb_t &p, int d0, int d1) {" << std::endl;
     assert(d0 < p.ndims);
     assert(d1 < p.ndims);
     assert(p.ndims < max_ndims);
@@ -386,6 +408,7 @@ void prb_node_swap(prb_t &p, int d0, int d1) {
 }
 
 void prb_node_move(prb_t &p, int d0, int d1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:  void prb_node_move(prb_t &p, int d0, int d1) {" << std::endl;
     assert(d0 < p.ndims);
     assert(d1 < p.ndims);
     assert(p.ndims < max_ndims);
@@ -405,6 +428,7 @@ void prb_node_move(prb_t &p, int d0, int d1) {
 }
 
 void prb_dump(const prb_t &p) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder_utils.cpp:  void prb_dump(const prb_t &p) {" << std::endl;
     printf("@@@ type:%s:%s ndims:%d ", mkldnn_dt2str(p.itype),
             mkldnn_dt2str(p.otype), p.ndims);
     for (int d = 0; d < p.ndims; ++d)

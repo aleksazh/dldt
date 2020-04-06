@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -29,12 +30,14 @@ namespace mkldnn {
 namespace impl {
 
 status_t scales_t::set(int count, int mask, const float *scales) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t scales_t::set(int count, int mask, const float *scales) {" << std::endl;
     cleanup();
 
     count_ = count;
     mask_ = mask;
 
     if (count_ == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:      if (count_ == 1) {" << std::endl;
         scales_ = scales_buf_;
         utils::array_set(scales_, scales[0], scales_buf_size);
     } else {
@@ -50,12 +53,14 @@ status_t scales_t::set(int count, int mask, const float *scales) {
 }
 
 status_t shifts_t::set(int count, int mask, const int32_t *shifts) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t shifts_t::set(int count, int mask, const int32_t *shifts) {" << std::endl;
     cleanup();
 
     count_ = count;
     mask_ = mask;
 
     if (count_ == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:      if (count_ == 1) {" << std::endl;
         shifts_ = shifts_buf_;
         utils::array_set(shifts_, shifts[0], shifts_buf_size);
     } else {
@@ -72,12 +77,14 @@ status_t shifts_t::set(int count, int mask, const int32_t *shifts) {
 
 template <typename T>
 status_t zero_points_t<T>::set(int count, int mask, const T *zero_points) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t zero_points_t<T>::set(int count, int mask, const T *zero_points) {" << std::endl;
     cleanup();
 
     count_ = count;
     mask_ = mask;
 
     if (count_ == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:      if (count_ == 1) {" << std::endl;
         zero_points_ = zero_points_buf_;
         utils::array_set(zero_points_, zero_points[0], zero_points_buf_size);
     } else {
@@ -96,6 +103,7 @@ status_t zero_points_t<T>::set(int count, int mask, const T *zero_points) {
 }
 
 status_t post_ops_t::append_sum(float scale, mkldnn::impl::data_type_t data_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t post_ops_t::append_sum(float scale, mkldnn::impl::data_type_t data_type) {" << std::endl;
     if (len_ == capacity)
         return out_of_memory;
 
@@ -110,6 +118,7 @@ status_t post_ops_t::append_sum(float scale, mkldnn::impl::data_type_t data_type
 
 status_t post_ops_t::append_eltwise(float scale, alg_kind_t alg, float alpha,
         float beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          float beta) {" << std::endl;
     using namespace mkldnn::impl::alg_kind;
     bool known_alg = one_of(alg, eltwise_relu, eltwise_tanh, eltwise_elu,
             eltwise_square, eltwise_abs, eltwise_sqrt, eltwise_linear,
@@ -134,6 +143,7 @@ status_t post_ops_t::append_eltwise(float scale, alg_kind_t alg, float alpha,
 
 status_t post_ops_t::append_depthwise(alg_kind_t alg,
         const float* weights_data, const float* biases_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          const float* weights_data, const float* biases_data) {" << std::endl;
     using namespace mkldnn::impl::alg_kind;
     bool known_alg = one_of(alg, depthwise_scale_shift, depthwise_prelu);
     if (!known_alg)
@@ -156,6 +166,7 @@ status_t post_ops_t::append_dw_conv(int in_h, int in_w, int ker_h, int ker_w, in
                                     mkldnn::impl::data_type_t in_dt,
                                     const float* weights_data,
                                     const float* biases_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:                                      const float* biases_data) {" << std::endl;
     if (len_ == capacity)
         return out_of_memory;
 
@@ -176,6 +187,7 @@ status_t post_ops_t::append_dw_conv(int in_h, int in_w, int ker_h, int ker_w, in
 }
 
 status_t post_ops_t::append_binarization(alg_kind_t alg, const float* thresholds_data, const float* output_mask_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t post_ops_t::append_binarization(alg_kind_t alg, const float* thresholds_data, const float* output_mask_data) {" << std::endl;
     using namespace mkldnn::impl::alg_kind;
     bool known_alg = one_of(alg, binarization_depthwise);
     if (!known_alg)
@@ -196,6 +208,7 @@ status_t post_ops_t::append_binarization(alg_kind_t alg, const float* thresholds
 
 status_t post_ops_t::append_quantization(alg_kind_t alg, const float* crop_low_data, const float* crop_high_data,
         const float* input_scale_data, const float* input_shift_data, const float* output_scale_data, const float* output_shift_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          const float* input_scale_data, const float* input_shift_data, const float* output_scale_data, const float* output_shift_data) {" << std::endl;
     using namespace mkldnn::impl::alg_kind;
     bool known_alg = one_of(alg, quantization_quantize_dequantize, quantization_quantize);
     if (!known_alg)
@@ -219,6 +232,7 @@ status_t post_ops_t::append_quantization(alg_kind_t alg, const float* crop_low_d
 }
 
 status_t primitive_attr_t::set_round_mode(round_mode_t round_mode) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t primitive_attr_t::set_round_mode(round_mode_t round_mode) {" << std::endl;
     using namespace mkldnn::impl::round_mode;
 
     const bool ok = one_of(round_mode, nearest, down);
@@ -230,6 +244,7 @@ status_t primitive_attr_t::set_round_mode(round_mode_t round_mode) {
 }
 
 status_t primitive_attr_t::set_post_ops(const post_ops_t &post_ops) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t primitive_attr_t::set_post_ops(const post_ops_t &post_ops) {" << std::endl;
     this->post_ops_ = post_ops;
     return success;
 }
@@ -237,6 +252,7 @@ status_t primitive_attr_t::set_post_ops(const post_ops_t &post_ops) {
 /* Public C API */
 
 status_t mkldnn_primitive_attr_create(primitive_attr_t **attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t mkldnn_primitive_attr_create(primitive_attr_t **attr) {" << std::endl;
     if (attr == nullptr)
         return invalid_arguments;
 
@@ -246,6 +262,7 @@ status_t mkldnn_primitive_attr_create(primitive_attr_t **attr) {
 
 status_t mkldnn_primitive_attr_clone(primitive_attr_t **attr,
         const primitive_attr_t *existing_attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          const primitive_attr_t *existing_attr) {" << std::endl;
     if (any_null(attr, existing_attr))
         return invalid_arguments;
 
@@ -254,6 +271,7 @@ status_t mkldnn_primitive_attr_clone(primitive_attr_t **attr,
 }
 
 status_t mkldnn_primitive_attr_destroy(primitive_attr_t *attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t mkldnn_primitive_attr_destroy(primitive_attr_t *attr) {" << std::endl;
     if (attr)
         delete attr;
 
@@ -262,6 +280,7 @@ status_t mkldnn_primitive_attr_destroy(primitive_attr_t *attr) {
 
 status_t mkldnn_primitive_attr_get_int_output_round_mode(
         const primitive_attr_t *attr, round_mode_t *round_mode) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          const primitive_attr_t *attr, round_mode_t *round_mode) {" << std::endl;
     if (any_null(attr, round_mode))
         return invalid_arguments;
 
@@ -272,6 +291,7 @@ status_t mkldnn_primitive_attr_get_int_output_round_mode(
 
 status_t mkldnn_primitive_attr_set_int_output_round_mode(
         primitive_attr_t *attr, round_mode_t round_mode) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          primitive_attr_t *attr, round_mode_t round_mode) {" << std::endl;
     if (any_null(attr))
         return invalid_arguments;
 
@@ -280,6 +300,7 @@ status_t mkldnn_primitive_attr_set_int_output_round_mode(
 
 status_t mkldnn_primitive_attr_get_output_scales(const primitive_attr_t *attr,
         int *count, int *mask, const float **scales) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int *count, int *mask, const float **scales) {" << std::endl;
     if (any_null(attr, count, mask, scales))
         return invalid_arguments;
 
@@ -292,6 +313,7 @@ status_t mkldnn_primitive_attr_get_output_scales(const primitive_attr_t *attr,
 
 status_t mkldnn_primitive_attr_set_output_scales(primitive_attr_t *attr,
         int count, int mask, const float *scales) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int count, int mask, const float *scales) {" << std::endl;
     bool ok = !any_null(attr, scales) && count > 0 && mask >= 0;
     if (!ok)
         return invalid_arguments;
@@ -301,6 +323,7 @@ status_t mkldnn_primitive_attr_set_output_scales(primitive_attr_t *attr,
 
 status_t mkldnn_primitive_attr_get_output_compensations(const primitive_attr_t *attr,
         int *count, int *mask, const int32_t **compensations) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int *count, int *mask, const int32_t **compensations) {" << std::endl;
     if (any_null(attr, count, mask, compensations))
         return invalid_arguments;
 
@@ -313,6 +336,7 @@ status_t mkldnn_primitive_attr_get_output_compensations(const primitive_attr_t *
 
 status_t mkldnn_primitive_attr_set_output_compensations(primitive_attr_t *attr,
         int count, int mask, const int32_t *compensations) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int count, int mask, const int32_t *compensations) {" << std::endl;
     bool ok = !any_null(attr, compensations) && count > 0 && mask >= 0;
     if (!ok)
         return invalid_arguments;
@@ -322,6 +346,7 @@ status_t mkldnn_primitive_attr_set_output_compensations(primitive_attr_t *attr,
 
 status_t mkldnn_primitive_attr_get_input_zero_points(const primitive_attr_t *attr,
         int *count, int *mask, const uint8_t **zero_points) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int *count, int *mask, const uint8_t **zero_points) {" << std::endl;
     if (any_null(attr, count, mask, zero_points))
         return invalid_arguments;
 
@@ -334,6 +359,7 @@ status_t mkldnn_primitive_attr_get_input_zero_points(const primitive_attr_t *att
 
 status_t mkldnn_primitive_attr_set_input_zero_points(primitive_attr_t *attr,
         int count, int mask, const uint8_t *zero_points) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int count, int mask, const uint8_t *zero_points) {" << std::endl;
     bool ok = !any_null(attr, zero_points) && count > 0 && mask >= 0;
     if (!ok)
         return invalid_arguments;
@@ -343,6 +369,7 @@ status_t mkldnn_primitive_attr_set_input_zero_points(primitive_attr_t *attr,
 
 status_t mkldnn_primitive_attr_get_weights_zero_points(const primitive_attr_t *attr,
         int *count, int *mask, const float **zero_points) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int *count, int *mask, const float **zero_points) {" << std::endl;
     if (any_null(attr, count, mask, zero_points))
         return invalid_arguments;
 
@@ -355,6 +382,7 @@ status_t mkldnn_primitive_attr_get_weights_zero_points(const primitive_attr_t *a
 
 status_t mkldnn_primitive_attr_set_weights_zero_points(primitive_attr_t *attr,
         int count, int mask, const float *zero_points) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int count, int mask, const float *zero_points) {" << std::endl;
     bool ok = !any_null(attr, zero_points) && count > 0 && mask >= 0;
     if (!ok)
         return invalid_arguments;
@@ -364,6 +392,7 @@ status_t mkldnn_primitive_attr_set_weights_zero_points(primitive_attr_t *attr,
 
 status_t mkldnn_primitive_attr_get_post_ops(const primitive_attr_t *attr,
         const post_ops_t **post_ops) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          const post_ops_t **post_ops) {" << std::endl;
     if (any_null(attr, post_ops))
         return invalid_arguments;
 
@@ -373,6 +402,7 @@ status_t mkldnn_primitive_attr_get_post_ops(const primitive_attr_t *attr,
 
 status_t mkldnn_primitive_attr_set_post_ops(primitive_attr_t *attr,
         const post_ops_t *post_ops) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          const post_ops_t *post_ops) {" << std::endl;
     if (any_null(attr, post_ops))
         return invalid_arguments;
 
@@ -380,6 +410,7 @@ status_t mkldnn_primitive_attr_set_post_ops(primitive_attr_t *attr,
 }
 
 status_t mkldnn_post_ops_create(post_ops_t **post_ops) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t mkldnn_post_ops_create(post_ops_t **post_ops) {" << std::endl;
     if (post_ops == nullptr)
         return invalid_arguments;
 
@@ -387,6 +418,7 @@ status_t mkldnn_post_ops_create(post_ops_t **post_ops) {
 }
 
 status_t mkldnn_post_ops_destroy(post_ops_t *post_ops) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t mkldnn_post_ops_destroy(post_ops_t *post_ops) {" << std::endl;
     if (post_ops)
         delete post_ops;
 
@@ -394,6 +426,7 @@ status_t mkldnn_post_ops_destroy(post_ops_t *post_ops) {
 }
 
 int mkldnn_post_ops_len(const post_ops_t *post_ops) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  int mkldnn_post_ops_len(const post_ops_t *post_ops) {" << std::endl;
     if (post_ops)
         return post_ops->len_;
 
@@ -402,6 +435,7 @@ int mkldnn_post_ops_len(const post_ops_t *post_ops) {
 
 primitive_kind_t mkldnn_post_ops_get_kind(const post_ops_t *post_ops,
         int index) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int index) {" << std::endl;
     bool ok = post_ops && 0 <= index && index < post_ops->len_;
     if (!ok)
         return primitive_kind::undefined;
@@ -410,6 +444,7 @@ primitive_kind_t mkldnn_post_ops_get_kind(const post_ops_t *post_ops,
 }
 
 status_t mkldnn_post_ops_append_sum(post_ops_t *post_ops, float scale, mkldnn::impl::data_type_t data_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:  status_t mkldnn_post_ops_append_sum(post_ops_t *post_ops, float scale, mkldnn::impl::data_type_t data_type) {" << std::endl;
     if (post_ops == nullptr)
         return invalid_arguments;
 
@@ -419,6 +454,7 @@ status_t mkldnn_post_ops_append_sum(post_ops_t *post_ops, float scale, mkldnn::i
 namespace {
 bool simple_get_params_check(const post_ops_t *post_ops, int index,
         primitive_kind_t kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          primitive_kind_t kind) {" << std::endl;
     bool ok = true
         && post_ops != nullptr
         && 0 <= index
@@ -430,6 +466,7 @@ bool simple_get_params_check(const post_ops_t *post_ops, int index,
 
 status_t mkldnn_post_ops_get_params_sum(const post_ops_t *post_ops, int index,
         float *scale, mkldnn_data_type_t *data_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          float *scale, mkldnn_data_type_t *data_type) {" << std::endl;
     bool ok = true
         && simple_get_params_check(post_ops, index, primitive_kind::sum)
         && !any_null(scale);
@@ -443,6 +480,7 @@ status_t mkldnn_post_ops_get_params_sum(const post_ops_t *post_ops, int index,
 
 status_t mkldnn_post_ops_append_eltwise(post_ops_t *post_ops, float scale,
         alg_kind_t kind, float alpha, float beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          alg_kind_t kind, float alpha, float beta) {" << std::endl;
     if (post_ops == nullptr)
         return invalid_arguments;
 
@@ -451,6 +489,7 @@ status_t mkldnn_post_ops_append_eltwise(post_ops_t *post_ops, float scale,
 
 status_t mkldnn_post_ops_get_params_eltwise(const post_ops_t *post_ops,
         int index, float *scale, alg_kind_t *alg, float *alpha, float *beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int index, float *scale, alg_kind_t *alg, float *alpha, float *beta) {" << std::endl;
     bool ok = true
         && simple_get_params_check(post_ops, index, primitive_kind::eltwise)
         && !any_null(scale, alpha, beta);
@@ -468,6 +507,7 @@ status_t mkldnn_post_ops_get_params_eltwise(const post_ops_t *post_ops,
 
 status_t mkldnn_primitive_attr_set_rnn_data_qparams(
         primitive_attr_t *attr, const float scale, const float shift) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          primitive_attr_t *attr, const float scale, const float shift) {" << std::endl;
     if (attr == nullptr)
         return invalid_arguments;
 
@@ -476,6 +516,7 @@ status_t mkldnn_primitive_attr_set_rnn_data_qparams(
 
 status_t mkldnn_primitive_attr_set_rnn_weights_qparams(
         primitive_attr_t *attr, int count, int mask, const float *scales) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          primitive_attr_t *attr, int count, int mask, const float *scales) {" << std::endl;
     bool ok = !any_null(attr, scales) && count > 0 && mask >= 0;
     if (!ok)
         return invalid_arguments;
@@ -485,6 +526,7 @@ status_t mkldnn_primitive_attr_set_rnn_weights_qparams(
 
 status_t mkldnn_post_ops_append_depthwise(post_ops_t *post_ops,
         alg_kind_t kind, const float* weights_data, const float* biases_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          alg_kind_t kind, const float* weights_data, const float* biases_data) {" << std::endl;
     if (post_ops == nullptr)
         return invalid_arguments;
 
@@ -493,6 +535,7 @@ status_t mkldnn_post_ops_append_depthwise(post_ops_t *post_ops,
 
 status_t mkldnn_post_ops_get_params_depthwise(const post_ops_t *post_ops,
         int index, alg_kind_t *alg, const float** weights_data, const float** biases_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          int index, alg_kind_t *alg, const float** weights_data, const float** biases_data) {" << std::endl;
     bool ok = true
         && simple_get_params_check(post_ops, index, primitive_kind::depthwise)
         && !any_null(alg, weights_data, biases_data);
@@ -512,6 +555,7 @@ status_t mkldnn_post_ops_append_dw_conv(post_ops_t *post_ops,
                                         mkldnn::impl::data_type_t in_dt,
                                         const float* weights_data,
                                         const float* biases_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:                                          const float* biases_data) {" << std::endl;
     if (post_ops == nullptr)
         return invalid_arguments;
 
@@ -523,6 +567,7 @@ status_t mkldnn_post_ops_get_params_dw_conv(const post_ops_t *post_ops,
                                             mkldnn::impl::data_type_t* in_dt,
                                             const float** weights_data,
                                             const float** biases_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:                                              const float** biases_data) {" << std::endl;
     bool ok = true
               && simple_get_params_check(post_ops, index, primitive_kind::convolution)
               && !any_null(in_h, in_w, ker_h, ker_w, str_h, str_w, in_dt, weights_data, biases_data);
@@ -545,6 +590,7 @@ status_t mkldnn_post_ops_get_params_dw_conv(const post_ops_t *post_ops,
 
 status_t mkldnn_post_ops_append_binarization(post_ops_t *post_ops, alg_kind_t kind, const float* weights_data,
         const float* output_mask_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          const float* output_mask_data) {" << std::endl;
     if (post_ops == nullptr)
         return invalid_arguments;
 
@@ -553,6 +599,7 @@ status_t mkldnn_post_ops_append_binarization(post_ops_t *post_ops, alg_kind_t ki
 
 status_t mkldnn_post_ops_get_params_binarization(const post_ops_t *post_ops, int index, alg_kind_t *alg,
         const float** thresholds_data, const float** output_mask_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          const float** thresholds_data, const float** output_mask_data) {" << std::endl;
     bool ok = true
         && simple_get_params_check(post_ops, index, primitive_kind::binarization)
         && !any_null(alg, thresholds_data, output_mask_data);
@@ -569,6 +616,7 @@ status_t mkldnn_post_ops_get_params_binarization(const post_ops_t *post_ops, int
 
 status_t mkldnn_post_ops_append_quantization(post_ops_t *post_ops, alg_kind_t kind, const float* crop_low_data, const float* crop_high_data,
         const float* input_scale_data, const float* input_shift_data, const float* output_scale_data, const float* output_shift_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          const float* input_scale_data, const float* input_shift_data, const float* output_scale_data, const float* output_shift_data) {" << std::endl;
     if (post_ops == nullptr)
         return invalid_arguments;
 
@@ -577,6 +625,7 @@ status_t mkldnn_post_ops_append_quantization(post_ops_t *post_ops, alg_kind_t ki
 
 status_t mkldnn_post_ops_get_params_quantization(const post_ops_t *post_ops, int index, alg_kind_t *alg, const float** crop_low_data, const float** crop_high_data,
         const float** input_scale_data, const float** input_shift_data, const float** output_scale_data, const float** output_shift_data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_attr.cpp:          const float** input_scale_data, const float** input_shift_data, const float** output_scale_data, const float** output_shift_data) {" << std::endl;
     bool ok = true
               && simple_get_params_check(post_ops, index, primitive_kind::quantization)
               && !any_null(alg, crop_low_data, crop_high_data, input_scale_data, input_shift_data, output_scale_data, output_shift_data);

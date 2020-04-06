@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -15,6 +16,7 @@ namespace InferenceEngine {
 //------------------------------------------------------------------------
 
 static inline void mm_load_deinterleave(const uint8_t* ptr, __m128i& a, __m128i& b, __m128i& c) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:  static inline void mm_load_deinterleave(const uint8_t* ptr, __m128i& a, __m128i& b, __m128i& c) {" << std::endl;
     const __m128i m0 = _mm_setr_epi8(0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0);
     const __m128i m1 = _mm_setr_epi8(0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0);
     __m128i s0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(ptr));
@@ -35,6 +37,7 @@ static inline void mm_load_deinterleave(const uint8_t* ptr, __m128i& a, __m128i&
 }
 
 static inline void mm_load_deinterleave(const float* ptr, __m128& a, __m128& b, __m128& c) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:  static inline void mm_load_deinterleave(const float* ptr, __m128& a, __m128& b, __m128& c) {" << std::endl;
     __m128 t0 = _mm_loadu_ps(ptr + 0);
     __m128 t1 = _mm_loadu_ps(ptr + 4);
     __m128 t2 = _mm_loadu_ps(ptr + 8);
@@ -51,6 +54,7 @@ static inline void mm_load_deinterleave(const float* ptr, __m128& a, __m128& b, 
 }
 
 static inline void mm_store_interleave(uint8_t* ptr, __m128i a, __m128i b, __m128i c) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:  static inline void mm_store_interleave(uint8_t* ptr, __m128i a, __m128i b, __m128i c) {" << std::endl;
     const __m128i sh_a = _mm_setr_epi8(0, 11, 6, 1, 12, 7, 2, 13, 8, 3, 14, 9, 4, 15, 10, 5);
     const __m128i sh_b = _mm_setr_epi8(5, 0, 11, 6, 1, 12, 7, 2, 13, 8, 3, 14, 9, 4, 15, 10);
     const __m128i sh_c = _mm_setr_epi8(10, 5, 0, 11, 6, 1, 12, 7, 2, 13, 8, 3, 14, 9, 4, 15);
@@ -70,6 +74,7 @@ static inline void mm_store_interleave(uint8_t* ptr, __m128i a, __m128i b, __m12
 }
 
 static inline void mm_store_interleave(float* ptr, __m128 a, __m128 b, __m128 c) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:  static inline void mm_store_interleave(float* ptr, __m128 a, __m128 b, __m128 c) {" << std::endl;
     __m128 u0 = _mm_shuffle_ps(a, b, _MM_SHUFFLE(0, 0, 0, 0));
     __m128 u1 = _mm_shuffle_ps(c, a, _MM_SHUFFLE(1, 1, 0, 0));
     __m128 v0 = _mm_shuffle_ps(u0, u1, _MM_SHUFFLE(2, 0, 2, 0));
@@ -93,8 +98,10 @@ static inline void mm_store_interleave(float* ptr, __m128 a, __m128 b, __m128 c)
 
 void blob_copy_4d_split_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_src_stride, size_t H_src_stride,
                              size_t N_dst_stride, size_t H_dst_stride, size_t C_dst_stride, int N, int H, int W) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                               size_t N_dst_stride, size_t H_dst_stride, size_t C_dst_stride, int N, int H, int W) {" << std::endl;
     for (int n = 0; n < N; n++)
         for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:          for (int h = 0; h < H; h++) {" << std::endl;
             const uint8_t* src = src_ptr + n * N_src_stride + h * H_src_stride;
             uint8_t* dst0 = dst_ptr + n * N_dst_stride + 0 * C_dst_stride + h * H_dst_stride;
             uint8_t* dst1 = dst_ptr + n * N_dst_stride + 1 * C_dst_stride + h * H_dst_stride;
@@ -104,6 +111,7 @@ void blob_copy_4d_split_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
 
             // SIMD128 manually
             for (; w < W - 16; w += 16) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (; w < W - 16; w += 16) {" << std::endl;
                 __m128i r0, r1, r2;
                 mm_load_deinterleave(&src[3 * w], r0, r1, r2);
                 _mm_storeu_si128(reinterpret_cast<__m128i*>(dst0 + w), r0);
@@ -112,6 +120,7 @@ void blob_copy_4d_split_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
             }
 
             for (; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (; w < W; w++) {" << std::endl;
                 dst0[w] = src[3 * w + 0];
                 dst1[w] = src[3 * w + 1];
                 dst2[w] = src[3 * w + 2];
@@ -121,8 +130,10 @@ void blob_copy_4d_split_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
 
 void blob_copy_4d_split_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src_stride, size_t H_src_stride,
                               size_t N_dst_stride, size_t H_dst_stride, size_t C_dst_stride, int N, int H, int W) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                                size_t N_dst_stride, size_t H_dst_stride, size_t C_dst_stride, int N, int H, int W) {" << std::endl;
     for (int n = 0; n < N; n++)
         for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:          for (int h = 0; h < H; h++) {" << std::endl;
             const float* src = src_ptr + n * N_src_stride + h * H_src_stride;
             float* dst0 = dst_ptr + n * N_dst_stride + 0 * C_dst_stride + h * H_dst_stride;
             float* dst1 = dst_ptr + n * N_dst_stride + 1 * C_dst_stride + h * H_dst_stride;
@@ -132,6 +143,7 @@ void blob_copy_4d_split_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
 
             // SIMD128 manually
             for (; w < W - 4; w += 4) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (; w < W - 4; w += 4) {" << std::endl;
                 __m128 r0, r1, r2;
                 mm_load_deinterleave(&src[3 * w], r0, r1, r2);
                 _mm_storeu_ps(&dst0[w], r0);
@@ -140,6 +152,7 @@ void blob_copy_4d_split_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
             }
 
             for (; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (; w < W; w++) {" << std::endl;
                 dst0[w] = src[3 * w + 0];
                 dst1[w] = src[3 * w + 1];
                 dst2[w] = src[3 * w + 2];
@@ -149,8 +162,10 @@ void blob_copy_4d_split_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
 
 void blob_copy_4d_merge_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_src_stride, size_t H_src_stride,
                              size_t C_src_stride, size_t N_dst_stride, size_t H_dst_stride, int N, int H, int W) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                               size_t C_src_stride, size_t N_dst_stride, size_t H_dst_stride, int N, int H, int W) {" << std::endl;
     for (int n = 0; n < N; n++)
         for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:          for (int h = 0; h < H; h++) {" << std::endl;
             const uint8_t* src0 = src_ptr + n * N_src_stride + 0 * C_src_stride + h * H_src_stride;
             const uint8_t* src1 = src_ptr + n * N_src_stride + 1 * C_src_stride + h * H_src_stride;
             const uint8_t* src2 = src_ptr + n * N_src_stride + 2 * C_src_stride + h * H_src_stride;
@@ -161,6 +176,7 @@ void blob_copy_4d_merge_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
 
             // SIMD128 manually
             for (; w < W - 16; w += 16) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (; w < W - 16; w += 16) {" << std::endl;
                 __m128i r0, r1, r2;
                 r0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(src0 + w));
                 r1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(src1 + w));
@@ -169,6 +185,7 @@ void blob_copy_4d_merge_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
             }
 
             for (; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (; w < W; w++) {" << std::endl;
                 dst[3 * w + 0] = src0[w];
                 dst[3 * w + 1] = src1[w];
                 dst[3 * w + 2] = src2[w];
@@ -178,8 +195,10 @@ void blob_copy_4d_merge_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
 
 void blob_copy_4d_merge_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src_stride, size_t H_src_stride,
                               size_t C_src_stride, size_t N_dst_stride, size_t H_dst_stride, int N, int H, int W) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                                size_t C_src_stride, size_t N_dst_stride, size_t H_dst_stride, int N, int H, int W) {" << std::endl;
     for (int n = 0; n < N; n++)
         for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:          for (int h = 0; h < H; h++) {" << std::endl;
             const float* src0 = src_ptr + n * N_src_stride + 0 * C_src_stride + h * H_src_stride;
             const float* src1 = src_ptr + n * N_src_stride + 1 * C_src_stride + h * H_src_stride;
             const float* src2 = src_ptr + n * N_src_stride + 2 * C_src_stride + h * H_src_stride;
@@ -190,6 +209,7 @@ void blob_copy_4d_merge_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
 
             // SIMD128 manually
             for (; w < W - 4; w += 4) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (; w < W - 4; w += 4) {" << std::endl;
                 __m128 r0, r1, r2;
                 r0 = _mm_loadu_ps(&src0[w]);
                 r1 = _mm_loadu_ps(&src1[w]);
@@ -198,6 +218,7 @@ void blob_copy_4d_merge_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
             }
 
             for (; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (; w < W; w++) {" << std::endl;
                 dst[3 * w + 0] = src0[w];
                 dst[3 * w + 1] = src1[w];
                 dst[3 * w + 2] = src2[w];
@@ -208,9 +229,12 @@ void blob_copy_4d_merge_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
 void blob_copy_5d_split_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_src_stride, size_t D_src_stride,
                              size_t H_src_stride, size_t N_dst_stride, size_t D_dst_stride, size_t H_dst_stride,
                              size_t C_dst_stride, int N, int D, int H, int W) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                               size_t C_dst_stride, int N, int D, int H, int W) {" << std::endl;
     for (int n = 0; n < N; n++)
         for (int d = 0; d < D; d++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:          for (int d = 0; d < D; d++) {" << std::endl;
             for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (int h = 0; h < H; h++) {" << std::endl;
                 const uint8_t* src = src_ptr + n * N_src_stride + d * D_src_stride + h * H_src_stride;
                 uint8_t* dst0 = dst_ptr + n * N_dst_stride + d * D_dst_stride + 0 * C_dst_stride + h * H_dst_stride;
                 uint8_t* dst1 = dst_ptr + n * N_dst_stride + d * D_dst_stride + 1 * C_dst_stride + h * H_dst_stride;
@@ -220,6 +244,7 @@ void blob_copy_5d_split_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
 
                 // SIMD128 manually
                 for (; w < W - 16; w += 16) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                  for (; w < W - 16; w += 16) {" << std::endl;
                     __m128i r0, r1, r2;
                     mm_load_deinterleave(&src[3 * w], r0, r1, r2);
                     _mm_storeu_si128(reinterpret_cast<__m128i*>(dst0 + w), r0);
@@ -228,6 +253,7 @@ void blob_copy_5d_split_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
                 }
 
                 for (; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                  for (; w < W; w++) {" << std::endl;
                     dst0[w] = src[3 * w + 0];
                     dst1[w] = src[3 * w + 1];
                     dst2[w] = src[3 * w + 2];
@@ -239,9 +265,12 @@ void blob_copy_5d_split_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
 void blob_copy_5d_split_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src_stride, size_t D_src_stride,
                               size_t H_src_stride, size_t N_dst_stride, size_t D_dst_stride, size_t H_dst_stride,
                               size_t C_dst_stride, int N, int D, int H, int W) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                                size_t C_dst_stride, int N, int D, int H, int W) {" << std::endl;
     for (int n = 0; n < N; n++)
         for (int d = 0; d < D; d++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:          for (int d = 0; d < D; d++) {" << std::endl;
             for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (int h = 0; h < H; h++) {" << std::endl;
                 const float* src = src_ptr + n * N_src_stride + d * D_src_stride + h * H_src_stride;
                 float* dst0 = dst_ptr + n * N_dst_stride + d * D_dst_stride + 0 * C_dst_stride + h * H_dst_stride;
                 float* dst1 = dst_ptr + n * N_dst_stride + d * D_dst_stride + 1 * C_dst_stride + h * H_dst_stride;
@@ -251,6 +280,7 @@ void blob_copy_5d_split_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
 
                 // SIMD128 manually
                 for (; w < W - 4; w += 4) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                  for (; w < W - 4; w += 4) {" << std::endl;
                     __m128 r0, r1, r2;
                     mm_load_deinterleave(&src[3 * w], r0, r1, r2);
                     _mm_storeu_ps(&dst0[w], r0);
@@ -259,6 +289,7 @@ void blob_copy_5d_split_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
                 }
 
                 for (; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                  for (; w < W; w++) {" << std::endl;
                     dst0[w] = src[3 * w + 0];
                     dst1[w] = src[3 * w + 1];
                     dst2[w] = src[3 * w + 2];
@@ -270,9 +301,12 @@ void blob_copy_5d_split_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
 void blob_copy_5d_merge_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_src_stride, size_t D_src_stride,
                              size_t H_src_stride, size_t C_src_stride, size_t N_dst_stride, size_t D_dst_stride,
                              size_t H_dst_stride, int N, int D, int H, int W) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                               size_t H_dst_stride, int N, int D, int H, int W) {" << std::endl;
     for (int n = 0; n < N; n++)
         for (int d = 0; d < D; d++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:          for (int d = 0; d < D; d++) {" << std::endl;
             for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (int h = 0; h < H; h++) {" << std::endl;
                 const uint8_t* src0 =
                     src_ptr + n * N_src_stride + 0 * C_src_stride + d * D_src_stride + h * H_src_stride;
                 const uint8_t* src1 =
@@ -286,6 +320,7 @@ void blob_copy_5d_merge_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
 
                 // SIMD128 manually
                 for (; w < W - 16; w += 16) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                  for (; w < W - 16; w += 16) {" << std::endl;
                     __m128i r0, r1, r2;
                     r0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(src0 + w));
                     r1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(src1 + w));
@@ -294,6 +329,7 @@ void blob_copy_5d_merge_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
                 }
 
                 for (; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                  for (; w < W; w++) {" << std::endl;
                     dst[3 * w + 0] = src0[w];
                     dst[3 * w + 1] = src1[w];
                     dst[3 * w + 2] = src2[w];
@@ -305,9 +341,12 @@ void blob_copy_5d_merge_u8c3(const uint8_t* src_ptr, uint8_t* dst_ptr, size_t N_
 void blob_copy_5d_merge_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src_stride, size_t D_src_stride,
                               size_t H_src_stride, size_t C_src_stride, size_t N_dst_stride, size_t D_dst_stride,
                               size_t H_dst_stride, int N, int D, int H, int W) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                                size_t H_dst_stride, int N, int D, int H, int W) {" << std::endl;
     for (int n = 0; n < N; n++)
         for (int d = 0; d < D; d++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:          for (int d = 0; d < D; d++) {" << std::endl;
             for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:              for (int h = 0; h < H; h++) {" << std::endl;
                 const float* src0 = src_ptr + n * N_src_stride + 0 * C_src_stride + d * D_src_stride + h * H_src_stride;
                 const float* src1 = src_ptr + n * N_src_stride + 1 * C_src_stride + d * D_src_stride + h * H_src_stride;
                 const float* src2 = src_ptr + n * N_src_stride + 2 * C_src_stride + d * D_src_stride + h * H_src_stride;
@@ -318,6 +357,7 @@ void blob_copy_5d_merge_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
 
                 // SIMD128 manually
                 for (; w < W - 4; w += 4) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                  for (; w < W - 4; w += 4) {" << std::endl;
                     __m128 r0, r1, r2;
                     r0 = _mm_loadu_ps(&src0[w]);
                     r1 = _mm_loadu_ps(&src1[w]);
@@ -326,6 +366,7 @@ void blob_copy_5d_merge_f32c3(const float* src_ptr, float* dst_ptr, size_t N_src
                 }
 
                 for (; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_x86_sse42/blob_transform_sse42.cpp:                  for (; w < W; w++) {" << std::endl;
                     dst[3 * w + 0] = src0[w];
                     dst[3 * w + 1] = src1[w];
                     dst[3 * w + 2] = src2[w];

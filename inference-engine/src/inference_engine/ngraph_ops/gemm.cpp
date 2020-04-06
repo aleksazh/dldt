@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -15,6 +16,7 @@ constexpr NodeTypeInfo op::GemmIE::type_info;
 op::GemmIE::GemmIE(const Output<Node>& A, const Output<Node>& B, const bool& transpose_a, const bool& transpose_b,
                    const Shape& output_shape)
     : Op({A, B}), m_transpose_a(transpose_a), m_transpose_b(transpose_b), m_output_shape(output_shape) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/gemm.cpp:      : Op({A, B}), m_transpose_a(transpose_a), m_transpose_b(transpose_b), m_output_shape(output_shape) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
@@ -24,5 +26,6 @@ shared_ptr<Node> op::GemmIE::copy_with_new_args(const NodeVector& new_args) cons
 }
 
 void op::GemmIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/gemm.cpp:  void op::GemmIE::validate_and_infer_types() {" << std::endl;
     set_output_type(0, get_input_element_type(0), m_output_shape);
 }

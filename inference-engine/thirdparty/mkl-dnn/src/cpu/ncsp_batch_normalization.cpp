@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -51,12 +52,14 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
 
     acc_data_t *mean, *variance;
     if (!calculate_stats) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:      if (!calculate_stats) {" << std::endl;
         mean = reinterpret_cast<acc_data_t *>(
                 const_cast<char *>(this->input_memory(1)));
         variance = reinterpret_cast<acc_data_t *>(
                 const_cast<char *>(this->input_memory(2)));
     } else {
         if (save_stats) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:          if (save_stats) {" << std::endl;
             mean = reinterpret_cast<acc_data_t *>(this->memory(1));
             variance = reinterpret_cast<acc_data_t *>(this->memory(2));
         } else {
@@ -75,7 +78,8 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
     const bool use_scaleshift = pd()->use_scaleshift();
     const bool with_relu = pd()->with_relu_post_op();
     auto maybe_post_op
-            = [&](acc_data_t res) { return (with_relu && res < 0) ? 0 : res; };
+            = [&](acc_data_t res) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:              = [&](acc_data_t res) {" << std::endl; return (with_relu && res < 0) ? 0 : res; };
     const bool has_spatial = utils::one_of(pd()->ndims(), 4, 5);
     int SP = (has_spatial) ? pd()->H() * pd()->W() * pd()->D() : 1;
     const int simd_w = 16;
@@ -89,11 +93,13 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
     bool do_blocking = (data_size >= l3_size_ / 2 && l3_size_ > 0);
 
     parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:      parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {" << std::endl;
         int C_blks_per_iter = 1, iters = 1;
         int C_ithr = 0, C_nthr = 0, N_ithr = 0, N_nthr = 0, N_s = 0, N_e = 0;
         int S_ithr = 0, S_nthr = 0, S_s = 0, S_e = 0;
         int C_blk_gl_s = 0, C_blk_gl_e = 0, C_blk_s = 0, C_blk_e = 0;
         if (do_blocking) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:          if (do_blocking) {" << std::endl;
             size_t working_set_size = N * SP * sizeof(data_t);
             bnorm_utils::cache_balance(
                     working_set_size, C, C_blks_per_iter, iters);
@@ -109,7 +115,9 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
         int SP_N_nthr = N_nthr * S_nthr;
 
         for (int it = 0; it < iters; ++it) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:          for (int it = 0; it < iters; ++it) {" << std::endl;
             if (it == iters - 1 && iters > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:              if (it == iters - 1 && iters > 1) {" << std::endl;
                 // On the last iteration the access pattern to ws_reduce
                 // might change (due to re-balance on C). So sync the
                 // threads if they are not synced by the algorithm.
@@ -133,15 +141,19 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
             size_t ws_iter_off = (mkldnn_thr_syncable() ? 0 : 1) * C_off;
 
             if (calculate_stats) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:              if (calculate_stats) {" << std::endl;
                 acc_data_t *mean_blk = mean + C_off;
                 acc_data_t *variance_blk = variance + C_off;
                 for (dim_t c = C_blk_s; c < C_blk_e; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                  for (dim_t c = C_blk_s; c < C_blk_e; c++) {" << std::endl;
                     size_t off = (c + C_off) * SP;
                     acc_data_t sum = 0;
                     for (dim_t n = N_s; n < N_e; ++n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                      for (dim_t n = N_s; n < N_e; ++n) {" << std::endl;
                         const acc_data_t *_src;
                         size_t soff = off + n * C * SP;
                         if (data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                          if (data_type == data_type::bf16) {" << std::endl;
                             // convert src from b16 to f32
                             acc_data_t *tmp_src = tmp_data_ + ithr * SP_cl_align;
                             bf16_cvt_utils::cvt_bfloat16_to_float(tmp_src,
@@ -153,6 +165,7 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
                         }
                         PRAGMA_OMP_SIMD(reduction(+ : sum))
                         for (dim_t sp = S_s; sp < S_e; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                          for (dim_t sp = S_s; sp < S_e; ++sp) {" << std::endl;
                             sum += _src[sp];
                         }
                     }
@@ -163,6 +176,7 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
                 if (SP_N_nthr > 1) mkldnn_thr_barrier();
 
                 for (int c = C_blk_gl_s; c < C_blk_gl_e; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                  for (int c = C_blk_gl_s; c < C_blk_gl_e; c++) {" << std::endl;
                     mean_blk[c] = 0.;
                     for (int n = 0; n < SP_N_nthr; n++)
                         mean_blk[c] += ws_reduce[ws_iter_off
@@ -173,12 +187,15 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
                 if (SP_N_nthr > 1) mkldnn_thr_barrier();
 
                 for (int c = C_blk_s; c < C_blk_e; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                  for (int c = C_blk_s; c < C_blk_e; c++) {" << std::endl;
                     size_t off = c + C_off;
                     acc_data_t sum = 0.;
                     for (int n = N_s; n < N_e; ++n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                      for (int n = N_s; n < N_e; ++n) {" << std::endl;
                         const acc_data_t *_src;
                         size_t soff = off * SP + n * C * SP;
                         if (data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                          if (data_type == data_type::bf16) {" << std::endl;
                             // convert src from b16 to f32
                             acc_data_t *tmp_src = tmp_data_ + ithr * SP_cl_align;
                             bf16_cvt_utils::cvt_bfloat16_to_float(tmp_src,
@@ -190,6 +207,7 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
                         }
                         PRAGMA_OMP_SIMD(reduction(+ : sum))
                         for (int sp = S_s; sp < S_e; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                          for (int sp = S_s; sp < S_e; ++sp) {" << std::endl;
                             acc_data_t m = _src[sp] - mean[off];
                             sum += m * m;
                         }
@@ -201,6 +219,7 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
                 if (SP_N_nthr > 1) mkldnn_thr_barrier();
 
                 for (int c = C_blk_gl_s; c < C_blk_gl_e; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                  for (int c = C_blk_gl_s; c < C_blk_gl_e; c++) {" << std::endl;
                     variance_blk[c] = 0.;
                     for (int n = 0; n < SP_N_nthr; n++)
                         variance_blk[c] += ws_reduce[ws_iter_off
@@ -212,16 +231,19 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
             }
 
             for (int c = C_blk_s; c < C_blk_e; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:              for (int c = C_blk_s; c < C_blk_e; c++) {" << std::endl;
                 size_t off = c + C_off;
                 acc_data_t sqrt_variance
                         = static_cast<acc_data_t>(sqrtf(variance[off] + eps));
                 acc_data_t sm = (use_scaleshift ? scaleshift[off] : 1.0f) / sqrt_variance;
                 acc_data_t sv = use_scaleshift ? scaleshift[C + off] : 0;
                 for (int n = N_s; n < N_e; ++n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                  for (int n = N_s; n < N_e; ++n) {" << std::endl;
                     acc_data_t *_dst;
                     const acc_data_t *_src;
                     size_t s_off = off * SP + n * C * SP;
                     if (data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                      if (data_type == data_type::bf16) {" << std::endl;
                         // store dst to f32 buffer
                         _dst = tmp_data_ + ithr * SP_cl_align;
                         // convert src from b16 to f32
@@ -238,10 +260,13 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
                     PRAGMA_OMP_SIMD()
 #endif
                     for (int sp = S_s; sp < S_e; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                      for (int sp = S_s; sp < S_e; ++sp) {" << std::endl;
                         size_t d_off = s_off + sp;
                         acc_data_t bn_res = sm * (_src[sp] - mean[off]) + sv;
                         if (fuse_bn_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                          if (fuse_bn_relu) {" << std::endl;
                             if (bn_res <= 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                              if (bn_res <= 0) {" << std::endl;
                                 bn_res = 0;
                                 if (is_training)
                                     ws[d_off] = 0;
@@ -253,6 +278,7 @@ void ncsp_batch_normalization_fwd_t<data_type>::execute_forward() const {
                         _dst[sp] = maybe_post_op(bn_res);
                     }
                     if (data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                      if (data_type == data_type::bf16) {" << std::endl;
                         // convert dst from f32 to b16
                         bf16_cvt_utils::cvt_float_to_bfloat16(
                                 (mkldnn_bfloat16_t *)dst + s_off, _dst,
@@ -303,11 +329,13 @@ void ncsp_batch_normalization_bwd_t<data_type>::execute_backward() const {
     bool do_blocking = (data_size >= l3_size_ / 2 && l3_size_ > 0);
 
     parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:      parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {" << std::endl;
         int C_blks_per_iter = 1, iters = 1;
         int C_ithr = 0, C_nthr = 0, N_ithr = 0, N_nthr = 0, N_s = 0, N_e = 0;
         int S_ithr = 0, S_nthr = 0, S_s = 0, S_e = 0;
         int C_blk_gl_s = 0, C_blk_gl_e = 0, C_blk_s = 0, C_blk_e = 0;
         if (do_blocking) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:          if (do_blocking) {" << std::endl;
             size_t working_set_size = 2 * N * SP * sizeof(data_t);
             bnorm_utils::cache_balance(
                     working_set_size, C, C_blks_per_iter, iters);
@@ -323,7 +351,9 @@ void ncsp_batch_normalization_bwd_t<data_type>::execute_backward() const {
         int SP_N_nthr = N_nthr * S_nthr;
 
         for (int it = 0; it < iters; ++it) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:          for (int it = 0; it < iters; ++it) {" << std::endl;
             if (it == iters - 1 && iters > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:              if (it == iters - 1 && iters > 1) {" << std::endl;
                 // On the last iteration the access pattern to ws_reduce
                 // might change (due to re-balance on C). So sync the
                 // threads if they are not synced by the algorithm.
@@ -349,14 +379,17 @@ void ncsp_batch_normalization_bwd_t<data_type>::execute_backward() const {
             acc_data_t *diff_gamma_blk = diff_scaleshift + C_off;
             acc_data_t *diff_beta_blk = diff_scaleshift + C + C_off;
             for (int c = C_blk_s; c < C_blk_e; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:              for (int c = C_blk_s; c < C_blk_e; c++) {" << std::endl;
                 size_t off = c + C_off;
                 acc_data_t diff_gamma = 0.0, diff_beta = 0.0;
                 acc_data_t v_mean = mean[off];
                 for (int n = N_s; n < N_e; ++n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                  for (int n = N_s; n < N_e; ++n) {" << std::endl;
                     const acc_data_t *_diff_dst;
                     const acc_data_t *_src;
                     size_t s_off = off * SP + n * C * SP;
                     if (data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                      if (data_type == data_type::bf16) {" << std::endl;
                         // convert diff_dst from b16 to f32
                         acc_data_t *tmp_diff_dst = tmp_data_ + ithr * SP_cl_align;
                         bf16_cvt_utils::cvt_bfloat16_to_float(tmp_diff_dst,
@@ -375,6 +408,7 @@ void ncsp_batch_normalization_bwd_t<data_type>::execute_backward() const {
                     }
                     PRAGMA_OMP_SIMD(reduction(+ : diff_gamma, diff_beta))
                     for (int sp = S_s; sp < S_e; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                      for (int sp = S_s; sp < S_e; ++sp) {" << std::endl;
                         const size_t d_off = s_off + sp;
                         acc_data_t dd;
                         if (fuse_bn_relu && !ws[d_off])
@@ -395,11 +429,13 @@ void ncsp_batch_normalization_bwd_t<data_type>::execute_backward() const {
             if (SP_N_nthr > 1) mkldnn_thr_barrier();
 
             for (int c = C_blk_gl_s; c < C_blk_gl_e; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:              for (int c = C_blk_gl_s; c < C_blk_gl_e; c++) {" << std::endl;
                 acc_data_t sqrt_variance = static_cast<acc_data_t>(
                         1.0f / sqrtf(variance[c + C_off] + eps));
                 diff_gamma_blk[c] = 0.;
                 diff_beta_blk[c] = 0.;
                 for (int n = 0; n < SP_N_nthr; n++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                  for (int n = 0; n < SP_N_nthr; n++) {" << std::endl;
                     diff_gamma_blk[c] += ws_reduce[ws_iter_off
                             + n * C_blks_per_iter + c];
                     diff_beta_blk[c] += ws_reduce[ws_iter_off
@@ -412,17 +448,20 @@ void ncsp_batch_normalization_bwd_t<data_type>::execute_backward() const {
             if (SP_N_nthr > 1) mkldnn_thr_barrier();
 
             for (int c = C_blk_s; c < C_blk_e; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:              for (int c = C_blk_s; c < C_blk_e; c++) {" << std::endl;
                 size_t off = c + C_off;
                 acc_data_t gamma = use_scaleshift ? scaleshift[off] : 1;
                 acc_data_t sqrt_variance = static_cast<acc_data_t>(
                         1.0f / sqrtf(variance[off] + eps));
                 acc_data_t v_mean = mean[off];
                 for (int n = N_s; n < N_e; ++n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                  for (int n = N_s; n < N_e; ++n) {" << std::endl;
                     acc_data_t *_diff_src;
                     const acc_data_t *_diff_dst;
                     const acc_data_t *_src;
                     size_t s_off = off * SP + n * C * SP;
                     if (data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                      if (data_type == data_type::bf16) {" << std::endl;
                         // store diff_src to f32 buffer
                         _diff_src = tmp_data_ + ithr * SP_cl_align;
                         // convert diff_dst from b16 to f32
@@ -432,6 +471,7 @@ void ncsp_batch_normalization_bwd_t<data_type>::execute_backward() const {
                                 nstl::max(0, S_e - S_s));
                         _diff_dst = tmp_diff_dst;
                         if (calculate_diff_stats) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                          if (calculate_diff_stats) {" << std::endl;
                             // convert src from b16 to f32
                             acc_data_t *tmp_src = tmp_data_ + (2 * nthr + ithr) * SP_cl_align;
                             bf16_cvt_utils::cvt_bfloat16_to_float(tmp_src,
@@ -449,6 +489,7 @@ void ncsp_batch_normalization_bwd_t<data_type>::execute_backward() const {
                     PRAGMA_OMP_SIMD()
 #endif
                     for (int sp = S_s; sp < S_e; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                      for (int sp = S_s; sp < S_e; ++sp) {" << std::endl;
                         const size_t d_off = s_off + sp;
                         acc_data_t v_diff_src;
                         if (fuse_bn_relu && !ws[d_off])
@@ -456,6 +497,7 @@ void ncsp_batch_normalization_bwd_t<data_type>::execute_backward() const {
                         else
                             v_diff_src = _diff_dst[sp];
                         if (calculate_diff_stats) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                          if (calculate_diff_stats) {" << std::endl;
                             v_diff_src -= diff_beta_blk[c] / (SP * N)
                                     + (_src[sp] - v_mean)
                                             * diff_gamma_blk[c] * sqrt_variance
@@ -465,6 +507,7 @@ void ncsp_batch_normalization_bwd_t<data_type>::execute_backward() const {
                         _diff_src[sp] = v_diff_src;
                     }
                     if (data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ncsp_batch_normalization.cpp:                      if (data_type == data_type::bf16) {" << std::endl;
                         // convert diff_src from f32 to b16
                         bf16_cvt_utils::cvt_float_to_bfloat16(
                                 (mkldnn_bfloat16_t *)diff_src + s_off,

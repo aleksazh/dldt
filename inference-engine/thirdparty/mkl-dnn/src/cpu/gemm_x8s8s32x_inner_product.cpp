@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -56,10 +57,12 @@ void gemm_x8s8s32x_inner_product_fwd_t<src_type, dst_type
     const float onef = 1.0, zerof = 0.0;
 
     if (src_type == data_type::u8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_inner_product.cpp:      if (src_type == data_type::u8) {" << std::endl;
         mkldnn_gemm_s8u8s32(wei_tr ? "T" : "N", "N", "F", &M, &N, &K, &onef,
                 weights, wei_tr ? &K : &M, &off_a, (uint8_t *)src, &K, &off_b, &zerof,
                 acc, &M, &off_c);
     } else if (src_type == data_type::s8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_inner_product.cpp:      } else if (src_type == data_type::s8) {" << std::endl;
         mkldnn_gemm_s8s8s32(wei_tr ? "T" : "N", "N", "F", &M, &N, &K, &onef,
                 weights, wei_tr ? &K : &M, &off_a, (int8_t *)src, &K, &off_b, &zerof,
                 acc, &M, &off_c);
@@ -69,8 +72,10 @@ void gemm_x8s8s32x_inner_product_fwd_t<src_type, dst_type
 
     if (!pd()->attr()->has_default_values() || !pd()->dst_is_acc_
             || pd()->with_bias()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_inner_product.cpp:              || pd()->with_bias()) {" << std::endl;
         const bool force_sequential = MB * OC < 2000;
         parallel(force_sequential ? 1 : 0, (size_t)OC * MB, [&](int ithr, int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_inner_product.cpp:          parallel(force_sequential ? 1 : 0, (size_t)OC * MB, [&](int ithr, int nthr) {" << std::endl;
             size_t start = 0, end = 0;
             balance211((size_t)OC * MB, nthr, ithr, start, end);
             (*pp_kernel_)(dst, acc, bias, scales, start, end);

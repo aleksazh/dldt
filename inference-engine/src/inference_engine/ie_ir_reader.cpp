@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,10 +19,12 @@
 using namespace InferenceEngine;
 
 static size_t GetIRVersion(pugi::xml_node& root) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:  static size_t GetIRVersion(pugi::xml_node& root) {" << std::endl;
     return XMLParseUtils::GetUIntAttr(root, "version", 0);
 }
 
 std::shared_ptr<ngraph::Function> IRReader::read(const std::string& modelPath, const std::string& binPath) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:  std::shared_ptr<ngraph::Function> IRReader::read(const std::string& modelPath, const std::string& binPath) {" << std::endl;
     std::ifstream modelFile(modelPath);
     if (!modelFile.is_open()) THROW_IE_EXCEPTION << "File " << modelPath << " cannot be openned!";
 
@@ -31,6 +34,7 @@ std::shared_ptr<ngraph::Function> IRReader::read(const std::string& modelPath, c
     Blob::Ptr weights;
     std::string bPath = binPath;
     if (bPath.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:      if (bPath.empty()) {" << std::endl;
         bPath = modelPath;
         auto pos = bPath.rfind('.');
         if (pos != std::string::npos) bPath = bPath.substr(0, pos);
@@ -40,6 +44,7 @@ std::shared_ptr<ngraph::Function> IRReader::read(const std::string& modelPath, c
     }
 
     if (!bPath.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:      if (!bPath.empty()) {" << std::endl;
         int64_t fileSize = FileUtils::fileSize(bPath);
 
         if (fileSize < 0)
@@ -57,15 +62,18 @@ std::shared_ptr<ngraph::Function> IRReader::read(const std::string& modelPath, c
 }
 
 std::shared_ptr<ngraph::Function> IRReader::read(const std::string& model, const Blob::CPtr& weights) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:  std::shared_ptr<ngraph::Function> IRReader::read(const std::string& model, const Blob::CPtr& weights) {" << std::endl;
     pugi::xml_document xmlDoc;
     pugi::xml_parse_result res = xmlDoc.load_buffer(model.data(), model.length());
     if (res.status != pugi::status_ok) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:      if (res.status != pugi::status_ok) {" << std::endl;
         THROW_IE_EXCEPTION << res.description() << "at offset " << res.offset;
     }
     return readXml(xmlDoc, weights);
 }
 
 std::shared_ptr<ngraph::Function> IRReader::readXml(const pugi::xml_document& xmlDoc, const Blob::CPtr& weights) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:  std::shared_ptr<ngraph::Function> IRReader::readXml(const pugi::xml_document& xmlDoc, const Blob::CPtr& weights) {" << std::endl;
     try {
         // check which version it is...
         pugi::xml_node root = xmlDoc.document_element();
@@ -74,12 +82,16 @@ std::shared_ptr<ngraph::Function> IRReader::readXml(const pugi::xml_document& xm
         IRParser parser(version, extensions);
         return parser.parse(root, weights);
     } catch (const std::string& err) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:      } catch (const std::string& err) {" << std::endl;
         THROW_IE_EXCEPTION << err;
     } catch (const details::InferenceEngineException& e) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:      } catch (const details::InferenceEngineException& e) {" << std::endl;
         throw;
     } catch (const std::exception& e) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:      } catch (const std::exception& e) {" << std::endl;
         THROW_IE_EXCEPTION << e.what();
     } catch (...) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_reader.cpp:      } catch (...) {" << std::endl;
         THROW_IE_EXCEPTION << "Unknown exception thrown";
     }
 }

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -28,6 +29,7 @@ MKLDNNConvolutionNode::MKLDNNConvolutionNode(const InferenceEngine::CNNLayerPtr&
         : MKLDNNNode(layer, eng, socket), withBiases(false), withSum(false),  dw_conv_iw(0), dw_conv_ih(0),
         dw_conv_oc(0), dw_conv_in_dt(memory::data_type::data_undef), isDW(false), isMerged(false), withActivation(false),
         isGrouped(false), baseInputsNumber(1), eltwisePrecision(Precision::FP32), withDWConv(false), groupNum(1lu) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          isGrouped(false), baseInputsNumber(1), eltwisePrecision(Precision::FP32), withDWConv(false), groupNum(1lu) {" << std::endl;
     internalBlobDesc.emplace_back([&](primitive_desc_iterator &primitive_desc_it, size_t idx) -> MKLDNNMemoryDesc {
         return MKLDNNMemoryDesc(primitive_desc_it.weights_primitive_desc(0).desc());
     });
@@ -39,29 +41,35 @@ MKLDNNConvolutionNode::MKLDNNConvolutionNode(const InferenceEngine::CNNLayerPtr&
 
     auto ws = layer->blobs.find("w-scale");
     if (ws != layer->blobs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (ws != layer->blobs.end()) {" << std::endl;
         wScale = ws->second;
     }
 
     // Trying to find oi-scale
     if (getCnnLayer()->type == "Convolution" && getCnnLayer()->precision == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (getCnnLayer()->type == 'Convolution' && getCnnLayer()->precision == Precision::I8) {" << std::endl;
         auto ois = layer->blobs.find("oi-scale");
         if ((getCnnLayer()->outData[0]->getPrecision() == Precision::I8 || getCnnLayer()->outData[0]->getPrecision() == Precision::U8)
             && ois == layer->blobs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              && ois == layer->blobs.end()) {" << std::endl;
             THROW_IE_EXCEPTION << "Internal error of graph quantization - mismatch of intermediate scales and next layer type for convolution "
                 << getCnnLayer()->name;
         }
         if (ois != layer->blobs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (ois != layer->blobs.end()) {" << std::endl;
             // If we can find an oi-scale, then the next layer has to be an INT8.
             oScale = ois->second;
         }
     }
 
     if (getCnnLayer()->type == "Convolution") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (getCnnLayer()->type == 'Convolution') {" << std::endl;
         baseInputsNumber = getCnnLayer().get()->insData.size();
     }
 }
 
 mkldnn::memory::data_type MKLDNNConvolutionNode::precisionToDataType(InferenceEngine::Precision prec) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:  mkldnn::memory::data_type MKLDNNConvolutionNode::precisionToDataType(InferenceEngine::Precision prec) {" << std::endl;
     // MKLDNN Plugin doesn't support U16 layout so upcast to FP32 in this case
     if (prec == Precision::U16)
         prec = Precision::FP32;
@@ -70,17 +78,20 @@ mkldnn::memory::data_type MKLDNNConvolutionNode::precisionToDataType(InferenceEn
 }
 
 bool MKLDNNConvolutionNode::canBeExecutedInInt8() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:  bool MKLDNNConvolutionNode::canBeExecutedInInt8() {" << std::endl;
     auto * convLayer = dynamic_cast<ConvolutionLayer*>(getCnnLayer().get());
     if (convLayer == nullptr)
         THROW_IE_EXCEPTION << "Cannot convert convolution layer.";
 
     if (baseInputsNumber > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (baseInputsNumber > 1) {" << std::endl;
         auto inputDataType = precisionToDataType(getCnnLayer()->insData[0].lock()->getPrecision());
         if (!inputZeroPoints.empty())
             inputDataType = memory::u8;
 
         auto weightsDataType = precisionToDataType(Precision::FP32);
         if (baseInputsNumber > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (baseInputsNumber > 1) {" << std::endl;
             weightsDataType = precisionToDataType(getCnnLayer()->insData[1].lock()->getPrecision());
             if (!weightsZeroPoints.empty())
                 weightsDataType = memory::s8;
@@ -98,6 +109,7 @@ bool MKLDNNConvolutionNode::canBeExecutedInInt8() {
 }
 
 void MKLDNNConvolutionNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:  void MKLDNNConvolutionNode::getSupportedDescriptors() {" << std::endl;
     if (!descs.empty())
         return;
 
@@ -112,9 +124,12 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
     auto outputDataType = precisionToDataType(getCnnLayer()->outData[0]->getPrecision());
     eltwisePrecision = MKLDNNExtensionUtils::DataTypeToIEPrecision(outputDataType);
     if (baseInputsNumber > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (baseInputsNumber > 1) {" << std::endl;
         if (!fusedWith.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (!fusedWith.empty()) {" << std::endl;
             auto lastFusedLayer = fusedWith[fusedWith.size() - 1].get()->getCnnLayer();
             if (lastFusedLayer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (lastFusedLayer) {" << std::endl;
                 outputDataType = precisionToDataType(lastFusedLayer->outData[0]->getPrecision());
                 eltwisePrecision = MKLDNNExtensionUtils::DataTypeToIEPrecision(outputDataType);
             }
@@ -123,9 +138,12 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
         // We need to make sure that convolution output and second input of fused Eltwise operation
         // have equal precision sizes since they use the same physical memory. In case precisions are different we upscale to FP32.
         if (outputDataType != memory::f32 && isFusedWith(Eltwise)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (outputDataType != memory::f32 && isFusedWith(Eltwise)) {" << std::endl;
             for (int i = 0; i < fusedWith.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (int i = 0; i < fusedWith.size(); i++) {" << std::endl;
                 auto *eltwiseNode = dynamic_cast<MKLDNNEltwiseNode *>(fusedWith[i].get());
                 if (eltwiseNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (eltwiseNode) {" << std::endl;
                     auto parent0 = eltwiseNode->getCnnLayer()->insData[0].lock()->getCreatorLayer().lock();
                     auto parent1 = eltwiseNode->getCnnLayer()->insData[1].lock()->getCreatorLayer().lock();
 
@@ -134,6 +152,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
                                                                 eltwiseNode->getCnnLayer()->insData[0].lock()->getPrecision();
 
                     if (MKLDNNExtensionUtils::DataTypeToIEPrecision(outputDataType).size() != eltwisePrecision.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                      if (MKLDNNExtensionUtils::DataTypeToIEPrecision(outputDataType).size() != eltwisePrecision.size()) {" << std::endl;
                         eltwisePrecision = Precision::FP32;
                         outputDataType = memory::f32;
                     }
@@ -145,8 +164,10 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
 
     int expectedInputEdgesNum = baseInputsNumber + isFusedWith(Eltwise);
     for (int i = 0; i < fusedWith.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      for (int i = 0; i < fusedWith.size(); i++) {" << std::endl;
         auto *convolutionNode = dynamic_cast<MKLDNNConvolutionNode *>(fusedWith[i].get());
         if (convolutionNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (convolutionNode) {" << std::endl;
             expectedInputEdgesNum += convolutionNode->getBaseIntputsNumber() - 1;
         }
     }
@@ -157,6 +178,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
         THROW_IE_EXCEPTION << "Incorrect number of output edges for layer " << getName();
 
     if ((getParentEdgeAt(0)->getDims().ndims() < 4) || (getParentEdgeAt(0)->getDims().ndims() > 5)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if ((getParentEdgeAt(0)->getDims().ndims() < 4) || (getParentEdgeAt(0)->getDims().ndims() > 5)) {" << std::endl;
         THROW_IE_EXCEPTION << "Convolution layer. Unsupported mode. Only 4D and 5D blobs are supported as input.";
     }
 
@@ -174,9 +196,11 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
     isDW = groupNum == groupOC && groupNum == groupIC;
 
     if (isMerged) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (isMerged) {" << std::endl;
         groupNum = getMergeWith().size() + 1;
     }
     if (isGrouped) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (isGrouped) {" << std::endl;
         groupIC /= groupNum;
         groupOC /= groupNum;
     }
@@ -185,6 +209,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
     weightDims.push_back(groupOC);
     weightDims.push_back(groupIC);
     for (int i = 1; i <= convLayer->_kernel.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      for (int i = 1; i <= convLayer->_kernel.size(); i++) {" << std::endl;
         weightDims.push_back(convLayer->_kernel[convLayer->_kernel.size() - i]);
     }
     biasesDims = { groupOC * groupNum };
@@ -194,14 +219,17 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
     withBiases = (convLayer->_biases != nullptr && convLayer->_biases->size() != 0) || baseInputsNumber == 3;
 
     if (baseInputsNumber == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (baseInputsNumber == 1) {" << std::endl;
         internalBlobs.push_back(createInternalBlob(weightDims, true, isGrouped));
 
         if (withBiases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (withBiases) {" << std::endl;
             internalBlobs.push_back(createInternalBlob(biasesDims, false));
         }
 
         Blob::Ptr weights = this->getCnnLayer()->blobs.find("weights")->second;
         if (weights->getTensorDesc().getPrecision() == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (weights->getTensorDesc().getPrecision() == Precision::I8) {" << std::endl;
             // The weights blob has incorrect dims, so we have to fix it
             TensorDesc wdesc = internalBlobs[0]->getTensorDesc();
             wdesc.setPrecision(Precision::I8);
@@ -211,6 +239,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
 
             internalBlobs[0] = reshapedInt8Weights;
             if (withBiases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (withBiases) {" << std::endl;
                 Blob::Ptr biases = this->getCnnLayer()->blobs.find("biases")->second;
                 TensorDesc bdesc = internalBlobs[1]->getTensorDesc();
                 bdesc.setPrecision(Precision::I32);
@@ -224,6 +253,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
 
     invertVectorCopyUtoI(convLayer->_stride, stride);
     for (int i = 1; i <= convLayer->_dilation.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      for (int i = 1; i <= convLayer->_dilation.size(); i++) {" << std::endl;
         dilation.push_back(static_cast<int>(convLayer->_dilation[convLayer->_dilation.size() - i]) - 1);
     }
 
@@ -237,21 +267,27 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
     withDWConv = isFusedWith(Convolution);
 
     for (int i = 0; i < fusedWith.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      for (int i = 0; i < fusedWith.size(); i++) {" << std::endl;
         auto *convolutionNode = dynamic_cast<MKLDNNConvolutionNode *>(fusedWith[i].get());
         if (convolutionNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (convolutionNode) {" << std::endl;
             auto *convLayer = reinterpret_cast<ConvolutionLayer *>(convolutionNode->getCnnLayer().get());
             dw_conv_ih = convolutionNode->inDims[0][convolutionNode->inDims[0].ndims() - 2];
             dw_conv_iw = convolutionNode->inDims[0][convolutionNode->inDims[0].ndims() - 1];
             dw_conv_oc = convLayer->_out_depth;
             for (int j = 0; j < convLayer->_kernel.size(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (int j = 0; j < convLayer->_kernel.size(); j++) {" << std::endl;
                 dw_conv_kernel.push_back(convLayer->_kernel[j]);
             }
             for (int j = 0; j < convLayer->_stride.size(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (int j = 0; j < convLayer->_stride.size(); j++) {" << std::endl;
                 dw_conv_strides.push_back(convLayer->_stride[j]);
             }
 
             if (canBeExecutedInInt8()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (canBeExecutedInInt8()) {" << std::endl;
                 if (i == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (i == 0) {" << std::endl;
                     dw_conv_in_dt = precisionToDataType(getCnnLayer()->outData[0]->getPrecision());
                 } else {
                     dw_conv_in_dt = precisionToDataType(fusedWith[i - 1].get()->getCnnLayer()->outData[0]->getPrecision());
@@ -261,6 +297,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
             }
 
             for (int j = 0; j < paddingR.size(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (int j = 0; j < paddingR.size(); j++) {" << std::endl;
                 int with_group = (isGrouped || isMerged) ? 1 : 0;
                 int krn = weightsDims[with_group + 2 + j];
                 int src = getParentEdgeAt(0)->getDims()[2 + j];
@@ -274,6 +311,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
     }
 
     if (canBeExecutedInInt8()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (canBeExecutedInInt8()) {" << std::endl;
         MKLDNNMemoryDesc in_candidate = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType,
                 getParentEdgeAt(0)->getDims().ndims() == 5 ? memory::ndhwc : memory::nhwc);
         MKLDNNMemoryDesc out_candidate = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType,
@@ -288,6 +326,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
         Layout layout = convLayer->input()->getLayout();
 
         if (layout == NCHW || layout == NHWC) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (layout == NCHW || layout == NHWC) {" << std::endl;
             MKLDNNMemoryDesc in_candidate(getParentEdgeAt(0)->getDims(), inputDataType,
                     layout == NCHW ? memory::nchw : memory::nhwc);
             MKLDNNMemoryDesc out_candidate(getChildEdgeAt(0)->getDims(), outputDataType,
@@ -295,6 +334,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
             createDescriptor({in_candidate}, {out_candidate});
 
             if (IC == 3 || IC == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (IC == 3 || IC == 1) {" << std::endl;
                 out_candidate = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, memory::nChw16c);
                 createDescriptor({in_candidate}, {out_candidate});
                 out_candidate = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, memory::nChw8c);
@@ -308,6 +348,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
                 createDescriptor({in_candidate}, {out_candidate});
             }
         } else if (layout == NCDHW || layout == NDHWC) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          } else if (layout == NCDHW || layout == NDHWC) {" << std::endl;
             MKLDNNMemoryDesc in_candidate(getParentEdgeAt(0)->getDims(), inputDataType,
                     layout == NCDHW ? memory::ncdhw : memory::ndhwc);
             MKLDNNMemoryDesc out_candidate(getChildEdgeAt(0)->getDims(), outputDataType,
@@ -315,6 +356,7 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
             createDescriptor({in_candidate}, {out_candidate});
 
             if (IC == 3 || IC == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (IC == 3 || IC == 1) {" << std::endl;
                 out_candidate = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, memory::nCdhw16c);
                 createDescriptor({in_candidate}, {out_candidate});
                 out_candidate = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, memory::nCdhw8c);
@@ -332,16 +374,21 @@ void MKLDNNConvolutionNode::getSupportedDescriptors() {
 }
 
 void MKLDNNConvolutionNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights = false) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:  void MKLDNNConvolutionNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights = false) {" << std::endl;
     int blob_idx = 0;
     mkldnn::post_ops ops;
 
     for (auto &node : fusedWith) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      for (auto &node : fusedWith) {" << std::endl;
 #if defined (COMPILED_CPU_MKLDNN_ELTWISE_NODE)
         auto* eltwiseNode = dynamic_cast<MKLDNNEltwiseNode *>(node.get());
         if (eltwiseNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (eltwiseNode) {" << std::endl;
             if (eltwiseNode->getCnnLayer()->precision == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (eltwiseNode->getCnnLayer()->precision == Precision::I8) {" << std::endl;
                 auto it = eltwiseNode->getCnnLayer()->blobs.find("eltwise-sum-scale");
                 if (it != eltwiseNode->getCnnLayer()->blobs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (it != eltwiseNode->getCnnLayer()->blobs.end()) {" << std::endl;
                     // currently there is the only one scale while we need scale by channel :(
                     ops.append_sum(it->second->buffer().as<float*>()[0], mkldnn::memory::convert_to_c(precisionToDataType(eltwisePrecision)));
                 }
@@ -354,6 +401,7 @@ void MKLDNNConvolutionNode::setPostOps(mkldnn::primitive_attr &attr, bool initWe
 #if defined(COMPILED_CPU_MKLDNN_ACTIVATION_NODE)
         auto* activationNode = dynamic_cast<MKLDNNActivationNode *>(node.get());
         if (activationNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (activationNode) {" << std::endl;
             ops.append_eltwise(1.0, activationNode->getAlgorithm(), activationNode->getAlpha(),
                                activationNode->getBeta());
             continue;
@@ -363,9 +411,11 @@ void MKLDNNConvolutionNode::setPostOps(mkldnn::primitive_attr &attr, bool initWe
 #if defined (COMPILED_CPU_MKLDNN_DEPTHWISE_NODE)
         auto* depthwiseNode = dynamic_cast<MKLDNNDepthwiseNode *>(node.get());
         if (depthwiseNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (depthwiseNode) {" << std::endl;
             auto* depthwiseLayer = reinterpret_cast<WeightableLayer*>(depthwiseNode->getCnnLayer().get());
 
             if (initWeights) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (initWeights) {" << std::endl;
                 MKLDNNDims depthwiseDims({static_cast<ptrdiff_t>(rnd_up(biasesDims[0], 16))});
 
                 PostOpsIntBlobMemory.push_back(MKLDNNMemoryPtr(new MKLDNNMemory(getEngine())));
@@ -377,13 +427,16 @@ void MKLDNNConvolutionNode::setPostOps(mkldnn::primitive_attr &attr, bool initWe
                                                              MKLDNNExtensionUtils::sizeOfDataType(memory::data_type::f32));
 
                 if (depthwiseNode->isBroadcast()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (depthwiseNode->isBroadcast()) {" << std::endl;
                     float broadcastValue = static_cast<float *>(PostOpsIntBlobMemory[blob_idx]->GetData())[0];
                     for (int i = 1; i < PostOpsIntBlobMemory[blob_idx]->GetPrimitiveDescriptor().desc().data.dims[0]; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                      for (int i = 1; i < PostOpsIntBlobMemory[blob_idx]->GetPrimitiveDescriptor().desc().data.dims[0]; i++) {" << std::endl;
                         static_cast<float *>(PostOpsIntBlobMemory[blob_idx]->GetData())[i] = broadcastValue;
                     }
                 }
 
                 if (depthwiseNode->getAlgorithm() == depthwise_scale_shift) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (depthwiseNode->getAlgorithm() == depthwise_scale_shift) {" << std::endl;
                     PostOpsIntBlobMemory.push_back(MKLDNNMemoryPtr(new MKLDNNMemory(getEngine())));
                     PostOpsIntBlobMemory[blob_idx + 1]->Create(depthwiseDims, memory::data_type::f32,
                                                                 memory::format::x);
@@ -393,8 +446,10 @@ void MKLDNNConvolutionNode::setPostOps(mkldnn::primitive_attr &attr, bool initWe
                                                                  MKLDNNExtensionUtils::sizeOfDataType(memory::data_type::f32));
 
                     if (depthwiseNode->isBroadcast()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                      if (depthwiseNode->isBroadcast()) {" << std::endl;
                         float broadcastValue = static_cast<float *>(PostOpsIntBlobMemory[blob_idx + 1]->GetData())[0];
                         for (int i = 1; i < PostOpsIntBlobMemory[blob_idx + 1]->GetPrimitiveDescriptor().desc().data.dims[0]; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                          for (int i = 1; i < PostOpsIntBlobMemory[blob_idx + 1]->GetPrimitiveDescriptor().desc().data.dims[0]; i++) {" << std::endl;
                             static_cast<float *>(PostOpsIntBlobMemory[blob_idx + 1]->GetData())[i] = broadcastValue;
                         }
                     }
@@ -423,7 +478,9 @@ void MKLDNNConvolutionNode::setPostOps(mkldnn::primitive_attr &attr, bool initWe
 
         auto* quantizeNode = dynamic_cast<MKLDNNQuantizeNode *>(node.get());
         if (quantizeNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (quantizeNode) {" << std::endl;
             if (initWeights) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (initWeights) {" << std::endl;
                 MKLDNNDims weightsDims({static_cast<ptrdiff_t>(rnd_up(biasesDims[0], 16))});
                 MKLDNNMemoryDesc weightsDataDesc = {{(uint32_t)weightsDims[0]}, memory::f32, memory::x};
 
@@ -464,8 +521,11 @@ void MKLDNNConvolutionNode::setPostOps(mkldnn::primitive_attr &attr, bool initWe
 
         auto* convolutionNode = dynamic_cast<MKLDNNConvolutionNode *>(node.get());
         if (convolutionNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (convolutionNode) {" << std::endl;
             if (initWeights) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (initWeights) {" << std::endl;
                 if (convolutionNode->getBaseIntputsNumber() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (convolutionNode->getBaseIntputsNumber() == 1) {" << std::endl;
                     auto* convLayer = reinterpret_cast<ConvolutionLayer*>(convolutionNode->getCnnLayer().get());
 
                     auto weightsPrc = precisionToDataType(convLayer->precision);
@@ -511,20 +571,24 @@ void MKLDNNConvolutionNode::setPostOps(mkldnn::primitive_attr &attr, bool initWe
             }
 
             if (convolutionNode->wScale != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (convolutionNode->wScale != nullptr) {" << std::endl;
                 float* wScaleData = static_cast<float*>(convolutionNode->wScale->buffer());
 
                 std::vector<float> oScaleDataVector;
                 std::vector<float> oShiftDataVector;
                 if (convolutionNode->getCnnLayer()->precision == Precision::I8 &&
                     convolutionNode->getCnnLayer()->outData[0]->getPrecision() != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                      convolutionNode->getCnnLayer()->outData[0]->getPrecision() != Precision::FP32) {" << std::endl;
                     float *oScaleData = static_cast<float *>(convolutionNode->oScale->buffer());
 
                     for (size_t c = 0; c < convolutionNode->wScale->size(); c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                      for (size_t c = 0; c < convolutionNode->wScale->size(); c++) {" << std::endl;
                         oScaleDataVector.push_back(wScaleData[c] / oScaleData[c]);
                         oShiftDataVector.push_back(0.f);
                     }
                 } else {
                     for (size_t c = 0; c < convolutionNode->wScale->size(); c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                      for (size_t c = 0; c < convolutionNode->wScale->size(); c++) {" << std::endl;
                         oScaleDataVector.push_back(wScaleData[c]);
                         oShiftDataVector.push_back(0.f);
                     }
@@ -557,6 +621,7 @@ void MKLDNNConvolutionNode::setPostOps(mkldnn::primitive_attr &attr, bool initWe
 }
 
 void MKLDNNConvolutionNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:  void MKLDNNConvolutionNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -565,11 +630,14 @@ void MKLDNNConvolutionNode::initSupportedPrimitiveDescriptors() {
     setPostOps(attr);
 
     for (auto& desc : descs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      for (auto& desc : descs) {" << std::endl;
         auto itpd = desc.createPrimitiveDescriptorIterator(getEngine(), attr);
         while (itpd.is_not_end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          while (itpd.is_not_end()) {" << std::endl;
             InferenceEngine::LayerConfig config;
             config.dynBatchSupport = true;
             for (size_t i = 0; i < descInputNumbers(desc); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (size_t i = 0; i < descInputNumbers(desc); i++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = -1;
                 dataConfig.constant = false;
@@ -580,6 +648,7 @@ void MKLDNNConvolutionNode::initSupportedPrimitiveDescriptors() {
             }
 
             if (withDWConv && baseInputsNumber > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (withDWConv && baseInputsNumber > 1) {" << std::endl;
                 auto weightsPrc = precisionToDataType(dw_conv_in_dt == mkldnn_u8 ? Precision::I8 : Precision::FP32);
                 auto biasPrc = memory::data_type::f32;
 
@@ -598,8 +667,10 @@ void MKLDNNConvolutionNode::initSupportedPrimitiveDescriptors() {
 
             std::vector<memory::format> outFormats;
             for (size_t i = 0; i < descOutputNumbers(desc); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (size_t i = 0; i < descOutputNumbers(desc); i++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 if (withSum) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (withSum) {" << std::endl;
                     dataConfig.inPlace = getParentEdges().size() - 1;
                 }
 
@@ -610,6 +681,7 @@ void MKLDNNConvolutionNode::initSupportedPrimitiveDescriptors() {
                 config.outConfs.push_back(dataConfig);
 
                 if (withSum) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (withSum) {" << std::endl;
                     dataConfig.inPlace = -1;
                     dataConfig.desc.setPrecision(eltwisePrecision);
                     config.inConfs.push_back(dataConfig);
@@ -627,6 +699,7 @@ void MKLDNNConvolutionNode::initSupportedPrimitiveDescriptors() {
 
 
 void MKLDNNConvolutionNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:  void MKLDNNConvolutionNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
@@ -639,6 +712,7 @@ void MKLDNNConvolutionNode::createPrimitive() {
             convolution_forward::desc>(attr);
 
     if (withBiases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (withBiases) {" << std::endl;
         prim.reset(new convolution_forward(prim_desc,
                                            getParentEdgeAt(0)->getMemory().GetPrimitive(),
                                            getWeights(),
@@ -658,25 +732,30 @@ bool MKLDNNConvolutionNode::created() const {
 
 void MKLDNNConvolutionNode::createDescriptor(const std::vector<InferenceEngine::TensorDesc> &inputDesc,
                                              const std::vector<InferenceEngine::TensorDesc> &outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                                               const std::vector<InferenceEngine::TensorDesc> &outputDesc) {" << std::endl;
     TensorDesc inDesc = inputDesc[0], outDesc = outputDesc[0];
 
     mkldnn::memory::data_type wdt = precisionToDataType(inDesc.getPrecision());
     mkldnn::memory::data_type bdt = precisionToDataType(inDesc.getPrecision());
 
     if (inDesc.getPrecision() == Precision::U8 || inDesc.getPrecision() == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (inDesc.getPrecision() == Precision::U8 || inDesc.getPrecision() == Precision::I8) {" << std::endl;
         wdt = memory::s8;
         bdt = baseInputsNumber == 3 ? precisionToDataType(getCnnLayer()->insData[2].lock()->getPrecision()) : memory::s32;
     }
 
     if (baseInputsNumber == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (baseInputsNumber == 1) {" << std::endl;
         Blob::Ptr weights = this->getCnnLayer()->blobs.find("weights")->second;
 
         if (weights->getTensorDesc().getPrecision() == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (weights->getTensorDesc().getPrecision() == Precision::I8) {" << std::endl;
             wdt = memory::s8;
             bdt = memory::s32;
 
             Precision outPrec;
             if (getCnnLayer()->outData[0]->getPrecision() == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (getCnnLayer()->outData[0]->getPrecision() == Precision::FP32) {" << std::endl;
                 outPrec = Precision::FP32;
             } else {
                 // define precision accordninly normalizer
@@ -703,14 +782,17 @@ void MKLDNNConvolutionNode::createDescriptor(const std::vector<InferenceEngine::
     std::vector<algorithm> algorithms;
     // We cannot map wino_format on tensor descriptor for now
     if (getBaseIntputsNumber() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (getBaseIntputsNumber() == 1) {" << std::endl;
         algorithms.push_back(algorithm::convolution_winograd);
     }
     algorithms.push_back(algorithm::convolution_direct);
 
     for (auto alg : algorithms) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      for (auto alg : algorithms) {" << std::endl;
         try {
             std::shared_ptr<mkldnn::convolution_forward::desc> conv_desc;
             if (withBiases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (withBiases) {" << std::endl;
                 MKLDNNMemoryDesc bias_candidate{blocked_biasesDims, bdt, memory::any};
 
                 conv_desc.reset(new convolution_forward::desc(prop_kind::forward_scoring, alg,
@@ -724,6 +806,7 @@ void MKLDNNConvolutionNode::createDescriptor(const std::vector<InferenceEngine::
 
             descs.emplace_back(conv_desc);
         } catch (...) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          } catch (...) {" << std::endl;
             THROW_IE_EXCEPTION << "Cannot create convolution forward descriptor for layer: " << getName();
         }
     }
@@ -743,17 +826,21 @@ void MKLDNNConvolutionNode::addZeroPoints(mkldnn::primitive_attr& attr) const {
 void MKLDNNConvolutionNode::addScaleToPrimitiveAttr(mkldnn::primitive_attr attr) const {
     bool scaled = false;
     if (wScale != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (wScale != nullptr) {" << std::endl;
         float* wScaleData = static_cast<float*>(wScale->buffer());
 
         std::vector<float> oScaleDataVector;
         if (getCnnLayer()->precision == Precision::I8 && getCnnLayer()->outData[0]->getPrecision() != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (getCnnLayer()->precision == Precision::I8 && getCnnLayer()->outData[0]->getPrecision() != Precision::FP32) {" << std::endl;
             float *oScaleData = static_cast<float *>(oScale->buffer());
 
             for (size_t c = 0; c < wScale->size(); c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (size_t c = 0; c < wScale->size(); c++) {" << std::endl;
                 oScaleDataVector.push_back(wScaleData[c] / oScaleData[c]);
             }
         } else {
             for (size_t c = 0; c < wScale->size(); c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (size_t c = 0; c < wScale->size(); c++) {" << std::endl;
                 oScaleDataVector.push_back(wScaleData[c]);
             }
         }
@@ -764,8 +851,10 @@ void MKLDNNConvolutionNode::addScaleToPrimitiveAttr(mkldnn::primitive_attr attr)
 }
 
 void MKLDNNConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& config) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:  void MKLDNNConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& config) {" << std::endl;
     auto* selectedPD = getSelectedPrimitiveDescriptor();
     if (!selectedPD) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (!selectedPD) {" << std::endl;
         return;
     }
 
@@ -773,7 +862,9 @@ void MKLDNNConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& c
     // Works only for FP32 convolutions for now.
     bool isStridedBlobsSupported = true;
     for (auto &insData : getCnnLayer()->insData) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      for (auto &insData : getCnnLayer()->insData) {" << std::endl;
         if (insData.lock()->getPrecision() != InferenceEngine::Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          if (insData.lock()->getPrecision() != InferenceEngine::Precision::FP32) {" << std::endl;
             isStridedBlobsSupported = false;
             break;
         }
@@ -781,10 +872,12 @@ void MKLDNNConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& c
 
     // TODO: fix strided blobs feature support for dynamic weights
     if (baseInputsNumber != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (baseInputsNumber != 1) {" << std::endl;
         isStridedBlobsSupported = false;
     }
 
     if (isStridedBlobsSupported) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (isStridedBlobsSupported) {" << std::endl;
         createDescriptor({config.inConfs[0].desc}, {config.outConfs[0].desc});
     }
 
@@ -796,12 +889,15 @@ void MKLDNNConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& c
     InferenceEngine::LayerConfig rightConfig = selectedPD->getConfig();
     size_t selected_count = 0;
     for (size_t i = 0; i < descs.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      for (size_t i = 0; i < descs.size(); i++) {" << std::endl;
         const auto& desc = descs[i];
         auto itpd = desc.createPrimitiveDescriptorIterator(getEngine(), attr);
         while (itpd.is_not_end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:          while (itpd.is_not_end()) {" << std::endl;
             InferenceEngine::LayerConfig cfg;
             cfg.dynBatchSupport = true;
             for (size_t j = 0; j < descInputNumbers(desc); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (size_t j = 0; j < descInputNumbers(desc); j++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = -1;
                 dataConfig.constant = false;
@@ -810,6 +906,7 @@ void MKLDNNConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& c
             }
 
             if (withDWConv && baseInputsNumber > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (withDWConv && baseInputsNumber > 1) {" << std::endl;
                 auto weightsPrc = precisionToDataType(dw_conv_in_dt == mkldnn_u8 ? Precision::I8 : Precision::FP32);
                 auto biasPrc = memory::data_type::f32;
 
@@ -827,11 +924,13 @@ void MKLDNNConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& c
             }
 
             for (size_t j = 0; j < descOutputNumbers(desc); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (size_t j = 0; j < descOutputNumbers(desc); j++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = -1;
                 dataConfig.constant = false;
                 dataConfig.desc = getDstMemDesc(itpd, j);
                 if (withSum) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (withSum) {" << std::endl;
                     auto eltwiseConfig = dataConfig;
                     eltwiseConfig.desc.setPrecision(eltwisePrecision);
                     cfg.inConfs.push_back(eltwiseConfig);
@@ -843,13 +942,17 @@ void MKLDNNConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& c
             impl_desc_type impl_type = parse_impl_name(itpd.get_impl_info_str());
 
             if (selected_count == selectedPrimitiveDescriptorIndex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (selected_count == selectedPrimitiveDescriptorIndex) {" << std::endl;
                 if (impl_type != selectedPD->getImplementationType()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (impl_type != selectedPD->getImplementationType()) {" << std::endl;
                     THROW_IE_EXCEPTION << "Cannot get the original layer configuration!";
                 }
                 rightConfig = cfg;
             }
             if (i == descs.size() - 1 && isStridedBlobsSupported) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (i == descs.size() - 1 && isStridedBlobsSupported) {" << std::endl;
                 if (impl_type == selectedPD->getImplementationType()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                  if (impl_type == selectedPD->getImplementationType()) {" << std::endl;
                     rightConfig = config;
                 }
             }
@@ -861,19 +964,23 @@ void MKLDNNConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& c
 }
 
 MKLDNNMemoryDesc MKLDNNConvolutionNode::getSrcMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:  MKLDNNMemoryDesc MKLDNNConvolutionNode::getSrcMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {" << std::endl;
     InferenceEngine::TensorDesc desc = idx > 0 ? MKLDNNMemoryDesc(primitive_desc_it.weights_primitive_desc(idx - 1).desc())
                                                : MKLDNNMemoryDesc(primitive_desc_it.src_primitive_desc(idx).desc());
 
     if (desc.getLayout() == InferenceEngine::Layout::ANY) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:      if (desc.getLayout() == InferenceEngine::Layout::ANY) {" << std::endl;
         return MKLDNNMemoryDesc(InferenceEngine::TensorDesc(desc.getPrecision(),
                                                             getParentEdgeAt(idx)->getDims().ToSizeVector(),
                                                             desc.getLayout()));
     } else {
         if (getParentEdgeAt(idx)->getDims().ToSizeVector().size() != *std::max_element(desc.getBlockingDesc().getOrder().begin(),
                                                                                        desc.getBlockingDesc().getOrder().end()) + 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:                                                                                         desc.getBlockingDesc().getOrder().end()) + 1) {" << std::endl;
             auto old_dims = getParentEdgeAt(idx)->getDims().ToSizeVector();
             auto new_dims = InferenceEngine::SizeVector({groupNum, div_up(old_dims[0], groupNum)});
             for (int i = 1; i < old_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              for (int i = 1; i < old_dims.size(); i++) {" << std::endl;
                 new_dims.push_back(old_dims[i]);
             }
 
@@ -881,6 +988,7 @@ MKLDNNMemoryDesc MKLDNNConvolutionNode::getSrcMemDesc(mkldnn::primitive_desc_ite
                                                   new_dims,
                                                   desc.getBlockingDesc());
             if (new_dims.size() == desc.getBlockingDesc().getBlockDims().size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_conv_node.cpp:              if (new_dims.size() == desc.getBlockingDesc().getBlockDims().size()) {" << std::endl;
                 td.setLayout(BLOCKED);
             }
             return MKLDNNMemoryDesc(td);

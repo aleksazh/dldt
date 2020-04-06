@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -26,11 +27,13 @@ namespace simple_barrier {
 
 void generate(jit_generator &code, Xbyak::Reg64 reg_ctx,
             Xbyak::Reg64 reg_nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_barrier.cpp:              Xbyak::Reg64 reg_nthr) {" << std::endl;
 #   define BAR_CTR_OFF offsetof(ctx_t, ctr)
 #   define BAR_SENSE_OFF offsetof(ctx_t, sense)
     using namespace Xbyak;
 
     Xbyak::Reg64 reg_tmp = [&]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_barrier.cpp:      Xbyak::Reg64 reg_tmp = [&]() {" << std::endl;
         /* returns register which is neither reg_ctx nor reg_nthr */
         Xbyak::Reg64 regs[] = { util::rax, util::rbx, util::rcx };
         for (size_t i = 0; i < sizeof(regs) / sizeof(regs[0]); ++i)
@@ -52,6 +55,7 @@ void generate(jit_generator &code, Xbyak::Reg64 reg_ctx,
     code.mov(reg_tmp, 1);
 
     if (mayiuse(avx512_mic)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_barrier.cpp:      if (mayiuse(avx512_mic)) {" << std::endl;
         code.prefetchwt1(code.ptr[reg_ctx + BAR_CTR_OFF]);
         code.prefetchwt1(code.ptr[reg_ctx + BAR_CTR_OFF]);
     }
@@ -89,6 +93,7 @@ struct jit_t: public jit_generator {
     void (*barrier)(ctx_t *ctx, size_t nthr);
 
     jit_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_barrier.cpp:      jit_t() {" << std::endl;
         generate(*this, abi_param1, abi_param2);
         ret();
         barrier = reinterpret_cast<decltype(barrier)>(const_cast<uint8_t*>(
@@ -99,6 +104,7 @@ struct jit_t: public jit_generator {
 };
 
 void barrier(ctx_t *ctx, int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_barrier.cpp:  void barrier(ctx_t *ctx, int nthr) {" << std::endl;
     static jit_t j; /* XXX: constructed on load ... */
     j.barrier(ctx, nthr);
 }

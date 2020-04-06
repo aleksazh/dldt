@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -29,6 +30,7 @@ using namespace mkldnn::impl::status;
 
 status_t stream_t::submit(const nstl::vector<primitive_t *> &prims,
         primitive_t **error_prim) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:          primitive_t **error_prim) {" << std::endl;
     if (!modifiable_) return invalid_arguments;
 
     primitive_t *error_primitive_stub;
@@ -37,8 +39,10 @@ status_t stream_t::submit(const nstl::vector<primitive_t *> &prims,
     /* check whether adding each new primitive stream is always closed */
     nstl::vector<primitive_t *> tmp;
     for (size_t i = 0; i < prims.size(); ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:      for (size_t i = 0; i < prims.size(); ++i) {" << std::endl;
         tmp.push_back(prims[i]);
         if (!closed(tmp)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:          if (!closed(tmp)) {" << std::endl;
             *error_prim = prims[i];
             return invalid_arguments;
         }
@@ -54,6 +58,7 @@ bool stream_t::closed() const { return true; }
 bool stream_t::closed(const primitive_vector &prims) const { return true; }
 
 status_t stream_t::wait(primitive_t **error_prim) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:  status_t stream_t::wait(primitive_t **error_prim) {" << std::endl;
     if (!closed()) return invalid_arguments; /* XXX: redundant? */
 
     primitive_t *error_primitive_stub;
@@ -67,6 +72,7 @@ status_t stream_t::wait(primitive_t **error_prim) {
 }
 
 status_t stream_t::rerun(primitive_t **error_prim) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:  status_t stream_t::rerun(primitive_t **error_prim) {" << std::endl;
     if (state() != stream_t::stopped) return invalid_arguments;
 
     primitive_t *error_primitive_stub;
@@ -79,6 +85,7 @@ status_t stream_t::rerun(primitive_t **error_prim) {
 /* API */
 
 status_t mkldnn_stream_create(stream_t **stream, stream_kind_t stream_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:  status_t mkldnn_stream_create(stream_t **stream, stream_kind_t stream_kind) {" << std::endl;
     bool args_ok = stream != nullptr && utils::one_of(stream_kind,
             stream_kind::eager, stream_kind::lazy);
     if (!args_ok)
@@ -94,11 +101,13 @@ status_t mkldnn_stream_create(stream_t **stream, stream_kind_t stream_kind) {
 
 status_t mkldnn_stream_submit(stream_t *stream, size_t n,
         primitive_t *primitives[], primitive_t **error_primitive) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:          primitive_t *primitives[], primitive_t **error_primitive) {" << std::endl;
     bool args_ok = !utils::any_null(stream, primitives);
     if (!args_ok) return invalid_arguments;
 
     nstl::vector<primitive_t *> prims;
     for (size_t i = 0; i < n; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:      for (size_t i = 0; i < n; ++i) {" << std::endl;
         if (primitives[i] == nullptr) return invalid_arguments;
         prims.push_back(primitives[i]);
     }
@@ -107,17 +116,20 @@ status_t mkldnn_stream_submit(stream_t *stream, size_t n,
 
 status_t mkldnn_stream_wait(stream_t *stream, int block,
         primitive_t **error_primitive) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:          primitive_t **error_primitive) {" << std::endl;
     UNUSED(block);
     if (stream == nullptr) return invalid_arguments;
     return stream->wait(error_primitive);
 }
 
 status_t mkldnn_stream_rerun(stream_t *stream, primitive_t **error_primitive) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:  status_t mkldnn_stream_rerun(stream_t *stream, primitive_t **error_primitive) {" << std::endl;
     if (stream == nullptr) return invalid_arguments;
     return stream->rerun(error_primitive);
 }
 
 status_t mkldnn_stream_destroy(stream_t *stream) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/stream.cpp:  status_t mkldnn_stream_destroy(stream_t *stream) {" << std::endl;
     if (stream) delete stream;
     return success;
 }

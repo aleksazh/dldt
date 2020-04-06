@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -94,7 +95,9 @@ void _jit_avx512_core_fp32_wino_conv_4x3_t<is_fwd>::output_transform_data
         (tile_base_index / jcp.tile_block_ur) / jcp.nb_tile_block_ur;
 
     for (int tj = 0; tj < jcp.jtiles; tj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      for (int tj = 0; tj < jcp.jtiles; tj++) {" << std::endl;
         for (int ti = 0; ti < jcp.itiles; ti++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          for (int ti = 0; ti < jcp.itiles; ti++) {" << std::endl;
 
             p.tile_block_ur = tile_block_ur;
             p.nb_tile_block_ur = nb_tile_block_ur;
@@ -106,10 +109,12 @@ void _jit_avx512_core_fp32_wino_conv_4x3_t<is_fwd>::output_transform_data
 
             tile_block_ur++;
             if (tile_block_ur >= jcp.tile_block_ur) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              if (tile_block_ur >= jcp.tile_block_ur) {" << std::endl;
                 tile_block_ur = 0;
                 nb_tile_block_ur++;
             }
             if (nb_tile_block_ur >= jcp.nb_tile_block_ur) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              if (nb_tile_block_ur >= jcp.nb_tile_block_ur) {" << std::endl;
                 nb_tile_block_ur = 0;
                 tile_block++;
             }
@@ -145,9 +150,11 @@ void _jit_avx512_core_fp32_wino_conv_4x3_t<is_fwd>
     for (int nb_tile_block_ur = 0;
         nb_tile_block_ur < jcp.nb_tile_block_ur;
         nb_tile_block_ur++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          nb_tile_block_ur++) {" << std::endl;
 
         for (int tile_block_ur = 0; tile_block_ur < jcp.tile_block_ur;
             tile_block_ur++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              tile_block_ur++) {" << std::endl;
             int img = tile_index / (jcp.jtiles * jcp.itiles);
             int ti = tile_index % jcp.itiles;
             int tj = (tile_index / jcp.itiles) % jcp.jtiles;
@@ -197,7 +204,9 @@ void _jit_avx512_core_fp32_wino_conv_4x3_t<is_fwd>
         (tile_base_index / jcp.tile_block_ur) / jcp.nb_tile_block_ur;
 
     for (int tj = 0; tj < jcp.jtiles; tj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      for (int tj = 0; tj < jcp.jtiles; tj++) {" << std::endl;
         for (int ti = 0; ti < jcp.itiles; ti++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          for (int ti = 0; ti < jcp.itiles; ti++) {" << std::endl;
 
             p.tile_block_ur = tile_block_ur;
             p.nb_tile_block_ur = nb_tile_block_ur;
@@ -209,10 +218,12 @@ void _jit_avx512_core_fp32_wino_conv_4x3_t<is_fwd>
 
             tile_block_ur++;
             if (tile_block_ur >= jcp.tile_block_ur) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              if (tile_block_ur >= jcp.tile_block_ur) {" << std::endl;
                 tile_block_ur = 0;
                 nb_tile_block_ur++;
             }
             if (nb_tile_block_ur >= jcp.nb_tile_block_ur) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              if (nb_tile_block_ur >= jcp.nb_tile_block_ur) {" << std::endl;
                 nb_tile_block_ur = 0;
                 tile_block++;
             }
@@ -256,9 +267,11 @@ void _jit_avx512_core_fp32_wino_conv_4x3_t<is_fwd>
     for (int nb_tile_block_ur = 0;
             nb_tile_block_ur < jcp.nb_tile_block_ur;
             nb_tile_block_ur++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              nb_tile_block_ur++) {" << std::endl;
 
         for (int tile_block_ur = 0; tile_block_ur < jcp.tile_block_ur;
                 tile_block_ur++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  tile_block_ur++) {" << std::endl;
 
             int img = tile_index / (jcp.jtiles * jcp.itiles);
             int ti = tile_index % jcp.itiles;
@@ -336,6 +349,7 @@ void _jit_avx512_core_fp32_wino_conv_4x3_t<is_fwd>::_execute_data_W_S_G_D(
         && jcp.oc_without_padding != jcp.oc;
     float last_slice_bias[simd_w] = {0};
     if (wants_padded_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      if (wants_padded_bias) {" << std::endl;
         for (int oc = 0; oc < jcp.oc_without_padding % jcp.oc_simd_block; ++oc)
             last_slice_bias[oc] = bias(jcp.dimM / jcp.dimM_simd_block - 1, oc);
     }
@@ -352,6 +366,7 @@ PRAGMA_OMP(parallel)
     {
         PARALLEL_ND(MB, jcp.dimK_nb_block, jcp.dimK_block,
                 [&](int img, int K_blk1, int K_blk2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  [&](int img, int K_blk1, int K_blk2) {" << std::endl;
                 input_transform_data(img, jcp,
                     &(input(img, K_blk1 * jcp.dimK_block + K_blk2,
                             0, 0, 0)),
@@ -359,9 +374,11 @@ PRAGMA_OMP(parallel)
                 });
 
         if (jcp.prop_kind != prop_kind::forward_inference) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          if (jcp.prop_kind != prop_kind::forward_inference) {" << std::endl;
             PARALLEL_ND(jcp.nb_oc, jcp.nb_ic, (jcp.oc_block * jcp.oc_reg_block),
                 (jcp.ic_block * jcp.ic_reg_block),
                 [&](int ofm1, int ifm1, int ofm2, int ifm2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  [&](int ofm1, int ifm1, int ofm2, int ifm2) {" << std::endl;
                     float *U_base_ptr = is_fwd
                         ? &(U(ofm1, 0, 0, ifm1, ofm2, ifm2, 0, 0))
                         : &(U(ifm1, 0, 0, ofm1, ifm2, ofm2, 0, 0));
@@ -379,6 +396,7 @@ PRAGMA_OMP(barrier)
 
         PARALLEL_ND(jcp.dimN_nb_block, alpha, alpha, jcp.dimM_nb_block,
             [&](int N_blk1, int oj, int oi, int M_blk1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              [&](int N_blk1, int oj, int oi, int M_blk1) {" << std::endl;
             for (int K_blk1 = 0; K_blk1 < jcp.dimK_nb_block;
                  K_blk1++)
             for (int N_blk2 = 0; N_blk2 < jcp.dimN_block; N_blk2++)
@@ -395,6 +413,7 @@ PRAGMA_OMP(barrier)
 
         PARALLEL_ND(MB, jcp.dimM_nb_block, (jcp.dimM_block * jcp.dimM_reg_block),
                     [&](int img, int M_blk1, int M_blk2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                      [&](int img, int M_blk1, int M_blk2) {" << std::endl;
             const int M_blk =
                 M_blk1 * jcp.dimM_block  * jcp.dimM_reg_block + M_blk2;
 
@@ -461,14 +480,17 @@ void _jit_avx512_core_fp32_wino_conv_4x3_t<is_fwd>::_execute_data_W_SGD(const in
         && jcp.oc_without_padding != jcp.oc;
     float last_slice_bias[simd_w] = {0};
     if (wants_padded_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      if (wants_padded_bias) {" << std::endl;
         for (int oc = 0; oc < jcp.oc_without_padding % jcp.oc_simd_block; ++oc)
             last_slice_bias[oc] = bias(jcp.dimM / jcp.dimM_simd_block - 1, oc);
     }
 
     if (jcp.prop_kind != prop_kind::forward_inference) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      if (jcp.prop_kind != prop_kind::forward_inference) {" << std::endl;
 
         parallel_nd(jcp.nb_oc, jcp.nb_ic, (jcp.oc_block * jcp.oc_reg_block), (jcp.ic_block * jcp.ic_reg_block),
                     [&](int ofm1, int ifm1, int ofm2, int ifm2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                      [&](int ofm1, int ifm1, int ofm2, int ifm2) {" << std::endl;
             float *U_base_ptr = is_fwd
                               ? &(U(ofm1, 0, 0, ifm1, ofm2, ifm2, 0, 0))
                               : &(U(ifm1, 0, 0, ofm1, ifm2, ofm2, 0, 0));
@@ -483,13 +505,17 @@ void _jit_avx512_core_fp32_wino_conv_4x3_t<is_fwd>::_execute_data_W_SGD(const in
 
 PRAGMA_OMP(parallel)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:  PRAGMA_OMP(parallel)     {" << std::endl;
 
     int ithr = mkldnn_get_thread_num();
 
 PRAGMA_OMP(for schedule(static))
     for (int tile_block = 0; tile_block < jcp.tile_block; tile_block++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      for (int tile_block = 0; tile_block < jcp.tile_block; tile_block++) {" << std::endl;
         for (int K_blk1 = 0; K_blk1 < jcp.dimK_nb_block; K_blk1++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          for (int K_blk1 = 0; K_blk1 < jcp.dimK_nb_block; K_blk1++) {" << std::endl;
             for (int K_blk2 = 0; K_blk2 < jcp.dimK_block; K_blk2++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (int K_blk2 = 0; K_blk2 < jcp.dimK_block; K_blk2++) {" << std::endl;
 
                 input_transform_tileblock_data(
                         tile_block, jcp,
@@ -499,7 +525,9 @@ PRAGMA_OMP(for schedule(static))
         }
 
         for (int oj = 0; oj < alpha; oj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          for (int oj = 0; oj < alpha; oj++) {" << std::endl;
             for (int oi = 0; oi < alpha; oi++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (int oi = 0; oi < alpha; oi++) {" << std::endl;
                 for (int M_blk1 = 0; M_blk1 < jcp.dimM_nb_block; M_blk1++)
                 for (int K_blk1 = 0; K_blk1 < jcp.dimK_nb_block; K_blk1++)
                 for (int N_blk = 0; N_blk < jcp.dimN_block; N_blk++)
@@ -514,8 +542,10 @@ PRAGMA_OMP(for schedule(static))
         }
 
         for (int M_blk1 = 0; M_blk1 < jcp.dimM_nb_block; M_blk1++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          for (int M_blk1 = 0; M_blk1 < jcp.dimM_nb_block; M_blk1++) {" << std::endl;
             for (int M_blk2 = 0; M_blk2 < jcp.dimM_block * jcp.dimM_reg_block;
                   M_blk2++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                    M_blk2++) {" << std::endl;
                 const int M_blk =
                     M_blk1 * jcp.dimM_block  * jcp.dimM_reg_block + M_blk2;
 
@@ -539,6 +569,7 @@ namespace {
 
 void subarray_sum(size_t num_arrs, float *output, size_t nelems,
         float *input_ptrs[], size_t input_starts[], size_t input_ends[]) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          float *input_ptrs[], size_t input_starts[], size_t input_ends[]) {" << std::endl;
     using namespace nstl;
     const size_t block_size = 16 * 1024 / sizeof(float);
     const size_t blocks_number = nelems / block_size;
@@ -546,12 +577,14 @@ void subarray_sum(size_t num_arrs, float *output, size_t nelems,
 
 PRAGMA_OMP(parallel)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:  PRAGMA_OMP(parallel)     {" << std::endl;
         const int ithr = mkldnn_get_thread_num();
         const int nthr = mkldnn_get_num_threads();
         size_t start{ 0 }, end{ 0 };
         balance211(blocks_number, nthr, ithr, start, end);
 
         for (size_t nb = start; nb < end; ++nb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          for (size_t nb = start; nb < end; ++nb) {" << std::endl;
             size_t start_e = nb * block_size;
             size_t end_e = start_e + block_size;
             size_t input_start = max(start_e, min(input_starts[0], end_e));
@@ -559,31 +592,37 @@ PRAGMA_OMP(parallel)
 
             PRAGMA_OMP_SIMD()
             for (size_t e = start_e; e < input_start; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (size_t e = start_e; e < input_start; e++) {" << std::endl;
                 output[e] = 0.f;
             }
 
             PRAGMA_OMP_SIMD()
             for (size_t e = input_start; e < input_end; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (size_t e = input_start; e < input_end; e++) {" << std::endl;
                 output[e] = input_ptrs[0][e];
             }
 
             PRAGMA_OMP_SIMD()
             for (size_t e = input_end; e < end_e; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (size_t e = input_end; e < end_e; e++) {" << std::endl;
                 output[e] = 0.f;
             }
 
             for (size_t a = 1; a < num_arrs; a++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (size_t a = 1; a < num_arrs; a++) {" << std::endl;
                 input_start = max(start_e, input_starts[a]);
                 input_end = min(input_ends[a], end_e);
 
                 PRAGMA_OMP_SIMD()
                 for (size_t e = input_start; e < input_end; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (size_t e = input_start; e < input_end; e++) {" << std::endl;
                     output[e] += input_ptrs[a][e];
                 }
             }
         }
 
         if (tail != 0 && ithr == nthr - 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          if (tail != 0 && ithr == nthr - 1) {" << std::endl;
             size_t start_e = nelems - tail;
             size_t end_e = nelems;
             size_t input_start = max(start_e, min(input_starts[0], end_e));
@@ -591,25 +630,30 @@ PRAGMA_OMP(parallel)
 
             PRAGMA_OMP_SIMD()
             for (size_t e = start_e; e < input_start; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (size_t e = start_e; e < input_start; e++) {" << std::endl;
                 output[e] = 0.f;
             }
 
             PRAGMA_OMP_SIMD()
             for (size_t e = input_start; e < input_end; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (size_t e = input_start; e < input_end; e++) {" << std::endl;
                 output[e] = input_ptrs[0][e];
             }
 
             PRAGMA_OMP_SIMD()
             for (size_t e = input_end; e < end_e; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (size_t e = input_end; e < end_e; e++) {" << std::endl;
                 output[e] = 0.f;
             }
 
             for (size_t a = 1; a < num_arrs; a++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (size_t a = 1; a < num_arrs; a++) {" << std::endl;
                 input_start = max(start_e, input_starts[a]);
                 input_end = min(input_ends[a], end_e);
 
                 PRAGMA_OMP_SIMD()
                 for (size_t e = input_start; e < input_end; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (size_t e = input_start; e < input_end; e++) {" << std::endl;
                     output[e] += input_ptrs[a][e];
                 }
             }
@@ -622,46 +666,58 @@ const int max_threads_number = 1024;
 // Sum to the first buffer array
 void array_sum(size_t num_arrs, float *output,
     size_t nelems, float *input_ptrs[], bool reduce_to_first = true) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      size_t nelems, float *input_ptrs[], bool reduce_to_first = true) {" << std::endl;
     const size_t block_size = 16 * 1024 / sizeof(float);
     const size_t blocks_number = nelems / block_size;
     const size_t tail = nelems % block_size;
 
 PRAGMA_OMP(parallel)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:  PRAGMA_OMP(parallel)     {" << std::endl;
         const size_t ithr = mkldnn_get_thread_num();
         const size_t nthr = mkldnn_get_num_threads();
         size_t start{ 0 }, end{ 0 };
         balance211(blocks_number, nthr, ithr, start, end);
 
         for (size_t nb = start; nb < end; ++nb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          for (size_t nb = start; nb < end; ++nb) {" << std::endl;
             size_t start_e = nb * block_size;
             size_t end_e = start_e + block_size;
             if (!reduce_to_first) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              if (!reduce_to_first) {" << std::endl;
                 PRAGMA_OMP_SIMD()
                 for (size_t e = start_e; e < end_e; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (size_t e = start_e; e < end_e; e++) {" << std::endl;
                     output[e] = input_ptrs[0][e];
                 }
             }
             for (size_t a = 1; a < num_arrs; a++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (size_t a = 1; a < num_arrs; a++) {" << std::endl;
                 PRAGMA_OMP_SIMD()
                 for (size_t e = start_e; e < end_e; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (size_t e = start_e; e < end_e; e++) {" << std::endl;
                     output[e] += input_ptrs[a][e];
                 }
             }
         }
 
         if (tail != 0 && ithr == nthr - 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          if (tail != 0 && ithr == nthr - 1) {" << std::endl;
             size_t start_e = nelems - tail;
             size_t end_e = nelems;
             if (!reduce_to_first) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              if (!reduce_to_first) {" << std::endl;
                 PRAGMA_OMP_SIMD()
                 for (size_t e = start_e; e < end_e; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (size_t e = start_e; e < end_e; e++) {" << std::endl;
                     output[e] = input_ptrs[0][e];
                 }
             }
             for (size_t a = 1; a < num_arrs; a++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (size_t a = 1; a < num_arrs; a++) {" << std::endl;
                 PRAGMA_OMP_SIMD()
                 for (size_t e = start_e; e < end_e; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (size_t e = start_e; e < end_e; e++) {" << std::endl;
                     output[e] += input_ptrs[a][e];
                 }
             }
@@ -726,12 +782,16 @@ _execute_backward_weights_SDGtWo(
 
 PRAGMA_OMP(parallel num_threads(nthreads) firstprivate(trans_ker_p, I, T))
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:  PRAGMA_OMP(parallel num_threads(nthreads) firstprivate(trans_ker_p, I, T)) {" << std::endl;
     if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      if (jcp.with_bias) {" << std::endl;
         parallel_nd_in_omp(nthreads, jcp.oc / simd_w,
             [&](int ithr, int ofm){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              [&](int ithr, int ofm){" << std::endl;
                 float *pdbias = &(diff_bias_prv(ithr, ofm * simd_w));
                 PRAGMA_OMP_SIMD()
                 for (int v = 0; v < simd_w; v++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (int v = 0; v < simd_w; v++) {" << std::endl;
                     pdbias[v] = 0.0f;
                 }
         });
@@ -739,9 +799,11 @@ PRAGMA_OMP(parallel num_threads(nthreads) firstprivate(trans_ker_p, I, T))
 
     int ithr = mkldnn_get_thread_num();
     for (int ifm1 = 0; ifm1 < jcp.nb_ic; ++ifm1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      for (int ifm1 = 0; ifm1 < jcp.nb_ic; ++ifm1) {" << std::endl;
         int first_tblk = 0;
 PRAGMA_OMP(for)
         for (int tblk1 = 0; tblk1 < jcp.tile_block; ++tblk1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          for (int tblk1 = 0; tblk1 < jcp.tile_block; ++tblk1) {" << std::endl;
             int tile_index = tblk1 * jcp.nb_tile_block_ur * jcp.tile_block_ur;
             int img = tile_index / (jcp.itiles * jcp.jtiles);
             trans_ker_p.ti = tile_index % jcp.itiles;
@@ -750,6 +812,7 @@ PRAGMA_OMP(for)
             trans_ker_p.T = T;
             trans_ker_p.G = G_I_3x3_4x4;
             for (int ifm2 = 0; ifm2 < jcp.ic_block; ++ifm2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (int ifm2 = 0; ifm2 < jcp.ic_block; ++ifm2) {" << std::endl;
                 int ifm = ifm1 * jcp.ic_block + ifm2;
                 trans_ker_p.src = (float *)&(src(img, ifm, 0, 0, 0));
                 trans_ker_p.dst = (float *)&(V(ithr, 0, 0, ifm2, 0, 0, 0));
@@ -757,12 +820,15 @@ PRAGMA_OMP(for)
             }
 
             for (int ofm1 = 0; ofm1 < jcp.nb_oc; ++ofm1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (int ofm1 = 0; ofm1 < jcp.nb_oc; ++ofm1) {" << std::endl;
                 trans_ker_p.G = G_W_3x3_4x4;
                 for (int ofm2 = 0; ofm2 < jcp.oc_block; ++ofm2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (int ofm2 = 0; ofm2 < jcp.oc_block; ++ofm2) {" << std::endl;
                     int ofm = (ofm1 * jcp.oc_block + ofm2) * jcp.oc_reg_block;
                     trans_ker_p.src = (float *)&(diff_dst(img, ofm, 0, 0, 0));
                     trans_ker_p.dst = (float *)&(M(ithr, 0, 0, ofm2, 0, 0, 0, 0));
                     if (jcp.with_bias && ifm1 == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                      if (jcp.with_bias && ifm1 == 0) {" << std::endl;
                         trans_ker_p.bias = (float *)&(diff_bias_prv(ithr, ofm * simd_w));
                         kernel_->diff_dst_transform_wbias(&trans_ker_p);
                     } else {
@@ -771,7 +837,9 @@ PRAGMA_OMP(for)
                 }
 
                 for (int oj = 0; oj < alpha; ++oj) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (int oj = 0; oj < alpha; ++oj) {" << std::endl;
                     for (int oi = 0; oi < alpha; ++oi) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                      for (int oi = 0; oi < alpha; ++oi) {" << std::endl;
                         kernel_->gemm_loop_ker_first_iter(
                                 &(Us(ithr, oj, oi, 0, 0, 0, 0, 0)),
                                 &(M(ithr, oj, oi, 0, 0, 0, 0, 0)),
@@ -780,16 +848,20 @@ PRAGMA_OMP(for)
                 }
                 trans_ker_p.G = G_O_3x3_4x4;
                 for (int ofm2 = 0; ofm2 < jcp.oc_block; ++ofm2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (int ofm2 = 0; ofm2 < jcp.oc_block; ++ofm2) {" << std::endl;
                     for (int ofm3 = 0; ofm3 < jcp.oc_reg_block; ++ofm3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                      for (int ofm3 = 0; ofm3 < jcp.oc_reg_block; ++ofm3) {" << std::endl;
                         int ofm = (ofm1 * jcp.oc_block + ofm2) * jcp.oc_reg_block
                                 + ofm3;
                         for (int ifm2 = 0; ifm2 < jcp.ic_block; ++ifm2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                          for (int ifm2 = 0; ifm2 < jcp.ic_block; ++ifm2) {" << std::endl;
                             int ifm = ifm1 * jcp.ic_block + ifm2;
                             trans_ker_p.src = (float *)&(Us(ithr, 0, 0,
                                         ofm2, ifm2, 0, ofm3, 0));
                             trans_ker_p.dst = (float *)&(diff_weights_prv(ithr,
                                         ofm, ifm, 0, 0, 0, 0));
                             if (first_tblk == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                              if (first_tblk == 0) {" << std::endl;
                                 kernel_->diff_weights_transform(&trans_ker_p);
                             } else {
                                 kernel_->diff_weights_transform_accum(&trans_ker_p);
@@ -810,14 +882,17 @@ PRAGMA_OMP(for)
         int nelems = jcp.oc * jcp.ic * jcp.kh * jcp.kw;
         float *input_ptrs[max_threads_number];
         for (int i = 0; i < nthreads; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          for (int i = 0; i < nthreads; ++i) {" << std::endl;
             input_ptrs[i] = input_base + nelems * i;
         }
         array_sum(nthreads, output, nelems, input_ptrs, false);
 
         if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          if (jcp.with_bias) {" << std::endl;
             output = (float *)(this->memory(1));
             input_base = scratchpad.get<float>(key_conv_bia_reduction);
             for (int i = 0; i < nthreads; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (int i = 0; i < nthreads; ++i) {" << std::endl;
                 input_ptrs[i] = input_base + jcp.oc * i;
             }
             array_sum(nthreads, output, jcp.oc_without_padding, input_ptrs,
@@ -895,8 +970,11 @@ _execute_backward_weights_S_D_Giot_W(
 
 PRAGMA_OMP(parallel firstprivate(first_tblk, trans_ker_p, I, T))
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:  PRAGMA_OMP(parallel firstprivate(first_tblk, trans_ker_p, I, T)) {" << std::endl;
     if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      if (jcp.with_bias) {" << std::endl;
         parallel_nd_in_omp(nthreads, jcp.oc, [&](int ithr, int ofm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          parallel_nd_in_omp(nthreads, jcp.oc, [&](int ithr, int ofm) {" << std::endl;
             diff_bias_prv(ithr, ofm) = 0.0f;
         });
     }
@@ -907,6 +985,7 @@ PRAGMA_OMP(parallel firstprivate(first_tblk, trans_ker_p, I, T))
 
     parallel_nd_in_omp(jcp.nb_ic, jcp.ic_block, jcp.mb,
         [&](int ifm1, int ifm2, int img){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          [&](int ifm1, int ifm2, int img){" << std::endl;
          size_t ifm = ifm1 * jcp.ic_block + ifm2;
          size_t tile_base_index = img * (jcp.itiles * jcp.jtiles);
          size_t tblk3 = tile_base_index  % jcp.tile_block_ur;
@@ -924,6 +1003,7 @@ PRAGMA_OMP(parallel firstprivate(first_tblk, trans_ker_p, I, T))
     trans_ker_p.G = G_W_3x3_4x4;
     parallel_nd_in_omp(jcp.nb_oc, jcp.oc_block, jcp.mb,
         [&](int ofm1, int ofm2, int img){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          [&](int ofm1, int ofm2, int img){" << std::endl;
         int ofm = (ofm1 * jcp.oc_block + ofm2) * jcp.oc_reg_block;
         size_t tile_base_index = img * (jcp.itiles * jcp.jtiles);
         size_t tblk3 = tile_base_index  % jcp.tile_block_ur;
@@ -935,6 +1015,7 @@ PRAGMA_OMP(parallel firstprivate(first_tblk, trans_ker_p, I, T))
         trans_ker_p.src = (float *)&(diff_dst(img, ofm, 0, 0, 0));
         trans_ker_p.dst = (float *)&(M(ofm1, tblk1, 0, 0, ofm2, 0, 0, 0, 0));
         if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          if (jcp.with_bias) {" << std::endl;
             trans_ker_p.bias = (float *)&(diff_bias_prv(ithr, ofm * simd_w));
             kernel_->diff_dst_transform_wbias(&trans_ker_p);
         } else {
@@ -946,7 +1027,9 @@ PRAGMA_OMP(parallel firstprivate(first_tblk, trans_ker_p, I, T))
 
     parallel_nd_in_omp(jcp.nb_ic, jcp.nb_oc, alpha, alpha, jcp.tile_block,
         [&](int ifm1, int ofm1, int oj, int oi, int tblk1){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          [&](int ifm1, int ofm1, int oj, int oi, int tblk1){" << std::endl;
         if (first_tblk == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          if (first_tblk == 0) {" << std::endl;
             input_starts[ithr] =
                 (float *)&(Us(ithr, ifm1, ofm1, oj, oi, 0, 0, 0,
                             0, 0))
@@ -958,12 +1041,14 @@ PRAGMA_OMP(parallel firstprivate(first_tblk, trans_ker_p, I, T))
                       * jcp.oc_simd_block;
         }
         else if (tblk1 == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          else if (tblk1 == 0) {" << std::endl;
             input_ends[ithr] += jcp.oc_block * jcp.ic_block
                 * jcp.ic_simd_block * jcp.oc_reg_block
                 * jcp.oc_simd_block;
         }
 
         if (first_tblk == 0 || tblk1 == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          if (first_tblk == 0 || tblk1 == 0) {" << std::endl;
             kernel_->gemm_loop_ker_first_iter(
                     &(Us(ithr, ifm1, ofm1, oj, oi,
                             0, 0, 0, 0, 0)),
@@ -994,8 +1079,10 @@ PRAGMA_OMP(parallel firstprivate(first_tblk, trans_ker_p, I, T))
     trans_ker_p.G = G_O_3x3_4x4;
 PRAGMA_OMP(parallel firstprivate(trans_ker_p))
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:  PRAGMA_OMP(parallel firstprivate(trans_ker_p))     {" << std::endl;
         parallel_nd_in_omp(jcp.nb_ic, jcp.nb_oc, jcp.oc_block, jcp.ic_block, jcp.oc_reg_block,
             [&](int ifm1, int ofm1, int ofm2, int ifm2, int ofm3){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              [&](int ifm1, int ofm1, int ofm2, int ifm2, int ofm3){" << std::endl;
             int ofm = (ofm1 * jcp.oc_block + ofm2)
                 * jcp.oc_reg_block + ofm3;
             int ifm = ifm1 * jcp.ic_block + ifm2;
@@ -1008,7 +1095,9 @@ PRAGMA_OMP(parallel firstprivate(trans_ker_p))
     }
 
     if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:      if (jcp.with_bias) {" << std::endl;
         parallel_nd(jcp.oc / simd_w, [&](int ofm1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:          parallel_nd(jcp.oc / simd_w, [&](int ofm1) {" << std::endl;
             float* pbias = &(diff_bias(ofm1 * simd_w));
             float *pbias_prv = &(diff_bias_prv(0, ofm1 * simd_w));
 
@@ -1017,13 +1106,16 @@ PRAGMA_OMP(parallel firstprivate(trans_ker_p))
 
             PRAGMA_OMP_SIMD()
             for (int ofm2 = 0; ofm2 < blk_sz; ++ofm2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (int ofm2 = 0; ofm2 < blk_sz; ++ofm2) {" << std::endl;
                 pbias[ofm2] = pbias_prv[ofm2];
             }
 
             for (int ithr = 1; ithr < nthreads; ++ithr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:              for (int ithr = 1; ithr < nthreads; ++ithr) {" << std::endl;
                 pbias_prv = &(diff_bias_prv(ithr, ofm1 * simd_w));
                 PRAGMA_OMP_SIMD()
                 for (int ofm2 = 0; ofm2 < blk_sz; ++ofm2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3.cpp:                  for (int ofm2 = 0; ofm2 < blk_sz; ++ofm2) {" << std::endl;
                     pbias[ofm2] += pbias_prv[ofm2];
                 }
             }

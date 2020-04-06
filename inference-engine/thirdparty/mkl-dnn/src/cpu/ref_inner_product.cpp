@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -55,15 +56,21 @@ void ref_inner_product_fwd_t<src_type, wei_type, dst_type, acc_type>
     const float nslope = do_relu ? post_ops.entry_[0].eltwise.alpha : 0.f;
 
     auto ker_has_spatial = [=](int mb, int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:      auto ker_has_spatial = [=](int mb, int oc) {" << std::endl;
         acc_data_t d = 0;
         const int KD = pd()->KD();
         const int KH = pd()->KH();
         const int KW = pd()->KW();
         for (int ic = 0; ic < IC; ++ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:          for (int ic = 0; ic < IC; ++ic) {" << std::endl;
             for (int kd = 0; kd < KD; ++kd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:              for (int kd = 0; kd < KD; ++kd) {" << std::endl;
                 for (int kh = 0; kh < KH; ++kh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                  for (int kh = 0; kh < KH; ++kh) {" << std::endl;
                     for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                      for (int kw = 0; kw < KW; ++kw) {" << std::endl;
                         switch (ndims) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                          switch (ndims) {" << std::endl;
                         case 3:
                             d += (acc_data_t)src[src_d.off(mb, ic, kd, kh, kw)]
                                     * weights[weights_d.off(
@@ -87,8 +94,10 @@ void ref_inner_product_fwd_t<src_type, wei_type, dst_type, acc_type>
     };
 
     auto ker_no_spatial = [=](int mb, int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:      auto ker_no_spatial = [=](int mb, int oc) {" << std::endl;
         acc_data_t d = 0;
         for (int ic = 0; ic < IC; ++ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:          for (int ic = 0; ic < IC; ++ic) {" << std::endl;
             d += (acc_data_t)src[src_d.off(mb, ic)]
                 * weights[weights_d.off(oc, ic)];
         }
@@ -96,6 +105,7 @@ void ref_inner_product_fwd_t<src_type, wei_type, dst_type, acc_type>
     };
 
     parallel_nd(MB, OC, [&](int mb, int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:      parallel_nd(MB, OC, [&](int mb, int oc) {" << std::endl;
         float a = bias
             ? get_bias(bias, bias_d.off(oc), pd()->desc()->bias_desc.data_type)
             : 0;
@@ -138,16 +148,21 @@ void ref_inner_product_bwd_data_t<diff_src_type, wei_type, diff_dst_type,
     const int ndims = diff_src_d.ndims() - 2;
 
     parallel_nd(MB, IC, [&](int mb, int ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:      parallel_nd(MB, IC, [&](int mb, int ic) {" << std::endl;
         if (diff_src_has_spatial) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:          if (diff_src_has_spatial) {" << std::endl;
             const int KD = pd()->KD();
             const int KH = pd()->KH();
             const int KW = pd()->KW();
             for (int kd = 0; kd < KD; ++kd)
             for (int kh = 0; kh < KH; ++kh)
             for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:              for (int kw = 0; kw < KW; ++kw) {" << std::endl;
                 acc_data_t ds = acc_data_t(0);
                 for (int oc = 0; oc < OC; ++oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                  for (int oc = 0; oc < OC; ++oc) {" << std::endl;
                     switch (ndims) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                      switch (ndims) {" << std::endl;
                     case 3:
                         ds += (acc_data_t)(diff_dst[diff_dst_d.off(mb, oc)]
                                 * weights[weights_d.off(oc, ic, kd, kh, kw)]);
@@ -164,6 +179,7 @@ void ref_inner_product_bwd_data_t<diff_src_type, wei_type, diff_dst_type,
                     }
                 }
                 switch (ndims) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                  switch (ndims) {" << std::endl;
                 case 3:
                     diff_src[diff_src_d.off(mb, ic, kd, kh, kw)]
                             = (diff_src_data_t)ds;
@@ -181,6 +197,7 @@ void ref_inner_product_bwd_data_t<diff_src_type, wei_type, diff_dst_type,
         } else {
             acc_data_t ds = acc_data_t(0);
             for (int oc = 0; oc < OC; ++oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:              for (int oc = 0; oc < OC; ++oc) {" << std::endl;
                 ds += (acc_data_t)(diff_dst[diff_dst_d.off(mb, oc)] *
                     weights[weights_d.off(oc, ic)]);
             }
@@ -212,15 +229,21 @@ void ref_inner_product_bwd_weights_t<data_type>::execute_backward_weights() cons
     const int ndims = src_d.ndims() - 2;
 
     parallel_nd(OC, IC, [&](int oc, int ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:      parallel_nd(OC, IC, [&](int oc, int ic) {" << std::endl;
         if (src_has_spatial) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:          if (src_has_spatial) {" << std::endl;
             const int KD = pd()->KD();
             const int KH = pd()->KH();
             const int KW = pd()->KW();
             for (int kd = 0; kd < KD; ++kd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:              for (int kd = 0; kd < KD; ++kd) {" << std::endl;
                 for (int kh = 0; kh < KH; ++kh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                  for (int kh = 0; kh < KH; ++kh) {" << std::endl;
                     for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                      for (int kw = 0; kw < KW; ++kw) {" << std::endl;
                         data_t *dw(nullptr);
                         switch (ndims) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                          switch (ndims) {" << std::endl;
                         case 3:
                             dw = &diff_weights[diff_weights_d.off(
                                     oc, ic, kd, kh, kw)];
@@ -236,7 +259,9 @@ void ref_inner_product_bwd_weights_t<data_type>::execute_backward_weights() cons
                         }
                         *dw = data_t(0);
                         for (int mb = 0; mb < MB; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                          for (int mb = 0; mb < MB; ++mb) {" << std::endl;
                             switch (ndims) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:                              switch (ndims) {" << std::endl;
                             case 3:
                                 *dw += diff_dst[diff_dst_d.off(mb, oc)]
                                         * src[src_d.off(mb, ic, kd, kh, kw)];
@@ -259,6 +284,7 @@ void ref_inner_product_bwd_weights_t<data_type>::execute_backward_weights() cons
             data_t *dw = &diff_weights[diff_weights_d.off(oc, ic)];
             *dw = data_t(0);
             for (int mb = 0; mb < MB; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:              for (int mb = 0; mb < MB; ++mb) {" << std::endl;
                 *dw += diff_dst[diff_dst_d.off(mb, oc)] *
                     src[src_d.off(mb, ic)];
             }
@@ -266,9 +292,11 @@ void ref_inner_product_bwd_weights_t<data_type>::execute_backward_weights() cons
     });
 
     if (diff_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:      if (diff_bias) {" << std::endl;
         diff_bias += diff_bias_d.blocking_desc().offset_padding;
 
         parallel_nd(OC, [&](int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_inner_product.cpp:          parallel_nd(OC, [&](int oc) {" << std::endl;
             data_t *db = &diff_bias[oc];
             *db = data_t(0);
             for (int mb = 0; mb < MB; ++mb)

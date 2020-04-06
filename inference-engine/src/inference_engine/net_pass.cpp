@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -25,10 +26,12 @@ namespace NetPass {
 
 template <typename T, typename P>
 inline bool one_of(T val, P item) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  inline bool one_of(T val, P item) {" << std::endl;
     return val == item;
 }
 template <typename T, typename P, typename... Args>
 inline bool one_of(T val, P item, Args... item_others) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  inline bool one_of(T val, P item, Args... item_others) {" << std::endl;
     return val == item || one_of(val, item_others...);
 }
 
@@ -37,11 +40,13 @@ inline bool one_of(T val, P item, Args... item_others) {
 /************************************************************/
 
 static std::vector<DataPtr> getAllInputs(const std::vector<DataPtr>& heads) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static std::vector<DataPtr> getAllInputs(const std::vector<DataPtr>& heads) {" << std::endl;
     CNNLayerSet inputLayers;
     std::unordered_set<CNNLayer*> allLayers;
 
     // Define all start layers
     for (const auto& data : heads) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (const auto& data : heads) {" << std::endl;
         auto& secondLayers = data->getInputTo();
 
         if (secondLayers.empty()) continue;
@@ -49,7 +54,9 @@ static std::vector<DataPtr> getAllInputs(const std::vector<DataPtr>& heads) {
         details::UnorderedDFS(
             allLayers, secondLayers.begin()->second,
             [&](CNNLayerPtr layer) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:              [&](CNNLayerPtr layer) {" << std::endl;
                 if (layer->insData.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:                  if (layer->insData.empty()) {" << std::endl;
                     inputLayers.insert(layer);
                 }
             },
@@ -60,6 +67,7 @@ static std::vector<DataPtr> getAllInputs(const std::vector<DataPtr>& heads) {
     // Add fake input data to point on not achievable
     // layers from head (like const placeholders)
     for (auto& starter : inputLayers) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto& starter : inputLayers) {" << std::endl;
         DataPtr holder(new Data(starter->name + ":input_holder", starter->precision));
         holder->getInputTo()[starter->name] = starter;
         res.push_back(holder);
@@ -69,12 +77,14 @@ static std::vector<DataPtr> getAllInputs(const std::vector<DataPtr>& heads) {
 }
 
 std::vector<CNNLayerPtr> TIBodySortTopologically(const TensorIterator::Body& body) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  std::vector<CNNLayerPtr> TIBodySortTopologically(const TensorIterator::Body& body) {" << std::endl;
     std::vector<CNNLayerPtr> all_layers;
 
     auto all_input_layers = getAllInputs(body.inputs);
     CNNNetForestDFS(
         all_input_layers,
         [&](CNNLayerPtr current) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          [&](CNNLayerPtr current) {" << std::endl;
             all_layers.push_back(current);
         },
         false);
@@ -83,8 +93,10 @@ std::vector<CNNLayerPtr> TIBodySortTopologically(const TensorIterator::Body& bod
 }
 
 TensorIterator::Body CopyTIBody(const TensorIterator::Body& body, std::string suffix) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  TensorIterator::Body CopyTIBody(const TensorIterator::Body& body, std::string suffix) {" << std::endl;
     struct NoneStruct {};
     auto cp = [&](CNNLayerPtr lp) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      auto cp = [&](CNNLayerPtr lp) {" << std::endl;
         return injectData<NoneStruct>(lp);
     };
 
@@ -92,11 +104,13 @@ TensorIterator::Body CopyTIBody(const TensorIterator::Body& body, std::string su
 
     std::unordered_map<CNNLayer*, CNNLayerPtr> old2new_l;
     for (const auto& orig : all_orig) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (const auto& orig : all_orig) {" << std::endl;
         old2new_l[orig.get()] = cp(orig);
     }
 
     std::unordered_map<Data*, DataPtr> old2new_d;
     for (auto& in : body.inputs) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto& in : body.inputs) {" << std::endl;
         auto new_data = std::make_shared<Data>(*in.get());
         for (auto& to : new_data->getInputTo()) to.second = old2new_l[to.second.get()];
 
@@ -104,9 +118,11 @@ TensorIterator::Body CopyTIBody(const TensorIterator::Body& body, std::string su
     }
 
     for (const auto& old : all_orig) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (const auto& old : all_orig) {" << std::endl;
         auto& new_one = old2new_l[old.get()];
         // remap output data
         for (int i = 0; i < old->outData.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (int i = 0; i < old->outData.size(); i++) {" << std::endl;
             auto old_data = old->outData[i];
             auto new_data = new_one->outData[i];
             new_data->getCreatorLayer() = CNNLayerWeakPtr(new_one);
@@ -116,6 +132,7 @@ TensorIterator::Body CopyTIBody(const TensorIterator::Body& body, std::string su
         }
         // remap input data
         for (int i = 0; i < old->insData.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (int i = 0; i < old->insData.size(); i++) {" << std::endl;
             auto old_data = old->insData[i].lock();
             auto new_data = old2new_d.at(old_data.get());
             new_one->insData[i] = new_data;
@@ -124,11 +141,14 @@ TensorIterator::Body CopyTIBody(const TensorIterator::Body& body, std::string su
 
     // Add suffix
     if (!suffix.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      if (!suffix.empty()) {" << std::endl;
         for (auto& kvp : old2new_l) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (auto& kvp : old2new_l) {" << std::endl;
             auto layer = kvp.second;
             auto old_name = layer->name;
             layer->name += suffix;
             for (auto& ins : layer->insData) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:              for (auto& ins : layer->insData) {" << std::endl;
                 ins.lock()->getInputTo().erase(old_name);
                 ins.lock()->getInputTo()[layer->name] = layer;
             }
@@ -154,29 +174,36 @@ TensorIterator::Body CopyTIBody(const TensorIterator::Body& body, std::string su
     //
     std::unordered_set<CNNLayerPtr> already_on_hold;
     for (auto &in : res.inputs) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto &in : res.inputs) {" << std::endl;
         // fake holder Data should have UNSPECIFIED precision
         if (in->getPrecision() == Precision::UNSPECIFIED) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          if (in->getPrecision() == Precision::UNSPECIFIED) {" << std::endl;
             for (const auto &kvp : in->getInputTo()) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:              for (const auto &kvp : in->getInputTo()) {" << std::endl;
                 already_on_hold.emplace(kvp.second);
             }
         }
     }
     std::vector<CNNLayerPtr> to_hold;
     for (auto& kvp : old2new_l) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto& kvp : old2new_l) {" << std::endl;
         auto layer = kvp.second;
         // layer has no parent Data object and is not on hold
         if (layer->insData.empty() && !already_on_hold.count(layer))
             to_hold.emplace_back(layer);
     }
     if (!to_hold.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      if (!to_hold.empty()) {" << std::endl;
         // detect existing holder or create new one
         if (res.inputs.back()->getPrecision() != Precision::UNSPECIFIED ||
             res.inputs.back()->getDims().size() != 0) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:              res.inputs.back()->getDims().size() != 0) {" << std::endl;
             res.inputs.emplace_back(new Data("const_holder", Precision::UNSPECIFIED));
         }
 
         auto holder = res.inputs.back();
         for (auto layer : to_hold) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (auto layer : to_hold) {" << std::endl;
             holder->getInputTo()[layer->name] = layer;
         }
     }
@@ -188,6 +215,7 @@ TensorIterator::Body CopyTIBody(const TensorIterator::Body& body, std::string su
 /************************************************************/
 
 inline bool is_full_ranged(const TensorIterator::PortMap& rule, const DataPtr& data) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  inline bool is_full_ranged(const TensorIterator::PortMap& rule, const DataPtr& data) {" << std::endl;
     if (!data) THROW_IE_EXCEPTION << "Internal error. data == nullptr";
 
     if (rule.axis == -1 || !one_of(rule.stride, 1, -1)) return false;
@@ -215,12 +243,14 @@ using RuleClassSet = std::tuple<RuleSet, RuleSet, RuleSet>;
  * @return tuple with three classes of port map rule
  */
 static RuleClassSet classifyInputRules(const TensorIterator& ti) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static RuleClassSet classifyInputRules(const TensorIterator& ti) {" << std::endl;
     RuleSet first_class_rules, second_class_rules, third_class_rules;
 
     std::set<int> ports_with_backedge;
     for (const auto& back_edge : ti.back_edges) ports_with_backedge.insert(back_edge.to);
 
     for (const auto& rule : ti.input_port_map) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (const auto& rule : ti.input_port_map) {" << std::endl;
         if (rule.axis != -1)
             first_class_rules.push_back(rule);
 
@@ -234,12 +264,14 @@ static RuleClassSet classifyInputRules(const TensorIterator& ti) {
 }
 
 static RuleClassSet classifyOutputRules(const TensorIterator& ti) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static RuleClassSet classifyOutputRules(const TensorIterator& ti) {" << std::endl;
     RuleSet first_class_rules, second_class_rules, third_class_rules;
 
     std::set<int> ports_with_backedge;
     for (const auto& back_edge : ti.back_edges) ports_with_backedge.insert(back_edge.from);
 
     for (const auto& rule : ti.output_port_map) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (const auto& rule : ti.output_port_map) {" << std::endl;
         if (rule.axis != -1)
             first_class_rules.push_back(rule);
 
@@ -259,9 +291,12 @@ static RuleClassSet classifyOutputRules(const TensorIterator& ti) {
  * @param slave
  */
 void CombineData(DataPtr& master, DataPtr& slave) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  void CombineData(DataPtr& master, DataPtr& slave) {" << std::endl;
     for (auto& kvp : slave->getInputTo()) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto& kvp : slave->getInputTo()) {" << std::endl;
         auto& slave_layer = kvp.second;
         for (auto& slv_ins_wptr : slave_layer->insData) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (auto& slv_ins_wptr : slave_layer->insData) {" << std::endl;
             auto slv_ins = slv_ins_wptr.lock();
             // Replace slave ptr with master
             if (slv_ins == slave) slv_ins_wptr = master;
@@ -278,6 +313,7 @@ void CombineData(DataPtr& master, DataPtr& slave) {
  * @param layer to remove from graph
  */
 void RemoveLayer(CNNLayerPtr& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  void RemoveLayer(CNNLayerPtr& layer) {" << std::endl;
     IE_ASSERT(layer->insData.size() == 1);
     IE_ASSERT(layer->outData.size() == 1);
 
@@ -288,6 +324,7 @@ void RemoveLayer(CNNLayerPtr& layer) {
     auto &input_to_map = in_data->getInputTo();
     auto self_found = std::find_if(input_to_map.begin(), input_to_map.end(),
             [&layer] (const std::pair<std::string, CNNLayerPtr> &kvp) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:              [&layer] (const std::pair<std::string, CNNLayerPtr> &kvp) {" << std::endl;
         return kvp.second == layer;
     });
     IE_ASSERT(self_found != input_to_map.end());
@@ -303,6 +340,7 @@ void RemoveLayer(CNNLayerPtr& layer) {
 /************************************************************/
 
 static RNNSequenceLayer::CellType cell_type_from_name(std::string& layer_type) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static RNNSequenceLayer::CellType cell_type_from_name(std::string& layer_type) {" << std::endl;
     RNNSequenceLayer::CellType res;
     if (layer_type == "LSTMCell")
         res = RNNSequenceLayer::LSTM;
@@ -316,8 +354,10 @@ static RNNSequenceLayer::CellType cell_type_from_name(std::string& layer_type) {
 }
 
 static std::string cell_name(RNNSequenceLayer::CellType type) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static std::string cell_name(RNNSequenceLayer::CellType type) {" << std::endl;
     std::string res;
     switch (type) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      switch (type) {" << std::endl;
     case RNNSequenceLayer::LSTM:
         res = "LSTM";
         break;
@@ -334,6 +374,7 @@ static std::string cell_name(RNNSequenceLayer::CellType type) {
 
 template <typename N>
 bool convertToRNNSeq(CNNLayerPtr cur, const N& net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool convertToRNNSeq(CNNLayerPtr cur, const N& net) {" << std::endl;
     if (cur->type != "TensorIterator") return true;
 
     auto ti = std::dynamic_pointer_cast<TensorIterator>(cur);
@@ -365,6 +406,7 @@ bool convertToRNNSeq(CNNLayerPtr cur, const N& net) {
 
     // Check port mapping
     auto _indx_in = [&](const std::vector<DataPtr>& scope, const DataPtr& data) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      auto _indx_in = [&](const std::vector<DataPtr>& scope, const DataPtr& data) {" << std::endl;
         int indx = std::find(scope.begin(), scope.end(), data) - scope.begin();
         return indx == scope.size() ? -1 : indx;
     };
@@ -440,12 +482,14 @@ bool convertToRNNSeq(CNNLayerPtr cur, const N& net) {
     rnn->clip = cell->clip;
 
     for (int i : i_order) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (int i : i_order) {" << std::endl;
         auto in_data = ti->insData[i].lock();
         in_data->getInputTo().erase(ti->name);
         in_data->getInputTo()[rnn->name] = rnn;
         rnn->insData.push_back(in_data);
     }
     for (int i : o_order) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (int i : o_order) {" << std::endl;
         rnn->outData.push_back(ti->outData[i]);
         rnn->outData.back()->getCreatorLayer() = rnn;
     }
@@ -454,6 +498,7 @@ bool convertToRNNSeq(CNNLayerPtr cur, const N& net) {
 }
 
 bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {" << std::endl;
     if (cur->type != "TensorIterator") return true;
 
     auto ti = std::dynamic_pointer_cast<TensorIterator>(cur);
@@ -466,11 +511,13 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
 
     std::vector<TensorIterator::Body> body_list(num);
     for (int i = 0; i < num; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (int i = 0; i < num; i++) {" << std::endl;
         // copy with additional suffix to each object name
         body_list[i] = CopyTIBody(body, ":" + std::to_string(i));
 
         auto holder = body_list[i].inputs.back();
         if (holder->getPrecision() == Precision::UNSPECIFIED) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          if (holder->getPrecision() == Precision::UNSPECIFIED) {" << std::endl;
             for (auto kvp : holder->getInputTo()) net.addLayer(kvp.second);
         }
     }
@@ -484,6 +531,7 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
 
     /** FIRST class comes */
     for (int i = 0; i < first_class.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (int i = 0; i < first_class.size(); i++) {" << std::endl;
         auto& rule = first_class[i];
         auto in_data = ti->insData[rule.from].lock();
 
@@ -495,6 +543,7 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
         in_data->getInputTo()[split->name] = split;
 
         for (int j = 0; j < num; j++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (int j = 0; j < num; j++) {" << std::endl;
             auto body_idx = rule.stride == 1 ? j : num - 1 - j;
             auto& chunk = body_list[body_idx].inputs[rule.to];
             chunk->getCreatorLayer() = split;
@@ -504,9 +553,11 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
 
     /** SECOND class come on */
     for (const auto& rule : second_class) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (const auto& rule : second_class) {" << std::endl;
         auto in_data = ti->insData[rule.from].lock();
 
         for (int j = 0; j < num; j++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (int j = 0; j < num; j++) {" << std::endl;
             auto& chunk = body_list[j].inputs[rule.to];
             CombineData(in_data, chunk);
         }
@@ -514,7 +565,9 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
 
     /** BACK EDGES that's your time */
     for (const auto& rule : ti->back_edges) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (const auto& rule : ti->back_edges) {" << std::endl;
         for (int i = 1; i < num; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (int i = 1; i < num; i++) {" << std::endl;
             auto& from_data = body_list[i - 1].outputs[rule.from];
             auto& to_data = body_list[i].inputs[rule.to];
             CombineData(from_data, to_data);
@@ -523,6 +576,7 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
 
     /** THIRD class end up */
     for (const auto& rule : third_class) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (const auto& rule : third_class) {" << std::endl;
         // first iteration
         auto from_data = ti->insData[rule.from].lock();
         auto& to_data = body_list[0].inputs[rule.to];
@@ -534,6 +588,7 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
 
     /** FIRST class comes */
     for (int i = 0; i < first_class.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (int i = 0; i < first_class.size(); i++) {" << std::endl;
         auto& rule = first_class[i];
         auto out_data = ti->outData[rule.from];
 
@@ -545,6 +600,7 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
         out_data->getCreatorLayer() = concat;
 
         for (int j = 0; j < num; j++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (int j = 0; j < num; j++) {" << std::endl;
             auto body_idx = rule.stride == 1 ? j : num - 1 - j;
             auto& chunk = body_list[body_idx].outputs[rule.to];
             chunk->getInputTo()[concat->name] = concat;
@@ -554,9 +610,11 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
 
     /** SECOND class come on */
     for (const auto& rule : second_class) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (const auto& rule : second_class) {" << std::endl;
         auto out_data = ti->outData[rule.from];
 
         for (int j = 0; j < num; j++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (int j = 0; j < num; j++) {" << std::endl;
             auto& chunk = body_list[j].outputs[rule.to];
             CombineData(chunk, out_data);
         }
@@ -564,6 +622,7 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
 
     /** THIRD class end up */
     for (const auto& rule : third_class) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (const auto& rule : third_class) {" << std::endl;
         // first iteration
         auto& from_data = ti->outData[rule.from];
         auto& to_data = body_list[num - 1].outputs[rule.to];
@@ -582,6 +641,7 @@ bool unrollTI(CNNLayerPtr cur, ICNNNetwork& net) {
 /************************************************************/
 
 static CNNLayerPtr _concat(std::string name, Precision prc, SizeVector dims, int num) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static CNNLayerPtr _concat(std::string name, Precision prc, SizeVector dims, int num) {" << std::endl;
     auto res = std::make_shared<ConcatLayer>(LayerParams {name, "Concat", prc});
     res->_axis = 1;
 
@@ -596,6 +656,7 @@ static CNNLayerPtr _concat(std::string name, Precision prc, SizeVector dims, int
 }
 
 static CNNLayerPtr _split(std::string name, Precision prc, SizeVector dims, int num) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static CNNLayerPtr _split(std::string name, Precision prc, SizeVector dims, int num) {" << std::endl;
     auto res = std::make_shared<SplitLayer>(LayerParams {name, "Split", prc});
     res->_axis = 1;
     res->params["axis"] = std::to_string(res->_axis);
@@ -604,6 +665,7 @@ static CNNLayerPtr _split(std::string name, Precision prc, SizeVector dims, int 
     res->outData.resize(num);
 
     for (int i = 0; i < num; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (int i = 0; i < num; i++) {" << std::endl;
         auto out_data = DataPtr(
             new Data(name + "_part_" + std::to_string(i), TensorDesc {prc, dims, TensorDesc::getLayoutByDims(dims)}));
         out_data->getCreatorLayer() = res;
@@ -614,6 +676,7 @@ static CNNLayerPtr _split(std::string name, Precision prc, SizeVector dims, int 
 }
 
 static CNNLayerPtr _fc(std::string name, Precision prc, SizeVector dims, Blob::Ptr& W, Blob::Ptr& B) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static CNNLayerPtr _fc(std::string name, Precision prc, SizeVector dims, Blob::Ptr& W, Blob::Ptr& B) {" << std::endl;
     auto res = std::make_shared<FullyConnectedLayer>(LayerParams {name, "FullyConnected", prc});
 
     res->_weights = W;
@@ -634,6 +697,7 @@ static CNNLayerPtr _fc(std::string name, Precision prc, SizeVector dims, Blob::P
 }
 
 static CNNLayerPtr _act(std::string name, Precision prc, SizeVector dims, std::string type) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static CNNLayerPtr _act(std::string name, Precision prc, SizeVector dims, std::string type) {" << std::endl;
     auto res = std::make_shared<CNNLayer>(LayerParams {name, type, prc});
 
     res->params["type"] = type;
@@ -649,6 +713,7 @@ static CNNLayerPtr _act(std::string name, Precision prc, SizeVector dims, std::s
 }
 
 static CNNLayerPtr _pwr(std::string name, Precision prc, SizeVector dims, float scale, float shift) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static CNNLayerPtr _pwr(std::string name, Precision prc, SizeVector dims, float scale, float shift) {" << std::endl;
     auto res = std::make_shared<PowerLayer>(LayerParams {name, "Power", prc});
 
     res->power = 1.0;
@@ -669,6 +734,7 @@ static CNNLayerPtr _pwr(std::string name, Precision prc, SizeVector dims, float 
 }
 
 static CNNLayerPtr _eltw(std::string name, Precision prc, SizeVector dims, std::string type) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static CNNLayerPtr _eltw(std::string name, Precision prc, SizeVector dims, std::string type) {" << std::endl;
     auto res = std::make_shared<EltwiseLayer>(LayerParams {name, "Eltwise", prc});
 
     res->params["operation"] = type;
@@ -685,6 +751,7 @@ static CNNLayerPtr _eltw(std::string name, Precision prc, SizeVector dims, std::
 }
 
 static std::shared_ptr<ReshapeLayer> _resh(std::string name, Precision prc, SizeVector dims) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static std::shared_ptr<ReshapeLayer> _resh(std::string name, Precision prc, SizeVector dims) {" << std::endl;
     auto res = std::make_shared<ReshapeLayer>(LayerParams {name, "Reshape", prc});
 
     res->insData.resize(1);
@@ -699,9 +766,11 @@ static std::shared_ptr<ReshapeLayer> _resh(std::string name, Precision prc, Size
 
 static std::shared_ptr<RNNCellBase> _cell(std::string name, Precision prc, SizeVector data_dims, SizeVector state_dims,
                                           RNNSequenceLayer::CellType type) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:                                            RNNSequenceLayer::CellType type) {" << std::endl;
     std::shared_ptr<RNNCellBase> res;
     size_t NS = 1;
     switch (type) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      switch (type) {" << std::endl;
     case RNNSequenceLayer::LSTM:
         res = std::make_shared<LSTMCell>(LayerParams {name, "LSTMCell", prc});
         NS = 2;
@@ -725,6 +794,7 @@ static std::shared_ptr<RNNCellBase> _cell(std::string name, Precision prc, SizeV
     res->outData[0] = out_data;
 
     for (size_t i = 0; i < NS; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (size_t i = 0; i < NS; i++) {" << std::endl;
         auto out_state = DataPtr(new Data(name + ":out_state_" + std::to_string(i),
                                           TensorDesc {prc, state_dims, TensorDesc::getLayoutByDims(state_dims)}));
         out_state->getCreatorLayer() = res;
@@ -735,6 +805,7 @@ static std::shared_ptr<RNNCellBase> _cell(std::string name, Precision prc, SizeV
 }
 
 static std::shared_ptr<TensorIterator> _ti(std::string name, Precision prc, size_t NS) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static std::shared_ptr<TensorIterator> _ti(std::string name, Precision prc, size_t NS) {" << std::endl;
     auto res = std::make_shared<TensorIterator>(LayerParams {name, "TensorIterator", prc});
 
     res->insData.resize(1 + NS);
@@ -744,12 +815,14 @@ static std::shared_ptr<TensorIterator> _ti(std::string name, Precision prc, size
 }
 
 static void _link(CNNLayerPtr src, CNNLayerPtr dst, size_t src_port = 0, size_t dst_port = 0) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static void _link(CNNLayerPtr src, CNNLayerPtr dst, size_t src_port = 0, size_t dst_port = 0) {" << std::endl;
     auto data = src->outData[src_port];
     data->getInputTo()[dst->name] = dst;
     dst->insData[dst_port] = data;
 }
 
 static void _link(DataPtr& data, CNNLayerPtr dst, size_t dst_port = 0) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static void _link(DataPtr& data, CNNLayerPtr dst, size_t dst_port = 0) {" << std::endl;
     data->getInputTo()[dst->name] = dst;
     dst->insData[dst_port] = data;
 }
@@ -757,7 +830,9 @@ static void _link(DataPtr& data, CNNLayerPtr dst, size_t dst_port = 0) {
 /** Link nodes with clipping data if required (clip_val != 0.0) */
 static void _link_with_clip(CNNLayerPtr src, CNNLayerPtr dst, const float clip_val, size_t src_port = 0,
                             size_t dst_port = 0) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:                              size_t dst_port = 0) {" << std::endl;
     if (clip_val == 0.0f) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      if (clip_val == 0.0f) {" << std::endl;
         _link(src, dst, src_port, dst_port);
     } else {
         auto clip_name = dst->name + "_clip";
@@ -773,6 +848,7 @@ static void _link_with_clip(CNNLayerPtr src, CNNLayerPtr dst, const float clip_v
 }
 
 static Blob::Ptr make_partial_copy(Blob::Ptr src, size_t off, size_t size) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static Blob::Ptr make_partial_copy(Blob::Ptr src, size_t off, size_t size) {" << std::endl;
     auto res = make_plain_blob(src->getTensorDesc().getPrecision(), {size});
     res->allocate();
 
@@ -786,6 +862,7 @@ static Blob::Ptr make_partial_copy(Blob::Ptr src, size_t off, size_t size) {
 }
 
 static Blob::Ptr wrap_as_tensor(Blob::Ptr src, SizeVector dims) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static Blob::Ptr wrap_as_tensor(Blob::Ptr src, SizeVector dims) {" << std::endl;
     auto res = make_blob_with_precision(
         TensorDesc {src->getTensorDesc().getPrecision(), dims, TensorDesc::getLayoutByDims(dims)}, src->buffer());
     IE_ASSERT(src->size() == res->size());
@@ -793,6 +870,7 @@ static Blob::Ptr wrap_as_tensor(Blob::Ptr src, SizeVector dims) {
 }
 
 static Blob::Ptr make_region_copy(Blob::Ptr src, SizeVector region, SizeVector offset) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static Blob::Ptr make_region_copy(Blob::Ptr src, SizeVector region, SizeVector offset) {" << std::endl;
     IE_ASSERT(region.size() == offset.size());
     IE_ASSERT(region.size() == src->getTensorDesc().getDims().size());
 
@@ -824,6 +902,7 @@ static Blob::Ptr make_region_copy(Blob::Ptr src, SizeVector region, SizeVector o
 
     for (size_t d1 = 0; d1 < D1; d1++)
         for (size_t d2 = 0; d2 < D2; d2++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          for (size_t d2 = 0; d2 < D2; d2++) {" << std::endl;
             auto off_src = (off1 + d1) * str1 + (off2 + d2) * str2 + off3;
             auto off_dst = d1 * D2 * D3 + d2 * D3;
             ie_memcpy(dst_ptr + off_dst * elem_size, res->byteSize(), src_ptr + off_src * elem_size, D3 * elem_size);
@@ -833,6 +912,7 @@ static Blob::Ptr make_region_copy(Blob::Ptr src, SizeVector region, SizeVector o
 }
 
 static bool unrollRNNCellBody(CNNLayerPtr cur) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static bool unrollRNNCellBody(CNNLayerPtr cur) {" << std::endl;
     if (cur->type != "RNNCell") return true;
 
     auto cell = std::dynamic_pointer_cast<RNNCellBase>(cur);
@@ -876,6 +956,7 @@ static bool unrollRNNCellBody(CNNLayerPtr cur) {
 }
 
 static bool unrollLSTMCellBody(CNNLayerPtr cur) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static bool unrollLSTMCellBody(CNNLayerPtr cur) {" << std::endl;
     if (cur->type != "LSTMCell") return true;
 
     auto cell = std::dynamic_pointer_cast<RNNCellBase>(cur);
@@ -959,6 +1040,7 @@ static bool unrollLSTMCellBody(CNNLayerPtr cur) {
 }
 
 static bool unrollGRUCellBody(CNNLayerPtr cur, bool linear_before_reset = false) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static bool unrollGRUCellBody(CNNLayerPtr cur, bool linear_before_reset = false) {" << std::endl;
     if (cur->type != "GRUCell") return true;
 
     auto cell = std::dynamic_pointer_cast<GRUCell>(cur);
@@ -1025,6 +1107,7 @@ static bool unrollGRUCellBody(CNNLayerPtr cur, bool linear_before_reset = false)
     _link(act_ur, split);  // split[0] - zt,  split[1] - rt
 
     if (linear_before_reset) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      if (linear_before_reset) {" << std::endl;
         auto lbr_B = wrap_as_tensor(orig_B, {4, S});
 
         auto whw_W = make_region_copy(o_W, {1, S, D}, {0, 0, 0});
@@ -1071,8 +1154,10 @@ static bool unrollGRUCellBody(CNNLayerPtr cur, bool linear_before_reset = false)
 }
 
 static bool unrollCell(CNNLayerPtr cur) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static bool unrollCell(CNNLayerPtr cur) {" << std::endl;
     auto cell = std::dynamic_pointer_cast<RNNCellBase>(cur);
     switch (cell->cellType) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      switch (cell->cellType) {" << std::endl;
     case RNNCellBase::LSTM:
         return unrollLSTMCellBody(cur);
     case RNNCellBase::GRU:
@@ -1086,6 +1171,7 @@ static bool unrollCell(CNNLayerPtr cur) {
 }
 
 static bool unrollSeq(CNNLayerPtr cur) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  static bool unrollSeq(CNNLayerPtr cur) {" << std::endl;
     if (!one_of(cur->type, "LSTMSequence", "GRUSequence", "RNNSequence")) return true;
 
     auto seq = std::dynamic_pointer_cast<RNNSequenceLayer>(cur);
@@ -1162,6 +1248,7 @@ static bool unrollSeq(CNNLayerPtr cur) {
     ti->output_port_map.push_back({0, 0, axis, step, start, end, 1});
 
     for (size_t i = 0; i < NS; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (size_t i = 0; i < NS; i++) {" << std::endl;
         auto in_state = seq->insData[1 + i].lock();
         _link(in_state, ti, 1 + i);
 
@@ -1195,20 +1282,24 @@ std::vector<CNNLayerPtr> TopolSort(const N& net);
 
 template <>
 std::vector<CNNLayerPtr> TopolSort(const ICNNNetwork& net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  std::vector<CNNLayerPtr> TopolSort(const ICNNNetwork& net) {" << std::endl;
     return details::CNNNetSortTopologically(net);
 }
 
 template <>
 std::vector<CNNLayerPtr> TopolSort(const TensorIterator::Body& net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  std::vector<CNNLayerPtr> TopolSort(const TensorIterator::Body& net) {" << std::endl;
     return details::CNNSubnetSortTopologically({net.inputs, net.outputs});
 }
 
 template <>
 std::vector<CNNLayerPtr> TopolSort(const details::CNNSubnet& net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  std::vector<CNNLayerPtr> TopolSort(const details::CNNSubnet& net) {" << std::endl;
     return details::CNNSubnetSortTopologically(net);
 }
 
 void restore_net_consistency(ICNNNetwork& net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  void restore_net_consistency(ICNNNetwork& net) {" << std::endl;
     // At first all layers should be available via findByName() api.
     // In other words all layers should be present in internal map<name, layer>
     for (auto& l : TopolSort(net)) net.addLayer(l);
@@ -1216,6 +1307,7 @@ void restore_net_consistency(ICNNNetwork& net) {
 
 template <typename N, typename T>
 bool ApplyForAll(N& net, T action) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool ApplyForAll(N& net, T action) {" << std::endl;
     auto all_layers = TopolSort(net);
     bool sts = true;
 
@@ -1226,6 +1318,7 @@ bool ApplyForAll(N& net, T action) {
 
 template <typename N, typename T, typename P>
 bool ApplyForAll_if(N& net, T action, P pred) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool ApplyForAll_if(N& net, T action, P pred) {" << std::endl;
     auto all_layers = TopolSort(net);
     bool sts = true;
 
@@ -1236,16 +1329,19 @@ bool ApplyForAll_if(N& net, T action, P pred) {
 }
 
 bool CombineRNNSeq(ICNNNetwork& net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool CombineRNNSeq(ICNNNetwork& net) {" << std::endl;
     auto res = ApplyForAll(net, convertToRNNSeq<ICNNNetwork>);
     restore_net_consistency(net);
     return res;
 }
 
 bool CombineRNNSeq(TensorIterator::Body& net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool CombineRNNSeq(TensorIterator::Body& net) {" << std::endl;
     return ApplyForAll(net, convertToRNNSeq<TensorIterator::Body>);
 }
 
 bool UnrollTI(ICNNNetwork& net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool UnrollTI(ICNNNetwork& net) {" << std::endl;
     auto res = ApplyForAll(net, unrollTI);
     restore_net_consistency(net);
     return res;
@@ -1253,13 +1349,16 @@ bool UnrollTI(ICNNNetwork& net) {
 
 template <typename NET>
 bool UnrollRNN_if_impl(NET& net, const std::function<bool(const RNNCellBase&)> pred) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool UnrollRNN_if_impl(NET& net, const std::function<bool(const RNNCellBase&)> pred) {" << std::endl;
     // Filter layers by RNN specific type
     auto _seq_pred = [&](CNNLayerPtr layer) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      auto _seq_pred = [&](CNNLayerPtr layer) {" << std::endl;
         auto rnn = std::dynamic_pointer_cast<RNNSequenceLayer>(layer);
         if (!rnn) return false;
         return pred(*rnn.get());
     };
     auto _cell_pred = [&](CNNLayerPtr layer) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      auto _cell_pred = [&](CNNLayerPtr layer) {" << std::endl;
         auto rnn = std::dynamic_pointer_cast<RNNCellBase>(layer);
         if (!rnn || !one_of(rnn->type, "LSTMCell", "GRUCell", "RNNCell")) return false;
         return pred(*rnn.get());
@@ -1272,12 +1371,14 @@ bool UnrollRNN_if_impl(NET& net, const std::function<bool(const RNNCellBase&)> p
 }
 
 bool UnrollRNN_if(ICNNNetwork& net, const std::function<bool(const RNNCellBase&)> pred) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool UnrollRNN_if(ICNNNetwork& net, const std::function<bool(const RNNCellBase&)> pred) {" << std::endl;
     auto res = UnrollRNN_if_impl(net, pred);
     restore_net_consistency(net);
     return res;
 }
 
 bool UnrollRNN_if(TensorIterator::Body& net, const std::function<bool(const RNNCellBase&)> pred) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool UnrollRNN_if(TensorIterator::Body& net, const std::function<bool(const RNNCellBase&)> pred) {" << std::endl;
     return UnrollRNN_if_impl(net, pred);
 }
 
@@ -1293,20 +1394,24 @@ namespace {
 template <Precision::ePrecision PREC_FROM, Precision::ePrecision PREC_TO>
 void convertArrayPrecision(typename PrecisionTrait<PREC_TO>::value_type* dst,
                            const typename PrecisionTrait<PREC_FROM>::value_type* src, size_t nelem) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:                             const typename PrecisionTrait<PREC_FROM>::value_type* src, size_t nelem) {" << std::endl;
     using dst_type = typename PrecisionTrait<PREC_TO>::value_type;
 
     for (size_t i = 0; i < nelem; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (size_t i = 0; i < nelem; i++) {" << std::endl;
         dst[i] = static_cast<dst_type>(src[i]);
     }
 }
 
 template <>
 void convertArrayPrecision<Precision::FP16, Precision::FP32>(float* dst, const short* src, size_t nelem) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  void convertArrayPrecision<Precision::FP16, Precision::FP32>(float* dst, const short* src, size_t nelem) {" << std::endl;
     PrecisionUtils::f16tof32Arrays(dst, src, nelem, 1.0f, 0.0f);
 }
 
 template <Precision::ePrecision PREC_FROM, Precision::ePrecision PREC_TO>
 Blob::Ptr convertBlobPrecision(const Blob::Ptr& blob) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  Blob::Ptr convertBlobPrecision(const Blob::Ptr& blob) {" << std::endl;
     using from_d_type = typename PrecisionTrait<PREC_FROM>::value_type;
     using to_d_type = typename PrecisionTrait<PREC_TO>::value_type;
 
@@ -1325,11 +1430,14 @@ void convertPrecisionForAll(NET &net);
 
 template <Precision::ePrecision PREC_FROM, Precision::ePrecision PREC_TO>
 void convertLayerPrecision(const CNNLayerPtr& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  void convertLayerPrecision(const CNNLayerPtr& layer) {" << std::endl;
     for (auto &out_data : layer->outData) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto &out_data : layer->outData) {" << std::endl;
         if (PREC_FROM == out_data->getPrecision())
             out_data->setPrecision(PREC_TO);
     }
     for (auto &in_data : layer->insData) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto &in_data : layer->insData) {" << std::endl;
         if (PREC_FROM == in_data.lock()->getPrecision())
             in_data.lock()->setPrecision(PREC_TO);
     }
@@ -1338,6 +1446,7 @@ void convertLayerPrecision(const CNNLayerPtr& layer) {
         layer->precision = PREC_TO;
 
     if (HasInternalSubnet(layer)) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      if (HasInternalSubnet(layer)) {" << std::endl;
         // apply the same conversion pass for internal graph
         auto layer_subnet = GetInternalSubnet(layer);
         convertPrecisionForAll<PREC_FROM, PREC_TO>(layer_subnet);
@@ -1345,18 +1454,24 @@ void convertLayerPrecision(const CNNLayerPtr& layer) {
 
     auto wLayer = dynamic_cast<InferenceEngine::WeightableLayer *>(layer.get());
     if (wLayer) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      if (wLayer) {" << std::endl;
         if (wLayer->_weights && wLayer->_weights->getTensorDesc().getPrecision() == PREC_FROM) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          if (wLayer->_weights && wLayer->_weights->getTensorDesc().getPrecision() == PREC_FROM) {" << std::endl;
             wLayer->_weights = convertBlobPrecision<PREC_FROM, PREC_TO>(wLayer->_weights);
         }
         if (wLayer->_biases && wLayer->_biases->getTensorDesc().getPrecision() == PREC_FROM) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          if (wLayer->_biases && wLayer->_biases->getTensorDesc().getPrecision() == PREC_FROM) {" << std::endl;
             wLayer->_biases = convertBlobPrecision<PREC_FROM, PREC_TO>(wLayer->_biases);
         }
     }
 
     for (auto &blob : layer->blobs) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto &blob : layer->blobs) {" << std::endl;
         auto &data = blob.second;
         if (nullptr != data) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          if (nullptr != data) {" << std::endl;
             if (data->getTensorDesc().getPrecision() == PREC_FROM) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:              if (data->getTensorDesc().getPrecision() == PREC_FROM) {" << std::endl;
                 data = convertBlobPrecision<PREC_FROM, PREC_TO>(data);
             }
         }
@@ -1365,10 +1480,13 @@ void convertLayerPrecision(const CNNLayerPtr& layer) {
 
 template <typename NET>
 void fixConvertLayers(NET &net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  void fixConvertLayers(NET &net) {" << std::endl;
     std::vector<CNNLayerPtr> to_remove;
     auto all_layers = TopolSort(net);
     for (auto &layer : all_layers) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto &layer : all_layers) {" << std::endl;
         if (layer->type == "Convert") {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:          if (layer->type == 'Convert') {" << std::endl;
             auto out_precision = layer->outData[0]->getPrecision();
             auto in_precision = layer->input()->getPrecision();
 
@@ -1380,19 +1498,23 @@ void fixConvertLayers(NET &net) {
             // Remove convert layer if it do nothing. After type conversion pass
             // some convert layers may lose actuality.
             if (in_precision == out_precision) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:              if (in_precision == out_precision) {" << std::endl;
                 to_remove.push_back(layer);
             }
         }
     }
     for (auto &layer : to_remove) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto &layer : to_remove) {" << std::endl;
         RemoveLayer(layer);
     }
 }
 
 template <Precision::ePrecision PREC_FROM, Precision::ePrecision PREC_TO, typename NET>
 void convertPrecisionForAll(NET &net) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  void convertPrecisionForAll(NET &net) {" << std::endl;
     auto all_layers = TopolSort(net);
     for (auto &layer : all_layers) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      for (auto &layer : all_layers) {" << std::endl;
         convertLayerPrecision<PREC_FROM, PREC_TO>(layer);
     }
     fixConvertLayers(net);
@@ -1401,11 +1523,14 @@ void convertPrecisionForAll(NET &net) {
 }  // namespace
 
 bool HasInternalSubnet(const CNNLayerPtr &layer) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  bool HasInternalSubnet(const CNNLayerPtr &layer) {" << std::endl;
     return layer->type == "TensorIterator" && dynamic_cast<TensorIterator*>(layer.get()) != nullptr;
 }
 
 details::CNNSubnet GetInternalSubnet(const CNNLayerPtr &layer) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  details::CNNSubnet GetInternalSubnet(const CNNLayerPtr &layer) {" << std::endl;
     if (layer->type == "TensorIterator") {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      if (layer->type == 'TensorIterator') {" << std::endl;
         auto ti = static_cast<TensorIterator*>(layer.get());
         IE_ASSERT(ti);
         return {ti->body.inputs, ti->body.outputs};
@@ -1414,8 +1539,10 @@ details::CNNSubnet GetInternalSubnet(const CNNLayerPtr &layer) {
 }
 
 void ConvertPrecision(ICNNNetwork& net, Precision from, Precision to) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:  void ConvertPrecision(ICNNNetwork& net, Precision from, Precision to) {" << std::endl;
     auto compare = getPrecisionMask(from, to);
     switch (compare) {
+    std::cerr << "./inference-engine/src/inference_engine/net_pass.cpp:      switch (compare) {" << std::endl;
         case getPrecisionMask(Precision::I64, Precision::I32):
             convertPrecisionForAll<Precision::I64, Precision::I32>(net);
             break;

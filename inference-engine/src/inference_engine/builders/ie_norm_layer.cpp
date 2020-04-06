@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -10,6 +11,7 @@
 using namespace InferenceEngine;
 
 Builder::NormLayer::NormLayer(const std::string& name): LayerDecorator("Norm", name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  Builder::NormLayer::NormLayer(const std::string& name): LayerDecorator('Norm', name) {" << std::endl;
     getLayer()->getOutputPorts().resize(1);
     getLayer()->getInputPorts().resize(1);
     setAcrossMaps(false);
@@ -19,14 +21,17 @@ Builder::NormLayer::NormLayer(const std::string& name): LayerDecorator("Norm", n
 }
 
 Builder::NormLayer::NormLayer(const Layer::Ptr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  Builder::NormLayer::NormLayer(const Layer::Ptr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("Norm");
 }
 
 Builder::NormLayer::NormLayer(const Layer::CPtr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  Builder::NormLayer::NormLayer(const Layer::CPtr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("Norm");
 }
 
 Builder::NormLayer& Builder::NormLayer::setName(const std::string& name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  Builder::NormLayer& Builder::NormLayer::setName(const std::string& name) {" << std::endl;
     getLayer()->setName(name);
     return *this;
 }
@@ -36,6 +41,7 @@ const Port& Builder::NormLayer::getPort() const {
 }
 
 Builder::NormLayer& Builder::NormLayer::setPort(const Port &port) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  Builder::NormLayer& Builder::NormLayer::setPort(const Port &port) {" << std::endl;
     getLayer()->getOutputPorts()[0] = port;
     getLayer()->getInputPorts()[0] = port;
     return *this;
@@ -46,6 +52,7 @@ size_t Builder::NormLayer::getSize() const {
 }
 
 Builder::NormLayer& Builder::NormLayer::setSize(size_t size) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  Builder::NormLayer& Builder::NormLayer::setSize(size_t size) {" << std::endl;
     getLayer()->getParameters()["local-size"] = size;
     return *this;
 }
@@ -55,6 +62,7 @@ float Builder::NormLayer::getAlpha() const {
 }
 
 Builder::NormLayer& Builder::NormLayer::setAlpha(float alpha) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  Builder::NormLayer& Builder::NormLayer::setAlpha(float alpha) {" << std::endl;
     getLayer()->getParameters()["alpha"] = alpha;
     return *this;
 }
@@ -64,6 +72,7 @@ float Builder::NormLayer::getBeta() const {
 }
 
 Builder::NormLayer& Builder::NormLayer::setBeta(float beta) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  Builder::NormLayer& Builder::NormLayer::setBeta(float beta) {" << std::endl;
     getLayer()->getParameters()["beta"] = beta;
     return *this;
 }
@@ -73,6 +82,7 @@ bool Builder::NormLayer::getAcrossMaps() const {
 }
 
 Builder::NormLayer& Builder::NormLayer::setAcrossMaps(bool acrossMap)  {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  Builder::NormLayer& Builder::NormLayer::setAcrossMaps(bool acrossMap)  {" << std::endl;
     std::string value = acrossMap ? "across" : "same";
     getLayer()->getParameters()["region"] = value;
     return *this;
@@ -83,19 +93,24 @@ Builder::NormLayer::NormType Builder::NormLayer::getRegion() const {
                              Builder::NormLayer::NormType::WITHIN_CHANNEL;
 }
 Builder::NormLayer& Builder::NormLayer::setRegion(Builder::NormLayer::NormType type) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  Builder::NormLayer& Builder::NormLayer::setRegion(Builder::NormLayer::NormType type) {" << std::endl;
     setAcrossMaps(type);
     return *this;
 }
 
 REG_VALIDATOR_FOR(Norm, [] (const InferenceEngine::Builder::Layer::CPtr& input_layer, bool partial) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  REG_VALIDATOR_FOR(Norm, [] (const InferenceEngine::Builder::Layer::CPtr& input_layer, bool partial) {" << std::endl;
     Builder::NormLayer layer(input_layer);
     if (layer.getAlpha() <= 0) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:      if (layer.getAlpha() <= 0) {" << std::endl;
         THROW_IE_EXCEPTION << "Alpha should be > 0";
     }
     if (layer.getBeta() <= 0) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:      if (layer.getBeta() <= 0) {" << std::endl;
         THROW_IE_EXCEPTION << "Beta should be > 0";
     }
     if (layer.getSize() == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:      if (layer.getSize() == 0) {" << std::endl;
         THROW_IE_EXCEPTION << "Size should be > 0";
     }
     if (!input_layer->getInputPorts().empty() &&
@@ -103,11 +118,13 @@ REG_VALIDATOR_FOR(Norm, [] (const InferenceEngine::Builder::Layer::CPtr& input_l
         !input_layer->getInputPorts()[0].shape().empty() &&
         !input_layer->getOutputPorts()[0].shape().empty() &&
         input_layer->getInputPorts()[0].shape() != input_layer->getOutputPorts()[0].shape()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:          input_layer->getInputPorts()[0].shape() != input_layer->getOutputPorts()[0].shape()) {" << std::endl;
         THROW_IE_EXCEPTION << "Input and output ports should be equal";
     }
 });
 
 REG_CONVERTER_FOR(Norm, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_norm_layer.cpp:  REG_CONVERTER_FOR(Norm, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {" << std::endl;
     layer.getParameters()["local-size"] = (size_t)cnnLayer->GetParamAsUInt("local-size", 0);
     layer.getParameters()["alpha"] = cnnLayer->GetParamAsFloat("alpha", 0);
     layer.getParameters()["beta"] = cnnLayer->GetParamAsFloat("beta", 0);

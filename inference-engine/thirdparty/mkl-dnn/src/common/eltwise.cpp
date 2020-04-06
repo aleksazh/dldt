@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -32,6 +33,7 @@ namespace {
 status_t eltwise_desc_init(eltwise_desc_t *eltwise_desc, prop_kind_t prop_kind,
         alg_kind_t alg_kind, const memory_desc_t *data_desc,
         const memory_desc_t *diff_data_desc, float alpha, float beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/eltwise.cpp:          const memory_desc_t *diff_data_desc, float alpha, float beta) {" << std::endl;
     bool args_ok = true
         && !any_null(eltwise_desc, data_desc)
         && one_of(prop_kind, forward_training, forward_inference,
@@ -69,6 +71,7 @@ status_t eltwise_desc_init(eltwise_desc_t *eltwise_desc, prop_kind_t prop_kind,
 status_t mkldnn_eltwise_forward_desc_init(eltwise_desc_t *eltwise_desc,
         prop_kind_t prop_kind, alg_kind_t alg_kind,
         const memory_desc_t *data_desc, float alpha, float beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/eltwise.cpp:          const memory_desc_t *data_desc, float alpha, float beta) {" << std::endl;
     if (!one_of(prop_kind, forward_training, forward_inference))
         return invalid_arguments;
     return eltwise_desc_init(eltwise_desc, prop_kind, alg_kind, data_desc,
@@ -78,6 +81,7 @@ status_t mkldnn_eltwise_forward_desc_init(eltwise_desc_t *eltwise_desc,
 status_t mkldnn_eltwise_backward_desc_init(eltwise_desc_t *eltwise_desc,
         alg_kind_t alg_kind, const memory_desc_t *diff_data_desc,
         const memory_desc_t *data_desc, float alpha, float beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/eltwise.cpp:          const memory_desc_t *data_desc, float alpha, float beta) {" << std::endl;
     return eltwise_desc_init(eltwise_desc, backward_data, alg_kind, data_desc,
             diff_data_desc, alpha, beta);
 }

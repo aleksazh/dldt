@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -27,6 +28,7 @@ namespace bnorm_utils {
 
 void cache_balance(size_t working_set_size, int C_blks, int &C_blks_per_iter,
         int &iters) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_batch_normalization_utils.cpp:          int &iters) {" << std::endl;
     int nthrs = mkldnn_get_max_threads();
     int l3_size = get_cache_size(3, true) * nthrs / 2;
 
@@ -44,7 +46,9 @@ bool thread_balance(bool do_blocking, bool spatial_thr_allowed, int ithr,
         int nthr, int N, int C_blks, int SP, int &C_ithr, int &C_nthr,
         int &C_blk_s, int &C_blk_e, int &N_ithr, int &N_nthr, int &N_s,
         int &N_e, int &S_ithr, int &S_nthr, int &S_s, int &S_e) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_batch_normalization_utils.cpp:          int &N_e, int &S_ithr, int &S_nthr, int &S_s, int &S_e) {" << std::endl;
     if (nthr <= C_blks || !mkldnn_thr_syncable()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_batch_normalization_utils.cpp:      if (nthr <= C_blks || !mkldnn_thr_syncable()) {" << std::endl;
         C_ithr = ithr; C_nthr = nthr;
         N_ithr = 0; N_nthr = 1;
         S_ithr = 0; S_nthr = 1;
@@ -52,6 +56,7 @@ bool thread_balance(bool do_blocking, bool spatial_thr_allowed, int ithr,
         balance211(C_blks, C_nthr, C_ithr, C_blk_s, C_blk_e);
     } else {
         if (do_blocking) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_batch_normalization_utils.cpp:          if (do_blocking) {" << std::endl;
             N_nthr = nstl::min(N, nthr);
             C_nthr = nstl::min(C_blks, nthr / N_nthr);
             S_nthr = nstl::min(SP, nthr / (C_nthr * N_nthr));
@@ -66,6 +71,7 @@ bool thread_balance(bool do_blocking, bool spatial_thr_allowed, int ithr,
 
         if (S_nthr < 1) S_nthr = 1;
         if (ithr < C_nthr * N_nthr * S_nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_batch_normalization_utils.cpp:          if (ithr < C_nthr * N_nthr * S_nthr) {" << std::endl;
             N_ithr = (ithr / S_nthr) % N_nthr ;
             C_ithr = ithr / (N_nthr * S_nthr);
             S_ithr = ithr % S_nthr;
@@ -92,6 +98,7 @@ bool thread_balance(bool do_blocking, bool spatial_thr_allowed, int ithr,
 
 bool is_spatial_thr(const batch_normalization_pd_t *bdesc, int simd_w,
         int data_size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_batch_normalization_utils.cpp:          int data_size) {" << std::endl;
     if (!mkldnn_thr_syncable()) return false;
 
     int nthr = mkldnn_get_max_threads();
@@ -107,6 +114,7 @@ bool is_spatial_thr(const batch_normalization_pd_t *bdesc, int simd_w,
     int C_blks = C_PADDED / simd_w;
 
     if (do_blocking) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_batch_normalization_utils.cpp:      if (do_blocking) {" << std::endl;
         int num_tensors = bdesc->is_fwd() ? 1 : 2;
         size_t working_set_size
             = (bdesc->MB() * SP * simd_w * data_size) * num_tensors;
@@ -121,6 +129,7 @@ bool is_spatial_thr(const batch_normalization_pd_t *bdesc, int simd_w,
 
     int S_nthr = 1;
     if (do_blocking) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_batch_normalization_utils.cpp:      if (do_blocking) {" << std::endl;
         int N_nthr = nstl::min(bdesc->MB(), nthr);
         int C_nthr = nstl::min(C_blks, nthr / N_nthr);
         S_nthr = nstl::min(SP, nthr / (C_nthr * N_nthr));

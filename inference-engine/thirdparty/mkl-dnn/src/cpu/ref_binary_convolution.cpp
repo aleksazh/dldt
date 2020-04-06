@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -82,10 +83,12 @@ void _ref_binary_convolution_fwd_t::execute_forward() const {
     };
 
     auto ker = [=](int32_t &d, int g, int mb, int oc, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:      auto ker = [=](int32_t &d, int g, int mb, int oc, int od, int oh, int ow) {" << std::endl;
         for (int ic = 0; ic < IC; ++ic)
         for (int kd = 0; kd < KD; ++kd)
         for (int kh = 0; kh < KH; ++kh)
         for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:          for (int kw = 0; kw < KW; ++kw) {" << std::endl;
             const int id = od * KSD - padFront + kd * (1 + KDD);
             const int ih = oh * KSH - padT + kh * (1 + KDH);
             const int iw = ow * KSW - padL + kw * (1 + KDW);
@@ -93,14 +96,17 @@ void _ref_binary_convolution_fwd_t::execute_forward() const {
             size_t iidx = 0;
             size_t widx = 0;
             if (ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:              if (ndims == 5) {" << std::endl;
                 iidx = src_d.off(mb, g * IC + ic, id, ih, iw);
                 widx = with_groups ? weights_d.off(g, oc, ic, kd, kh, kw)
                                    : weights_d.off(oc, ic, kd, kh, kw);
             } else if (ndims == 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:              } else if (ndims == 4) {" << std::endl;
                 iidx = src_d.off(mb, g * IC + ic, ih, iw);
                 widx = with_groups ? weights_d.off(g, oc, ic, kh, kw)
                                    : weights_d.off(oc, ic, kh, kw);
             } else if (ndims == 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:              } else if (ndims == 3) {" << std::endl;
                 iidx = src_d.off(mb, g * IC + ic, iw);
                 widx = with_groups ? weights_d.off(g, oc, ic, kw)
                                    : weights_d.off(oc, ic, kw);
@@ -111,6 +117,7 @@ void _ref_binary_convolution_fwd_t::execute_forward() const {
 
             uint8_t s;
             if (id < 0 || id >= ID || ih < 0 || ih >= IH || iw < 0 || iw >= IW) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:              if (id < 0 || id >= ID || ih < 0 || ih >= IH || iw < 0 || iw >= IW) {" << std::endl;
                 if (pad_value == 0)
                     continue;
                 else {
@@ -127,6 +134,7 @@ void _ref_binary_convolution_fwd_t::execute_forward() const {
     };
 
     if (with_binarization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:      if (with_binarization) {" << std::endl;
         auto dst = reinterpret_cast<uint8_t*>(this->memory());
 
         int binarization_idx = p.find(primitive_kind::binarization);
@@ -135,14 +143,17 @@ void _ref_binary_convolution_fwd_t::execute_forward() const {
 
         parallel_nd(G, MB, utils::div_up(OC, nbits), OD, OH, OW,
             [&](int g, int mb, int ocb, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:              [&](int g, int mb, int ocb, int od, int oh, int ow) {" << std::endl;
 
             uint8_t bin_val = 0x00;
             for (int oc = ocb * nbits, shift = 0; oc < std::min(OC, (ocb + 1) * nbits); oc++, shift++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:              for (int oc = ocb * nbits, shift = 0; oc < std::min(OC, (ocb + 1) * nbits); oc++, shift++) {" << std::endl;
                 int32_t a = 0;
                 ker(a, g, mb, oc, od, oh, ow);
 
                 float base_value;
                 if (pad_value == 0.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:                  if (pad_value == 0.0f) {" << std::endl;
                     const int i_left_overflow = nstl::max(0, (padL - ow * KSW));
                     const int i_right_overflow = nstl::max(IW, (ow * KSW + (KW - 1) * (KDW + 1) - padL + 1)) - IW;
                     const int kw_padding =
@@ -166,6 +177,7 @@ void _ref_binary_convolution_fwd_t::execute_forward() const {
                 float a_fp = base_value - (float)(2 * a);
 
                 if (with_sum) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:                  if (with_sum) {" << std::endl;
                     if (ndims == 5)
                         a_fp += dst[dst_d.off(mb, g * OC + oc, od, oh, ow)];
                     else if (ndims == 4)
@@ -179,11 +191,14 @@ void _ref_binary_convolution_fwd_t::execute_forward() const {
                 int eltwise_inj_idx = 0;
                 int depthwise_inj_idx = 0;
                 for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:                  for (int i = 0; i < p.len_; i++) {" << std::endl;
                     auto &post_op = p.entry_[i];
                     if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:                      if (post_op.is_eltwise()) {" << std::endl;
                         a_fp = eltwise_injectors[eltwise_inj_idx]->compute_scalar(a_fp);
                         eltwise_inj_idx++;
                     } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:                      } else if (post_op.is_depthwise()) {" << std::endl;
                         auto depthwise_weights = post_op.depthwise.weights_data;
                         auto depthwise_bias = post_op.depthwise.biases_data;
 
@@ -216,11 +231,13 @@ void _ref_binary_convolution_fwd_t::execute_forward() const {
 
         parallel_nd(G, MB, OC, OD, OH, OW,
             [&](int g, int mb, int oc, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:              [&](int g, int mb, int oc, int od, int oh, int ow) {" << std::endl;
             int32_t a = 0;
             ker(a, g, mb, oc, od, oh, ow);
 
             float base_value;
             if (pad_value == 0.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:              if (pad_value == 0.0f) {" << std::endl;
                 const int i_left_overflow = nstl::max(0, (padL - ow * KSW));
                 const int i_right_overflow = nstl::max(IW, (ow * KSW + (KW - 1) * (KDW + 1) - padL + 1)) - IW;
                 const int kw_padding =
@@ -244,6 +261,7 @@ void _ref_binary_convolution_fwd_t::execute_forward() const {
             float a_fp = base_value - (float)(2 * a);
 
             if (with_sum) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:              if (with_sum) {" << std::endl;
                 if (ndims == 5)
                     a_fp += dst[dst_d.off(mb, g*OC + oc, od, oh, ow)];
                 else if (ndims == 4)
@@ -257,11 +275,14 @@ void _ref_binary_convolution_fwd_t::execute_forward() const {
             int eltwise_inj_idx = 0;
             int depthwise_inj_idx = 0;
             for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:              for (int i = 0; i < p.len_; i++) {" << std::endl;
                 auto& post_op = p.entry_[i];
                 if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:                  if (post_op.is_eltwise()) {" << std::endl;
                     a_fp = eltwise_injectors[eltwise_inj_idx]->compute_scalar(a_fp);
                     eltwise_inj_idx++;
                 } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_binary_convolution.cpp:                  } else if (post_op.is_depthwise()) {" << std::endl;
                     auto depthwise_weights = post_op.depthwise.weights_data;
                     auto depthwise_bias = post_op.depthwise.biases_data;
 

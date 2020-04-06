@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018-2019 Intel Corporation
 *
@@ -37,9 +38,12 @@ namespace {
 template <typename data_t>
 void copy_A(
         bool isTransA, int K, const data_t *A, const dim_t lda, data_t *ws) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          bool isTransA, int K, const data_t *A, const dim_t lda, data_t *ws) {" << std::endl;
     for (int k = 0; k < K; k++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      for (int k = 0; k < K; k++) {" << std::endl;
         PRAGMA_OMP_SIMD()
         for (int i = 0; i < unroll_factor<data_t>::m; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          for (int i = 0; i < unroll_factor<data_t>::m; i++) {" << std::endl;
             ws[i] = isTransA ? A[i * lda + k] : A[i + k * lda];
         }
         ws += unroll_factor<data_t>::m;
@@ -50,21 +54,27 @@ template <typename data_t, bool isTransA, bool isTransB>
 void kernel_mxn(int K, const data_t *A, const dim_t lda,
         const data_t *B, const dim_t ldb, data_t *C, const dim_t ldc,
         const data_t alpha, const data_t beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          const data_t alpha, const data_t beta) {" << std::endl;
     data_t c[unroll_factor<data_t>::m * unroll_factor<data_t>::n] =
         { static_cast<data_t>(0.) };
     for (int k = 0; k < K; k++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      for (int k = 0; k < K; k++) {" << std::endl;
         for (int j = 0; j < unroll_factor<data_t>::n; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          for (int j = 0; j < unroll_factor<data_t>::n; j++) {" << std::endl;
             data_t b = isTransB ? B[j + k * ldb] : B[k + j * ldb];
             PRAGMA_OMP_SIMD()
             for (int i = 0; i < unroll_factor<data_t>::m; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:              for (int i = 0; i < unroll_factor<data_t>::m; i++) {" << std::endl;
                 data_t a = isTransA ? A[i * lda + k] : A[i + lda * k];
                 c[i + unroll_factor<data_t>::m * j] += a * b;
             }
         }
     }
     for (int j = 0; j < unroll_factor<data_t>::n; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      for (int j = 0; j < unroll_factor<data_t>::n; j++) {" << std::endl;
         PRAGMA_OMP_SIMD()
         for (int i = 0; i < unroll_factor<data_t>::m; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          for (int i = 0; i < unroll_factor<data_t>::m; i++) {" << std::endl;
             C[i + j * ldc] = (beta == static_cast<data_t>(0.))
             ? alpha * c[i + unroll_factor<data_t>::m * j]
             : alpha * c[i + unroll_factor<data_t>::m * j]
@@ -78,14 +88,19 @@ void block_ker(const int M, const int N, const int K,
         const data_t *A, const dim_t lda, const data_t *B, const dim_t ldb,
         data_t *C, const dim_t ldc, const data_t alpha, const data_t beta,
         data_t *ws, bool do_copy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          data_t *ws, bool do_copy) {" << std::endl;
     int Nu = rnd_dn(N, unroll_factor<data_t>::n);
     int Mu = rnd_dn(M, unroll_factor<data_t>::m);
     for (int i = 0; i < Mu; i += unroll_factor<data_t>::m) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      for (int i = 0; i < Mu; i += unroll_factor<data_t>::m) {" << std::endl;
         for (int j = 0; j < Nu; j += unroll_factor<data_t>::n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          for (int j = 0; j < Nu; j += unroll_factor<data_t>::n) {" << std::endl;
             const data_t *b = isTransB ? &B[j] : &B[j * ldb];
             const data_t *a = isTransA ? &A[i * lda] : &A[i];
             if (do_copy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:              if (do_copy) {" << std::endl;
                 if (j == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:                  if (j == 0) {" << std::endl;
                     copy_A<data_t>(isTransA, K, a, lda, ws);
                 }
                 kernel_mxn<data_t, false, isTransB>(
@@ -99,11 +114,14 @@ void block_ker(const int M, const int N, const int K,
     }
     // tail processing
     for (int i = 0; i < M; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      for (int i = 0; i < M; i++) {" << std::endl;
         for (int j = Nu; j < N; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          for (int j = Nu; j < N; j++) {" << std::endl;
             data_t c = beta == static_cast<data_t>(0.)
                 ? static_cast<data_t>(0.)
                 : beta * C[i + j * ldc];
             for (int p = 0; p < K; p++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:              for (int p = 0; p < K; p++) {" << std::endl;
                 data_t b = isTransB ? B[j + p * ldb] : B[p + j * ldb];
                 data_t a = isTransA ? A[p + i * lda] : A[i + p * lda];
                 c += alpha * a * b;
@@ -112,11 +130,14 @@ void block_ker(const int M, const int N, const int K,
         }
     }
     for (int i = Mu; i < M; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      for (int i = Mu; i < M; i++) {" << std::endl;
         for (int j = 0; j < Nu; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          for (int j = 0; j < Nu; j++) {" << std::endl;
             data_t c = beta == static_cast<data_t>(0.)
                 ? static_cast<data_t>(0.)
                 : beta * C[i + j * ldc];
             for (int p = 0; p < K; p++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:              for (int p = 0; p < K; p++) {" << std::endl;
                 data_t b = isTransB ? B[j + p * ldb] : B[p + j * ldb];
                 data_t a = isTransA ? A[p + i * lda] : A[i + p * lda];
                 c += alpha * a * b;
@@ -131,6 +152,7 @@ void gemm_ithr(const int M, const int N, const int K, const data_t alpha,
         const data_t *A, const dim_t lda, const data_t *B, const dim_t ldb,
         const data_t beta, data_t *C, const dim_t ldc, bool do_copy,
         data_t *ws) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          data_t *ws) {" << std::endl;
     constexpr int BM = gemm_traits<data_t, isTransA, isTransB>::BM;
     constexpr int BN = gemm_traits<data_t, isTransA, isTransB>::BN;
     constexpr int BK = gemm_traits<data_t, isTransA, isTransB>::BK;
@@ -143,11 +165,14 @@ void gemm_ithr(const int M, const int N, const int K, const data_t alpha,
         return;
 
     if ((K <= 0) || (alpha == static_cast<data_t>(0))) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      if ((K <= 0) || (alpha == static_cast<data_t>(0))) {" << std::endl;
         dim_t MN = N * M;
         if (beta == static_cast<data_t>(0.)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          if (beta == static_cast<data_t>(0.)) {" << std::endl;
             for (dim_t j = 0; j < MN; j++)
                 C[j] = static_cast<data_t>(0.);
         } else if (beta != static_cast<data_t>(1.)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          } else if (beta != static_cast<data_t>(1.)) {" << std::endl;
             for (dim_t j = 0; j < MN; j++)
                 C[j] *= beta;
         }
@@ -155,15 +180,19 @@ void gemm_ithr(const int M, const int N, const int K, const data_t alpha,
     }
 
     for (int Bk = 0; Bk < K; Bk += BK) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      for (int Bk = 0; Bk < K; Bk += BK) {" << std::endl;
         int kb = nstl::min(K - Bk, BK);
         for (int Bm = 0; Bm < M; Bm += BM) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          for (int Bm = 0; Bm < M; Bm += BM) {" << std::endl;
             int mb = nstl::min(M - Bm, BM);
             for (int Bn = 0; Bn < N; Bn += BN) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:              for (int Bn = 0; Bn < N; Bn += BN) {" << std::endl;
                 int nb = nstl::min(N - Bn, BN);
                 curA = isTransA ? A + Bk + Bm * lda : A + Bm + Bk * lda;
                 curB = isTransB ? B + Bn + Bk * ldb : B + Bk + Bn * ldb;
                 curC = C + Bm + Bn * ldc;
                 if (Bk == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:                  if (Bk == 0) {" << std::endl;
                     block_ker<data_t, isTransA, isTransB>(mb, nb, kb, curA, lda,
                         curB, ldb, curC, ldc, alpha, beta, ws, do_copy);
                 } else {
@@ -184,6 +213,7 @@ mkldnn_status_t ref_gemm(
         const int *N_, const int *K_, const data_t *alpha_, const data_t *A,
         const int *lda_, const data_t *B, const int *ldb_, const data_t *beta_,
         data_t *C, const int *ldc_, const data_t *bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          data_t *C, const int *ldc_, const data_t *bias) {" << std::endl;
 
     bool isTransA = (*transa_ == 'T' || *transa_ == 't');
     bool isTransB = (*transb_ == 'T' || *transb_ == 't');
@@ -202,9 +232,11 @@ mkldnn_status_t ref_gemm(
     data_t *c_buffers = nullptr;
     data_t *ws_buffers = nullptr;
     if (nthr_k > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      if (nthr_k > 1) {" << std::endl;
         c_buffers = (data_t *)malloc(nthr_m * nthr_n * (nthr_k - 1) * MB * NB
                 * sizeof(data_t), PAGE_4K);
         if (!c_buffers) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          if (!c_buffers) {" << std::endl;
             nthr_k = 1;
             KB = K;
         }
@@ -217,6 +249,7 @@ mkldnn_status_t ref_gemm(
     const size_t ws_size_per_thr
             = rnd_up(ws_elems_per_thr * sizeof(data_t), PAGE_4K);
     if (do_copy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      if (do_copy) {" << std::endl;
         ws_buffers = (data_t*)malloc(nthr * ws_size_per_thr, PAGE_4K);
         if (!ws_buffers)
             do_copy = false;
@@ -224,6 +257,7 @@ mkldnn_status_t ref_gemm(
 
     auto get_thr_block = [&](int &from, int &to, int &myN, int NB, int N,
                              int ithr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:                               int ithr) {" << std::endl;
         from = NB * (ithr);
         to = NB * (ithr + 1);
         if (to > N)
@@ -232,6 +266,7 @@ mkldnn_status_t ref_gemm(
     };
 
     parallel_nd(nthr, [&](const int ithr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      parallel_nd(nthr, [&](const int ithr) {" << std::endl;
         int ithr_mn = ithr % nthr_mn;
         int ithr_m = ithr_mn % nthr_m;
         int ithr_n = ithr_mn / nthr_m;
@@ -251,9 +286,11 @@ mkldnn_status_t ref_gemm(
         get_thr_block(k_from, k_to, myK, KB, K, ithr_k);
 
         if (myM > 0 && myN > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          if (myM > 0 && myN > 0) {" << std::endl;
             data_t myBeta, *myC;
             dim_t ld;
             if (ithr_k == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:              if (ithr_k == 0) {" << std::endl;
                 myC = &(C[m_from + n_from * ldc]);
                 myBeta = beta;
                 ld = ldc;
@@ -270,7 +307,9 @@ mkldnn_status_t ref_gemm(
                     : &(B[k_from + n_from * ldb]);
 
             if (!isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:              if (!isTransA) {" << std::endl;
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     gemm_ithr<data_t, false, false>(myM, myN, myK, alpha, myA,
                         lda, myB, ldb, myBeta, myC, ld, do_copy, ws);
                 } else {
@@ -279,6 +318,7 @@ mkldnn_status_t ref_gemm(
                 }
             } else {
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     gemm_ithr<data_t, true, false>(myM, myN, myK, alpha, myA,
                         lda, myB, ldb, myBeta, myC, ld, do_copy, ws);
                 } else {
@@ -290,7 +330,9 @@ mkldnn_status_t ref_gemm(
     });
 
     if (nthr_k > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      if (nthr_k > 1) {" << std::endl;
         parallel_nd(nthr, [&](const int ithr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          parallel_nd(nthr, [&](const int ithr) {" << std::endl;
             int ithr_mn = ithr % nthr_mn;
             int ithr_m = ithr_mn % nthr_m;
             int ithr_k = ithr / nthr_mn;
@@ -309,6 +351,7 @@ mkldnn_status_t ref_gemm(
             gemm_utils::partition_unit_diff(ithr_k, nthr_k, myN, &offset,
                     &block);
             for (int ik = 1; ik < nthr_k; ++ik) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:              for (int ik = 1; ik < nthr_k; ++ik) {" << std::endl;
                 data_t *myC = c_buffers
                             + MB * ((dim_t)NB * (cbase + ik - 1) + offset);
 
@@ -319,7 +362,9 @@ mkldnn_status_t ref_gemm(
     }
 
     if (bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:      if (bias) {" << std::endl;
         parallel_nd(N, M, [&](int i, int j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/ref_gemm_f32.cpp:          parallel_nd(N, M, [&](int i, int j) {" << std::endl;
             C[i*ldc + j] += bias[j];
         });
     }

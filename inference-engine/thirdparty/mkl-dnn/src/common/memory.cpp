@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -35,6 +36,7 @@ using namespace mkldnn::impl::data_type;
 namespace {
 bool memory_desc_sanity_check(int ndims,const dims_t dims,
         data_type_t data_type, memory_format_t format) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          data_type_t data_type, memory_format_t format) {" << std::endl;
     if (ndims == 0) return true;
 
     bool ok = true
@@ -50,6 +52,7 @@ bool memory_desc_sanity_check(int ndims,const dims_t dims,
 }
 
 bool memory_desc_sanity_check(const memory_desc_t *md) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:  bool memory_desc_sanity_check(const memory_desc_t *md) {" << std::endl;
     if (md == nullptr) return false;
     return memory_desc_sanity_check(md->ndims, md->dims, md->data_type,
             md->format);
@@ -58,8 +61,10 @@ bool memory_desc_sanity_check(const memory_desc_t *md) {
 
 status_t mkldnn_memory_desc_init(memory_desc_t *memory_desc, int ndims,
         const dims_t dims, data_type_t data_type, memory_format_t format) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          const dims_t dims, data_type_t data_type, memory_format_t format) {" << std::endl;
     if (any_null(memory_desc)) return invalid_arguments;
     if (ndims == 0 || format == memory_format::undef) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      if (ndims == 0 || format == memory_format::undef) {" << std::endl;
         *memory_desc = types::zero_md();
         return success;
     }
@@ -78,10 +83,13 @@ status_t mkldnn_memory_desc_init(memory_desc_t *memory_desc, int ndims,
 
     status_t status = success;
     if (one_of(format, memory_format::undef, blocked, wino_fmt, rnn_packed)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      if (one_of(format, memory_format::undef, blocked, wino_fmt, rnn_packed)) {" << std::endl;
         status = invalid_arguments;
     } else if (format == any) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      } else if (format == any) {" << std::endl;
         // nop
     } else if (types::format_normalize(format) == blocked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      } else if (types::format_normalize(format) == blocked) {" << std::endl;
         status = memory_desc_wrapper::compute_blocking(md);
     } else {
         assert(!"unreachable");
@@ -96,6 +104,7 @@ status_t mkldnn_memory_desc_init(memory_desc_t *memory_desc, int ndims,
 
 status_t mkldnn_memory_primitive_desc_create(primitive_desc_t **memory_pd,
         const memory_desc_t *memory_desc, engine_t *engine) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          const memory_desc_t *memory_desc, engine_t *engine) {" << std::endl;
     bool args_ok = !any_null(memory_pd, memory_desc, engine)
         && memory_desc_sanity_check(memory_desc)
         && memory_desc_wrapper(*memory_desc).is_defined();
@@ -107,6 +116,7 @@ status_t mkldnn_memory_primitive_desc_create(primitive_desc_t **memory_pd,
 status_t mkldnn_view_primitive_desc_create(primitive_desc_t **view_pd,
         const primitive_desc_t *memory_pd, const dims_t dims,
         const dims_t offsets) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          const dims_t offsets) {" << std::endl;
     const memory_pd_t *mpd =
         (const memory_pd_t*)memory_pd;
 
@@ -117,6 +127,7 @@ status_t mkldnn_view_primitive_desc_create(primitive_desc_t **view_pd,
 
     memory_desc_wrapper md(*mpd->desc());
     for (int d = 0; d < md.ndims(); ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      for (int d = 0; d < md.ndims(); ++d) {" << std::endl;
         if (dims[d] < 0 || offsets[d] < 0
                 || (offsets[d] + dims[d] > md.dims()[d]))
             return invalid_arguments;
@@ -127,6 +138,7 @@ status_t mkldnn_view_primitive_desc_create(primitive_desc_t **view_pd,
 
 int mkldnn_memory_primitive_desc_equal(const primitive_desc_t *lhs,
         const primitive_desc_t *rhs) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          const primitive_desc_t *rhs) {" << std::endl;
     bool args_ok = !any_null(lhs, rhs)
         && lhs->engine() == rhs->engine()
         && one_of(lhs->kind(), primitive_kind::memory, primitive_kind::view)
@@ -140,6 +152,7 @@ int mkldnn_memory_primitive_desc_equal(const primitive_desc_t *lhs,
 
 size_t mkldnn_memory_primitive_desc_get_size(const primitive_desc_t *memory_pd)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:  size_t mkldnn_memory_primitive_desc_get_size(const primitive_desc_t *memory_pd) {" << std::endl;
     bool args_ok = !any_null(memory_pd)
         && memory_pd->kind() == primitive_kind::memory;
     if (!args_ok) return 0;
@@ -149,9 +162,11 @@ size_t mkldnn_memory_primitive_desc_get_size(const primitive_desc_t *memory_pd)
 
 status_t mkldnn_memory_get_data_handle(const primitive_t *memory,
         void **handle) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          void **handle) {" << std::endl;
     if (any_null(handle))
         return invalid_arguments;
     if (memory == nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      if (memory == nullptr) {" << std::endl;
         *handle = nullptr;
         return success;
     }
@@ -161,12 +176,14 @@ status_t mkldnn_memory_get_data_handle(const primitive_t *memory,
 }
 
 status_t mkldnn_memory_set_data_handle(primitive_t *memory, void *handle) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:  status_t mkldnn_memory_set_data_handle(primitive_t *memory, void *handle) {" << std::endl;
     if (any_null(memory) || memory->kind() != primitive_kind::memory)
         return invalid_arguments;
     return memory->set_data_handle(handle, true);
 }
 
 status_t mkldnn_memory_set_data_handle_no_pads_proc(primitive_t *memory, void *handle) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:  status_t mkldnn_memory_set_data_handle_no_pads_proc(primitive_t *memory, void *handle) {" << std::endl;
     if (any_null(memory) || memory->kind() != primitive_kind::memory)
         return invalid_arguments;
     return memory->set_data_handle(handle, false);
@@ -175,9 +192,11 @@ status_t mkldnn_memory_set_data_handle_no_pads_proc(primitive_t *memory, void *h
 status_t mkldnn_concat_primitive_desc_create_v2(primitive_desc_t **concat_pd,
         const memory_desc_t *output_d, int n, int concat_dim,
         const primitive_desc_t **input_pds, const primitive_attr_t *attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          const primitive_desc_t **input_pds, const primitive_attr_t *attr) {" << std::endl;
     bool args_ok = !any_null(concat_pd, input_pds) && n > 0;
     if (!args_ok) return invalid_arguments;
     for (int i = 0; i < n; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      for (int i = 0; i < n; ++i) {" << std::endl;
         if (input_pds[i] == nullptr ||
                 input_pds[i]->kind() != primitive_kind::memory)
             return invalid_arguments;
@@ -195,9 +214,11 @@ status_t mkldnn_concat_primitive_desc_create_v2(primitive_desc_t **concat_pd,
 
     int concat_dim_sz = dims[concat_dim];
     for (int i = 1; i < n; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      for (int i = 1; i < n; ++i) {" << std::endl;
         if (i_mpds[i]->engine() != engine) return invalid_arguments;
         if (i_mpds[i]->desc()->ndims != ndims) return invalid_arguments;
         for (int d = 0; d < ndims; ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          for (int d = 0; d < ndims; ++d) {" << std::endl;
             if (d == concat_dim) continue;
             if (i_mpds[i]->desc()->dims[d] != dims[d])
                 return invalid_arguments;
@@ -208,8 +229,10 @@ status_t mkldnn_concat_primitive_desc_create_v2(primitive_desc_t **concat_pd,
 
     memory_desc_t dummy_output_d;
     if (output_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      if (output_d) {" << std::endl;
         if (output_d->ndims != ndims) return invalid_arguments;
         for (int d = 0; d < ndims; ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          for (int d = 0; d < ndims; ++d) {" << std::endl;
             if (output_d->dims[d] !=
                     (d == concat_dim ? concat_dim_sz : dims[d]))
                 return invalid_arguments;
@@ -224,7 +247,9 @@ status_t mkldnn_concat_primitive_desc_create_v2(primitive_desc_t **concat_pd,
     auto c_pd = reinterpret_cast<concat_pd_t **>(concat_pd);
 
     for (auto c = engine->get_concat_implementation_list(); *c; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      for (auto c = engine->get_concat_implementation_list(); *c; ++c) {" << std::endl;
         if ((*c)(c_pd, output_d, n, concat_dim, i_mpds, attr) == success) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          if ((*c)(c_pd, output_d, n, concat_dim, i_mpds, attr) == success) {" << std::endl;
             (*c_pd)->init_info();
             return success;
         }
@@ -235,6 +260,7 @@ status_t mkldnn_concat_primitive_desc_create_v2(primitive_desc_t **concat_pd,
 status_t mkldnn_concat_primitive_desc_create(primitive_desc_t **concat_pd,
         const memory_desc_t *output_d, int n, int concat_dim,
         const primitive_desc_t **input_pds) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          const primitive_desc_t **input_pds) {" << std::endl;
     return mkldnn_concat_primitive_desc_create_v2(concat_pd, output_d, n,
             concat_dim, input_pds, nullptr);
 }
@@ -242,9 +268,11 @@ status_t mkldnn_concat_primitive_desc_create(primitive_desc_t **concat_pd,
 status_t mkldnn_sum_primitive_desc_create_v2(primitive_desc_t **sum_pd,
         const memory_desc_t *output_d, int n, const float *scales,
         const primitive_desc_t **input_pds, const primitive_attr_t *attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          const primitive_desc_t **input_pds, const primitive_attr_t *attr) {" << std::endl;
     bool args_ok = !any_null(sum_pd, input_pds, scales) && n > 0;
     if (!args_ok) return invalid_arguments;
     for (int i = 0; i < n; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      for (int i = 0; i < n; ++i) {" << std::endl;
         if (input_pds[i] == nullptr ||
                 input_pds[i]->kind() != primitive_kind::memory)
             return invalid_arguments;
@@ -261,9 +289,11 @@ status_t mkldnn_sum_primitive_desc_create_v2(primitive_desc_t **sum_pd,
     const data_type_t dt = i_mpds[0]->desc()->data_type;
 
     for (int i = 1; i < n; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      for (int i = 1; i < n; ++i) {" << std::endl;
         if (i_mpds[i]->engine() != engine) return invalid_arguments;
         if (i_mpds[i]->desc()->ndims != ndims) return invalid_arguments;
         for (int d = 0; d < ndims; ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          for (int d = 0; d < ndims; ++d) {" << std::endl;
             if (i_mpds[i]->desc()->dims[d] != dims[d])
                 return invalid_arguments;
         }
@@ -272,8 +302,10 @@ status_t mkldnn_sum_primitive_desc_create_v2(primitive_desc_t **sum_pd,
 
     memory_desc_t dummy_output_d;
     if (output_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      if (output_d) {" << std::endl;
         if (output_d->ndims != ndims) return invalid_arguments;
         for (int d = 0; d < ndims; ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          for (int d = 0; d < ndims; ++d) {" << std::endl;
             if (output_d->dims[d] != dims[d])
                 return invalid_arguments;
         }
@@ -286,7 +318,9 @@ status_t mkldnn_sum_primitive_desc_create_v2(primitive_desc_t **sum_pd,
     auto s_pd = reinterpret_cast<sum_pd_t **>(sum_pd);
 
     for (auto s = engine->get_sum_implementation_list(); *s; ++s) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:      for (auto s = engine->get_sum_implementation_list(); *s; ++s) {" << std::endl;
         if ((*s)(s_pd, output_d, n, scales, i_mpds, attr) == success) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          if ((*s)(s_pd, output_d, n, scales, i_mpds, attr) == success) {" << std::endl;
             (*s_pd)->init_info();
             return success;
         }
@@ -297,6 +331,7 @@ status_t mkldnn_sum_primitive_desc_create_v2(primitive_desc_t **sum_pd,
 status_t mkldnn_sum_primitive_desc_create(primitive_desc_t **sum_pd,
         const memory_desc_t *output_d, int n, const float *scales,
         const primitive_desc_t **input_pds) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/memory.cpp:          const primitive_desc_t **input_pds) {" << std::endl;
     return mkldnn_sum_primitive_desc_create_v2(sum_pd, output_d, n, scales,
             input_pds, nullptr);
 }

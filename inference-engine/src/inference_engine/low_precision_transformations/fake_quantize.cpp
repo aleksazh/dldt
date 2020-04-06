@@ -1,4 +1,5 @@
-﻿// Copyright (C) 2018-2020 Intel Corporation
+#include <iostream>
+// Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -28,10 +29,12 @@ using namespace InferenceEngine::details;
 
 void FakeQuantizeTransformation::transform(TransformationContext& context, CNNLayer& layer) const {
     if (!CaselessEq<std::string>()(layer.type, "FakeQuantize")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if (!CaselessEq<std::string>()(layer.type, 'FakeQuantize')) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer '" << layer.name << "' has invalid type. FakeQuantize is expected.";
     }
 
     if (layer.insData.size() != 5lu) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if (layer.insData.size() != 5lu) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer '" << layer.insData.size() << "' has invalid inputs number. 5 is expected.";
     }
 
@@ -40,6 +43,7 @@ void FakeQuantizeTransformation::transform(TransformationContext& context, CNNLa
     // FakeQuantize on weights are used without dequantization ScaleShifts
     const bool onWeights = CNNNetworkHelper::onWeights(layer);
     if (onWeights) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if (onWeights) {" << std::endl;
         return;
     }
 
@@ -52,10 +56,12 @@ void FakeQuantizeTransformation::transform(TransformationContext& context, CNNLa
     CNNLayerPtr scaleShift = CNNNetworkHelper::getParent(layer, 0);
     auto scaleShiftChildren = CNNNetworkHelper::getChildren(*scaleShift);
     if ((scaleShift != nullptr) && (scaleShift->type == "ScaleShift") && scaleShiftChildren.size() == 1) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if ((scaleShift != nullptr) && (scaleShift->type == 'ScaleShift') && scaleShiftChildren.size() == 1) {" << std::endl;
         fuseScaleShift(context, fakeQuantizeLayer, scaleShift);
     }
 
     if (context.quantizedFakeQuantizeNames.find(layer.name) != context.quantizedFakeQuantizeNames.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if (context.quantizedFakeQuantizeNames.find(layer.name) != context.quantizedFakeQuantizeNames.end()) {" << std::endl;
         return;
     }
 
@@ -64,6 +70,7 @@ void FakeQuantizeTransformation::transform(TransformationContext& context, CNNLa
     const QuantizationDetails quantizationDetails = QuantizationDetails::getDetails(layer);
     const DataPrecision dataPrecision = getDataPrecision(layer, quantizationDetails, onWeights, supportAsymmetricQuantization);
     if (dataPrecision.precision == Precision::UNSPECIFIED) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if (dataPrecision.precision == Precision::UNSPECIFIED) {" << std::endl;
         return;
     }
 
@@ -77,11 +84,13 @@ void FakeQuantizeTransformation::transform(TransformationContext& context, CNNLa
     CNNNetworkHelper::updateBlobs(layer, 4, dataPrecision.max);
 
     if (updatePrecisions) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if (updatePrecisions) {" << std::endl;
         CNNNetworkHelper::setOutDataPrecision(layer, dataPrecision.precision);
     }
 
     const std::vector<CNNLayerPtr> children = CNNNetworkHelper::getChildren(layer);
     if (children.size() == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if (children.size() == 0) {" << std::endl;
         const std::string originalName = layer.name;
         CNNNetworkHelper::renameLayer(context.network, layer.name, layer.name + LayerTransformation::lastLayerPrefix);
 
@@ -92,6 +101,7 @@ void FakeQuantizeTransformation::transform(TransformationContext& context, CNNLa
         context.dequantizationLayersNames.insert(dequantizationLayer->name);
     } else {
         for (const CNNLayerPtr child : children) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:          for (const CNNLayerPtr child : children) {" << std::endl;
             CNNLayerPtr dequantizationLayer = CNNNetworkHelper::addScaleShiftBetween(
                 context, std::make_shared<CNNLayer>(layer), child,
                 DequantizationDetails(dequantizationScales, dequantizationShifts, dequantizationShifts.size()));
@@ -122,6 +132,7 @@ void FakeQuantizeTransformation::fuseScaleShift(TransformationContext& context, 
     const float* scalesBuffer = scalesBufferPtr.get();
     // Don't fuse when there is a negative scale, because it leads to invalid results of FQ
     for (size_t i = 0lu; i < scalesBlob->size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      for (size_t i = 0lu; i < scalesBlob->size(); ++i) {" << std::endl;
         if (scalesBuffer[i] <= 0.0f) return;
     }
 
@@ -132,6 +143,7 @@ void FakeQuantizeTransformation::fuseScaleShift(TransformationContext& context, 
     size_t channelIndex;
     const size_t inputDims = scaleShift->insData[0].lock()->getDims().size();
     switch (inputDims) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      switch (inputDims) {" << std::endl;
         case 5: {
             layout = Layout::NCDHW;
             channelIndex = 1ul;
@@ -170,6 +182,7 @@ void FakeQuantizeTransformation::fuseScaleShift(TransformationContext& context, 
     auto targetInputHighBuffer = CNNNetworkHelper::getFloatData(targetInputHighBufferPtr);
 
     for (size_t i = 0lu; i < scalesBlob->size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      for (size_t i = 0lu; i < scalesBlob->size(); ++i) {" << std::endl;
         auto q_lo = quantizationDetails.getInputLowValue(i);
         auto q_hi = quantizationDetails.getInputHighValue(i);
         auto sc = scalesBlob->size() == 1 ? scalesBuffer[0] : scalesBuffer[i];
@@ -189,7 +202,9 @@ void FakeQuantizeTransformation::fuseScaleShift(TransformationContext& context, 
 
 Blob::Ptr FakeQuantizeTransformation::reshapeWeightsIntervalConst(CNNLayer& constLayer, const std::vector<size_t>& dims,
                                                                   const Layout layout) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:                                                                    const Layout layout) {" << std::endl;
     if (constLayer.blobs.size() != 1lu) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if (constLayer.blobs.size() != 1lu) {" << std::endl;
         THROW_IE_EXCEPTION << "Unexpected blobs count " << constLayer.blobs.size() << " for layer " << constLayer.name;
     }
     if (constLayer.outData.size() != 1lu)
@@ -213,14 +228,17 @@ void FakeQuantizeTransformation::reshapeFakeQuantize(
         CNNLayer& fakeQuantizeLayer,
         const std::vector<size_t>& dims,
         const Layout layout) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:          const Layout layout) {" << std::endl;
     DataPtr inputLowData = fakeQuantizeLayer.insData[1].lock();
     if (inputLowData == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if (inputLowData == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "input low interval data is absent";
     }
     inputLowData->reshape(dims, layout);
 
     DataPtr inputHighData = fakeQuantizeLayer.insData[2].lock();
     if (inputHighData == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fake_quantize.cpp:      if (inputHighData == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "input hight interval data is absent";
     }
     inputHighData->reshape(dims, layout);

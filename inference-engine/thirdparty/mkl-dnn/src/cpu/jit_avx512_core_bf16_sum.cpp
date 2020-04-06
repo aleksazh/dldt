@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -38,6 +39,7 @@ using namespace mkldnn::impl::cpu::bf16_cvt_utils;
 using namespace Xbyak;
 void jit_avx512_core_bf16_sum_kernel::loop_iteration(int current_unroll)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:  void jit_avx512_core_bf16_sum_kernel::loop_iteration(int current_unroll) {" << std::endl;
     Label loop_label, exit_label;
     const int num_compute_elements = 2 * f32_simd_w_ * current_unroll;
     size_t src_shift = 2 * f32_simd_w_ * jsp.typesize_in;
@@ -47,6 +49,7 @@ void jit_avx512_core_bf16_sum_kernel::loop_iteration(int current_unroll)
     cmp(reg_sz, num_compute_elements);
     jl(exit_label, T_NEAR);
     for (int u_idx = 0; u_idx < current_unroll; u_idx++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:      for (int u_idx = 0; u_idx < current_unroll; u_idx++) {" << std::endl;
         zmm_t vacc0 = Zmm(acc_vreg_idx(u_idx, 0));
         zmm_t vacc1 = Zmm(acc_vreg_idx(u_idx, 1));
         vpxord(vacc0, vacc0, vacc0);
@@ -54,6 +57,7 @@ void jit_avx512_core_bf16_sum_kernel::loop_iteration(int current_unroll)
 
         int num_acc_iters = utils::div_up(jsp.num_srcs, 2);
         for (int acc_iter = 0; acc_iter < num_acc_iters; acc_iter++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:          for (int acc_iter = 0; acc_iter < num_acc_iters; acc_iter++) {" << std::endl;
             int isrc0 = 2 * acc_iter;
             int isrc1 = 2 * acc_iter + 1;
             zmm_t vscale = Zmm(scale_vreg_idx(acc_iter));
@@ -73,6 +77,7 @@ void jit_avx512_core_bf16_sum_kernel::loop_iteration(int current_unroll)
             vpermw(vsrc0, zmm_idx, vsrc0);
 
                 if (!jsp.is_cpx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:                  if (!jsp.is_cpx) {" << std::endl;
                     bf16_emu_->r_vdpbf16ps(vacc0, vsrc0, vscale);
                     vpbroadcastd(vscale,
                         ptr[reg_scales + 2 * acc_iter * jsp.typesize_in]);
@@ -84,10 +89,12 @@ void jit_avx512_core_bf16_sum_kernel::loop_iteration(int current_unroll)
         }
 
         if (!jsp.is_bf16_dst) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:          if (!jsp.is_bf16_dst) {" << std::endl;
             vmovups(zword[reg_dst + 2 * u_idx * dst_shift], vacc0);
             vmovups(zword[reg_dst + (2 * u_idx + 1) * dst_shift], vacc1);
         } else {
             if (jsp.is_cpx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:              if (jsp.is_cpx) {" << std::endl;
                 zmm_t zmm_str = Zmm(tmp_vreg_idx(u_idx, 0));
                 vcvtne2ps2bf16(zmm_str, vacc1, vacc0);
                 vmovups(zword[reg_dst + 2 * u_idx * dst_shift], zmm_str);
@@ -111,6 +118,7 @@ void jit_avx512_core_bf16_sum_kernel::loop_iteration(int current_unroll)
 
 void jit_avx512_core_bf16_sum_kernel::generate()
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:  void jit_avx512_core_bf16_sum_kernel::generate() {" << std::endl;
     preamble();
 
     mov(reg_dst, ptr[param + GET_OFF(dst)]);
@@ -129,6 +137,7 @@ void jit_avx512_core_bf16_sum_kernel::generate()
 
     int num_acc_iters = utils::div_up(jsp.num_srcs, 2);
     for (int acc_iter = 0; acc_iter < num_acc_iters; acc_iter++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:      for (int acc_iter = 0; acc_iter < num_acc_iters; acc_iter++) {" << std::endl;
         zmm_t vscale = Zmm(scale_vreg_idx(acc_iter));
         vpbroadcastd(vscale, ptr[reg_scales + 2 * acc_iter * jsp.typesize_in]);
     }
@@ -160,6 +169,7 @@ void jit_avx512_core_bf16_sum_kernel::generate()
     vpxord(vacc, vacc, vacc);
 
     for (int acc_iter = 0; acc_iter < num_acc_iters; acc_iter++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:      for (int acc_iter = 0; acc_iter < num_acc_iters; acc_iter++) {" << std::endl;
         int isrc0 = 2 * acc_iter;
         int isrc1 = 2 * acc_iter + 1;
         zmm_t vscale = Zmm(scale_vreg_idx(acc_iter));
@@ -177,15 +187,18 @@ void jit_avx512_core_bf16_sum_kernel::generate()
         vpermw(vsrc, zmm_idx, vsrc);
 
         if (!jsp.is_cpx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:          if (!jsp.is_cpx) {" << std::endl;
             bf16_emu_->r_vdpbf16ps(vacc, vsrc, vscale);
         } else {
             vdpbf16ps(vacc, vsrc, vscale);
         }
     }
     if (!jsp.is_bf16_dst) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:      if (!jsp.is_bf16_dst) {" << std::endl;
         vmovups(zword[reg_dst] | k_mask, vacc);
     } else {
         if (jsp.is_cpx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:          if (jsp.is_cpx) {" << std::endl;
             auto ymm_str = Ymm(tmp_vreg_idx(0, 0));
             vcvtneps2bf16(ymm_str, vacc);
             vmovdqu16(yword[reg_dst] | k_mask, ymm_str);
@@ -222,6 +235,7 @@ status_t jit_avx512_core_bf16_sum_kernel::init_conf(
                                 const int num_srcs,
                                 const cpu_memory_pd_t &dst_d)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:                                  const cpu_memory_pd_t &dst_d) {" << std::endl;
     jsp.is_cpx = mayiuse(avx512_core_bf16);
 
     jsp.num_srcs = num_srcs;
@@ -230,6 +244,7 @@ status_t jit_avx512_core_bf16_sum_kernel::init_conf(
     const int max_unroll = 6; // maximum possible value of unroll is 6
     for (/*continue*/; jsp.loop_unroll < max_unroll; jsp.loop_unroll++)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:      for (/*continue*/; jsp.loop_unroll < max_unroll; jsp.loop_unroll++)     {" << std::endl;
         int num_regs = num_vregs_required(jsp.loop_unroll + 1, jsp.num_srcs);
         if (num_regs > max_vregs_available(jsp.is_cpx))
             break;
@@ -262,6 +277,7 @@ void jit_bf16_sum_t<src_data_type, dst_data_type>::execute() const
     to use VNNI instructions */
     src_data_t scales[max_num_arrs];
     for (int a = 0; a < num_arrs; ++a) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:      for (int a = 0; a < num_arrs; ++a) {" << std::endl;
         const memory_desc_wrapper i_d(pd()->src_pd(a));
 
         input_ptrs[a] = reinterpret_cast<const src_data_t *>(
@@ -280,6 +296,7 @@ void jit_bf16_sum_t<src_data_type, dst_data_type>::execute() const
     const size_t tail = nelems % num_elems_in_block;
 
     parallel(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:      parallel(0, [&](const int ithr, const int nthr) {" << std::endl;
         size_t start{0}, end{0};
         balance211(num_blocks, nthr, ithr, start, end);
         auto arg = jit_sum_call_s();
@@ -287,8 +304,10 @@ void jit_bf16_sum_t<src_data_type, dst_data_type>::execute() const
         dst_data_t *local_output;
 
         for (size_t nb = start; nb < end; ++nb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:          for (size_t nb = start; nb < end; ++nb) {" << std::endl;
             size_t start_e = nb * num_elems_in_block;
             for (int a = 0; a < num_arrs; ++a) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:              for (int a = 0; a < num_arrs; ++a) {" << std::endl;
                 local_input_ptrs[a] = &input_ptrs[a][start_e];
             }
             local_output = &output[start_e];
@@ -300,8 +319,10 @@ void jit_bf16_sum_t<src_data_type, dst_data_type>::execute() const
         }
 
         if (tail != 0 && ithr == nthr - 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:          if (tail != 0 && ithr == nthr - 1) {" << std::endl;
             size_t start_e = nelems - tail;
             for (int a = 0; a < num_arrs; ++a) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_bf16_sum.cpp:              for (int a = 0; a < num_arrs; ++a) {" << std::endl;
                 local_input_ptrs[a] = &input_ptrs[a][start_e];
             }
             local_output = &output[start_e];

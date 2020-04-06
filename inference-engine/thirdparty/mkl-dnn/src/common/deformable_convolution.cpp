@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -38,6 +39,7 @@ status_t def_conv_desc_init(deformable_convolution_desc_t *def_conv_desc,
                         const dims_t strides, const dims_t dilates,
                         const dims_t padding_l, const dims_t padding_r,
                         padding_kind_t padding_kind, const int deformable_group) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/deformable_convolution.cpp:                          padding_kind_t padding_kind, const int deformable_group) {" << std::endl;
     bool args_ok = true
                    && !any_null(def_conv_desc, src_descs, weights_desc, dst_desc, strides, dilates, padding_l)
                    && one_of(alg_kind, deformable_convolution_direct)
@@ -99,6 +101,7 @@ status_t def_conv_desc_init(deformable_convolution_desc_t *def_conv_desc,
 
     for (int i = 2; i < src_descs[0].ndims; ++i)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/deformable_convolution.cpp:      for (int i = 2; i < src_descs[0].ndims; ++i)     {" << std::endl;
         int src = src_descs[0].dims[i];
         int ker = weights_desc->dims[with_groups + i];
         int dil = cd.dilates[i - 2];
@@ -129,6 +132,7 @@ status_t mkldnn_deformable_convolution_forward_desc_init(deformable_convolution_
                                               const memory_desc_t *bias_desc, const memory_desc_t *dst_desc,
                                               const dims_t strides, const dims_t dilates, const dims_t padding_l, const dims_t padding_r,
                                               padding_kind_t padding_kind, const int deformable_group) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/deformable_convolution.cpp:                                                padding_kind_t padding_kind, const int deformable_group) {" << std::endl;
     if (!one_of(prop_kind, forward_training, forward_inference))
         return invalid_arguments;
     return mkldnn::impl::def_conv_desc_init(def_conv_desc, prop_kind, alg_kind, src_descs, num_src,

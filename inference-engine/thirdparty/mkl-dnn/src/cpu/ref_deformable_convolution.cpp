@@ -73,16 +73,20 @@ void _ref_deformable_convolution_fwd_t::execute_forward() const {
     const int channel_per_deformable_group = pd()->IC() / DG;
 
     auto ker = [=](int g, int mb, int oc, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deformable_convolution.cpp:      auto ker = [=](int g, int mb, int oc, int oh, int ow) {" << std::endl;
         acc_data_t d = 0;
         const int h_in = oh * KSH - padT;
         const int w_in = ow * KSW - padL;
 
         for (int ic = 0; ic < IC; ic++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deformable_convolution.cpp:          for (int ic = 0; ic < IC; ic++) {" << std::endl;
             const float *data_im_ptr = src + src_d.off(mb, g * IC + ic, h_in, w_in);
             const int deformable_group_index = ic / channel_per_deformable_group;
             const float *data_offset_ptr = offset + offset_d.off(mb, deformable_group_index * 2 * KH * KW, 0, 0);
             for (int kh = 0; kh < KH; kh++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deformable_convolution.cpp:              for (int kh = 0; kh < KH; kh++) {" << std::endl;
                 for (int kw = 0; kw < KW; kw++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deformable_convolution.cpp:                  for (int kw = 0; kw < KW; kw++) {" << std::endl;
                     const size_t data_offset_h_index = offset_d.off(0, 2 * (kh * KW + kw), oh, ow);
                     const size_t data_offset_w_index = offset_d.off(0, 2 * (kh * KW + kw) + 1, oh, ow);
                     const float offset_h = data_offset_ptr[data_offset_h_index];
@@ -92,6 +96,7 @@ void _ref_deformable_convolution_fwd_t::execute_forward() const {
                     const float w_im = w_in + kw * (KDW + 1) + offset_w;
 
                     if (h_im >= 0 && w_im >= 0 && h_im < IH && w_im < IW) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deformable_convolution.cpp:                      if (h_im >= 0 && w_im >= 0 && h_im < IH && w_im < IW) {" << std::endl;
                         float map_h = kh * (KDH + 1) + offset_h;
                         float map_w = kw * (KDW + 1) + offset_w;
                         const int cur_height = IH - h_in;
@@ -101,6 +106,7 @@ void _ref_deformable_convolution_fwd_t::execute_forward() const {
                         int h_high;
                         int w_high;
                         if (h_low >= cur_height - 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deformable_convolution.cpp:                          if (h_low >= cur_height - 1) {" << std::endl;
                             h_high = h_low = cur_height - 1;
                             map_h = static_cast<float>(h_low);
                         } else {
@@ -108,6 +114,7 @@ void _ref_deformable_convolution_fwd_t::execute_forward() const {
                         }
 
                         if (w_low >= cur_width - 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deformable_convolution.cpp:                          if (w_low >= cur_width - 1) {" << std::endl;
                             w_high = w_low = cur_width - 1;
                             map_w = static_cast<float>(w_low);
                         } else {
@@ -137,6 +144,7 @@ void _ref_deformable_convolution_fwd_t::execute_forward() const {
 
     parallel_nd(G, MB, OC, OH, OW,
     [&](int g, int mb, int oc, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deformable_convolution.cpp:      [&](int g, int mb, int oc, int oh, int ow) {" << std::endl;
         float a_fp = ker(g, mb, oc, oh, ow);
 
         if (bias)

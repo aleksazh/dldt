@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -73,6 +74,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
 
     static bool simple_impl_desc_init(const prb_t &prb,
             simple_impl_desc_t *desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              simple_impl_desc_t *desc) {" << std::endl;
         const int ndims = prb.ndims;
 
         int ndims_full_unroll = 0;
@@ -80,8 +82,10 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         int len_unroll = 1;
 
         for (int d = 0; d < ndims; ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for (int d = 0; d < ndims; ++d) {" << std::endl;
             auto &node = prb.nodes[d];
             if (len_unroll * node.n <= len_unroll_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              if (len_unroll * node.n <= len_unroll_max) {" << std::endl;
                 ndims_full_unroll++;
                 len_unroll *= node.n;
             } else {
@@ -97,6 +101,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
             return false;
 
         if (desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          if (desc) {" << std::endl;
             desc->ndims_full_unroll = ndims_full_unroll;
             desc->len_last_dim_unroll = len_last_dim_unroll;
             desc->len_unroll = len_unroll;
@@ -106,6 +111,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
     }
 
     static bool applicable(const prb_t &p) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      static bool applicable(const prb_t &p) {" << std::endl;
         using namespace data_type;
 
         bool ok = true
@@ -126,6 +132,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
 
         const ptrdiff_t max_stride = (1LL<<31) - 1;
         for (int d = 0; d < p.ndims; ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for (int d = 0; d < p.ndims; ++d) {" << std::endl;
             const ptrdiff_t cms = max_stride / p.nodes[d].n;
             bool strides_ok = true
                 && p.nodes[d].is < cms / (int)data_type_size(p.itype)
@@ -136,22 +143,30 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         return true;
     }
 
-    int n(int d) { assert(d < prb_.ndims); return (int)prb_.nodes[d].n; }
-    int is(int d) { assert(d < prb_.ndims); return (int)prb_.nodes[d].is; }
-    int os(int d) { assert(d < prb_.ndims); return (int)prb_.nodes[d].os; }
-    int ss(int d) { assert(d < prb_.ndims); return (int)prb_.nodes[d].ss; }
+    int n(int d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      int n(int d) {" << std::endl; assert(d < prb_.ndims); return (int)prb_.nodes[d].n; }
+    int is(int d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      int is(int d) {" << std::endl; assert(d < prb_.ndims); return (int)prb_.nodes[d].is; }
+    int os(int d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      int os(int d) {" << std::endl; assert(d < prb_.ndims); return (int)prb_.nodes[d].os; }
+    int ss(int d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      int ss(int d) {" << std::endl; assert(d < prb_.ndims); return (int)prb_.nodes[d].ss; }
 
     Address i_addr(int i_off)
-    { return ptr[reg_ptr_in + reg_off_in + i_off * itype_sz]; }
+    {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      Address i_addr(int i_off)     {" << std::endl; return ptr[reg_ptr_in + reg_off_in + i_off * itype_sz]; }
 
     Address o_addr(int o_off)
-    { return ptr[reg_ptr_out + reg_off_out + o_off * otype_sz]; }
+    {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      Address o_addr(int o_off)     {" << std::endl; return ptr[reg_ptr_out + reg_off_out + o_off * otype_sz]; }
 
     Address s_addr(int s_off)
-    { return ptr[reg_ptr_scale + reg_off_scale + s_off * stype_sz]; }
+    {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      Address s_addr(int s_off)     {" << std::endl; return ptr[reg_ptr_scale + reg_off_scale + s_off * stype_sz]; }
 
     void step(int off, int prev_i_off, int prev_o_off, int prev_s_off,
             int &i_off, int &o_off, int &s_off, int step_size = 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              int &i_off, int &o_off, int &s_off, int step_size = 1) {" << std::endl;
         i_off = prev_i_off;
         o_off = prev_o_off;
         s_off = prev_s_off;
@@ -165,6 +180,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         off /= step_size;
 
         for (int d = start_dim; d < prb_.ndims; ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for (int d = start_dim; d < prb_.ndims; ++d) {" << std::endl;
             i_off += is(d);
             o_off += os(d);
             s_off += ss(d);
@@ -182,13 +198,16 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
 
     void step(int off, int prev_i_off, int prev_o_off, int &i_off, int &o_off,
             int step_size = 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              int step_size = 1) {" << std::endl;
         int dummy = 0;
         step(off, prev_i_off, prev_o_off, dummy, i_off, o_off, dummy,
                 step_size);
     }
 
     void tr8x8_avx2(int i_off, int o_off) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      void tr8x8_avx2(int i_off, int o_off) {" << std::endl;
         for (int i = 0; i < 8; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for (int i = 0; i < 8; i++) {" << std::endl;
             using namespace data_type;
 
             if (prb_.itype == s32 && prb_.otype == f32)
@@ -200,6 +219,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         }
 
         for (int i = 0; i < 8 / 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for (int i = 0; i < 8 / 2; i++) {" << std::endl;
             vunpcklps(Ymm(8 + i), Ymm(2 * i), Ymm(2 * i + 1));
             vunpckhps(Ymm(i), Ymm(2 * i), Ymm(2 * i + 1));
         }
@@ -207,6 +227,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         const unsigned int lfloat = 0x44;
         const unsigned int ufloat = 0xee;
         for (int i = 0; i < 8 / 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for (int i = 0; i < 8 / 2; i++) {" << std::endl;
             int j = i % 2 == 0 ? 8 + i : i - 1;
             vshufps(Ymm(8 / 2 + 2 * i), Ymm(j), Ymm(j + 1), lfloat);
             vshufps(Ymm(8 / 2 + 2 * i + 1), Ymm(j), Ymm(j + 1), ufloat);
@@ -225,6 +246,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
     }
 
     bool process_unroll_tr8x8(int len) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      bool process_unroll_tr8x8(int len) {" << std::endl;
         bool can_do = true
             && mayiuse(avx2)
             && prb_.ndims >= 2
@@ -239,6 +261,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         const int step_size = n(0) * n(1);
         int i_off = 0, o_off = 0;
         for (int off = 0; off < len; off += step_size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for (int off = 0; off < len; off += step_size) {" << std::endl;
             step(off, i_off, o_off, i_off, o_off, step_size);
             tr8x8_avx2(i_off, o_off);
         }
@@ -248,6 +271,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
 
     template <cpu_isa_t isa>
     bool process_direct_copy(int len) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      bool process_direct_copy(int len) {" << std::endl;
         using namespace data_type;
 
         using Vmm = typename cpu_isa_traits<isa>::Vmm;
@@ -268,13 +292,16 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         if (!can_do) return false;
 
         for (int off = 0; off < len;) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for (int off = 0; off < len;) {" << std::endl;
             const int unroll = nstl::min(16, (len - off) / simd_w);
 
             for (int ur = 0; ur < unroll; ++ur)
                 uni_vmovups(Vmm(ur), i_addr(off + ur * simd_w));
 
             if (prb_.itype != prb_.otype) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              if (prb_.itype != prb_.otype) {" << std::endl;
                 for (int ur = 0; ur < unroll; ++ur) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  for (int ur = 0; ur < unroll; ++ur) {" << std::endl;
                     if (prb_.itype == s32 && prb_.otype == f32)
                         uni_vcvtdq2ps(Vmm(ur), Vmm(ur));
                     else if (prb_.itype == f32 && prb_.otype == s32)
@@ -294,11 +321,14 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
 
     void process_unroll_generic_step(int reg_unroll, const int *i_off,
             const int *o_off, const int *s_off) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              const int *o_off, const int *s_off) {" << std::endl;
         using namespace data_type;
 
         auto cvt2ps = [=](const Xmm &dst, const Operand &src, data_type_t idt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          auto cvt2ps = [=](const Xmm &dst, const Operand &src, data_type_t idt) {" << std::endl;
             Xmm dst_pure = Xmm(dst.getIdx());
             switch (idt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              switch (idt) {" << std::endl;
             case f32:
                 if (src.isMEM() || src.getIdx() != dst.getIdx())
                     vmovups(dst, src);
@@ -312,10 +342,14 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         };
 
         auto cvt2odt = [=](const Xmm &xmm, data_type_t odt, data_type_t idt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          auto cvt2odt = [=](const Xmm &xmm, data_type_t odt, data_type_t idt) {" << std::endl;
             switch (odt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              switch (odt) {" << std::endl;
             case bf16:
                 if (idt == f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  if (idt == f32) {" << std::endl;
                     if (is_cpx_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                      if (is_cpx_) {" << std::endl;
                         vcvtneps2bf16(xmm, xmm);
                     } else {
                         bf16_emu_->r_vcvtneps2bf16(
@@ -331,7 +365,9 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
             case s8:
                 if (idt == f32) vcvtps2dq(xmm, xmm);
                 if (idt == f32 || idt == s32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  if (idt == f32 || idt == s32) {" << std::endl;
                     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                      if (mayiuse(avx512_core)) {" << std::endl;
                         vpmovsdb(xmm, xmm);
                     } else {
                         vpackssdw(xmm, xmm, xmm_zero);
@@ -343,7 +379,9 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
             case u8:
                 if (idt == f32) vcvtps2dq(xmm, xmm);
                 if (idt == f32 || idt == s32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  if (idt == f32 || idt == s32) {" << std::endl;
                     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                      if (mayiuse(avx512_core)) {" << std::endl;
                         vpmaxsd(xmm, xmm, xmm_zero);
                         vpmovusdb(xmm, xmm);
                     } else {
@@ -358,7 +396,9 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         };
 
         auto load = [=](const Xmm &xmm, const Address &addr, int size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          auto load = [=](const Xmm &xmm, const Address &addr, int size) {" << std::endl;
             switch (size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              switch (size) {" << std::endl;
             case 16: movups(xmm, addr); break;
             case 8: movsd(xmm, addr); break;
             case 4: movss(xmm, addr); break;
@@ -369,7 +409,9 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         };
 
         auto store = [=](const Address &addr, const Xmm &xmm, int size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          auto store = [=](const Address &addr, const Xmm &xmm, int size) {" << std::endl;
             switch (size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              switch (size) {" << std::endl;
             case 16: movups(addr, xmm); break;
             case 8: movsd(addr, xmm); break;
             case 4: movss(addr, xmm); break;
@@ -399,10 +441,13 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
             || prb_.beta != 0.f;
 
         if (!can_load_xmm && can_store_xmm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          if (!can_load_xmm && can_store_xmm) {" << std::endl;
             assert(ur_step == 4);
             /* load with stride */
             for (int ur = 0; ur < reg_unroll; ur += ur_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              for (int ur = 0; ur < reg_unroll; ur += ur_step) {" << std::endl;
                 for (int r = 0; r < ur_step; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  for (int r = 0; r < ur_step; ++r) {" << std::endl;
                     if (itype_sz == 4)
                         pinsrd(Xmm(ur), i_addr(i_off[ur + r]), r);
                     else if (itype_sz == 2)
@@ -418,23 +463,28 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
 
         /* xmm[:] <-- (f32)xmm[:] */
         if (interim_f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          if (interim_f32) {" << std::endl;
             const int cvt_step = nstl::max(load_step, ur_step);
             for (int ur = 0; ur < reg_unroll; ur += cvt_step)
                 cvt2ps(Xmm(ur), Xmm(ur), prb_.itype);
         }
 
         if (can_load_xmm && !can_store_xmm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          if (can_load_xmm && !can_store_xmm) {" << std::endl;
             const bool fast_return = true // transposition on the fly
                 && prb_.scale_type != scale_type_t::MANY
                 && prb_.beta == 0.f;
             if (fast_return) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              if (fast_return) {" << std::endl;
                 for (int ur = 0; ur < reg_unroll; ur += load_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  for (int ur = 0; ur < reg_unroll; ur += load_step) {" << std::endl;
                     if (prb_.scale_type == scale_type_t::COMMON)
                         mulps(Xmm(ur), xmm_scale);
                     if (prb_.otype != f32)
                         cvt2odt(Xmm(ur), prb_.otype,
                                 interim_f32 ? f32 : prb_.itype);
                     for (int r = 0; r < load_step; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                      for (int r = 0; r < load_step; ++r) {" << std::endl;
                         if (otype_sz == 4)
                             pextrd(o_addr(o_off[ur + r]), Xmm(ur), r);
                         else if (otype_sz == 2)
@@ -448,10 +498,12 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
 
             /* scatter elements of xmm into 4 xmms */
             if (itype_sz == 4 || interim_f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              if (itype_sz == 4 || interim_f32) {" << std::endl;
                 for (int ur = 0; ur < reg_unroll; ur += load_step)
                     for (int r = 1; r < load_step; ++r)
                         vshufps(Xmm(ur + r), Xmm(ur), Xmm(ur), r);
             } else if (itype_sz == 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              } else if (itype_sz == 2) {" << std::endl;
                 for (int ur = 0; ur < reg_unroll; ur += load_step)
                     for (int r = 1; r < load_step; ++r)
                         vpalignr(Xmm(ur + r), Xmm(ur), Xmm(ur), 2 * r);
@@ -464,14 +516,18 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
 
         /* scale and beta processing */
         if (can_store_xmm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          if (can_store_xmm) {" << std::endl;
             /* xmm <-- scale * xmm[:] */
             if (prb_.scale_type == scale_type_t::COMMON) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              if (prb_.scale_type == scale_type_t::COMMON) {" << std::endl;
                 for (int ur = 0; ur < reg_unroll; ur += ur_step)
                     mulps(Xmm(ur), xmm_scale);
             } else if (prb_.scale_type == scale_type_t::MANY) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              } else if (prb_.scale_type == scale_type_t::MANY) {" << std::endl;
                 enum class scale_load_type_t { bcast, load, gather };
 
                 for (int ur = 0; ur < reg_unroll; ur += ur_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  for (int ur = 0; ur < reg_unroll; ur += ur_step) {" << std::endl;
                     scale_load_type_t scale_load_type =
                         scale_load_type_t::bcast; // the best case
 
@@ -480,6 +536,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
                             scale_load_type = scale_load_type_t::load;
 
                     if (scale_load_type == scale_load_type_t::bcast) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                      if (scale_load_type == scale_load_type_t::bcast) {" << std::endl;
                         movss(xmm_scale, s_addr(s_off[ur]));
                         shufps(xmm_scale, xmm_scale, 0x0);
                         mulps(Xmm(ur), xmm_scale);
@@ -492,6 +549,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
                             scale_load_type = scale_load_type_t::gather;
 
                     if (scale_load_type == scale_load_type_t::load) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                      if (scale_load_type == scale_load_type_t::load) {" << std::endl;
                         movups(xmm_scale, s_addr(s_off[ur]));
                         mulps(Xmm(ur), xmm_scale);
                         continue;
@@ -508,11 +566,15 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
             /* dst <-- beta * dst + xmm[:] */
             assert(prb_.beta == 0.f || prb_.beta == 1.f);
             if (prb_.beta == 1.f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              if (prb_.beta == 1.f) {" << std::endl;
                 for (int ur = 0; ur < reg_unroll; ur += ur_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  for (int ur = 0; ur < reg_unroll; ur += ur_step) {" << std::endl;
                     if (prb_.otype == f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                      if (prb_.otype == f32) {" << std::endl;
                         /* non VEX instructions do not support unaligned
                          * memory for instructions other than movups. */
                         if (mayiuse(avx)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                          if (mayiuse(avx)) {" << std::endl;
                             vaddps(Xmm(ur), o_addr(o_off[ur]));
                         } else {
                             /* register xmm(1) is unused */
@@ -528,10 +590,13 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         } else {
             /* xmm[0] <-- scale * xmm[0] */
             if (prb_.scale_type == scale_type_t::COMMON) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              if (prb_.scale_type == scale_type_t::COMMON) {" << std::endl;
                 for (int ur = 0; ur < reg_unroll; ur += ur_step)
                     mulss(Xmm(ur), xmm_scale);
             } else if (prb_.scale_type == scale_type_t::MANY) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              } else if (prb_.scale_type == scale_type_t::MANY) {" << std::endl;
                 for (int ur = 0; ur < reg_unroll; ur += ur_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  for (int ur = 0; ur < reg_unroll; ur += ur_step) {" << std::endl;
                     mulss(Xmm(ur), s_addr(s_off[ur]));
                 }
             }
@@ -539,13 +604,18 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
             /* dst <-- beta * dst + xmm[0] */
             assert(prb_.beta == 0.f || prb_.beta == 1.f);
             if (prb_.beta == 1.f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              if (prb_.beta == 1.f) {" << std::endl;
                 for (int ur = 0; ur < reg_unroll; ur += ur_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  for (int ur = 0; ur < reg_unroll; ur += ur_step) {" << std::endl;
                     if (prb_.otype == f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                      if (prb_.otype == f32) {" << std::endl;
                         addss(Xmm(ur), o_addr(o_off[ur]));
                     } else {
                         if (prb_.otype == s32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                          if (prb_.otype == s32) {" << std::endl;
                             vmovss(xmm_tmp, o_addr(o_off[ur]));
                         } else if (utils::one_of(prb_.otype, s8, u8)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                          } else if (utils::one_of(prb_.otype, s8, u8)) {" << std::endl;
                             pinsrb(xmm_tmp, o_addr(o_off[ur]), 0x0);
                         } else {
                             assert(!"unsupported o_type");
@@ -558,6 +628,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         }
 
         for (int ur = 0; ur < reg_unroll; ur += ur_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for (int ur = 0; ur < reg_unroll; ur += ur_step) {" << std::endl;
             if (prb_.otype != f32)
                 cvt2odt(Xmm(ur), prb_.otype, interim_f32 ? f32 : prb_.itype);
             store(o_addr(o_off[ur]), Xmm(ur), ur_step * otype_sz);
@@ -565,6 +636,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
     }
 
     void process_unroll_generic(int len) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      void process_unroll_generic(int len) {" << std::endl;
         const int blk = 8;
 
         int i_off[2 * blk] = {0};
@@ -574,10 +646,12 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         int curr = 0; // will switch between 0 and 1
 
         for (int off = 0; off < len; off += blk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for (int off = 0; off < len; off += blk) {" << std::endl;
             const int reg_unroll = nstl::min(off + blk, len) - off;
 
             /* compute offsets */
             for (int ur = off != 0 ? 0 : 1; ur < reg_unroll; ++ur) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              for (int ur = off != 0 ? 0 : 1; ur < reg_unroll; ++ur) {" << std::endl;
                 const int ur_c = curr * blk + ur;
                 const int ur_p = (ur_c - 1 + 2 * blk) % (2 * blk); // prev ur
                 step(off + ur,
@@ -593,12 +667,14 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
     }
 
     void loop_begin(Label &l, Reg64 reg_cnt, int len) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      void loop_begin(Label &l, Reg64 reg_cnt, int len) {" << std::endl;
         mov(reg_cnt, len);
         L(l);
     }
 
     void loop_end(Label &l, Reg64 reg_cnt, int len,
             int i_step, int o_step, int s_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              int i_step, int o_step, int s_step) {" << std::endl;
         add(reg_off_in, i_step * itype_sz);
         add(reg_off_out, o_step * otype_sz);
         if (prb_.scale_type == scale_type_t::MANY)
@@ -613,6 +689,7 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
     }
 
     bool simple_impl() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      bool simple_impl() {" << std::endl;
         simple_impl_desc_t d;
         if (!simple_impl_desc_init(prb_, &d)) return false;
 
@@ -662,17 +739,20 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
     }
 
     void impl() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      void impl() {" << std::endl;
         if (simple_impl()) return;
         assert(!"no implementation available");
     }
 
     jit_uni_reorder_kernel_f32(const desc_t &desc)
         : kernel_t(desc), jit_generator(), bf16_emu_(nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          : kernel_t(desc), jit_generator(), bf16_emu_(nullptr) {" << std::endl;
         itype_sz = data_type_size(prb_.itype);
         otype_sz = data_type_size(prb_.otype);
         stype_sz = sizeof(float);
         is_cpx_ = mayiuse(avx512_core_bf16);
         if (prb_.otype == data_type::bf16 && !is_cpx_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          if (prb_.otype == data_type::bf16 && !is_cpx_) {" << std::endl;
             bf16_emu_ = new bf16_emulation_t(this, vcvt_bf16_one, vcvt_bf16_eve,
                     vcvt_bf16_sel, reg_bf16_scratch, vcvt_bf16_tmp, vcvt_bf16_tmp);
             bf16_emu_->init_vcvtneps2bf16();
@@ -681,10 +761,12 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         preamble();
 #       define PARAM(x) ptr[abi_param1 + offsetof(call_param_t, x)]
         if (prb_.scale_type == scale_type_t::COMMON) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          if (prb_.scale_type == scale_type_t::COMMON) {" << std::endl;
             auto reg_ptr_scale_tmp = reg_ptr_in;
             mov(reg_ptr_scale_tmp, PARAM(scale));
             movups(xmm_scale, ptr[reg_ptr_scale_tmp]);
         } else if (prb_.scale_type == scale_type_t::MANY) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          } else if (prb_.scale_type == scale_type_t::MANY) {" << std::endl;
             mov(reg_ptr_scale, PARAM(scale));
         }
         mov(reg_ptr_in, PARAM(in));
@@ -692,9 +774,11 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
 #       undef PARAM
 
         if (mayiuse(avx)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          if (mayiuse(avx)) {" << std::endl;
             vxorps(xmm_zero, xmm_zero, xmm_zero);
 
             if (prb_.itype == data_type::u8 && prb_.otype == data_type::s8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              if (prb_.itype == data_type::u8 && prb_.otype == data_type::s8) {" << std::endl;
                 mov(reg_tmp.cvt32(), 0x7f7f7f7f);
                 movd(xmm_4x127b, reg_tmp.cvt32());
             }
@@ -704,7 +788,8 @@ struct jit_uni_reorder_kernel_f32: public kernel_t, public jit_generator {
         postamble();
         ker_ = (void (*)(const call_param_t *))getCode();
     }
-    ~jit_uni_reorder_kernel_f32() { delete bf16_emu_; }
+    ~jit_uni_reorder_kernel_f32() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      ~jit_uni_reorder_kernel_f32() {" << std::endl; delete bf16_emu_; }
 
 private:
     int itype_sz;
@@ -738,6 +823,7 @@ private:
 
 status_t kernel_t::desc_init(kernel_t::desc_t &desc, const prb_t &prb,
         int ndims_ker_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          int ndims_ker_max) {" << std::endl;
     desc.prb = prb;
     desc.prb.ioff = desc.prb.ooff = 0;
 
@@ -745,6 +831,7 @@ status_t kernel_t::desc_init(kernel_t::desc_t &desc, const prb_t &prb,
         return status::invalid_arguments;
 
     auto ndims_ker_max_f = [&]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      auto ndims_ker_max_f = [&]() {" << std::endl;
         size_t cur_size = 1;
         for (int d = 0; d < prb.ndims; cur_size *= prb.nodes[d++].n)
             if (cur_size >= ker_prb_size_min) return d;
@@ -758,6 +845,7 @@ status_t kernel_t::desc_init(kernel_t::desc_t &desc, const prb_t &prb,
     /* TODO: find a better way to do that... */
     desc.id = 0;
     for (int ndims_ker = ndims_ker_max; ndims_ker > 0; --ndims_ker) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      for (int ndims_ker = ndims_ker_max; ndims_ker > 0; --ndims_ker) {" << std::endl;
         desc.prb.ndims = ndims_ker;
         if (jit_uni_reorder_kernel_f32::applicable(desc.prb))
             return status::success;
@@ -767,7 +855,9 @@ status_t kernel_t::desc_init(kernel_t::desc_t &desc, const prb_t &prb,
 }
 
 kernel_t *kernel_t::create(const kernel_t::desc_t &desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:  kernel_t *kernel_t::create(const kernel_t::desc_t &desc) {" << std::endl;
     switch (desc.id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      switch (desc.id) {" << std::endl;
     case 0: return new jit_uni_reorder_kernel_f32(desc);
     default: assert(!"unknown kernel id"); return nullptr;
     }
@@ -778,7 +868,9 @@ kernel_t *kernel_t::create(const kernel_t::desc_t &desc) {
 }
 
 static void prb_block_for_cache(tr::prb_t &prb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:  static void prb_block_for_cache(tr::prb_t &prb) {" << std::endl;
     if (prb.nodes[0].is % 64 == 0 && prb.nodes[0].n > 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      if (prb.nodes[0].is % 64 == 0 && prb.nodes[0].n > 16) {" << std::endl;
         /** an attempt to use caches more efficient and
          * address the 4K-aliasing issue */
         /* TODO: improve the logic around here */
@@ -805,6 +897,7 @@ static void prb_block_for_cache(tr::prb_t &prb) {
  * optionally splits one of the dimension to achieve better balance between
  * parallel driver and the kernel. */
 static void prb_thread_kernel_balance(tr::prb_t &prb, int &ndims_ker_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:  static void prb_thread_kernel_balance(tr::prb_t &prb, int &ndims_ker_max) {" << std::endl;
     size_t sz_total = 1;
     for (int d = 0; d < prb.ndims; ++d)
         sz_total *= prb.nodes[d].n;
@@ -838,6 +931,7 @@ static void prb_thread_kernel_balance(tr::prb_t &prb, int &ndims_ker_max) {
         && sz_ker_cur < tr::ker_prb_size_min
         && sz_drv_cur > sz_drv_min;
     if (want_borrow_ker_from_drv) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      if (want_borrow_ker_from_drv) {" << std::endl;
         /* sz_want_borrow is the minimal sz, so that:
          *  o) sz_ker_cur * sz_want_borrow >= tr::ker_prb_size_min
          *  o) current innermost driver dimension is divisible by
@@ -863,6 +957,7 @@ static void prb_thread_kernel_balance(tr::prb_t &prb, int &ndims_ker_max) {
         && sz_ker_cur > tr::ker_prb_size_min
         && sz_drv_cur < sz_drv_min;
     if (want_borrow_drv_from_ker) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      if (want_borrow_drv_from_ker) {" << std::endl;
         size_t sz_want_borrow = utils::div_up(sz_drv_min, sz_drv_cur);
         for (; prb.nodes[kdims - 1].n % sz_want_borrow; ++sz_want_borrow);
         if (sz_want_borrow != prb.nodes[kdims - 1].n)
@@ -873,6 +968,7 @@ static void prb_thread_kernel_balance(tr::prb_t &prb, int &ndims_ker_max) {
     ndims_ker_max = kdims;
 
     if (want_borrow_ker_from_drv || want_borrow_drv_from_ker) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      if (want_borrow_ker_from_drv || want_borrow_drv_from_ker) {" << std::endl;
         DEBUG({ printf("split: "); prb_dump(prb);
                 printf("ndims_ker_max = %d\n", ndims_ker_max); });
     }
@@ -882,13 +978,15 @@ struct jit_uni_reorder_t : public cpu_primitive_t {
     struct pd_t : public cpu_reorder_pd_t {
         pd_t(const cpu_memory_pd_t *input_pd, const cpu_memory_pd_t *output_pd,
                 const primitive_attr_t *attr)
-            : cpu_reorder_pd_t(input_pd, output_pd, attr) {}
+            : cpu_reorder_pd_t(input_pd, output_pd, attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              : cpu_reorder_pd_t(input_pd, output_pd, attr) {" << std::endl;}
 
         DECLARE_COMMON_PD_T("jit:uni", jit_uni_reorder_t);
 
         static status_t create(reorder_pd_t **reorder_pd,
                 const memory_pd_t *input_pd, const memory_pd_t *output_pd,
                 const primitive_attr_t *attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  const primitive_attr_t *attr) {" << std::endl;
             const memory_desc_t *imd = input_pd->desc();
             const memory_desc_t *omd = output_pd->desc();
 
@@ -933,7 +1031,8 @@ struct jit_uni_reorder_t : public cpu_primitive_t {
             auto _pd = new pd_t((const cpu_memory_pd_t *)input_pd,
                     (const cpu_memory_pd_t *)output_pd, attr);
             if (_pd == nullptr) return out_of_memory;
-            if (_pd->init() != success) { delete _pd; return unimplemented; }
+            if (_pd->init() != success) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              if (_pd->init() != success) {" << std::endl; delete _pd; return unimplemented; }
             _pd->prb_ = prb;
             _pd->ker_desc_ = ker_desc;
             return safe_ptr_assign<reorder_pd_t>(*reorder_pd, _pd);
@@ -946,10 +1045,12 @@ struct jit_uni_reorder_t : public cpu_primitive_t {
     jit_uni_reorder_t(const pd_t *apd, const input_vector &inputs,
             const output_vector &outputs)
         : cpu_primitive_t(apd, inputs, outputs) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          : cpu_primitive_t(apd, inputs, outputs) {" << std::endl;
         kernel_ = tr::kernel_t::create(pd()->ker_desc_);
         assert(kernel_);
     }
-    ~jit_uni_reorder_t() { delete kernel_; }
+    ~jit_uni_reorder_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:      ~jit_uni_reorder_t() {" << std::endl; delete kernel_; }
 
     void omp_driver_0d(int off, const char *in, char *out,
             const float *scale) const {
@@ -961,6 +1062,7 @@ struct jit_uni_reorder_t : public cpu_primitive_t {
             const float *scale) const {
         const tr::node_t *ns = pd()->prb_.nodes + off;
         for_nd(ithr, nthr, (ptrdiff_t)ns[0].n, [&](ptrdiff_t d0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          for_nd(ithr, nthr, (ptrdiff_t)ns[0].n, [&](ptrdiff_t d0) {" << std::endl;
             auto c = tr::call_param_t();
             c.in = in + d0 * ns[0].is * data_type_size(pd()->prb_.itype);
             c.out = out + d0 * ns[0].os * data_type_size(pd()->prb_.otype);
@@ -974,6 +1076,7 @@ struct jit_uni_reorder_t : public cpu_primitive_t {
         const tr::node_t *ns = pd()->prb_.nodes + off;
         for_nd(ithr, nthr, (ptrdiff_t)ns[1].n, (ptrdiff_t)ns[0].n,
                 [&](ptrdiff_t d1, ptrdiff_t d0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  [&](ptrdiff_t d1, ptrdiff_t d0) {" << std::endl;
             auto c = tr::call_param_t();
             c.in = in + (d0 * ns[0].is + d1 * ns[1].is)
                 * data_type_size(pd()->prb_.itype);
@@ -990,6 +1093,7 @@ struct jit_uni_reorder_t : public cpu_primitive_t {
         for_nd(ithr, nthr, (ptrdiff_t)ns[2].n, (ptrdiff_t)ns[1].n,
                 (ptrdiff_t)ns[0].n,
                 [&](ptrdiff_t d2, ptrdiff_t d1, ptrdiff_t d0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  [&](ptrdiff_t d2, ptrdiff_t d1, ptrdiff_t d0) {" << std::endl;
             auto c = tr::call_param_t();
             c.in = in + (d0 * ns[0].is + d1 * ns[1].is + d2 * ns[2].is)
                 * data_type_size(pd()->prb_.itype);
@@ -1006,6 +1110,7 @@ struct jit_uni_reorder_t : public cpu_primitive_t {
         for_nd(ithr, nthr, (ptrdiff_t)ns[3].n, (ptrdiff_t)ns[2].n,
                 (ptrdiff_t)ns[1].n, (ptrdiff_t)ns[0].n,
                 [&](ptrdiff_t d3, ptrdiff_t d2, ptrdiff_t d1, ptrdiff_t d0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  [&](ptrdiff_t d3, ptrdiff_t d2, ptrdiff_t d1, ptrdiff_t d0) {" << std::endl;
             auto c = tr::call_param_t();
             c.in = in + (d0 * ns[0].is + d1 * ns[1].is + d2 * ns[2].is
                     + d3 * ns[3].is) * data_type_size(pd()->prb_.itype);
@@ -1029,6 +1134,7 @@ struct jit_uni_reorder_t : public cpu_primitive_t {
         assert(ndims - ndims_ker <= ndims_driver_max);
 
         if (ndims - ndims_ker == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          if (ndims - ndims_ker == 0) {" << std::endl;
             set_rnd_mode(pd()->attr()->round_mode_);
             omp_driver_0d(ndims_ker, in, out, scale);
             restore_rnd_mode();
@@ -1036,6 +1142,7 @@ struct jit_uni_reorder_t : public cpu_primitive_t {
             size_t work_amount = 0;
             const tr::node_t *ns = pd()->prb_.nodes + ndims_ker;
             switch (ndims - ndims_ker) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              switch (ndims - ndims_ker) {" << std::endl;
                 case 1: work_amount = (size_t)ns[0].n; break;
                 case 2: work_amount = (size_t)ns[1].n * (size_t)ns[0].n; break;
                 case 3: work_amount = (size_t)ns[2].n * (size_t)ns[1].n * (size_t)ns[0].n; break;
@@ -1044,8 +1151,10 @@ struct jit_uni_reorder_t : public cpu_primitive_t {
             }
 
             parallel(0, work_amount, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:              parallel(0, work_amount, [&](const int ithr, const int nthr) {" << std::endl;
                 set_rnd_mode(pd()->attr()->round_mode_);
                 switch (ndims - ndims_ker) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:                  switch (ndims - ndims_ker) {" << std::endl;
                 case 1: omp_driver_1d(ithr, nthr, ndims_ker, in, out, scale); break;
                 case 2: omp_driver_2d(ithr, nthr, ndims_ker, in, out, scale); break;
                 case 3: omp_driver_3d(ithr, nthr, ndims_ker, in, out, scale); break;
@@ -1076,6 +1185,7 @@ private:
 status_t jit_uni_reorder_create(reorder_pd_t **reorder_pd,
         const memory_pd_t *input_pd, const memory_pd_t *output_pd,
         const primitive_attr_t *attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_reorder.cpp:          const primitive_attr_t *attr) {" << std::endl;
     return jit_uni_reorder_t::pd_t::create(reorder_pd, input_pd, output_pd,
             attr);
 }

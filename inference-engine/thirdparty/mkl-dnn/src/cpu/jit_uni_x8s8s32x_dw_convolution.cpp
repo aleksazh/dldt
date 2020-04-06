@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -57,8 +58,10 @@ void _jit_uni_x8s8s32x_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_fo
     const uint8_t* input_zp = pd()->attr()->input_zero_points_.zero_points_;
     int32_t *weights_zp = nullptr;
     if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_dw_convolution.cpp:      if (jcp.with_weights_zp) {" << std::endl;
         weights_zp = scratchpad().template get<int32_t>(key_weights_zp);
         for (int i = 0; i < pd()->attr()->weights_zero_points_.count_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_dw_convolution.cpp:          for (int i = 0; i < pd()->attr()->weights_zero_points_.count_; i++) {" << std::endl;
             weights_zp[i] = (int32_t)pd()->attr()->weights_zero_points_.zero_points_[i];
         }
     }
@@ -69,6 +72,7 @@ void _jit_uni_x8s8s32x_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_fo
 
     auto kernel_params = [&](int ur_w_step, int ow, int oh, int od, int ih, int id, int kh, int kd, int kh_padding, int kd_padding,
             int ch, int ch_num, int n, int i_t_overflow, int i_b_overflow, int i_front_overflow, int i_back_overflow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_dw_convolution.cpp:              int ch, int ch_num, int n, int i_t_overflow, int i_b_overflow, int i_front_overflow, int i_back_overflow) {" << std::endl;
         auto par_conv = jit_conv_call_s();
 
         const int iw_ = ow * str_w;
@@ -109,11 +113,13 @@ void _jit_uni_x8s8s32x_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_fo
         par_conv.oc_off = ch * jcp.ch_block * sizeof(float);
 
         if (jcp.with_input_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_dw_convolution.cpp:          if (jcp.with_input_zp) {" << std::endl;
             par_conv.compensation = compensation + ch * jcp.ch_block;
             par_conv.input_zp = input_zp + ch * jcp.ch_block;
         }
 
         if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_dw_convolution.cpp:          if (jcp.with_weights_zp) {" << std::endl;
             par_conv.weights_zp = weights_zp + ch * jcp.ch_block;
         }
 
@@ -121,12 +127,14 @@ void _jit_uni_x8s8s32x_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_fo
     };
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_dw_convolution.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         size_t start{0}, end{0};
         balance211(work_amount, nthr, ithr, start, end);
 
         size_t n{0}, chb{0}, oh{0}, od{0};
         nd_iterator_init(start, n, MB, chb, chb_work, od, jcp.od, oh, jcp.oh);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_dw_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int ch = chb * jcp.nb_ch_blocking;
             int ch_num = jcp.nb_ch_blocking;
 
@@ -149,6 +157,7 @@ void _jit_uni_x8s8s32x_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_fo
             int l_border = nstl::min(div_up(jcp.l_pad, str_w), jcp.ow);
             int ur_w_step = 1;
             for (; ow < l_border; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_dw_convolution.cpp:              for (; ow < l_border; ow++) {" << std::endl;
                 jit_conv_call_s par_conv = kernel_params(ur_w_step, ow, oh, od, ih, id, kh, kd, kh_padding, kd_padding, ch, ch_num, n,
                                                          i_t_overflow, i_b_overflow, i_front_overflow, i_back_overflow);
 
@@ -159,6 +168,7 @@ void _jit_uni_x8s8s32x_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_fo
             ur_w_step = (jcp.iw - (jcp.kw - 1)*dil_w + jcp.l_pad - 1)
                 / jcp.stride_w - ow + 1;
             if (ur_w_step > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_dw_convolution.cpp:              if (ur_w_step > 0) {" << std::endl;
                 jit_conv_call_s par_conv = kernel_params(ur_w_step, ow, oh, od, ih, id, kh, kd, kh_padding, kd_padding, ch, ch_num, n,
                                                          i_t_overflow, i_b_overflow, i_front_overflow, i_back_overflow);
 
@@ -170,6 +180,7 @@ void _jit_uni_x8s8s32x_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_fo
             // right border
             ur_w_step = 1;
             for (; ow < jcp.ow; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_dw_convolution.cpp:              for (; ow < jcp.ow; ow++) {" << std::endl;
                 jit_conv_call_s par_conv = kernel_params(ur_w_step, ow, oh, od, ih, id, kh, kd, kh_padding, kd_padding, ch, ch_num, n,
                                                          i_t_overflow, i_b_overflow, i_front_overflow, i_back_overflow);
 

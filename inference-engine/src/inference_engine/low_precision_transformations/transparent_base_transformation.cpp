@@ -1,4 +1,5 @@
-﻿// Copyright (C) 2018-2020 Intel Corporation
+#include <iostream>
+// Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -16,16 +17,21 @@ using namespace InferenceEngine::details;
 void TransparentBaseTransformation::transform(TransformationContext& context, CNNLayer& layer) const {
     const CNNLayerPtr scaleShift = CNNNetworkHelper::getParent(layer, 0);
     if (scaleShift == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transparent_base_transformation.cpp:      if (scaleShift == nullptr) {" << std::endl;
         return;
     }
 
     if (scaleShift->type == "Concat") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transparent_base_transformation.cpp:      if (scaleShift->type == 'Concat') {" << std::endl;
         if (updatePrecisions) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transparent_base_transformation.cpp:          if (updatePrecisions) {" << std::endl;
             // TODO: looks like as workaround for Concat -> Pooling -> Concat: refactor later
             CNNNetworkHelper::setOutDataPrecision(layer, CNNNetworkHelper::getPrecisionParent(layer, 0ul));
         }
     } else if (scaleShift->type == "ScaleShift") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transparent_base_transformation.cpp:      } else if (scaleShift->type == 'ScaleShift') {" << std::endl;
         if (updatePrecisions) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transparent_base_transformation.cpp:          if (updatePrecisions) {" << std::endl;
             CNNNetworkHelper::setOutDataPrecision(layer, getPrecisionBeforeParentDequantizationScaleShift(layer));
         }
 
@@ -42,6 +48,7 @@ void TransparentBaseTransformation::transform(TransformationContext& context, CN
 
         const std::vector<CNNLayerPtr> children = CNNNetworkHelper::getChildren(layer);
         if (children.size() == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transparent_base_transformation.cpp:          if (children.size() == 0) {" << std::endl;
             const std::string originalName = layer.name;
             CNNNetworkHelper::renameLayer(context.network, layer.name, layer.name + LayerTransformation::lastLayerPrefix);
 
@@ -54,6 +61,7 @@ void TransparentBaseTransformation::transform(TransformationContext& context, CN
             context.dequantizationLayersNames.insert(dequantizationLayer->name);
         } else {
             for (const CNNLayerPtr& child : children) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transparent_base_transformation.cpp:              for (const CNNLayerPtr& child : children) {" << std::endl;
                 CNNLayerPtr dequantizationLayer = CNNNetworkHelper::addScaleShiftBetween(
                     context,
                     std::make_shared<CNNLayer>(layer),

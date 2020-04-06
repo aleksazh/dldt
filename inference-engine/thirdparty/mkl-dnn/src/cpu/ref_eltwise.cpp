@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -34,6 +35,7 @@ using namespace math;
 
 ref_eltwise_scalar_fwd_t::ref_eltwise_scalar_fwd_t(alg_kind_t alg, float alpha,
         float beta): alg_(alg), alpha_(alpha), beta_(beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          float beta): alg_(alg), alpha_(alpha), beta_(beta) {" << std::endl;
     assert(utils::one_of(alg_, eltwise_relu, eltwise_tanh, eltwise_elu,
                 eltwise_square, eltwise_abs, eltwise_sqrt, eltwise_linear,
                 eltwise_bounded_relu, eltwise_soft_relu, eltwise_logistic,
@@ -42,10 +44,13 @@ ref_eltwise_scalar_fwd_t::ref_eltwise_scalar_fwd_t(alg_kind_t alg, float alpha,
 
 ref_eltwise_scalar_fwd_t::ref_eltwise_scalar_fwd_t(
         const post_ops_t::entry_t::eltwise_t &eltwise)
-    : ref_eltwise_scalar_fwd_t(eltwise.alg, eltwise.alpha, eltwise.beta) {}
+    : ref_eltwise_scalar_fwd_t(eltwise.alg, eltwise.alpha, eltwise.beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:      : ref_eltwise_scalar_fwd_t(eltwise.alg, eltwise.alpha, eltwise.beta) {" << std::endl;}
 
 float ref_eltwise_scalar_fwd_t::compute_scalar(float s) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:  float ref_eltwise_scalar_fwd_t::compute_scalar(float s) {" << std::endl;
     switch (alg_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:      switch (alg_) {" << std::endl;
         case eltwise_relu: return relu_fwd(s, alpha_);
         case eltwise_tanh: return tanh_fwd(s);
         case eltwise_elu: return elu_fwd(s, alpha_);
@@ -84,7 +89,9 @@ void ref_eltwise_fwd_t<data_type>::execute_forward_nCspBc_padded() const {
     const float beta = pd()->desc()->beta;
 
     auto ker = [=] (data_t &d, data_t s) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:      auto ker = [=] (data_t &d, data_t s) {" << std::endl;
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          switch (alg_kind) {" << std::endl;
             case eltwise_linear: d = linear_fwd(s, alpha, beta); break;
             case eltwise_bounded_relu:
                 d = bounded_relu_fwd(s, alpha); break;
@@ -101,8 +108,10 @@ void ref_eltwise_fwd_t<data_type>::execute_forward_nCspBc_padded() const {
 
     parallel_nd(MB, C_PADDED, SP,
         [&](int n, int c, int sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          [&](int n, int c, int sp) {" << std::endl;
         auto d_off = (n*C_PADDED*SP + c*SP + sp) * block;
         if (c < C) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          if (c < C) {" << std::endl;
             for (int v = 0; v < block; v++)
                 ker(dst[d_off + v], src[d_off + v]);
         } else {
@@ -131,9 +140,11 @@ void ref_eltwise_fwd_t<data_type::bf16>::execute_forward_nCspBc_padded() const {
     const float beta = pd()->desc()->beta;
 
     auto ker = [=] (data_t &d, data_t s) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:      auto ker = [=] (data_t &d, data_t s) {" << std::endl;
         float s_ = 0.0f, d_ = 0.0f;
         bf16_cvt_utils::cvt_bfloat16_to_float(&s_, &s);
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          switch (alg_kind) {" << std::endl;
             case eltwise_linear: d_ = linear_fwd(s_, alpha, beta); break;
             case eltwise_bounded_relu:
                 d_ = bounded_relu_fwd(s_, alpha); break;
@@ -148,8 +159,10 @@ void ref_eltwise_fwd_t<data_type::bf16>::execute_forward_nCspBc_padded() const {
 
     parallel_nd(MB, C_PADDED, SP,
         [&](int n, int c, int sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          [&](int n, int c, int sp) {" << std::endl;
         auto d_off = (n*C_PADDED*SP + c*SP + sp) * block;
         if (c < C) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          if (c < C) {" << std::endl;
             for (int v = 0; v < block; v++)
                 ker(dst[d_off + v], src[d_off + v]);
         } else {
@@ -181,11 +194,13 @@ void ref_eltwise_fwd_t<data_type>::execute_forward_generic() const {
 
     parallel_nd(MB, C, D, H, W,
         [&](int n, int c, int id, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          [&](int n, int c, int id, int h, int w) {" << std::endl;
         auto d_off = is_3d
             ? data_d.off(n, c, id, h, w) : data_d.off(n, c, h, w);
         data_t s = src[d_off];
         data_t &d = dst[d_off];
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          switch (alg_kind) {" << std::endl;
             case eltwise_relu: d = relu_fwd(s, alpha); break;
             case eltwise_tanh: d = tanh_fwd(s); break;
             case eltwise_elu: d = elu_fwd(s, alpha); break;
@@ -227,6 +242,7 @@ void ref_eltwise_fwd_t<data_type::bf16>::execute_forward_generic() const {
 
     parallel_nd(MB, C, D, H, W,
         [&](int n, int c, int id, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          [&](int n, int c, int id, int h, int w) {" << std::endl;
         auto d_off = is_3d
             ? data_d.off(n, c, id, h, w) : data_d.off(n, c, h, w);
         data_t s = src[d_off];
@@ -234,6 +250,7 @@ void ref_eltwise_fwd_t<data_type::bf16>::execute_forward_generic() const {
         float s_ = 0.0f, d_ = 0.0f;
         bf16_cvt_utils::cvt_bfloat16_to_float(&s_, &s);
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          switch (alg_kind) {" << std::endl;
             case eltwise_relu: d_ = relu_fwd(s_, alpha); break;
             case eltwise_tanh: d_ = tanh_fwd(s_); break;
             case eltwise_elu: d_ = elu_fwd(s_, alpha); break;
@@ -267,18 +284,22 @@ void ref_eltwise_fwd_t<data_type>::execute_forward_dense() const {
     dst += data_d.blocking_desc().offset_padding;
 
     if (alg_kind == eltwise_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:      if (alg_kind == eltwise_relu) {" << std::endl;
         // a fast path for relu as the most popular activation
         parallel_nd(nelems, [&](ptrdiff_t e) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          parallel_nd(nelems, [&](ptrdiff_t e) {" << std::endl;
             dst[e] = relu_fwd(src[e], alpha);
         });
         return;
     }
 
     parallel_nd(nelems, [&](ptrdiff_t e) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:      parallel_nd(nelems, [&](ptrdiff_t e) {" << std::endl;
         const data_t s = src[e];
         data_t &d = dst[e];
 
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          switch (alg_kind) {" << std::endl;
         case eltwise_tanh: d = tanh_fwd(s); break;
         case eltwise_elu: d = elu_fwd(s, alpha); break;
         case eltwise_square: d = square_fwd(s); break;
@@ -312,8 +333,10 @@ void ref_eltwise_fwd_t<data_type::bf16>::execute_forward_dense() const {
     dst += data_d.blocking_desc().offset_padding;
 
     if (alg_kind == eltwise_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:      if (alg_kind == eltwise_relu) {" << std::endl;
         // a fast path for relu as the most popular activation
         parallel_nd(nelems, [&](ptrdiff_t e) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          parallel_nd(nelems, [&](ptrdiff_t e) {" << std::endl;
             float s_ = 0.0f;
             bf16_cvt_utils::cvt_bfloat16_to_float(&s_, &src[e]);
             float d_ = relu_fwd(s_, alpha);
@@ -323,9 +346,11 @@ void ref_eltwise_fwd_t<data_type::bf16>::execute_forward_dense() const {
     }
 
     parallel_nd(nelems, [&](ptrdiff_t e) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:      parallel_nd(nelems, [&](ptrdiff_t e) {" << std::endl;
         float s_ = 0.0f, d_ = 0.0f;
         bf16_cvt_utils::cvt_bfloat16_to_float(&s_, &src[e]);
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          switch (alg_kind) {" << std::endl;
         case eltwise_tanh: d_ = tanh_fwd(s_); break;
         case eltwise_elu: d_ = elu_fwd(s_, alpha); break;
         case eltwise_square: d_ = square_fwd(s_); break;
@@ -365,6 +390,7 @@ void ref_eltwise_bwd_t<data_type>::execute_backward_generic() const {
 
     parallel_nd(MB, C, D, H, W,
         [&](int n, int c, int d, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          [&](int n, int c, int d, int h, int w) {" << std::endl;
         auto data_off = is_3d
             ? data_d.off(n, c, d, h, w) : data_d.off(n, c, h, w);
         auto diff_data_off = is_3d
@@ -374,6 +400,7 @@ void ref_eltwise_bwd_t<data_type>::execute_backward_generic() const {
         data_t dd = diff_dst[diff_data_off];
         data_t &ds = diff_src[diff_data_off];
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          switch (alg_kind) {" << std::endl;
             case eltwise_relu: ds = relu_bwd(dd, s, alpha); break;
             case eltwise_tanh: ds = tanh_bwd(dd, s); break;
             case eltwise_elu: ds = elu_bwd(dd, s, alpha); break;
@@ -417,6 +444,7 @@ void ref_eltwise_bwd_t<data_type::bf16>::execute_backward_generic() const {
 
     parallel_nd(MB, C, D, H, W,
         [&](int n, int c, int d, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          [&](int n, int c, int d, int h, int w) {" << std::endl;
         auto data_off = is_3d
             ? data_d.off(n, c, d, h, w) : data_d.off(n, c, h, w);
         auto diff_data_off = is_3d
@@ -427,6 +455,7 @@ void ref_eltwise_bwd_t<data_type::bf16>::execute_backward_generic() const {
         bf16_cvt_utils::cvt_bfloat16_to_float(&dd_, &diff_dst[diff_data_off]);
         bf16_cvt_utils::cvt_bfloat16_to_float(&s_, &src[data_off]);
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          switch (alg_kind) {" << std::endl;
             case eltwise_relu: ds_ = relu_bwd(dd_, s_, alpha); break;
             case eltwise_tanh: ds_ = tanh_bwd(dd_, s_); break;
             case eltwise_elu: ds_ = elu_bwd(dd_, s_, alpha); break;
@@ -464,11 +493,13 @@ void ref_eltwise_bwd_t<data_type>::execute_backward_dense() const {
     diff_src += diff_data_d.blocking_desc().offset_padding;
 
     parallel_nd(nelems, [&](ptrdiff_t e) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:      parallel_nd(nelems, [&](ptrdiff_t e) {" << std::endl;
         const data_t dd = diff_dst[e];
         const data_t s = src[e];
         data_t &ds = diff_src[e];
 
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          switch (alg_kind) {" << std::endl;
         case eltwise_relu: ds = relu_bwd(dd, s, alpha); break;
         case eltwise_tanh: ds = tanh_bwd(dd, s); break;
         case eltwise_elu: ds = elu_bwd(dd, s, alpha); break;
@@ -505,11 +536,13 @@ void ref_eltwise_bwd_t<data_type::bf16>::execute_backward_dense() const {
     diff_src += diff_data_d.blocking_desc().offset_padding;
 
     parallel_nd(nelems, [&](ptrdiff_t e) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:      parallel_nd(nelems, [&](ptrdiff_t e) {" << std::endl;
         float dd_ = 0.0f, s_ = 0.0f, ds_ = 0.0f;
         bf16_cvt_utils::cvt_bfloat16_to_float(&dd_, &diff_dst[e]);
         bf16_cvt_utils::cvt_bfloat16_to_float(&s_, &src[e]);
 
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_eltwise.cpp:          switch (alg_kind) {" << std::endl;
         case eltwise_relu: ds_ = relu_bwd(dd_, s_, alpha); break;
         case eltwise_tanh: ds_ = tanh_bwd(dd_, s_); break;
         case eltwise_elu: ds_ = elu_bwd(dd_, s_, alpha); break;

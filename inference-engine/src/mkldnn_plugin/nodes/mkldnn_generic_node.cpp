@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -14,18 +15,22 @@ using namespace MKLDNNPlugin;
 
 MKLDNNGenericNode::MKLDNNGenericNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) :
         MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:          MKLDNNNode(layer, eng, socket) {" << std::endl;
     params = layer->params;
     blobs = layer->blobs;
 }
 
 void MKLDNNGenericNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:  void MKLDNNGenericNode::getSupportedDescriptors() {" << std::endl;
     if (!extFactory) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (!extFactory) {" << std::endl;
         std::string type = getCnnLayer() ? getCnnLayer()->type : "Generic";
         THROW_IE_EXCEPTION << "Cannot get generic primitive for layer: " << getName() << " with type: " << type;
     }
 }
 
 void MKLDNNGenericNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:  void MKLDNNGenericNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -44,18 +49,23 @@ void MKLDNNGenericNode::initSupportedPrimitiveDescriptors() {
     InferenceEngine::ResponseDesc resp;
     InferenceEngine::StatusCode rc = extFactory->getImplementations(impls, &resp);
     if (rc != InferenceEngine::OK) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (rc != InferenceEngine::OK) {" << std::endl;
         THROW_IE_EXCEPTION << resp.msg;
     }
     for (auto &impl : impls) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      for (auto &impl : impls) {" << std::endl;
         std::vector<InferenceEngine::LayerConfig> configs;
         rc = impl->getSupportedConfigurations(configs, &resp);
         if (rc != InferenceEngine::OK) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:          if (rc != InferenceEngine::OK) {" << std::endl;
             THROW_IE_EXCEPTION << resp.msg;
         }
 
         for (auto& config : configs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:          for (auto& config : configs) {" << std::endl;
             std::vector<memory::format> outFormats;
             for (auto& outConfig : config.outConfs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:              for (auto& outConfig : config.outConfs) {" << std::endl;
                 outFormats.push_back(MKLDNNMemory::Convert(outConfig.desc.getLayout()));
             }
 
@@ -63,12 +73,15 @@ void MKLDNNGenericNode::initSupportedPrimitiveDescriptors() {
         }
     }
     if (impls.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (impls.empty()) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer " << getName() << " hasn't available configurations!";
     }
 }
 
 void MKLDNNGenericNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:  void MKLDNNGenericNode::createPrimitive() {" << std::endl;
     if (extFactory) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (extFactory) {" << std::endl;
         return;
     }
     if (getSelectedPrimitiveDescriptor() == nullptr)
@@ -76,7 +89,9 @@ void MKLDNNGenericNode::createPrimitive() {
 }
 
 void MKLDNNGenericNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:  void MKLDNNGenericNode::execute(mkldnn::stream strm) {" << std::endl;
     if (!impls.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (!impls.empty()) {" << std::endl;
         execLayer();
     } else {
         THROW_IE_EXCEPTION << "Descriptor for generic primitive doesn't exist";
@@ -88,7 +103,9 @@ bool MKLDNNGenericNode::created() const {
 }
 
 bool MKLDNNGenericNode::created(const MKLDNNExtensionManager::Ptr &extMgr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:  bool MKLDNNGenericNode::created(const MKLDNNExtensionManager::Ptr &extMgr) {" << std::endl;
     if (getCnnLayer() && extMgr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (getCnnLayer() && extMgr) {" << std::endl;
         // We should save extension manager in otder to avoid situation when
         // it will destroyed before extensibility primitives
         extFactory.reset(extMgr->CreateExtensionFactory(getCnnLayer()));
@@ -101,21 +118,25 @@ bool MKLDNNGenericNode::created(const MKLDNNExtensionManager::Ptr &extMgr) {
 }
 
 void MKLDNNGenericNode::cleanup() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:  void MKLDNNGenericNode::cleanup() {" << std::endl;
     MKLDNNNode::cleanup();
     extFactory.reset();
 }
 
 void MKLDNNGenericNode::execLayer() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:  void MKLDNNGenericNode::execLayer() {" << std::endl;
     bool isDynBatch = dynBatchLim > 0;
     std::vector<InferenceEngine::Blob::Ptr> inputs;
     std::vector<InferenceEngine::Blob::CPtr> constInputs;
     std::vector<InferenceEngine::TensorDesc> inputDescs;
     std::vector<InferenceEngine::SizeVector> outputShapes;
     for (size_t i = 0; i < getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      for (size_t i = 0; i < getParentEdges().size(); i++) {" << std::endl;
         auto inputBlob = getParentEdgeAt(i)->getBlob();
         inputs.push_back(inputBlob);
         constInputs.push_back(inputBlob);
         if (isDynBatch && dynBatchLim >= inputs[inputs.size() - 1]->getTensorDesc().getDims()[0]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:          if (isDynBatch && dynBatchLim >= inputs[inputs.size() - 1]->getTensorDesc().getDims()[0]) {" << std::endl;
             isDynBatch = false;
         } else {
             // TODO: Ask the right dims using getShape() from previous node
@@ -126,7 +147,9 @@ void MKLDNNGenericNode::execLayer() {
     }
 
     if (isDynBatch) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (isDynBatch) {" << std::endl;
         if (extShapeInference) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:          if (extShapeInference) {" << std::endl;
             auto sts = extShapeInference->inferShapes(constInputs, params, blobs, outputShapes, nullptr);
             if (sts != InferenceEngine::StatusCode::OK)
                 isDynBatch = false;
@@ -136,7 +159,9 @@ void MKLDNNGenericNode::execLayer() {
     }
 
     if (isDynBatch) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (isDynBatch) {" << std::endl;
         for (size_t i = 0; i < inputs.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:          for (size_t i = 0; i < inputs.size(); i++) {" << std::endl;
             auto td = inputs[i]->getTensorDesc();
             td.setDims(inputDescs[i].getDims());
             inputs[i] = make_blob_with_precision(td, getParentEdgeAt(i)->getMemory().GetData());
@@ -144,7 +169,9 @@ void MKLDNNGenericNode::execLayer() {
     }
     std::vector<InferenceEngine::Blob::Ptr> outputs;
     for (size_t i = 0; i < outDims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      for (size_t i = 0; i < outDims.size(); i++) {" << std::endl;
         if (isDynBatch) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:          if (isDynBatch) {" << std::endl;
             auto out_edge = getChildEdgesAtPort(i)[0];
             auto td = out_edge->getBlob()->getTensorDesc();
             td.setDims(outputShapes[i]);
@@ -155,43 +182,54 @@ void MKLDNNGenericNode::execLayer() {
     }
     auto * execImpl = dynamic_cast<InferenceEngine::ILayerExecImpl *>(impls[0].get());
     if (execImpl != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (execImpl != nullptr) {" << std::endl;
         InferenceEngine::ResponseDesc resp;
         InferenceEngine::StatusCode rc = execImpl->execute(inputs, outputs, &resp);
         if (rc != InferenceEngine::OK) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:          if (rc != InferenceEngine::OK) {" << std::endl;
             THROW_IE_EXCEPTION << resp.msg;
         }
     }
 }
 
 void MKLDNNGenericNode::initDescriptor(const InferenceEngine::LayerConfig &config) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:  void MKLDNNGenericNode::initDescriptor(const InferenceEngine::LayerConfig &config) {" << std::endl;
     InferenceEngine::LayerConfig rightConfig = config;
     InferenceEngine::StatusCode rc;
     InferenceEngine::ResponseDesc resp;
 
     InferenceEngine::ILayerImpl::Ptr selectedImpl;
     for (size_t k = 0, t = 0; k < impls.size(); k++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      for (size_t k = 0, t = 0; k < impls.size(); k++) {" << std::endl;
         std::vector<InferenceEngine::LayerConfig> configs;
         rc = impls[k]->getSupportedConfigurations(configs, &resp);
         if (rc != InferenceEngine::OK) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:          if (rc != InferenceEngine::OK) {" << std::endl;
             THROW_IE_EXCEPTION << resp.msg;
         }
         for (size_t j = 0; j < configs.size(); j++, t++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:          for (size_t j = 0; j < configs.size(); j++, t++) {" << std::endl;
             if (t == selectedPrimitiveDescriptorIndex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:              if (t == selectedPrimitiveDescriptorIndex) {" << std::endl;
                 selectedImpl = impls[k];
             }
         }
     }
 
     for (size_t j = 0; j < rightConfig.inConfs.size(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      for (size_t j = 0; j < rightConfig.inConfs.size(); j++) {" << std::endl;
         // TODO: we need to better recognize cases with possible inplace conficts
         if (getParentEdgeAt(j)->getParent()->getType() != Split &&
             getParentEdgeAt(j)->getParent()->getChildEdges().size() > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:              getParentEdgeAt(j)->getParent()->getChildEdges().size() > 1) {" << std::endl;
             rightConfig.inConfs[j].inPlace = -1;
         }
     }
     for (auto &outConf : rightConfig.outConfs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      for (auto &outConf : rightConfig.outConfs) {" << std::endl;
         if (outConf.inPlace < getParentEdges().size() &&
             getParentEdgeAt(static_cast<size_t>(outConf.inPlace))->getParent()->getChildEdges().size() > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:              getParentEdgeAt(static_cast<size_t>(outConf.inPlace))->getParent()->getChildEdges().size() > 1) {" << std::endl;
             outConf.inPlace = -1;
         }
     }
@@ -201,21 +239,26 @@ void MKLDNNGenericNode::initDescriptor(const InferenceEngine::LayerConfig &confi
     impls.emplace_back(selectedImpl);
     rc = impls[0]->init(rightConfig, &resp);
     if (rc != InferenceEngine::OK) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (rc != InferenceEngine::OK) {" << std::endl;
         THROW_IE_EXCEPTION << resp.msg;
     }
 
     auto descriptor = getSelectedPrimitiveDescriptor();
     if (descriptor != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (descriptor != nullptr) {" << std::endl;
         descriptor->getConfig() = rightConfig;
     }
     bool isConst = !rightConfig.inConfs.empty() || !rightConfig.outConfs.empty();
     for (const auto &inConf : rightConfig.inConfs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      for (const auto &inConf : rightConfig.inConfs) {" << std::endl;
         isConst = isConst && inConf.constant;
     }
     for (const auto &outConf : rightConfig.outConfs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      for (const auto &outConf : rightConfig.outConfs) {" << std::endl;
         isConst = isConst && outConf.constant;
     }
     if (isConst) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_generic_node.cpp:      if (isConst) {" << std::endl;
         constant = ConstantType::Const;
     }
 }

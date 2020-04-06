@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,9 +18,11 @@ using namespace MKLDNNPlugin;
 using namespace InferenceEngine;
 
 MKLDNNGemmNode::MKLDNNGemmNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) :
-        MKLDNNNode(layer, eng, socket) {}
+        MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:          MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNGemmNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:  void MKLDNNGemmNode::getSupportedDescriptors() {" << std::endl;
     auto* gemmLayer = dynamic_cast<GemmLayer*>(getCnnLayer().get());
 
     if (gemmLayer == nullptr)
@@ -65,6 +68,7 @@ void MKLDNNGemmNode::getSupportedDescriptors() {
     isThreeInputs = getParentEdges().size() == 3;
 
     if (isThreeInputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:      if (isThreeInputs) {" << std::endl;
         auto inDims2 = getParentEdgeAt(2)->getDims();
 
         if (inDims2.ndims() < 2 || inDims2.ndims() > 4)
@@ -78,7 +82,9 @@ void MKLDNNGemmNode::getSupportedDescriptors() {
     }
 
     for (int dim_idx = nDims - 3; dim_idx >= 0; dim_idx--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:      for (int dim_idx = nDims - 3; dim_idx >= 0; dim_idx--) {" << std::endl;
         if (isThreeInputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:          if (isThreeInputs) {" << std::endl;
             auto inDims2 = getParentEdgeAt(2)->getDims();
 
             if (inDims2[dim_idx] != outDims[dim_idx] && inDims2[dim_idx] != 1)
@@ -92,6 +98,7 @@ void MKLDNNGemmNode::getSupportedDescriptors() {
 
         if ((inDims0[dim_idx] != outDims[dim_idx] && inDims0[dim_idx] != 1) ||
             (inDims1[dim_idx] != outDims[dim_idx] && inDims1[dim_idx] != 1)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:              (inDims1[dim_idx] != outDims[dim_idx] && inDims1[dim_idx] != 1)) {" << std::endl;
             THROW_IE_EXCEPTION << "Input batch dimensions are incorrect for layer " << getName();
         }
 
@@ -115,6 +122,7 @@ void MKLDNNGemmNode::getSupportedDescriptors() {
 }
 
 void MKLDNNGemmNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:  void MKLDNNGemmNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -125,6 +133,7 @@ void MKLDNNGemmNode::initSupportedPrimitiveDescriptors() {
         InferenceEngine::LayerConfig config;
         config.dynBatchSupport = true;
         for (size_t i = 0; i < getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:          for (size_t i = 0; i < getParentEdges().size(); i++) {" << std::endl;
             InferenceEngine::DataConfig dataConfig;
             dataConfig.inPlace = -1;
             dataConfig.constant = false;
@@ -144,6 +153,7 @@ void MKLDNNGemmNode::initSupportedPrimitiveDescriptors() {
 }
 
 void MKLDNNGemmNode::initOptimalPrimitiveDescriptor() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:  void MKLDNNGemmNode::initOptimalPrimitiveDescriptor() {" << std::endl;
     auto selected_pd = getSelectedPrimitiveDescriptor();
     if (selected_pd == nullptr)
         THROW_IE_EXCEPTION << "Preferable primitive descriptor is not set.";
@@ -155,21 +165,25 @@ void MKLDNNGemmNode::initOptimalPrimitiveDescriptor() {
 
     auto* selectedPD = getSelectedPrimitiveDescriptor();
     if (!selectedPD) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:      if (!selectedPD) {" << std::endl;
         return;
     }
 
     // Only FP32 is supported for now
     auto& selectedConfig = getSelectedPrimitiveDescriptor()->getConfig();
     for (auto &inConf : selectedConfig.inConfs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:      for (auto &inConf : selectedConfig.inConfs) {" << std::endl;
         inConf.desc.setPrecision(Precision::FP32);
     }
 
     for (auto &outConf : selectedConfig.outConfs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:      for (auto &outConf : selectedConfig.outConfs) {" << std::endl;
         outConf.desc.setPrecision(Precision::FP32);
     }
 }
 
 void MKLDNNGemmNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:  void MKLDNNGemmNode::createPrimitive() {" << std::endl;
     auto& dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
     auto& src0MemPtr = getParentEdgeAt(0)->getMemoryPtr();
     auto& src1MemPtr = getParentEdgeAt(1)->getMemoryPtr();
@@ -181,6 +195,7 @@ void MKLDNNGemmNode::createPrimitive() {
         THROW_IE_EXCEPTION << "Preferable primitive descriptor isn't set.";
 
     if (isThreeInputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:      if (isThreeInputs) {" << std::endl;
         auto& src2MemPtr = getParentEdgeAt(2)->getMemoryPtr();
         if (!src2MemPtr || !src2MemPtr->GetPrimitivePtr())
             THROW_IE_EXCEPTION << "Input memory isn't allocated.";
@@ -188,6 +203,7 @@ void MKLDNNGemmNode::createPrimitive() {
 }
 
 void MKLDNNGemmNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:  void MKLDNNGemmNode::execute(mkldnn::stream strm) {" << std::endl;
     auto inDims0 = getParentEdgeAt(0)->getDims();
     auto inDims1 = getParentEdgeAt(1)->getDims();
     auto outDims = getChildEdgeAt(0)->getDims();
@@ -216,6 +232,7 @@ void MKLDNNGemmNode::execute(mkldnn::stream strm) {
 
     const float *src2_ptr;
     if (isThreeInputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:      if (isThreeInputs) {" << std::endl;
         auto& srcMemory2 = getParentEdgeAt(2)->getMemory();
         src2_ptr = reinterpret_cast<const float *>(srcMemory2.GetData()) +
                                 srcMemory2.GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -224,17 +241,21 @@ void MKLDNNGemmNode::execute(mkldnn::stream strm) {
     }
 
     if (!isThreeInputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:      if (!isThreeInputs) {" << std::endl;
         beta = 0.f;
     }
 
     for (int b1 = 0; b1 < MB1; b1++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:      for (int b1 = 0; b1 < MB1; b1++) {" << std::endl;
         const float *a_ptr = src0_ptr;
         const float *b_ptr = src1_ptr;
         const float *c_ptr = src2_ptr;
         float *d_ptr = dst_ptr;
 
         for (int b2 = 0; b2 < MB2; b2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:          for (int b2 = 0; b2 < MB2; b2++) {" << std::endl;
             if (isThreeInputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:              if (isThreeInputs) {" << std::endl;
                 memcpy(d_ptr, c_ptr, M * N * sizeof(float));
                 c_ptr += cOffsets[0];
             }
@@ -251,6 +272,7 @@ void MKLDNNGemmNode::execute(mkldnn::stream strm) {
         dst_ptr += MB2 * M * N;
 
         if (isThreeInputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:          if (isThreeInputs) {" << std::endl;
             src2_ptr += cOffsets[1];
         }
     }
@@ -261,6 +283,7 @@ bool MKLDNNGemmNode::created() const {
 }
 
 int MKLDNNGemmNode::getMaxBatch() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_gemm_node.cpp:  int MKLDNNGemmNode::getMaxBatch() {" << std::endl;
     if (!outDims.empty())
         return outDims[0][0];
     return 0;

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -143,9 +144,12 @@
 using namespace InferenceEngine;
 using namespace XMLParseUtils;
 
-IRParser::IRParser(size_t version): IRParser(version, {}) {}
+IRParser::IRParser(size_t version): IRParser(version, {}) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:  IRParser::IRParser(size_t version): IRParser(version, {}) {" << std::endl;}
 IRParser::IRParser(size_t version, const std::vector<InferenceEngine::IExtensionPtr>& exts) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:  IRParser::IRParser(size_t version, const std::vector<InferenceEngine::IExtensionPtr>& exts) {" << std::endl;
     switch (version) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      switch (version) {" << std::endl;
     case 10:
         parser = std::make_shared<V10Parser>(exts);
         break;
@@ -155,20 +159,25 @@ IRParser::IRParser(size_t version, const std::vector<InferenceEngine::IExtension
 }
 
 std::shared_ptr<ngraph::Function> IRParser::parse(const pugi::xml_node& root, const Blob::CPtr& weights) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:  std::shared_ptr<ngraph::Function> IRParser::parse(const pugi::xml_node& root, const Blob::CPtr& weights) {" << std::endl;
     return parser->parse(root, weights);
 }
 
 V10Parser::V10Parser(const std::vector<IExtensionPtr>& exts) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:  V10Parser::V10Parser(const std::vector<IExtensionPtr>& exts) {" << std::endl;
     // Load default opsets
     opsets["opset1"] = ngraph::get_opset1();
 
     // Load custom opsets
     for (const auto& ext : exts) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      for (const auto& ext : exts) {" << std::endl;
         std::map<std::string, ngraph::OpSet> extOpsets;
         try {
             extOpsets = ext->getOpSets();
-        } catch (...) {}
+        } catch (...) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          } catch (...) {" << std::endl;}
         for (const auto& it : extOpsets) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          for (const auto& it : extOpsets) {" << std::endl;
             if (opsets.find(it.first) != opsets.end())
                 THROW_IE_EXCEPTION << "Cannot add opset with name: " << it.first << ". Opset with the same name already exists.";
             opsets[it.first] = it.second;
@@ -177,6 +186,7 @@ V10Parser::V10Parser(const std::vector<IExtensionPtr>& exts) {
 }
 
 std::shared_ptr<ngraph::Function> V10Parser::parse(const pugi::xml_node& root, const Blob::CPtr& weights) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:  std::shared_ptr<ngraph::Function> V10Parser::parse(const pugi::xml_node& root, const Blob::CPtr& weights) {" << std::endl;
     using node_params = struct {
         pugi::xml_node xml;
         GenericLayerParams params;
@@ -188,12 +198,14 @@ std::shared_ptr<ngraph::Function> V10Parser::parse(const pugi::xml_node& root, c
 
     // Read all layers and store their parameters in params map
     FOREACH_CHILD(node, root.child("layers"), "layer") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      FOREACH_CHILD(node, root.child('layers'), 'layer') {" << std::endl;
         auto node_param = parseGenericParams(node);
         if (opName.find(node_param.name) != opName.end())
             THROW_IE_EXCEPTION << "Invalid IR! " << node_param.name << " name is not unique!";
         opName.insert(node_param.name);
         params[node_param.layerId] = {node, node_param};
         if (node_param.type == "Result") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (node_param.type == 'Result') {" << std::endl;
             outputs.push_back(node_param.layerId);
         }
     }
@@ -204,6 +216,7 @@ std::shared_ptr<ngraph::Function> V10Parser::parse(const pugi::xml_node& root, c
 
     // Read all edges and store them for further usage
     FOREACH_CHILD(_ec, root.child("edges"), "edge") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      FOREACH_CHILD(_ec, root.child('edges'), 'edge') {" << std::endl;
         size_t fromLayer = GetUIntAttr(_ec, "from-layer");
         size_t fromPort = GetUIntAttr(_ec, "from-port");
         size_t toLayer = GetUIntAttr(_ec, "to-layer");
@@ -215,9 +228,11 @@ std::shared_ptr<ngraph::Function> V10Parser::parse(const pugi::xml_node& root, c
     std::set<size_t> used;
     std::vector<size_t> order;
     std::function<void(size_t)> dfs = [&edges, &order, &used, &dfs](const size_t id) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      std::function<void(size_t)> dfs = [&edges, &order, &used, &dfs](const size_t id) {" << std::endl;
         if (used.count(id)) return;
         used.insert(id);
         for (auto& edge : edges[id]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          for (auto& edge : edges[id]) {" << std::endl;
             dfs(edge.fromLayerId);
         }
         order.push_back(id);
@@ -230,11 +245,14 @@ std::shared_ptr<ngraph::Function> V10Parser::parse(const pugi::xml_node& root, c
 
     //  Following topological order create nGraph operations
     for (auto& layer_id : order) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      for (auto& layer_id : order) {" << std::endl;
         auto& p = params[layer_id];
         ngraph::OutputVector inputs(edges[layer_id].size());
         for (auto& e : edges[layer_id]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          for (auto& e : edges[layer_id]) {" << std::endl;
             auto input_node = id_to_node[e.fromLayerId];
             if (!input_node) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:              if (!input_node) {" << std::endl;
                 THROW_IE_EXCEPTION << "Attempt to access node " << e.fromLayerId << " that not in graph.";
             }
             auto& p_output = params[e.fromLayerId].params;
@@ -252,7 +270,9 @@ std::shared_ptr<ngraph::Function> V10Parser::parse(const pugi::xml_node& root, c
         // because IR always right!
         // Temporary disabled!
         //        for (size_t i = 0; i < p.params.outputPorts.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          //        for (size_t i = 0; i < p.params.outputPorts.size(); ++i) {" << std::endl;
         //            if (p.params.outputPorts[i].dims != node->output(i).get_shape()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          //            if (p.params.outputPorts[i].dims != node->output(i).get_shape()) {" << std::endl;
         //                THROW_IE_EXCEPTION << "Shape after nGraph infer " <<
         //                details::dumpVec(node->output(i).get_shape())
         //                                   << " differ from IR shapes: " <<
@@ -261,10 +281,12 @@ std::shared_ptr<ngraph::Function> V10Parser::parse(const pugi::xml_node& root, c
         //        }
 
         if (auto parameter_node = std::dynamic_pointer_cast<ngraph::op::Parameter>(node)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (auto parameter_node = std::dynamic_pointer_cast<ngraph::op::Parameter>(node)) {" << std::endl;
             parameter_nodes.emplace_back(parameter_node);
         }
 
         if (auto result_node = std::dynamic_pointer_cast<ngraph::op::Result>(node)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (auto result_node = std::dynamic_pointer_cast<ngraph::op::Result>(node)) {" << std::endl;
             result_nodes.emplace_back(result_node);
         }
         allNodes.emplace_back(node);
@@ -276,6 +298,7 @@ std::shared_ptr<ngraph::Function> V10Parser::parse(const pugi::xml_node& root, c
 }
 
 V10Parser::GenericLayerParams V10Parser::parseGenericParams(const pugi::xml_node& node) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:  V10Parser::GenericLayerParams V10Parser::parseGenericParams(const pugi::xml_node& node) {" << std::endl;
     const auto parsePort = [](const pugi::xml_node& parentNode,
                               const GenericLayerParams& params) -> GenericLayerParams::LayerPortData {
         GenericLayerParams::LayerPortData port;
@@ -283,10 +306,12 @@ V10Parser::GenericLayerParams V10Parser::parseGenericParams(const pugi::xml_node
         port.portId = GetIntAttr(parentNode, "id");
 
         for (auto node = parentNode.child("dim"); !node.empty(); node = node.next_sibling("dim")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          for (auto node = parentNode.child('dim'); !node.empty(); node = node.next_sibling('dim')) {" << std::endl;
             size_t dim = 0;
             const pugi::char_t* dimVal = node.child_value();
             std::stringstream ss(dimVal);
             if (!(ss >> dim) || dim == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:              if (!(ss >> dim) || dim == 0) {" << std::endl;
                 THROW_IE_EXCEPTION << "dimension (" << dimVal << ") in node " << node.name()
                                    << " must be a positive integer: at offset " << node.offset_debug();
             }
@@ -316,13 +341,17 @@ V10Parser::GenericLayerParams V10Parser::parseGenericParams(const pugi::xml_node
 
     auto outNode = node.child("output");
     if (!outNode.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (!outNode.empty()) {" << std::endl;
         FOREACH_CHILD(_cn, outNode, "port") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          FOREACH_CHILD(_cn, outNode, 'port') {" << std::endl;
             params.outputPorts.emplace_back(parsePort(_cn, params));
         }
     }
     auto inpNode = node.child("input");
     if (!inpNode.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (!inpNode.empty()) {" << std::endl;
         FOREACH_CHILD(_cn, inpNode, "port") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          FOREACH_CHILD(_cn, inpNode, 'port') {" << std::endl;
             params.inputPorts.emplace_back(parsePort(_cn, params));
         }
     }
@@ -337,6 +366,7 @@ bool V10Parser::LayerBaseCreator::shouldCreate(const std::string& nodeType) cons
 std::shared_ptr<ngraph::Node> V10Parser::createNode(const std::vector<ngraph::Output<ngraph::Node>>& inputs,
                                                     const pugi::xml_node& node, const Blob::CPtr& weights,
                                                     const GenericLayerParams& params) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:                                                      const GenericLayerParams& params) {" << std::endl;
     static std::vector<std::shared_ptr<LayerBaseCreator>> creators = {
         std::make_shared<LayerCreator<ngraph::op::Abs>>("Abs"),
         std::make_shared<LayerCreator<ngraph::op::Acos>>("Acos"),
@@ -446,6 +476,7 @@ std::shared_ptr<ngraph::Node> V10Parser::createNode(const std::vector<ngraph::Ou
     };
 
     for (size_t i = 0; i < inputs.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      for (size_t i = 0; i < inputs.size(); i++) {" << std::endl;
         if (!inputs[i].get_node())
             THROW_IE_EXCEPTION << params.type << " layer " << params.name << " with id: " << params.layerId
                 << " has incorrect input with index " << i << "!";
@@ -456,11 +487,14 @@ std::shared_ptr<ngraph::Node> V10Parser::createNode(const std::vector<ngraph::Ou
 
     std::shared_ptr<ngraph::Node> ngraphNode;
     if (opsets.find(params.version) != opsets.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (opsets.find(params.version) != opsets.end()) {" << std::endl;
         // Create only parameter from opset1
         if (params.version != "opset1" || params.type == "Parameter") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (params.version != 'opset1' || params.type == 'Parameter') {" << std::endl;
             auto opset = opsets.at(params.version);
 
             if (!opset.contains_type(params.type)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:              if (!opset.contains_type(params.type)) {" << std::endl;
                 THROW_IE_EXCEPTION << "Opset " << params.version << " doesn't contain the operation with type: " << params.type;
             }
             ngraphNode = std::shared_ptr<ngraph::Node>(opset.create(params.type));
@@ -474,8 +508,11 @@ std::shared_ptr<ngraph::Node> V10Parser::createNode(const std::vector<ngraph::Ou
     }
 
     if (!ngraphNode && params.version == "opset1") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (!ngraphNode && params.version == 'opset1') {" << std::endl;
         for (const auto& creator : creators) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          for (const auto& creator : creators) {" << std::endl;
             if (creator->shouldCreate(params.type)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:              if (creator->shouldCreate(params.type)) {" << std::endl;
                 ngraphNode = creator->createLayer(inputs, node, weights, params);
                 break;
             }
@@ -483,18 +520,23 @@ std::shared_ptr<ngraph::Node> V10Parser::createNode(const std::vector<ngraph::Ou
     }
 
     if (!ngraphNode && (params.version == "experimental" || params.version == "extension")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (!ngraphNode && (params.version == 'experimental' || params.version == 'extension')) {" << std::endl;
         // Try to create Generic node for backward compatibility
         std::map<std::string, Parameter> parameters;
         pugi::xml_node dn = node.child("data");
         if (dn) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (dn) {" << std::endl;
             for (const auto& attr : dn.attributes()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:              for (const auto& attr : dn.attributes()) {" << std::endl;
                 parameters[attr.name()] = std::string(attr.value());
             }
         }
 
         auto blobs = node.child("blobs");
         if (!blobs.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (!blobs.empty()) {" << std::endl;
             for (pugi::xml_node blob = blobs.first_child(); !blob.empty(); blob = blob.next_sibling()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:              for (pugi::xml_node blob = blobs.first_child(); !blob.empty(); blob = blob.next_sibling()) {" << std::endl;
                 size_t size = GetUIntAttr(blob, "size", 0);
                 uint64_t offset = GetUInt64Attr(blob, "offset", 0);
                 Precision precision(Precision::U8);
@@ -518,6 +560,7 @@ std::shared_ptr<ngraph::Node> V10Parser::createNode(const std::vector<ngraph::Ou
         }
         std::vector<ngraph::op::GenericIE::PortIE> outputs;
         for (const auto& port : params.outputPorts) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          for (const auto& port : params.outputPorts) {" << std::endl;
             ngraph::op::GenericIE::PortIE iePort;
             iePort.dims = port.dims;
             iePort.precision = InferenceEngine::details::ngraph::convertPrecision(port.precision);
@@ -528,6 +571,7 @@ std::shared_ptr<ngraph::Node> V10Parser::createNode(const std::vector<ngraph::Ou
     }
 
     if (!ngraphNode) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (!ngraphNode) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot create " << params.type << " layer " << params.name << " id:" << params.layerId;
     }
 
@@ -535,8 +579,10 @@ std::shared_ptr<ngraph::Node> V10Parser::createNode(const std::vector<ngraph::Ou
     auto& rtInfo = ngraphNode->get_rt_info();
     pugi::xml_node dn = node.child("data");
     if (dn) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (dn) {" << std::endl;
         const auto pr_data = dn.attribute("PrimitivesPriority");
         if (pr_data) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (pr_data) {" << std::endl;
             std::string value = pr_data.value();
             InferenceEngine::Parameter rt(value);
             rtInfo["PrimitivesPriority"] = rt.asVariant();
@@ -556,6 +602,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::DetectionOutput>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     pugi::xml_node dn = node.child("data");
 
     if (dn.empty())
@@ -581,11 +628,13 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::DetectionOutpu
     attr.confidence_threshold = GetFloatAttr(dn, "confidence_threshold", 0);
 
     if (inputs.size() != 3 && inputs.size() != 5) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (inputs.size() != 3 && inputs.size() != 5) {" << std::endl;
         THROW_IE_EXCEPTION << "DetectionOutput has incorrect number of input ports!";
     }
 
     // TODO: add DO constructor with Output<Node> args instead of nodes
     if (inputs.size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (inputs.size() == 3) {" << std::endl;
         return std::make_shared<ngraph::op::DetectionOutput>(inputs[0],
                                                              inputs[1],
                                                              inputs[2],
@@ -605,20 +654,24 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::TensorIterator>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     auto tensor_iterator = std::make_shared<ngraph::op::TensorIterator>();
     tensor_iterator->set_friendly_name(GetStrAttr(node, "name"));
     auto body_node = node.child("body");
 
     if (body_node.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (body_node.empty()) {" << std::endl;
         THROW_IE_EXCEPTION << "TensorIterator has no body.";
     }
 
     // Fill map: result/parameter id to name
     std::map<uint64_t, std::string> layer_idx_to_name;
     FOREACH_CHILD(_layer, body_node.child("layers"), "layer") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      FOREACH_CHILD(_layer, body_node.child('layers'), 'layer') {" << std::endl;
         auto type = GetStrAttr(_layer, "type");
 
         if (type == "Result" || type == "Parameter") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (type == 'Result' || type == 'Parameter') {" << std::endl;
             auto id = GetUIntAttr(_layer, "id");
             auto name = GetStrAttr(_layer, "name");
             layer_idx_to_name[id] = name;
@@ -638,12 +691,14 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::TensorIterator
     // Parse PortMap: inputs
     std::map<uint64_t, pugi::xml_node> input_map;
     FOREACH_CHILD(_input, node.child("port_map"), "input") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      FOREACH_CHILD(_input, node.child('port_map'), 'input') {" << std::endl;
         int64_t ext_port_id = GetUIntAttr(_input, "external_port_id");
         input_map[ext_port_id] = _input;
     }
 
     bool is_sliced_input_exists = false;
     for (const auto& input : input_map) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      for (const auto& input : input_map) {" << std::endl;
         auto &_input = input.second;
         auto axis_attr = _input.attribute("axis");
         size_t ti_input_index = GetUIntAttr(_input, "external_port_id");
@@ -651,10 +706,12 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::TensorIterator
 
         auto body_param = std::find_if(parameter_nodes.begin(), parameter_nodes.end(),
                                        [&](const std::shared_ptr<ngraph::op::Parameter>& param) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:                                         [&](const std::shared_ptr<ngraph::op::Parameter>& param) {" << std::endl;
                                            return param->get_friendly_name() == layer_idx_to_name[body_parameter_index];
                                        });
 
         if (body_param == parameter_nodes.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (body_param == parameter_nodes.end()) {" << std::endl;
             THROW_IE_EXCEPTION << "PortMap input parsing error. Body parameter with id = " << body_parameter_index
                                << " not found.";
         }
@@ -663,6 +720,7 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::TensorIterator
 
         // if axis is set, then slicing is enabled. Create ngraph::TensorIterator::SlicedInput.
         if (!axis_attr.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (!axis_attr.empty()) {" << std::endl;
             size_t axis = GetUIntAttr(_input, "axis");
             int64_t start = GetInt64Attr(_input, "start", 0);
             int64_t stride = GetInt64Attr(_input, "stride", 1);
@@ -674,17 +732,21 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::TensorIterator
             // otherwise find corresponding back edge and create ngraph::TensorIterator::MergedInput
             bool is_back_edge_exist = false;
             FOREACH_CHILD(_edge, node.child("back_edges"), "edge") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:              FOREACH_CHILD(_edge, node.child('back_edges'), 'edge') {" << std::endl;
                 size_t to_layer = GetUIntAttr(_edge, "to-layer");
 
                 if (to_layer == body_parameter_index) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:                  if (to_layer == body_parameter_index) {" << std::endl;
                     size_t from_layer = GetUIntAttr(_edge, "from-layer");
 
                     auto body_result = std::find_if(
                         result_nodes.begin(), result_nodes.end(), [&](std::shared_ptr<ngraph::op::Result>& result) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:                          result_nodes.begin(), result_nodes.end(), [&](std::shared_ptr<ngraph::op::Result>& result) {" << std::endl;
                             return result->get_friendly_name() == layer_idx_to_name[from_layer];
                         });
 
                     if (body_result == result_nodes.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:                      if (body_result == result_nodes.end()) {" << std::endl;
                         THROW_IE_EXCEPTION << "PortMap input parsing error. Body result with id = " << from_layer
                                            << " not found.";
                     }
@@ -696,6 +758,7 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::TensorIterator
             }
 
             if (!is_back_edge_exist) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:              if (!is_back_edge_exist) {" << std::endl;
                 tensor_iterator->set_invariant_input(*body_param, inputs[ti_input_index]);
             }
         }
@@ -704,27 +767,32 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::TensorIterator
     // Parse PortMap: outputs
     std::map<uint32_t, pugi::xml_node> output_map;
     FOREACH_CHILD(_output, node.child("port_map"), "output") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      FOREACH_CHILD(_output, node.child('port_map'), 'output') {" << std::endl;
         uint32_t ext_port_id = GetUIntAttr(_output, "external_port_id");
         output_map[ext_port_id] = _output;
     }
 
     for (const auto& output : output_map) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      for (const auto& output : output_map) {" << std::endl;
         auto& _output = output.second;
         auto axis_attr = _output.attribute("axis");
         size_t body_result_index = GetUIntAttr(_output, "internal_layer_id");
 
         auto body_result =
             std::find_if(result_nodes.begin(), result_nodes.end(), [&](std::shared_ptr<ngraph::op::Result>& result) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:              std::find_if(result_nodes.begin(), result_nodes.end(), [&](std::shared_ptr<ngraph::op::Result>& result) {" << std::endl;
                 return result->get_friendly_name() == layer_idx_to_name[body_result_index];
             });
 
         if (body_result == result_nodes.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (body_result == result_nodes.end()) {" << std::endl;
             THROW_IE_EXCEPTION << "PortMap output parsing error. Body result with id = " << body_result_index
                                << " not found.";
         }
 
         // if axis is set, then concatenation is enabled. Create ngraph::TensorIterator::ConcatOutput.
         if (!axis_attr.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          if (!axis_attr.empty()) {" << std::endl;
             uint32_t axis = GetUIntAttr(_output, "axis");
             int64_t start = GetInt64Attr(_output, "start", 0);
             int64_t stride = GetInt64Attr(_output, "stride", 1);
@@ -733,6 +801,7 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::TensorIterator
             tensor_iterator->get_concatenated_slices(*body_result, start, stride, part_size, end, axis);
 
             if (!is_sliced_input_exists) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:              if (!is_sliced_input_exists) {" << std::endl;
                 tensor_iterator->set_num_iterations((abs(end - start)) / part_size);
             }
         } else {
@@ -750,6 +819,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::PriorBoxClustered>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -765,6 +835,7 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::PriorBoxCluste
     attr.step_heights = GetFloatAttr(dn, "step_h", step);
     attr.step_widths = GetFloatAttr(dn, "step_w", step);
     if (step != 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (step != 0) {" << std::endl;
         attr.step_heights = step;
         attr.step_widths = step;
     }
@@ -779,6 +850,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Proposal>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 3, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -809,6 +881,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::PriorBox>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -837,6 +910,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::ShapeOf>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::ShapeOf>(inputs[0]);
 }
@@ -846,6 +920,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::FakeQuantize>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 5, 1);
     pugi::xml_node dn = node.child("data");
     if (dn.empty())
@@ -860,6 +935,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::ReverseSequence>::createLayer(const ngraph::OutputVector & inputs, const pugi::xml_node& node,
                                                                                                 const Blob::CPtr& weights,
                                                                                                 const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:                                                                                                  const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
     return std::make_shared<ngraph::op::ReverseSequence>(inputs[0], inputs[1], GetIntAttr(dn, "batch_axis", 0), GetIntAttr(dn, "seq_axis", 1));
@@ -870,6 +946,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Convert>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
     if (dn.empty())
@@ -884,6 +961,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::LSTMCell>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 6, 2);
     pugi::xml_node dn = node.child("data");
     if (dn.empty())
@@ -903,6 +981,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::BatchNormInference>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 5, 1);
     pugi::xml_node dn = node.child("data");
     if (dn.empty())
@@ -917,6 +996,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::CTCGreedyDecoder>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
     if (dn.empty())
@@ -931,6 +1011,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::TopK>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 2);
     pugi::xml_node dn = node.child("data");
     if (dn.empty())
@@ -943,18 +1024,23 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::TopK>::cre
     ngraph::op::v1::TopK::Mode mode;
     ngraph::op::v1::TopK::SortType sort;
     if (str_mode == "max") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (str_mode == 'max') {" << std::endl;
         mode = ngraph::op::v1::TopK::Mode::MAX;
     } else if (str_mode == "min") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (str_mode == 'min') {" << std::endl;
         mode = ngraph::op::v1::TopK::Mode::MIN;
     } else {
         THROW_IE_EXCEPTION << "Unsupported mode: " << str_mode;
     }
 
     if (str_sort == "none") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (str_sort == 'none') {" << std::endl;
         sort = ngraph::op::v1::TopK::SortType::NONE;
     } else if (str_sort == "value") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (str_sort == 'value') {" << std::endl;
         sort = ngraph::op::v1::TopK::SortType::SORT_VALUES;
     } else if (str_sort == "index") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (str_sort == 'index') {" << std::endl;
         sort = ngraph::op::v1::TopK::SortType::SORT_INDICES;
     } else {
         THROW_IE_EXCEPTION << "Unsupported sort type: " << str_sort;
@@ -968,6 +1054,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Pad>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     pugi::xml_node dn = node.child("data");
 
     if (dn.empty())
@@ -977,18 +1064,23 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Pad>::crea
     ngraph::op::PadMode pad_mode;
 
     if (pad_mode_str == "constant") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (pad_mode_str == 'constant') {" << std::endl;
         pad_mode = ngraph::op::PadMode::CONSTANT;
     } else if (pad_mode_str == "edge") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (pad_mode_str == 'edge') {" << std::endl;
         pad_mode = ngraph::op::PadMode::EDGE;
     } else if (pad_mode_str == "reflect") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (pad_mode_str == 'reflect') {" << std::endl;
         pad_mode = ngraph::op::PadMode::REFLECT;
     } else if (pad_mode_str == "symmetric") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (pad_mode_str == 'symmetric') {" << std::endl;
         pad_mode = ngraph::op::PadMode::SYMMETRIC;
     } else {
         THROW_IE_EXCEPTION << "Pad mode: " << pad_mode_str << " is not supported";
     }
 
     if (pad_mode == ngraph::op::PadMode::CONSTANT) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (pad_mode == ngraph::op::PadMode::CONSTANT) {" << std::endl;
         checkParameters(inputs, layerParsePrms, 4, 1);
         return std::make_shared<ngraph::op::v1::Pad>(inputs[0], inputs[1], inputs[2], inputs[3], pad_mode);
     }
@@ -1002,6 +1094,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::SquaredDifference>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::SquaredDifference>(inputs[0], inputs[1]);
 }
@@ -1011,6 +1104,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Greater>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::Greater>(inputs[0], inputs[1]);
 }
@@ -1020,6 +1114,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::GreaterEqual>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::GreaterEqual>(inputs[0], inputs[1]);
 }
@@ -1029,6 +1124,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Less>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::Less>(inputs[0], inputs[1]);
 }
@@ -1038,6 +1134,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::LessEqual>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::LessEqual>(inputs[0], inputs[1]);
 }
@@ -1047,6 +1144,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Equal>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::Equal>(inputs[0], inputs[1]);
 }
@@ -1056,6 +1154,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::NotEqual>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::NotEqual>(inputs[0], inputs[1]);
 }
@@ -1065,6 +1164,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::FloorMod>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::FloorMod>(inputs[0], inputs[1]);
 }
@@ -1074,6 +1174,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Select>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 3, 1);
     return std::make_shared<ngraph::op::v1::Select>(inputs[0], inputs[1], inputs[2]);
 }
@@ -1083,6 +1184,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::MVN>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1100,6 +1202,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Log>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Log>(inputs[0]);
 }
@@ -1109,6 +1212,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::LRN>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
     if (dn.empty())
@@ -1127,6 +1231,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Clamp>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1143,6 +1248,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::VariadicSplit>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 3, -1);
     return std::make_shared<ngraph::op::VariadicSplit>(inputs[0], inputs[1], inputs[2]);
 }
@@ -1152,6 +1258,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Split>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     pugi::xml_node dn = node.child("data");
 
     if (dn.empty())
@@ -1167,6 +1274,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Sigmoid>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Sigmoid>(inputs[0]);
 }
@@ -1176,6 +1284,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Elu>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1190,6 +1299,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::SpaceToDepth>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1204,6 +1314,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::DepthToSpace>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1218,6 +1329,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v0::Selu>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 3, 1);
     return std::make_shared<ngraph::op::v0::Selu>(inputs[0], inputs[1], inputs[2]);
 }
@@ -1227,6 +1339,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::PRelu>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::PRelu>(inputs[0], inputs[1]);
 }
@@ -1236,6 +1349,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Exp>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Exp>(inputs[0]);
 }
@@ -1245,6 +1359,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Relu>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Relu>(inputs[0]);
 }
@@ -1254,6 +1369,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Negative>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Negative>(inputs[0]);
 }
@@ -1263,6 +1379,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Range>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 3, 1);
     return std::make_shared<ngraph::op::Range>(inputs[0], inputs[1], inputs[2]);
 }
@@ -1272,6 +1389,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Tanh>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Tanh>(inputs[0]);
 }
@@ -1281,6 +1399,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Result>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 0);
     return std::make_shared<ngraph::op::Result>(inputs[0]);
 }
@@ -1290,6 +1409,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Tile>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::Tile>(inputs[0], inputs[1]);
 }
@@ -1299,6 +1419,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::StridedSlice>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
 
     pugi::xml_node dn = node.child("data");
 
@@ -1309,9 +1430,11 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::StridedSli
     std::vector<int64_t> ellipsis_mask = getParameters<int64_t>(dn, "ellipsis_mask");
 
     if (inputs.size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (inputs.size() == 3) {" << std::endl;
         return std::make_shared<ngraph::op::v1::StridedSlice>(inputs[0], inputs[1], inputs[2], begin_mask,
                                                               end_mask, new_axis, shrink_axis, ellipsis_mask);
     } else if (inputs.size() == 4) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (inputs.size() == 4) {" << std::endl;
         return std::make_shared<ngraph::op::v1::StridedSlice>(inputs[0], inputs[1], inputs[2], inputs[3], begin_mask,
                                                               end_mask, new_axis, shrink_axis, ellipsis_mask);
     } else {
@@ -1324,6 +1447,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Reshape>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
 
     pugi::xml_node dn = node.child("data");
@@ -1338,6 +1462,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Squeeze>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::Squeeze>(inputs[0], inputs[1]);
 }
@@ -1347,6 +1472,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Unsqueeze>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::Unsqueeze>(inputs[0], inputs[1]);
 }
@@ -1356,6 +1482,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Interpolate>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
 
     pugi::xml_node dn = node.child("data");
@@ -1365,20 +1492,24 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Interpolate>::
 
     ngraph::op::InterpolateAttrs attrs;
     for (auto& axis : getParameters<int64_t>(dn, "axes")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      for (auto& axis : getParameters<int64_t>(dn, 'axes')) {" << std::endl;
         attrs.axes.insert(axis);
     }
 
     std::set<std::string> available_modes {"linear", "nearest", "cubic", "area"};
     attrs.mode = GetStrAttr(dn, "mode");
     if (!available_modes.count(attrs.mode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (!available_modes.count(attrs.mode)) {" << std::endl;
         THROW_IE_EXCEPTION << "Interpolate mode: " << attrs.mode << " is unsupported!";
     }
     attrs.align_corners = GetIntAttr(dn, "align_corners", 1);
     attrs.antialias = GetIntAttr(dn, "antialias", 0);
     for (auto& pad : getParameters<int64_t>(dn, "pads_begin")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      for (auto& pad : getParameters<int64_t>(dn, 'pads_begin')) {" << std::endl;
         attrs.pads_begin.push_back(pad);
     }
     for (auto& pad : getParameters<int64_t>(dn, "pads_end")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      for (auto& pad : getParameters<int64_t>(dn, 'pads_end')) {" << std::endl;
         attrs.pads_end.push_back(pad);
     }
 
@@ -1390,6 +1521,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Abs>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Abs>(inputs[0]);
 }
@@ -1399,6 +1531,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Add>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::Add>(inputs[0], inputs[1]);
 }
@@ -1408,6 +1541,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Minimum>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::Minimum>(inputs[0], inputs[1]);
 }
@@ -1417,6 +1551,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Maximum>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::Maximum>(inputs[0], inputs[1]);
 }
@@ -1426,6 +1561,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Divide>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::Divide>(inputs[0], inputs[1]);
 }
@@ -1435,6 +1571,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Subtract>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::Subtract>(inputs[0], inputs[1]);
 }
@@ -1444,6 +1581,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Multiply>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::Multiply>(inputs[0], inputs[1]);
 }
@@ -1453,9 +1591,12 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Broadcast>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     if (inputs.size() == 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (inputs.size() == 2) {" << std::endl;
         return std::make_shared<ngraph::op::v1::Broadcast>(inputs[0], inputs[1]);
     } else if (layerParsePrms.inputPorts.size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (layerParsePrms.inputPorts.size() == 3) {" << std::endl;
         return std::make_shared<ngraph::op::v1::Broadcast>(inputs[0], inputs[1], inputs[2]);
     }
     THROW_IE_EXCEPTION << "Invalid number of inputs: " << layerParsePrms.inputPorts.size();
@@ -1466,6 +1607,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Constant>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 0, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1498,6 +1640,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Power>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::Power>(inputs[0], inputs[1]);
 }
@@ -1507,6 +1650,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::MatMul>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1521,6 +1665,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Softmax>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1535,6 +1680,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Sqrt>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Sqrt>(inputs[0]);
 }
@@ -1544,6 +1690,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::RegionYolo>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1568,6 +1715,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::ReorgYolo>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1583,6 +1731,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::ReduceMin>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1597,6 +1746,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::ReduceMax>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1611,6 +1761,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::ReduceMean>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1625,6 +1776,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::ReduceProd>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1639,6 +1791,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::ReduceSum>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1653,6 +1806,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Transpose>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::Transpose>(inputs[0], inputs[1]);
 }
@@ -1662,6 +1816,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::BinaryConvolution>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1674,10 +1829,13 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::BinaryConv
     ngraph::op::PadType pad_type = ngraph::op::PadType::EXPLICIT;
     std::string auto_pad = GetStrAttr(dn, "auto_pad", "");
     if (auto_pad == "same_lower") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (auto_pad == 'same_lower') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_LOWER;
     } else if (auto_pad == "same_upper") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'same_upper') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_UPPER;
     } else if (auto_pad == "valid") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'valid') {" << std::endl;
         pad_type = ngraph::op::PadType::VALID;
     }
 
@@ -1697,6 +1855,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Convolution>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1706,10 +1865,13 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Convolutio
     ngraph::op::PadType pad_type = ngraph::op::PadType::EXPLICIT;
     std::string auto_pad = GetStrAttr(dn, "auto_pad", "");
     if (auto_pad == "same_lower") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (auto_pad == 'same_lower') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_LOWER;
     } else if (auto_pad == "same_upper") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'same_upper') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_UPPER;
     } else if (auto_pad == "valid") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'valid') {" << std::endl;
         pad_type = ngraph::op::PadType::VALID;
     }
 
@@ -1727,6 +1889,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::GroupConvolution>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1736,10 +1899,13 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::GroupConvo
     ngraph::op::PadType pad_type = ngraph::op::PadType::EXPLICIT;
     std::string auto_pad = GetStrAttr(dn, "auto_pad", "");
     if (auto_pad == "same_lower") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (auto_pad == 'same_lower') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_LOWER;
     } else if (auto_pad == "same_upper") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'same_upper') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_UPPER;
     } else if (auto_pad == "valid") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'valid') {" << std::endl;
         pad_type = ngraph::op::PadType::VALID;
     }
 
@@ -1757,6 +1923,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::DeformableConvolution>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 3, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1769,10 +1936,13 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Deformable
     ngraph::op::PadType pad_type = ngraph::op::PadType::EXPLICIT;
     std::string auto_pad = GetStrAttr(dn, "auto_pad", "");
     if (auto_pad == "same_lower") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (auto_pad == 'same_lower') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_LOWER;
     } else if (auto_pad == "same_upper") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'same_upper') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_UPPER;
     } else if (auto_pad == "valid") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'valid') {" << std::endl;
         pad_type = ngraph::op::PadType::VALID;
     }
 
@@ -1790,6 +1960,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::ConvolutionBackpropData>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     pugi::xml_node dn = node.child("data");
 
     if (dn.empty())
@@ -1798,10 +1969,13 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Convolutio
     ngraph::op::PadType pad_type = ngraph::op::PadType::EXPLICIT;
     std::string auto_pad = GetStrAttr(dn, "auto_pad", "");
     if (auto_pad == "same_lower") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (auto_pad == 'same_lower') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_LOWER;
     } else if (auto_pad == "same_upper") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'same_upper') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_UPPER;
     } else if (auto_pad == "valid") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'valid') {" << std::endl;
         pad_type = ngraph::op::PadType::VALID;
     }
 
@@ -1811,10 +1985,12 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Convolutio
     auto pads_end = ngraph::CoordinateDiff(getParameters<std::ptrdiff_t>(dn, "pads_end", {}));
     auto output_padding = ngraph::CoordinateDiff(getParameters<std::ptrdiff_t>(dn, "output_padding", {}));
     if (inputs.size() != 3 && inputs.size() != 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (inputs.size() != 3 && inputs.size() != 2) {" << std::endl;
         THROW_IE_EXCEPTION << layerParsePrms.type << " layer " << layerParsePrms.name << " has incorrect number of input ports!";
     }
 
     if (inputs.size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (inputs.size() == 3) {" << std::endl;
         return std::make_shared<ngraph::op::v1::ConvolutionBackpropData>(inputs[0], inputs[1], inputs[2], strides, pads_begin, pads_end,
                                                                          dilations, pad_type, output_padding);
     } else {
@@ -1828,6 +2004,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::GroupConvolutionBackpropData>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     pugi::xml_node dn = node.child("data");
 
     if (dn.empty())
@@ -1836,10 +2013,13 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::GroupConvo
     ngraph::op::PadType pad_type = ngraph::op::PadType::EXPLICIT;
     std::string auto_pad = GetStrAttr(dn, "auto_pad", "");
     if (auto_pad == "same_lower") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (auto_pad == 'same_lower') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_LOWER;
     } else if (auto_pad == "same_upper") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'same_upper') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_UPPER;
     } else if (auto_pad == "valid") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (auto_pad == 'valid') {" << std::endl;
         pad_type = ngraph::op::PadType::VALID;
     }
 
@@ -1850,10 +2030,12 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::GroupConvo
     auto output_padding = ngraph::CoordinateDiff(getParameters<std::ptrdiff_t>(dn, "output_padding", {}));
 
     if (inputs.size() != 3 && inputs.size() != 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (inputs.size() != 3 && inputs.size() != 2) {" << std::endl;
         THROW_IE_EXCEPTION << layerParsePrms.type << " layer " << layerParsePrms.name << " has incorrect number of input ports!";
     }
 
     if (inputs.size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (inputs.size() == 3) {" << std::endl;
         return std::make_shared<ngraph::op::v1::GroupConvolutionBackpropData>(inputs[0], inputs[1], inputs[2], strides, pads_begin, pads_end,
                                                                               dilations, pad_type, output_padding);
     } else {
@@ -1867,6 +2049,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::AvgPool>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1882,18 +2065,23 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::AvgPool>::
 
     auto pad_type_str = GetStrAttr(dn, "auto_pad", "");
     if (pad_type_str == "same_lower") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (pad_type_str == 'same_lower') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_LOWER;
     } else if (pad_type_str == "same_upper") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (pad_type_str == 'same_upper') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_UPPER;
     } else if (pad_type_str == "valid") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (pad_type_str == 'valid') {" << std::endl;
         pad_type = ngraph::op::PadType::VALID;
     }
 
     ngraph::op::RoundingType rounding_type;
     auto str_rounding_type = GetStrAttr(dn, "rounding_type", "floor");
     if (str_rounding_type == "floor") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (str_rounding_type == 'floor') {" << std::endl;
         rounding_type = ngraph::op::RoundingType::FLOOR;
     } else if (str_rounding_type == "ceil") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (str_rounding_type == 'ceil') {" << std::endl;
         rounding_type = ngraph::op::RoundingType::CEIL;
     } else {
         THROW_IE_EXCEPTION << "Unsuppored rounding type: " << str_rounding_type;
@@ -1908,6 +2096,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::MaxPool>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1922,18 +2111,23 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::MaxPool>::
 
     auto pad_type_str = GetStrAttr(dn, "auto_pad", "");
     if (pad_type_str == "same_lower") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (pad_type_str == 'same_lower') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_LOWER;
     } else if (pad_type_str == "same_upper") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (pad_type_str == 'same_upper') {" << std::endl;
         pad_type = ngraph::op::PadType::SAME_UPPER;
     } else if (pad_type_str == "valid") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (pad_type_str == 'valid') {" << std::endl;
         pad_type = ngraph::op::PadType::VALID;
     }
 
     ngraph::op::RoundingType rounding_type;
     auto str_rounding_type = GetStrAttr(dn, "rounding_type", "floor");
     if (str_rounding_type == "floor") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (str_rounding_type == 'floor') {" << std::endl;
         rounding_type = ngraph::op::RoundingType::FLOOR;
     } else if (str_rounding_type == "ceil") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (str_rounding_type == 'ceil') {" << std::endl;
         rounding_type = ngraph::op::RoundingType::CEIL;
     } else {
         THROW_IE_EXCEPTION << "Unsuppored rounding type: " << str_rounding_type;
@@ -1948,6 +2142,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::ROIPooling>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1967,6 +2162,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::PSROIPooling>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -1991,6 +2187,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::DeformablePSROIPooling>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     pugi::xml_node dn = node.child("data");
 
     if (dn.empty())
@@ -2006,12 +2203,14 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Deformable
     auto part_size = GetIntAttr(dn, "part_size", 1);
 
     if (inputs.size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (inputs.size() == 3) {" << std::endl;
         return std::make_shared<ngraph::op::v1::DeformablePSROIPooling>(inputs[0],
                                                                         inputs[1],
                                                                         inputs[2], output_dim,
                                                                         spatial_scale, group_size, mode, spatial_bins_x,
                                                                         spatial_bins_y, trans_std, part_size);
     } else if (inputs.size() == 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (inputs.size() == 2) {" << std::endl;
         return std::make_shared<ngraph::op::v1::DeformablePSROIPooling>(inputs[0],
                                                                         inputs[1], output_dim,
                                                                         spatial_scale, group_size, mode, spatial_bins_x,
@@ -2026,6 +2225,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Concat>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, -1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -2040,6 +2240,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::Gather>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 3, 1);
     return std::make_shared<ngraph::op::v1::Gather>(inputs[0], inputs[1], inputs[2]);
 }
@@ -2049,6 +2250,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::GatherTree>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 4, 1);
     return std::make_shared<ngraph::op::v1::GatherTree>(inputs[0], inputs[1], inputs[2], inputs[3]);
 }
@@ -2058,6 +2260,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::OneHot>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 4, 1);
 
     pugi::xml_node dn = node.child("data");
@@ -2072,6 +2275,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::NormalizeL2>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -2082,8 +2286,10 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::NormalizeL2>::
     std::string eps_mode = GetStrAttr(dn, "eps_mode");
     ngraph::op::EpsMode em;
     if (eps_mode == "add") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (eps_mode == 'add') {" << std::endl;
         em = ngraph::op::EpsMode::ADD;
     } else if (eps_mode == "max") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (eps_mode == 'max') {" << std::endl;
         em = ngraph::op::EpsMode::MAX;
     } else {
         THROW_IE_EXCEPTION << "NormalizeL2 unsupported eps_mode: " << eps_mode;
@@ -2097,6 +2303,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Erf>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Erf>(inputs[0]);
 }
@@ -2106,6 +2313,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Sin>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Sin>(inputs[0]);
 }
@@ -2115,6 +2323,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Sign>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Sign>(inputs[0]);
 }
@@ -2124,6 +2333,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Sinh>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Sinh>(inputs[0]);
 }
@@ -2133,6 +2343,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Asin>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Asin>(inputs[0]);
 }
@@ -2142,6 +2353,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Cos>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Cos>(inputs[0]);
 }
@@ -2151,6 +2363,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Cosh>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Cosh>(inputs[0]);
 }
@@ -2160,6 +2373,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Acos>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Acos>(inputs[0]);
 }
@@ -2169,6 +2383,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Tan>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Tan>(inputs[0]);
 }
@@ -2178,6 +2393,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Atan>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Atan>(inputs[0]);
 }
@@ -2187,6 +2403,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Floor>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Floor>(inputs[0]);
 }
@@ -2196,6 +2413,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::Ceiling>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::Ceiling>(inputs[0]);
 }
@@ -2205,6 +2423,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::HardSigmoid>::createLayer(
     const ngraph::OutputVector & inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 3, 1);
     return std::make_shared<ngraph::op::HardSigmoid>(inputs[0], inputs[1], inputs[2]);
 }
@@ -2214,6 +2433,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::GRN>::createLayer(
     const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -2228,6 +2448,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::LogicalAnd>::createLayer(
     const ngraph::OutputVector & inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::LogicalAnd>(inputs[0], inputs[1]);
 }
@@ -2237,6 +2458,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::LogicalOr>::createLayer(
     const ngraph::OutputVector & inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::LogicalOr>(inputs[0], inputs[1]);
 }
@@ -2246,6 +2468,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::LogicalXor>::createLayer(
     const ngraph::OutputVector & inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     return std::make_shared<ngraph::op::v1::LogicalXor>(inputs[0], inputs[1]);
 }
@@ -2255,6 +2478,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::LogicalNot>::createLayer(
     const ngraph::OutputVector & inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 1, 1);
     return std::make_shared<ngraph::op::v1::LogicalNot>(inputs[0]);
 }
@@ -2264,6 +2488,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::ReduceLogicalAnd>::createLayer(
     const ngraph::OutputVector & inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -2278,6 +2503,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::ReduceLogicalOr>::createLayer(
     const ngraph::OutputVector & inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
     const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      const GenericLayerParams& layerParsePrms) {" << std::endl;
     checkParameters(inputs, layerParsePrms, 2, 1);
     pugi::xml_node dn = node.child("data");
 
@@ -2292,6 +2518,7 @@ template <>
 std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::NonMaxSuppression>::createLayer(
         const ngraph::OutputVector& inputs, const pugi::xml_node& node, const Blob::CPtr& weights,
         const GenericLayerParams& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:          const GenericLayerParams& layerParsePrms) {" << std::endl;
     pugi::xml_node dn = node.child("data");
 
     if (dn.empty())
@@ -2300,8 +2527,10 @@ std::shared_ptr<ngraph::Node> V10Parser::LayerCreator<ngraph::op::v1::NonMaxSupp
     auto box_encoding_string = GetStrAttr(dn, "box_encoding");
     ngraph::op::v1::NonMaxSuppression::BoxEncodingType box_enc_type;
     if (box_encoding_string == "corner") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      if (box_encoding_string == 'corner') {" << std::endl;
         box_enc_type = ngraph::op::v1::NonMaxSuppression::BoxEncodingType::CORNER;
     } else if (box_encoding_string == "center") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_ir_parser.cpp:      } else if (box_encoding_string == 'center') {" << std::endl;
         box_enc_type = ngraph::op::v1::NonMaxSuppression::BoxEncodingType::CENTER;
     } else {
         THROW_IE_EXCEPTION << "Unsupported box encoding type " << box_encoding_string << " for " << getType() <<

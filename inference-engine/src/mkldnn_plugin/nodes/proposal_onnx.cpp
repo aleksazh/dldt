@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -25,6 +26,7 @@ struct Indexer4d {
 
   explicit Indexer4d(int dim0, int dim1, int dim2, int dim3):
       dim3_(dim3), dim23_(dim2 * dim3), dim123_(dim1 * dim2 * dim3) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:        dim3_(dim3), dim23_(dim2 * dim3), dim123_(dim1 * dim2 * dim3) {" << std::endl;
       (void)dim0;
   }
 
@@ -46,13 +48,16 @@ void refine_anchors(const float* deltas, const float* scores, const float* ancho
                     const float min_box_H, const float min_box_W,
                     const float max_delta_log_wh,
                     float coordinates_offset) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:                      float coordinates_offset) {" << std::endl;
     Indexer4d delta_idx(anchors_num, 4, bottom_H, bottom_W);
     Indexer4d score_idx(anchors_num, 1, bottom_H, bottom_W);
     Indexer4d proposal_idx(bottom_H, bottom_W, anchors_num, 5);
     Indexer4d anchor_idx(bottom_H, bottom_W, anchors_num, 4);
 
     parallel_for2d(bottom_H, bottom_W, [&](int h, int w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:      parallel_for2d(bottom_H, bottom_W, [&](int h, int w) {" << std::endl;
             for (int anchor = 0; anchor < anchors_num; ++anchor) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:              for (int anchor = 0; anchor < anchors_num; ++anchor) {" << std::endl;
                 int a_idx = anchor_idx(h, w, anchor, 0);
                 float x0 = anchors[a_idx + 0];
                 float y0 = anchors[a_idx + 1];
@@ -108,7 +113,9 @@ void refine_anchors(const float* deltas, const float* scores, const float* ancho
 }
 
 static void unpack_boxes(const float* p_proposals, float* unpacked_boxes, int pre_nms_topn) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:  static void unpack_boxes(const float* p_proposals, float* unpacked_boxes, int pre_nms_topn) {" << std::endl;
     parallel_for(pre_nms_topn, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:      parallel_for(pre_nms_topn, [&](size_t i) {" << std::endl;
         unpacked_boxes[0*pre_nms_topn + i] = p_proposals[5*i + 0];
         unpacked_boxes[1*pre_nms_topn + i] = p_proposals[5*i + 1];
         unpacked_boxes[2*pre_nms_topn + i] = p_proposals[5*i + 2];
@@ -122,6 +129,7 @@ void nms_cpu(const int num_boxes, int is_dead[],
              const float* boxes, int index_out[], int* const num_out,
              const int base_index, const float nms_thresh, const int max_num_out,
              float coordinates_offset) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:               float coordinates_offset) {" << std::endl;
     const int num_proposals = num_boxes;
     int count = 0;
 
@@ -141,6 +149,7 @@ void nms_cpu(const int num_boxes, int is_dead[],
 #endif
 
     for (int box = 0; box < num_boxes; ++box) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:      for (int box = 0; box < num_boxes; ++box) {" << std::endl;
         if (is_dead[box])
             continue;
 
@@ -161,6 +170,7 @@ void nms_cpu(const int num_boxes, int is_dead[],
         __m256 vA_area   = _mm256_mul_ps(_mm256_add_ps(vA_width, vc_fone), _mm256_add_ps(vA_height, vc_fone));
 
         for (; tail <= num_boxes - 8; tail += 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:          for (; tail <= num_boxes - 8; tail += 8) {" << std::endl;
             __m256i *pdst = reinterpret_cast<__m256i*>(is_dead + tail);
             __m256i  vdst = _mm256_loadu_si256(pdst);
 
@@ -201,6 +211,7 @@ void nms_cpu(const int num_boxes, int is_dead[],
 #endif
 
         for (; tail < num_boxes; ++tail) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:          for (; tail < num_boxes; ++tail) {" << std::endl;
             float res = 0.0f;
 
             const float x0i = x0[box];
@@ -214,6 +225,7 @@ void nms_cpu(const int num_boxes, int is_dead[],
             const float y1j = y1[tail];
 
             if (x0i <= x1j && y0i <= y1j && x0j <= x1i && y0j <= y1i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:              if (x0i <= x1j && y0i <= y1j && x0j <= x1i && y0j <= y1i) {" << std::endl;
                 // overlapped region (= box)
                 const float x0 = std::max<float>(x0i, x0j);
                 const float y0 = std::max<float>(y0i, y0j);
@@ -246,6 +258,7 @@ static
 void fill_output_blobs(const float* proposals, const int* roi_indices,
                        float* rois, float* scores,
                        const int num_proposals, const int num_rois, const int post_nms_topn) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:                         const int num_proposals, const int num_rois, const int post_nms_topn) {" << std::endl;
     const float *src_x0 = proposals + 0 * num_proposals;
     const float *src_y0 = proposals + 1 * num_proposals;
     const float *src_x1 = proposals + 2 * num_proposals;
@@ -253,6 +266,7 @@ void fill_output_blobs(const float* proposals, const int* roi_indices,
     const float *src_score = proposals + 4 * num_proposals;
 
     parallel_for(num_rois, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:      parallel_for(num_rois, [&](size_t i) {" << std::endl;
         int index = roi_indices[i];
         rois[i * 4 + 0] = src_x0[index];
         rois[i * 4 + 1] = src_y0[index];
@@ -262,10 +276,13 @@ void fill_output_blobs(const float* proposals, const int* roi_indices,
     });
 
     if (num_rois < post_nms_topn) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:      if (num_rois < post_nms_topn) {" << std::endl;
         for (int i = 4 * num_rois; i < 4 * post_nms_topn; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:          for (int i = 4 * num_rois; i < 4 * post_nms_topn; i++) {" << std::endl;
             rois[i] = 0.f;
         }
         for (int i = num_rois; i < post_nms_topn; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:          for (int i = num_rois; i < post_nms_topn; i++) {" << std::endl;
             scores[i] = 0.f;
         }
     }
@@ -283,6 +300,7 @@ private:
 
 public:
     explicit ONNXCustomProposalImpl(const CNNLayer *layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:      explicit ONNXCustomProposalImpl(const CNNLayer *layer) {" << std::endl;
         try {
             if (layer->insData.size() != 4 || layer->outData.size() != 2)
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -300,12 +318,15 @@ public:
                        DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN)},
                       {DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN)});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
 
     void print_shape(const Blob::Ptr& b) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:      void print_shape(const Blob::Ptr& b) {" << std::endl;
         for (size_t i = 0; i < b->getTensorDesc().getDims().size(); ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:          for (size_t i = 0; i < b->getTensorDesc().getDims().size(); ++i) {" << std::endl;
             std::cout << b->getTensorDesc().getDims()[i] << ", ";
         }
         std::cout << std::endl;
@@ -314,7 +335,9 @@ public:
     StatusCode execute(std::vector<Blob::Ptr> &inputs, std::vector<Blob::Ptr> &outputs,
                        ResponseDesc *resp) noexcept override {
         if (inputs.size() != 4 || outputs.size() != 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:          if (inputs.size() != 4 || outputs.size() != 2) {" << std::endl;
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Incorrect number of input or output edges!";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }
@@ -333,6 +356,7 @@ public:
 
         size_t img_info_size = 1;
         for (size_t i = 0; i < inputs[INPUT_IM_INFO]->getTensorDesc().getDims().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:          for (size_t i = 0; i < inputs[INPUT_IM_INFO]->getTensorDesc().getDims().size(); i++) {" << std::endl;
             img_info_size *= inputs[INPUT_IM_INFO]->getTensorDesc().getDims()[i];
         }
 
@@ -379,6 +403,7 @@ public:
         // Execute
         int batch_size = 1;  // inputs[INPUT_DELTAS]->getTensorDesc().getDims()[0];
         for (int n = 0; n < batch_size; ++n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:          for (int n = 0; n < batch_size; ++n) {" << std::endl;
             refine_anchors(p_deltas_item, p_scores_item, p_anchors_item,
                            reinterpret_cast<float *>(&proposals_[0]), anchors_num, bottom_H,
                            bottom_W, img_H, img_W,
@@ -387,6 +412,7 @@ public:
                            1.0f);
             std::partial_sort(proposals_.begin(), proposals_.begin() + pre_nms_topn, proposals_.end(),
                               [](const ProposalBox& struct1, const ProposalBox& struct2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal_onnx.cpp:                                [](const ProposalBox& struct1, const ProposalBox& struct2) {" << std::endl;
                                   return (struct1.score > struct2.score);
                               });
 

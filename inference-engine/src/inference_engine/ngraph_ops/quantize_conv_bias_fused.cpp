@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -23,7 +24,8 @@ op::QuantizedConvolutionBiasFused::QuantizedConvolutionBiasFused(
     : QuantizedConvolutionBiasFused(
           qconv->get_argument(0), qconv->get_argument(1), qconv->get_argument(2), qconv->get_window_movement_strides(),
           qconv->get_window_dilation_strides(), qconv->get_padding_below(), qconv->get_padding_above(),
-          qconv->get_data_dilation_strides(), qconv->get_argument(3), w_scale, qconv->with_relu()) {}
+          qconv->get_data_dilation_strides(), qconv->get_argument(3), w_scale, qconv->with_relu()) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/quantize_conv_bias_fused.cpp:            qconv->get_data_dilation_strides(), qconv->get_argument(3), w_scale, qconv->with_relu()) {" << std::endl;}
 
 op::QuantizedConvolutionBiasFused::QuantizedConvolutionBiasFused(
     const shared_ptr<Node>& data_batch, const shared_ptr<Node>& filters, const shared_ptr<Node>& bias,
@@ -37,6 +39,7 @@ op::QuantizedConvolutionBiasFused::QuantizedConvolutionBiasFused(
       m_padding_above(padding_above),
       m_data_dilation_strides(data_dilation_strides),
       m_with_relu(with_relu) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/quantize_conv_bias_fused.cpp:        m_with_relu(with_relu) {" << std::endl;
     constructor_validate_and_infer_types();
 
     auto& data_batch_shape = data_batch->get_shape();
@@ -59,6 +62,7 @@ op::QuantizedConvolutionBiasFused::QuantizedConvolutionBiasFused(
 
 shared_ptr<Node> op::QuantizedConvolutionBiasFused::copy_with_new_args(const NodeVector& new_args) const {
     if (new_args.size() != 5) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/quantize_conv_bias_fused.cpp:      if (new_args.size() != 5) {" << std::endl;
         throw ngraph_error("Incorrect number of new arguments");
     }
 

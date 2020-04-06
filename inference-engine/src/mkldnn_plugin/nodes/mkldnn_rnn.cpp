@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -15,15 +16,18 @@ using namespace InferenceEngine;
 namespace MKLDNNPlugin {
 
 template <typename T, typename P>
-inline bool one_of(T val, P item) { return val == item; }
+inline bool one_of(T val, P item) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:  inline bool one_of(T val, P item) {" << std::endl; return val == item; }
 template <typename T, typename P, typename... Args>
 inline bool one_of(T val, P item, Args... item_others) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:  inline bool one_of(T val, P item, Args... item_others) {" << std::endl;
     return val == item || one_of(val, item_others...);
 }
 
 using _RNN = RNNSequenceLayer;  // alias
 
 static rnn_direction ie2mkl(_RNN::Direction &direction) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:  static rnn_direction ie2mkl(_RNN::Direction &direction) {" << std::endl;
     return direction == _RNN::FWD ? unidirectional_left2right
          : direction == _RNN::BWD ? unidirectional_right2left
          : direction == _RNN::BDR ? bidirectional_concat
@@ -31,6 +35,7 @@ static rnn_direction ie2mkl(_RNN::Direction &direction) {
 }
 
 static algorithm ie2mkl(std::string act_type) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:  static algorithm ie2mkl(std::string act_type) {" << std::endl;
     return act_type == "sigmoid" ? eltwise_logistic
          : act_type == "tanh"    ? eltwise_tanh
          : act_type == "relu"    ? eltwise_relu
@@ -38,7 +43,9 @@ static algorithm ie2mkl(std::string act_type) {
 }
 
 static algorithm ie2mkl(RNNCellBase::CellType cell_type) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:  static algorithm ie2mkl(RNNCellBase::CellType cell_type) {" << std::endl;
     switch (cell_type) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      switch (cell_type) {" << std::endl;
         case RNNCellBase::LSTM: return vanilla_lstm;
         case RNNCellBase::GRU:  return vanilla_gru;
         case RNNCellBase::GRU_LBR:  return gru_linear_before_reset;
@@ -51,6 +58,7 @@ static algorithm ie2mkl(RNNCellBase::CellType cell_type) {
 
 MKLDNNRNN::MKLDNNRNN(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) :
         MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:          MKLDNNNode(layer, eng, socket) {" << std::endl;
     is_cell = one_of(layer->type, "LSTMCell", "GRUCell", "RNNCell");
 }
 
@@ -59,6 +67,7 @@ bool MKLDNNRNN::created() const {
 }
 
 void MKLDNNRNN::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:  void MKLDNNRNN::getSupportedDescriptors() {" << std::endl;
     if (is_cell)
         fillCellDesc();
     else
@@ -66,6 +75,7 @@ void MKLDNNRNN::getSupportedDescriptors() {
 }
 
 void MKLDNNRNN::fillCellDesc() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:  void MKLDNNRNN::fillCellDesc() {" << std::endl;
     if (!descs.empty()) return;
     auto cellLayer = std::dynamic_pointer_cast<RNNCellBase>(getCnnLayer());
 
@@ -112,6 +122,7 @@ void MKLDNNRNN::fillCellDesc() {
         THROW_IE_EXCEPTION << "Incorrect shape of input/output ports for layer " << getName();
 
     if (S == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      if (S == 2) {" << std::endl;
         auto in_c_state_dims = getParentEdgeAt(2)->getDims();
         auto out_c_state_dims = getChildEdgeAt(1)->getDims();
 
@@ -156,6 +167,7 @@ void MKLDNNRNN::fillCellDesc() {
     outputFormats.emplace_back(memory::nc);
 
     if (S == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      if (S == 2) {" << std::endl;
         in_candidate.emplace_back(MKLDNNMemoryDesc {S_shape, memory::f32, memory::nc});
         out_candidate.emplace_back(MKLDNNMemoryDesc {S_shape, memory::f32, memory::nc});
         outputFormats.emplace_back(memory::nc);
@@ -165,6 +177,7 @@ void MKLDNNRNN::fillCellDesc() {
 }
 
 void MKLDNNRNN::fillSeqDesc() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:  void MKLDNNRNN::fillSeqDesc() {" << std::endl;
     if (!descs.empty()) return;
     auto rnnLayer = std::dynamic_pointer_cast<RNNSequenceLayer>(getCnnLayer());
 
@@ -207,6 +220,7 @@ void MKLDNNRNN::fillSeqDesc() {
         THROW_IE_EXCEPTION << "Incorrect shape of input/output ports for layer " << getName();
 
     if (!nativeOrder) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      if (!nativeOrder) {" << std::endl;
         std::swap(in_data_dims[0], in_data_dims[1]);
         std::swap(out_data_dims[0], out_data_dims[1]);
     }
@@ -226,6 +240,7 @@ void MKLDNNRNN::fillSeqDesc() {
         THROW_IE_EXCEPTION << "Incorrect shape of input/output ports for layer " << getName();
 
     if (ins.size() > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      if (ins.size() > 1) {" << std::endl;
         for (int i = 1; i < ins.size(); i++)
             if (getParentEdgeAt(i)->getDims() != S_shape)
                 THROW_IE_EXCEPTION << "Incorrect shape of state ports for layer " << getName();
@@ -234,6 +249,7 @@ void MKLDNNRNN::fillSeqDesc() {
     }
 
     if (outs.size() > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      if (outs.size() > 1) {" << std::endl;
         for (int i = 1; i < outs.size(); i++)
             if (getChildEdgeAt(i)->getDims() != S_shape)
                 THROW_IE_EXCEPTION << "Incorrect shape of state ports for layer " << getName();
@@ -277,6 +293,7 @@ void MKLDNNRNN::fillSeqDesc() {
     std::vector<TensorDesc> out_candidate;
     std::vector<memory::format> outputFormats;
     if (nativeOrder) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      if (nativeOrder) {" << std::endl;
         out_candidate.push_back(out_data_d);
         outputFormats.push_back(out_data_d.getFormat());
     } else {
@@ -285,6 +302,7 @@ void MKLDNNRNN::fillSeqDesc() {
     }
 
     for (int i = 1; i < outs.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      for (int i = 1; i < outs.size(); i++) {" << std::endl;
         out_candidate.emplace_back(MKLDNNMemoryDesc{S_shape, memory::f32, memory::nc});
         outputFormats.push_back(memory::nc);
     }
@@ -295,6 +313,7 @@ void MKLDNNRNN::fillSeqDesc() {
 void MKLDNNRNN::createDescriptor(const std::vector<TensorDesc> &inputDesc,
                                  const std::vector<TensorDesc> &outputDesc,
                                  const std::vector<memory::format> &outputFormats) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:                                   const std::vector<memory::format> &outputFormats) {" << std::endl;
     MKLDNNDescriptor desc(std::shared_ptr<rnn_forward::desc>(
             new rnn_forward::desc(forward_scoring, cell_desc,
                     direction,
@@ -311,6 +330,7 @@ void MKLDNNRNN::createDescriptor(const std::vector<TensorDesc> &inputDesc,
     InferenceEngine::LayerConfig config;
     config.dynBatchSupport = false;
     for (size_t i = 0; i < inputDesc.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      for (size_t i = 0; i < inputDesc.size(); i++) {" << std::endl;
         InferenceEngine::DataConfig dataConfig;
         dataConfig.inPlace = -1;
         dataConfig.constant = false;
@@ -319,6 +339,7 @@ void MKLDNNRNN::createDescriptor(const std::vector<TensorDesc> &inputDesc,
     }
 
     for (size_t i = 0; i < outputDesc.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      for (size_t i = 0; i < outputDesc.size(); i++) {" << std::endl;
         InferenceEngine::DataConfig dataConfig;
         dataConfig.inPlace = -1;
         dataConfig.constant = false;
@@ -330,6 +351,7 @@ void MKLDNNRNN::createDescriptor(const std::vector<TensorDesc> &inputDesc,
 }
 
 void MKLDNNRNN::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:  void MKLDNNRNN::createPrimitive() {" << std::endl;
     if (prim) return;
 
     std::shared_ptr<rnn_forward::desc> d = descs[0];
@@ -378,28 +400,37 @@ void MKLDNNRNN::createPrimitive() {
         const int gate_map_gru_size = sizeof(gate_map_gru) / sizeof(int);
         const int gate_map_rnn_size = sizeof(gate_map_rnn) / sizeof(int);
         if (cell_desc.get_cell_kind() == vanilla_lstm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:          if (cell_desc.get_cell_kind() == vanilla_lstm) {" << std::endl;
             gate_map = gate_map_lstm;
             if (G > gate_map_lstm_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:              if (G > gate_map_lstm_size) {" << std::endl;
                 THROW_IE_EXCEPTION << "G isn't equal to the size of gate_map";
             }
         } else if (cell_desc.get_cell_kind() == vanilla_gru) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:          } else if (cell_desc.get_cell_kind() == vanilla_gru) {" << std::endl;
             gate_map = gate_map_gru;
             if (G > gate_map_gru_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:              if (G > gate_map_gru_size) {" << std::endl;
                 THROW_IE_EXCEPTION << "G isn't equal to the size of gate_map";
             }
         } else if (cell_desc.get_cell_kind() == gru_linear_before_reset) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:          } else if (cell_desc.get_cell_kind() == gru_linear_before_reset) {" << std::endl;
             gate_map = gate_map_gru;
             if (G > gate_map_gru_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:              if (G > gate_map_gru_size) {" << std::endl;
                 THROW_IE_EXCEPTION << "G isn't equal to the size of gate_map";
             }
         } else if (cell_desc.get_cell_kind() == vanilla_rnn) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:          } else if (cell_desc.get_cell_kind() == vanilla_rnn) {" << std::endl;
             gate_map = gate_map_rnn;
             if (G > gate_map_rnn_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:              if (G > gate_map_rnn_size) {" << std::endl;
                 THROW_IE_EXCEPTION << "G isn't equal to the size of gate_map";
             }
         } else {
             gate_map = gate_map_gru;
             if (G > gate_map_gru_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:              if (G > gate_map_gru_size) {" << std::endl;
                 THROW_IE_EXCEPTION << "G isn't equal to the size of gate_map";
             }
         }
@@ -410,16 +441,20 @@ void MKLDNNRNN::createPrimitive() {
         const int step = SC * G;
 
         for (int g = 0; g < G; g++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:          for (int g = 0; g < G; g++) {" << std::endl;
             for (int out_i = 0; out_i < SC; out_i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:              for (int out_i = 0; out_i < SC; out_i++) {" << std::endl;
                 float *l_w_ptr = w_ptr + gate_map[g]*SC + out_i;
                 float *l_r_ptr = r_ptr + gate_map[g]*SC+ out_i;
                 for (int in_i = 0; in_i < DC; in_i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:                  for (int in_i = 0; in_i < DC; in_i++) {" << std::endl;
                     *l_w_ptr = *ie_w_ptr;
                     ie_w_ptr++;
                     l_w_ptr += step;
                 }
 
                 for (int in_i = 0; in_i < SC; in_i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:                  for (int in_i = 0; in_i < SC; in_i++) {" << std::endl;
                     *l_r_ptr = *ie_w_ptr;
                     ie_w_ptr++;
                     l_r_ptr += step;
@@ -428,11 +463,14 @@ void MKLDNNRNN::createPrimitive() {
         }
 
         if (w_bias_d) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:          if (w_bias_d) {" << std::endl;
             auto ie_b_ptr = getCnnLayer()->blobs["biases"]->buffer().as<const float*>();
             auto b_ptr = static_cast<float*>(w_bias_mem->GetData());
             for (int g = 0; g < Gb; g++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:              for (int g = 0; g < Gb; g++) {" << std::endl;
                 float *l_b_ptr = b_ptr + gate_map[g]*SC;
                 for (int out_i = 0; out_i < SC; out_i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:                  for (int out_i = 0; out_i < SC; out_i++) {" << std::endl;
                     *l_b_ptr = *ie_b_ptr;
                     ie_b_ptr++;
                     l_b_ptr++;
@@ -445,8 +483,10 @@ void MKLDNNRNN::createPrimitive() {
     src_state_mem->Create(in_state_d);
     internalBlobMemory.push_back(src_state_mem);
     if (in_state_d) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      if (in_state_d) {" << std::endl;
         int offset = 0;
         for (int i = 0; i < S; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:          for (int i = 0; i < S; i++) {" << std::endl;
             /* create copy/concat primitive */
             auto src_stat = getParentEdgeAt(i+1)->getMemory().GetPrimitive();
 
@@ -466,9 +506,11 @@ void MKLDNNRNN::createPrimitive() {
     dst_state_mem->Create(out_state_d);
     internalBlobMemory.push_back(dst_state_mem);
     if (out_state_d) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:      if (out_state_d) {" << std::endl;
         int offset = 0;
         int idx_start = is_cell ? 0 : 1;
         for (int i = 0; i < S; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:          for (int i = 0; i < S; i++) {" << std::endl;
             /* create copy/split primitive */
             auto dst_stat = getChildEdgeAt(idx_start + i)->getMemory().GetPrimitive();
 
@@ -503,6 +545,7 @@ void MKLDNNRNN::createPrimitive() {
 }
 
 void MKLDNNRNN::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_rnn.cpp:  void MKLDNNRNN::execute(mkldnn::stream strm) {" << std::endl;
     if (!exec_before.empty())
         strm.submit({exec_before.begin(), exec_before.end()});
 

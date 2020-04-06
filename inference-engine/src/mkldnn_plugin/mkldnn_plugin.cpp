@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -25,6 +26,7 @@ using namespace MKLDNNPlugin;
 using namespace InferenceEngine;
 
 NumaNodesWeights create_shared_weights_per_socket() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:  NumaNodesWeights create_shared_weights_per_socket() {" << std::endl;
     NumaNodesWeights _weightsSharing;
     std::vector<int> sockets = MKLDNNPlugin::cpu::getAvailableNUMANodes();
     for (auto s : sockets)
@@ -36,16 +38,19 @@ NumaNodesWeights Engine::weightsSharing = create_shared_weights_per_socket();
 const SimpleDataHash MKLDNNWeightsSharing::simpleCRC;
 
 Engine::Engine() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:  Engine::Engine() {" << std::endl;
     _pluginName = "CPU";
     addDefaultExtensions(extensionManager);
 }
 
 InferenceEngine::ExecutableNetworkInternal::Ptr
 Engine::LoadExeNetworkImpl(const ICore * /*core*/, InferenceEngine::ICNNNetwork &network, const std::map<std::string, std::string> &config) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:  Engine::LoadExeNetworkImpl(const ICore * /*core*/, InferenceEngine::ICNNNetwork &network, const std::map<std::string, std::string> &config) {" << std::endl;
     // verification of supported input
     InferenceEngine::InputsDataMap _networkInputs;
     network.getInputsInfo(_networkInputs);
     for (const auto &ii : _networkInputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      for (const auto &ii : _networkInputs) {" << std::endl;
         auto input_precision = ii.second->getPrecision();
         if (input_precision != InferenceEngine::Precision::FP32 &&
             input_precision != InferenceEngine::Precision::I32 &&
@@ -53,6 +58,7 @@ Engine::LoadExeNetworkImpl(const ICore * /*core*/, InferenceEngine::ICNNNetwork 
             input_precision != InferenceEngine::Precision::I16 &&
             input_precision != InferenceEngine::Precision::I8 &&
             input_precision != InferenceEngine::Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:              input_precision != InferenceEngine::Precision::U8) {" << std::endl;
             THROW_IE_EXCEPTION << NOT_IMPLEMENTED_str
                                << "Input image format " << input_precision << " is not supported yet...";
         }
@@ -65,6 +71,7 @@ Engine::LoadExeNetworkImpl(const ICore * /*core*/, InferenceEngine::ICNNNetwork 
     conf.readProperties(config);
 
     if (conf.enableDynamicBatch) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      if (conf.enableDynamicBatch) {" << std::endl;
         conf.batchLimit = static_cast<int>(network.getBatchSize());
     }
 
@@ -72,6 +79,7 @@ Engine::LoadExeNetworkImpl(const ICore * /*core*/, InferenceEngine::ICNNNetwork 
 }
 
 void Engine::SetConfig(const std::map<std::string, std::string> &config) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:  void Engine::SetConfig(const std::map<std::string, std::string> &config) {" << std::endl;
     // accumulate config parameters on engine level
     engConfig.readProperties(config);
 }
@@ -80,6 +88,7 @@ Parameter Engine::GetConfig(const std::string& name, const std::map<std::string,
     Parameter result;
     auto option = engConfig._config.find(name);
     if (option != engConfig._config.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      if (option != engConfig._config.end()) {" << std::endl;
         result = option->second;
     } else {
         THROW_IE_EXCEPTION << "Unsupported config key " << name;
@@ -88,6 +97,7 @@ Parameter Engine::GetConfig(const std::string& name, const std::map<std::string,
 }
 
 static bool hasAVX512() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:  static bool hasAVX512() {" << std::endl;
 #if !defined(__arm__) && !defined(_M_ARM) && !defined(__aarch64__) && !defined(_M_ARM64)
     unsigned int regs[4] = {7, 0, 0, 0};
 #if defined(_WIN32) || defined(WIN32)
@@ -103,6 +113,7 @@ static bool hasAVX512() {
 
 Parameter Engine::GetMetric(const std::string& name, const std::map<std::string, Parameter>& /*options*/) const {
     if (name == METRIC_KEY(SUPPORTED_METRICS)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      if (name == METRIC_KEY(SUPPORTED_METRICS)) {" << std::endl;
         std::vector<std::string> metrics;
         metrics.push_back(METRIC_KEY(AVAILABLE_DEVICES));
         metrics.push_back(METRIC_KEY(SUPPORTED_METRICS));
@@ -113,11 +124,13 @@ Parameter Engine::GetMetric(const std::string& name, const std::map<std::string,
         metrics.push_back(METRIC_KEY(RANGE_FOR_STREAMS));
         IE_SET_METRIC_RETURN(SUPPORTED_METRICS, metrics);
     } else if (name == METRIC_KEY(FULL_DEVICE_NAME)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      } else if (name == METRIC_KEY(FULL_DEVICE_NAME)) {" << std::endl;
         std::string brand_string;
 #if !defined(__arm__) && !defined(_M_ARM) && !defined(__aarch64__) && !defined(_M_ARM64)
         unsigned int addr_list[3] = { 0x80000002, 0x80000003, 0x80000004 };
         unsigned int regs[4];
         for (auto addr : addr_list) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:          for (auto addr : addr_list) {" << std::endl;
             regs[0] = addr;
 #if defined(_WIN32) || defined(WIN32)
             __cpuid(reinterpret_cast<int*>(regs), regs[0]);
@@ -133,9 +146,11 @@ Parameter Engine::GetMetric(const std::string& name, const std::map<std::string,
 #endif
         IE_SET_METRIC_RETURN(FULL_DEVICE_NAME, brand_string);
     } else if (name == METRIC_KEY(AVAILABLE_DEVICES)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      } else if (name == METRIC_KEY(AVAILABLE_DEVICES)) {" << std::endl;
         std::vector<std::string> availableDevices = { "" };
         IE_SET_METRIC_RETURN(AVAILABLE_DEVICES, availableDevices);
     } else if (name == METRIC_KEY(OPTIMIZATION_CAPABILITIES)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      } else if (name == METRIC_KEY(OPTIMIZATION_CAPABILITIES)) {" << std::endl;
         std::vector<std::string> capabilities;
         if (hasAVX512())
             capabilities.push_back(METRIC_VALUE(WINOGRAD));
@@ -144,14 +159,17 @@ Parameter Engine::GetMetric(const std::string& name, const std::map<std::string,
         capabilities.push_back(METRIC_VALUE(BIN));
         IE_SET_METRIC_RETURN(OPTIMIZATION_CAPABILITIES, capabilities);
     } else if (name == METRIC_KEY(SUPPORTED_CONFIG_KEYS)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      } else if (name == METRIC_KEY(SUPPORTED_CONFIG_KEYS)) {" << std::endl;
         std::vector<std::string> configKeys;
         for (auto && opt : engConfig._config)
             configKeys.push_back(opt.first);
         IE_SET_METRIC_RETURN(SUPPORTED_CONFIG_KEYS, configKeys);
     } else if (name == METRIC_KEY(RANGE_FOR_ASYNC_INFER_REQUESTS)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      } else if (name == METRIC_KEY(RANGE_FOR_ASYNC_INFER_REQUESTS)) {" << std::endl;
         std::tuple<unsigned int, unsigned int, unsigned int> range = std::make_tuple(1, 1, 1);
         IE_SET_METRIC_RETURN(RANGE_FOR_ASYNC_INFER_REQUESTS, range);
     } else if (name == METRIC_KEY(RANGE_FOR_STREAMS)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      } else if (name == METRIC_KEY(RANGE_FOR_STREAMS)) {" << std::endl;
         std::tuple<unsigned int, unsigned int> range = std::make_tuple(1, parallel_get_max_threads());
         IE_SET_METRIC_RETURN(RANGE_FOR_STREAMS, range);
     } else {
@@ -160,18 +178,21 @@ Parameter Engine::GetMetric(const std::string& name, const std::map<std::string,
 }
 
 void Engine::AddExtension(InferenceEngine::IExtensionPtr extension) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:  void Engine::AddExtension(InferenceEngine::IExtensionPtr extension) {" << std::endl;
     extensionManager->AddExtension(extension);
 }
 
 void Engine::QueryNetwork(const ICNNNetwork& network, const std::map<std::string, std::string>& config, QueryNetworkResult& res) const {
     details::CNNNetworkIterator i(const_cast<ICNNNetwork *>(&network));
     while (i != details::CNNNetworkIterator()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      while (i != details::CNNNetworkIterator()) {" << std::endl;
         try {
             mkldnn::engine eng(mkldnn::engine(mkldnn::engine::kind::cpu, 0));
             // if we can create and have not thrown exception, then layer is supported
             std::unique_ptr <MKLDNNNode>(MKLDNNNode::CreateNode(*i, eng, extensionManager));
             res.supportedLayersMap.insert({ (*i)->name, GetName() });
         } catch (InferenceEngine::details::InferenceEngineException&) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:          } catch (InferenceEngine::details::InferenceEngineException&) {" << std::endl;
         }
         i++;
     }
@@ -188,6 +209,7 @@ INFERENCE_PLUGIN_API(StatusCode) CreatePluginEngine(IInferencePlugin*& plugin, R
         return OK;
     }
     catch (std::exception &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_plugin.cpp:      catch (std::exception &ex) {" << std::endl;
         return DescriptionBuffer(GENERAL_ERROR, resp) << ex.what();
     }
 }

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,6 +20,7 @@ op::SeluIE::SeluIE(const Output<Node> & input,
                    const float alpha,
                    const float gamma)
         : Op({input}), gamma(gamma), alpha(alpha) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/selu_ie.cpp:          : Op({input}), gamma(gamma), alpha(alpha) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
@@ -28,5 +30,6 @@ std::shared_ptr<Node> op::SeluIE::copy_with_new_args(const NodeVector& new_args)
 }
 
 void op::SeluIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/selu_ie.cpp:  void op::SeluIE::validate_and_infer_types() {" << std::endl;
     set_output_type(0, get_input_element_type(0), get_input_partial_shape(0));
 }

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -37,6 +38,7 @@ status_t conv_desc_init(convolution_desc_t *conv_desc,
         const dims_t strides, const dims_t dilates,
         const dims_t padding_l, const dims_t padding_r,
         padding_kind_t padding_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/convolution.cpp:          padding_kind_t padding_kind) {" << std::endl;
     bool args_ok = true
         && !any_null(conv_desc, src_desc, weights_desc, dst_desc, strides,
                 padding_l)
@@ -99,6 +101,7 @@ status_t conv_desc_init(convolution_desc_t *conv_desc,
         && dst_desc->dims[1] == g * weights_desc->dims[with_groups + 0];
     for (int i = 2; i < src_desc->ndims; ++i)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/convolution.cpp:      for (int i = 2; i < src_desc->ndims; ++i)     {" << std::endl;
         int src = src_desc->dims[i];
         int ker = weights_desc->dims[with_groups + i];
         int dil = cd.dilates[i - 2];
@@ -129,6 +132,7 @@ status_t mkldnn_convolution_forward_desc_init(convolution_desc_t *conv_desc,
         const memory_desc_t *bias_desc, const memory_desc_t *dst_desc,
         const dims_t strides, const dims_t padding_l, const dims_t padding_r,
         padding_kind_t padding_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/convolution.cpp:          padding_kind_t padding_kind) {" << std::endl;
     if (!one_of(prop_kind, forward_training, forward_inference))
         return invalid_arguments;
     return mkldnn::impl::conv_desc_init(conv_desc, prop_kind, alg_kind, src_desc,
@@ -143,6 +147,7 @@ status_t mkldnn_dilated_convolution_forward_desc_init(
         const memory_desc_t *dst_desc, const dims_t strides,
         const dims_t dilates, const dims_t padding_l,
         const dims_t padding_r, padding_kind_t padding_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/convolution.cpp:          const dims_t padding_r, padding_kind_t padding_kind) {" << std::endl;
     if (!one_of(prop_kind, forward_training, forward_inference))
         return invalid_arguments;
     return mkldnn::impl::conv_desc_init(conv_desc, prop_kind, alg_kind, src_desc,
@@ -156,6 +161,7 @@ status_t mkldnn_convolution_backward_data_desc_init(
         const memory_desc_t *diff_dst_desc, const dims_t strides,
         const dims_t padding_l, const dims_t padding_r,
         padding_kind_t padding_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/convolution.cpp:          padding_kind_t padding_kind) {" << std::endl;
     return mkldnn::impl::conv_desc_init(conv_desc, backward_data, alg_kind, diff_src_desc,
             weights_desc, nullptr, diff_dst_desc, strides, nullptr,
             padding_l, padding_r, padding_kind);
@@ -167,6 +173,7 @@ status_t mkldnn_dilated_convolution_backward_data_desc_init(
         const memory_desc_t *diff_dst_desc, const dims_t strides,
         const dims_t dilates, const dims_t padding_l, const dims_t padding_r,
         padding_kind_t padding_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/convolution.cpp:          padding_kind_t padding_kind) {" << std::endl;
     return mkldnn::impl::conv_desc_init(conv_desc, backward_data, alg_kind, diff_src_desc,
             weights_desc, nullptr, diff_dst_desc, strides, dilates,
             padding_l, padding_r, padding_kind);
@@ -179,6 +186,7 @@ status_t mkldnn_convolution_backward_weights_desc_init(
         const memory_desc_t *diff_dst_desc, const dims_t strides,
         const dims_t padding_l, const dims_t padding_r,
         padding_kind_t padding_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/convolution.cpp:          padding_kind_t padding_kind) {" << std::endl;
     return mkldnn::impl::conv_desc_init(conv_desc, backward_weights, alg_kind, src_desc,
             diff_weights_desc, diff_bias_desc, diff_dst_desc, strides,
             nullptr, padding_l, padding_r, padding_kind);
@@ -191,6 +199,7 @@ status_t mkldnn_dilated_convolution_backward_weights_desc_init(
         const memory_desc_t *diff_dst_desc, const dims_t strides,
         const dims_t dilates, const dims_t padding_l, const dims_t padding_r,
         padding_kind_t padding_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/convolution.cpp:          padding_kind_t padding_kind) {" << std::endl;
     return mkldnn::impl::conv_desc_init(conv_desc, backward_weights, alg_kind, src_desc,
             diff_weights_desc, diff_bias_desc, diff_dst_desc, strides,
             dilates, padding_l, padding_r, padding_kind);

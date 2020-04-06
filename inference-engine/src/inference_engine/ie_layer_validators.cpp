@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -28,14 +29,17 @@ using std::vector;
 
 template <typename T, typename P>
 inline bool one_of(T val, P item) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  inline bool one_of(T val, P item) {" << std::endl;
     return val == item;
 }
 template <typename T, typename P, typename... Args>
 inline bool one_of(T val, P item, Args... item_others) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  inline bool one_of(T val, P item, Args... item_others) {" << std::endl;
     return val == item || one_of(val, item_others...);
 }
 
 void CNNLayer::validateLayer() {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void CNNLayer::validateLayer() {" << std::endl;
     try {
         LayerValidator::Ptr validator = LayerValidators::getInstance()->getValidator(type);
         validator->parseParams(this);
@@ -44,6 +48,7 @@ void CNNLayer::validateLayer() {
         getInOutShapes(this, shapes);
         validator->checkShapes(this, shapes.inDims);
     } catch (const InferenceEngineException& ie_e) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } catch (const InferenceEngineException& ie_e) {" << std::endl;
         THROW_IE_EXCEPTION << "Error of validate layer: " << this->name << " with type: " << this->type << ". "
                            << ie_e.what();
     }
@@ -56,15 +61,19 @@ struct WeightableParams {
     bool _isKernelFromInput = false;
 
     WeightableParams(size_t outputs, bool isKernelFromInput, size_t groups = 0, const std::vector<size_t>& kernel = {})
-        : _kernel(kernel), _outputs(outputs), _groups(groups), _isKernelFromInput(isKernelFromInput) {}
+        : _kernel(kernel), _outputs(outputs), _groups(groups), _isKernelFromInput(isKernelFromInput) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          : _kernel(kernel), _outputs(outputs), _groups(groups), _isKernelFromInput(isKernelFromInput) {" << std::endl;}
 };
 
 void checkWeightable(const std::map<std::string, Blob::Ptr>& blobs, const vector<SizeVector>& inShapes,
                      WeightableParams params, const SizeVector& numDims) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:                       WeightableParams params, const SizeVector& numDims) {" << std::endl;
     auto expected_num_of_shapes = {1, 2, 3};
     bool shape_was_found = false;
     for (const auto& i : expected_num_of_shapes) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (const auto& i : expected_num_of_shapes) {" << std::endl;
         if (inShapes.size() == i) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (inShapes.size() == i) {" << std::endl;
             shape_was_found = true;
             break;
         }
@@ -76,12 +85,15 @@ void checkWeightable(const std::map<std::string, Blob::Ptr>& blobs, const vector
 
     bool isOK = false;
     for (auto dim : numDims) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (auto dim : numDims) {" << std::endl;
         if (inputSize == dim) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (inputSize == dim) {" << std::endl;
             isOK = true;
             break;
         }
     }
     if (!isOK) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!isOK) {" << std::endl;
         THROW_IE_EXCEPTION << "Input shape " << details::dumpVec(firstInputShape)
                            << " has unexpected size, supported sizes: " << details::dumpVec(numDims);
     }
@@ -92,9 +104,11 @@ void checkWeightable(const std::map<std::string, Blob::Ptr>& blobs, const vector
     std::vector<size_t> kernel;
     IC = firstInputShape[1];
     if (params._isKernelFromInput) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (params._isKernelFromInput) {" << std::endl;
         for (int i = 1; i <= inputSize - 2; i++) kernel.push_back(firstInputShape[inputSize - i]);
     } else {
         for (auto k : params._kernel) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (auto k : params._kernel) {" << std::endl;
             kernel.push_back(k);
         }
     }
@@ -103,7 +117,8 @@ void checkWeightable(const std::map<std::string, Blob::Ptr>& blobs, const vector
     auto it = blobs.find("weights");
     if (it !=
         blobs
-            .end()) {  // TODO: return with fixing shape infer tests: THROW_IE_EXCEPTION << "Invalid blobs: no weights";
+            .end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              .end()) {" << std::endl;  // TODO: return with fixing shape infer tests: THROW_IE_EXCEPTION << "Invalid blobs: no weights";
         auto weights = it->second;
         if (weights == nullptr || weights->getTensorDesc().getDims().empty())
             THROW_IE_EXCEPTION << "Weights can't be empty";
@@ -111,12 +126,15 @@ void checkWeightable(const std::map<std::string, Blob::Ptr>& blobs, const vector
         auto weightsSize = details::product(weights->getTensorDesc().getDims());
         size_t expectedWeightsSize = OC * IC;
         for (auto k : kernel) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (auto k : kernel) {" << std::endl;
             expectedWeightsSize *= k;
         }
         if (params._groups) expectedWeightsSize /= params._groups;
         if (expectedWeightsSize != weightsSize) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (expectedWeightsSize != weightsSize) {" << std::endl;
             std::string ker_str;
             for (int i = 0; i < params._kernel.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              for (int i = 0; i < params._kernel.size(); i++) {" << std::endl;
                 if (!ker_str.empty()) ker_str += "x";
                 ker_str += std::to_string(kernel[i]);
             }
@@ -128,11 +146,13 @@ void checkWeightable(const std::map<std::string, Blob::Ptr>& blobs, const vector
 
     it = blobs.find("biases");
     if (it != blobs.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (it != blobs.end()) {" << std::endl;
         auto biases = it->second;
         if (biases == nullptr || biases->getTensorDesc().getDims().empty())
             THROW_IE_EXCEPTION << "Biases can't be empty";
         auto biasesSize = details::product(biases->getTensorDesc().getDims());
         if (OC != biasesSize) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (OC != biasesSize) {" << std::endl;
             THROW_IE_EXCEPTION << "Number of outputs (" << OC << ") don't match biases size: " << biasesSize;
         }
     }
@@ -140,6 +160,7 @@ void checkWeightable(const std::map<std::string, Blob::Ptr>& blobs, const vector
 
 void checkDeformableConv(const DeformableConvolutionLayer* deformableConvLayer,
                          const std::map<std::string, Blob::Ptr>& blobs, const vector<SizeVector>& inShapes) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:                           const std::map<std::string, Blob::Ptr>& blobs, const vector<SizeVector>& inShapes) {" << std::endl;
     std::vector<size_t> krn;
     for (int i = 0; i < deformableConvLayer->_kernel.size(); i++) krn.push_back(deformableConvLayer->_kernel[i]);
     checkWeightable(blobs, {inShapes[0]}, {deformableConvLayer->_out_depth, false, deformableConvLayer->_group, krn},
@@ -158,40 +179,52 @@ void checkDeformableConv(const DeformableConvolutionLayer* deformableConvLayer,
 }
 
 void checkDims(const std::vector<SizeVector>& shapes, const vector<int>& expected_shape_size) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void checkDims(const std::vector<SizeVector>& shapes, const vector<int>& expected_shape_size) {" << std::endl;
     for (auto i : shapes) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (auto i : shapes) {" << std::endl;
         if (i.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (i.empty()) {" << std::endl;
             THROW_IE_EXCEPTION << " Failed with invalid shapes: dimension is empty";
         }
         auto iter = std::find(expected_shape_size.begin(), expected_shape_size.end(), i.size());
         if (iter == expected_shape_size.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (iter == expected_shape_size.end()) {" << std::endl;
             THROW_IE_EXCEPTION << " Failed with invalid shapes: dimension is invalid";
         }
     }
 }
 
 void checkNumOfInput(const std::vector<SizeVector>& inShapes, const vector<int>& expected_num_of_shapes) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void checkNumOfInput(const std::vector<SizeVector>& inShapes, const vector<int>& expected_num_of_shapes) {" << std::endl;
     bool shape_was_found = false;
     for (const auto& i : expected_num_of_shapes) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (const auto& i : expected_num_of_shapes) {" << std::endl;
         if (inShapes.size() == i) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (inShapes.size() == i) {" << std::endl;
             shape_was_found = true;
             break;
         }
     }
     if (!shape_was_found) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!shape_was_found) {" << std::endl;
         THROW_IE_EXCEPTION << "Number of inputs (" << inShapes.size()
                            << ") is not equal to expected ones: " << expected_num_of_shapes.size();
     }
 }
 
 LayerValidators* LayerValidators::getInstance() {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  LayerValidators* LayerValidators::getInstance() {" << std::endl;
     if (!_instance) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!_instance) {" << std::endl;
         _instance = new LayerValidators();
     }
     return _instance;
 }
 
 LayerValidator::Ptr LayerValidators::getValidator(const std::string& type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  LayerValidator::Ptr LayerValidators::getValidator(const std::string& type) {" << std::endl;
     if (_validators.find(type) == _validators.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (_validators.find(type) == _validators.end()) {" << std::endl;
         return std::make_shared<GeneralValidator>(type);
     }
     return _validators[type];
@@ -199,19 +232,24 @@ LayerValidator::Ptr LayerValidators::getValidator(const std::string& type) {
 
 LayerValidators* LayerValidators::_instance = nullptr;
 
-GeneralValidator::GeneralValidator(const std::string& _type): LayerValidator(_type) {}
+GeneralValidator::GeneralValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  GeneralValidator::GeneralValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void FullyConnectedValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void FullyConnectedValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<FullyConnectedLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of FullyConnectedLayer class";
     }
     casted->_out_num = casted->GetParamAsUInt("out-size");
 }
 
 void FullyConnectedValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void FullyConnectedValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const FullyConnectedLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of FullyConnectedLayer class";
     }
     unsigned int _out_num = casted->GetParamAsUInt("out-size");
@@ -224,55 +262,69 @@ void FullyConnectedValidator::checkCorrespondence(const CNNLayer* layer, const s
     checkWeightable(blobs, inShapes, {casted->_out_num, true, 1}, {2, 4, 5});
 }
 
-FullyConnectedValidator::FullyConnectedValidator(const std::string& _type): LayerValidator(_type) {}
+FullyConnectedValidator::FullyConnectedValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  FullyConnectedValidator::FullyConnectedValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void FullyConnectedValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1, 2, 3});
 }
 
 void CropValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void CropValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<CropLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of CropLayer class";
     }
     if (casted->axis.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (casted->axis.empty()) {" << std::endl;
         auto getArray = [](std::string param, vector<int>& array) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          auto getArray = [](std::string param, vector<int>& array) {" << std::endl;
             std::istringstream stream(param);
             std::string str;
             while (getline(stream, str, ',')) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              while (getline(stream, str, ',')) {" << std::endl;
                 int val = std::stoi(str);
                 array.push_back(val);
             }
         };
         getArray(layer->GetParamAsString("axis"), casted->axis);
         if (casted->params.find("offset") != casted->params.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (casted->params.find('offset') != casted->params.end()) {" << std::endl;
             getArray(layer->GetParamAsString("offset"), casted->offset);
         }
         if (casted->params.find("dim") != casted->params.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (casted->params.find('dim') != casted->params.end()) {" << std::endl;
             getArray(layer->GetParamAsString("dim"), casted->dim);
         }
         if (casted->params.find("crop_begin") != casted->params.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (casted->params.find('crop_begin') != casted->params.end()) {" << std::endl;
             getArray(layer->GetParamAsString("crop_begin"), casted->offset);
         }
     }
 }
 
 void CropValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void CropValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const CropLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of CropLayer class";
     }
     if (casted->axis.size() != casted->offset.size()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (casted->axis.size() != casted->offset.size()) {" << std::endl;
         THROW_IE_EXCEPTION << "Incorrect format of the Crop layer: number of axis doesn't match number of offset - ("
                            << casted->axis.size() << " vs. " << casted->offset.size() << ")";
     }
 }
 
-CropValidator::CropValidator(const std::string& _type): LayerValidator(_type) {}
+CropValidator::CropValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  CropValidator::CropValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void CropValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const CropLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of CropLayer class";
     }
     size_t numInputs = inShapes.size();
@@ -281,6 +333,7 @@ void CropValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>&
     auto firstShape = inShapes[0];
     size_t shapeSize = firstShape.size();
     for (size_t i = 0; i < casted->axis.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (size_t i = 0; i < casted->axis.size(); i++) {" << std::endl;
         int axis = casted->axis[i];
         int offset = casted->offset[i];
         if (shapeSize <= axis)
@@ -288,7 +341,9 @@ void CropValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>&
                                << ") should be less the number of dimensions of first input (" << firstShape.size()
                                << ")";
         if (numInputs == 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (numInputs == 2) {" << std::endl;
             if (casted->params.find("crop_begin") != casted->params.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (casted->params.find('crop_begin') != casted->params.end()) {" << std::endl;
                 THROW_IE_EXCEPTION << "Incorrect format of the Crop layer: `crop_begin` and `crop_end` attributes are "
                                       "valid for single input only";
             }
@@ -299,13 +354,16 @@ void CropValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>&
                                    << secondShape.size() << ")";
             size_t newSize = secondShape[axis];
             if (firstShape[axis] < static_cast<size_t>(offset + newSize)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (firstShape[axis] < static_cast<size_t>(offset + newSize)) {" << std::endl;
                 THROW_IE_EXCEPTION << "Incorrect crop data! Offset(" << offset << ") + result size of output("
                                    << newSize << ") should be less then input size(" << firstShape[axis]
                                    << ") for axis(" << axis << ")";
             }
         } else if (!casted->dim.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          } else if (!casted->dim.empty()) {" << std::endl;
             int dim = casted->dim[i];
             if (firstShape[axis] < static_cast<size_t>(offset + dim)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (firstShape[axis] < static_cast<size_t>(offset + dim)) {" << std::endl;
                 THROW_IE_EXCEPTION << "Incorrect crop data! Offset(" << offset << ") + result size of output(" << dim
                                    << ") should be less then input size(" << firstShape[axis] << ") for axis(" << axis
                                    << ")";
@@ -314,11 +372,14 @@ void CropValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>&
     }
 }
 
-ConvolutionValidator::ConvolutionValidator(const std::string& _type): LayerValidator(_type) {}
+ConvolutionValidator::ConvolutionValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ConvolutionValidator::ConvolutionValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ConvolutionValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ConvolutionValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto convLayer = dynamic_cast<ConvolutionLayer*>(layer);
     if (!convLayer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!convLayer) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of ConvolutionLayer class";
     }
     convLayer->_out_depth = convLayer->GetParamAsUInt("output");
@@ -331,6 +392,7 @@ void ConvolutionValidator::parseParams(CNNLayer* layer) {
 
     vector<unsigned int> kernels = convLayer->GetParamAsUInts("kernel", {});
     if (kernels.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (kernels.empty()) {" << std::endl;
         // IR_v == 2
         convLayer->_kernel.insert(X_AXIS, convLayer->GetParamAsUInt("kernel-x"));
         convLayer->_kernel.insert(Y_AXIS, convLayer->GetParamAsUInt("kernel-y"));
@@ -339,10 +401,12 @@ void ConvolutionValidator::parseParams(CNNLayer* layer) {
         convLayer->_stride.insert(Y_AXIS, convLayer->GetParamAsUInt("stride-y", 1u));
         // TODO: maybe just throw exception, why do we change IR?
         if (0 == convLayer->_stride[X_AXIS]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (0 == convLayer->_stride[X_AXIS]) {" << std::endl;
             convLayer->_stride[X_AXIS] = 1u;
             LogError("Warning! in layer %s: Stride x is 0, setting to 1 ", convLayer->name.c_str());
         }
         if (0 == convLayer->_stride[Y_AXIS]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (0 == convLayer->_stride[Y_AXIS]) {" << std::endl;
             convLayer->_stride[Y_AXIS] = 1u;
             LogError("Warning! in layer %s: Stride y is 0, setting to 1", convLayer->name.c_str());
         }
@@ -358,6 +422,7 @@ void ConvolutionValidator::parseParams(CNNLayer* layer) {
     } else {
         // IR_v > 2
         for (int i = 1; i <= kernels.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= kernels.size(); i++) {" << std::endl;
             convLayer->_kernel.insert(i - 1, kernels[kernels.size() - i]);
         }
 
@@ -366,7 +431,9 @@ void ConvolutionValidator::parseParams(CNNLayer* layer) {
 
         vector<unsigned int> strides = convLayer->GetParamAsUInts("strides", default_1);
         for (int i = 1; i <= strides.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= strides.size(); i++) {" << std::endl;
             if (strides[strides.size() - i] == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (strides[strides.size() - i] == 0) {" << std::endl;
                 THROW_IE_EXCEPTION << "Stride could not be 0.\nIn layer " << convLayer->name;
             }
             convLayer->_stride.insert(i - 1, strides[strides.size() - i]);
@@ -374,16 +441,19 @@ void ConvolutionValidator::parseParams(CNNLayer* layer) {
 
         vector<unsigned int> pads_begin = convLayer->GetParamAsUInts("pads_begin", default_0);
         for (int i = 1; i <= pads_begin.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= pads_begin.size(); i++) {" << std::endl;
             convLayer->_padding.insert(i - 1, pads_begin[pads_begin.size() - i]);
         }
 
         vector<unsigned int> pads_end = convLayer->GetParamAsUInts("pads_end", pads_begin);
         for (int i = 1; i <= pads_end.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= pads_end.size(); i++) {" << std::endl;
             convLayer->_pads_end.insert(i - 1, pads_end[pads_end.size() - i]);
         }
 
         vector<unsigned int> dilations = convLayer->GetParamAsUInts("dilations", default_1);
         for (int i = 1; i <= dilations.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= dilations.size(); i++) {" << std::endl;
             convLayer->_dilation.insert(i - 1, dilations[dilations.size() - i]);
         }
     }
@@ -393,14 +463,17 @@ void ConvolutionValidator::parseParams(CNNLayer* layer) {
 }
 
 void ConvolutionValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ConvolutionValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const ConvolutionLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of ConvolutionLayer class";
     }
     casted->GetParamAsUInt("output");
 
     vector<unsigned int> kernels = casted->GetParamAsUInts("kernel", {});
     if (kernels.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (kernels.empty()) {" << std::endl;
         // IR_v == 2
         casted->GetParamAsUInt("kernel-x");
         casted->GetParamAsUInt("kernel-y");
@@ -440,22 +513,27 @@ void ConvolutionValidator::checkShapes(const CNNLayer* layer, const std::vector<
 }
 
 void DeconvolutionValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void DeconvolutionValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto deconvLayer = dynamic_cast<DeconvolutionLayer*>(layer);
     if (!deconvLayer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!deconvLayer) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of DeconvolutionLayer class";
     }
     ConvolutionValidator::parseParams(layer);
 }
 
 void DeconvolutionValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void DeconvolutionValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const ConvolutionLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of ConvolutionLayer class";
     }
     casted->GetParamAsUInt("output");
 
     vector<unsigned int> kernels = casted->GetParamAsUInts("kernel", {});
     if (kernels.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (kernels.empty()) {" << std::endl;
         // IR_v == 2
         casted->GetParamAsUInt("kernel-x");
         casted->GetParamAsUInt("kernel-y");
@@ -480,7 +558,8 @@ void DeconvolutionValidator::checkParams(const CNNLayer* layer) {
     casted->GetParamAsUInt("group", 1);
 }
 
-DeconvolutionValidator::DeconvolutionValidator(const std::string& _type): ConvolutionValidator(_type) {}
+DeconvolutionValidator::DeconvolutionValidator(const std::string& _type): ConvolutionValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  DeconvolutionValidator::DeconvolutionValidator(const std::string& _type): ConvolutionValidator(_type) {" << std::endl;}
 
 void DeconvolutionValidator::checkCorrespondence(const CNNLayer* layer, const std::map<std::string, Blob::Ptr>& blobs,
                                                  const vector<SizeVector>& inShapes) const {
@@ -497,8 +576,10 @@ void DeconvolutionValidator::checkShapes(const CNNLayer* layer, const std::vecto
 }
 
 void DeformableConvolutionValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void DeformableConvolutionValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto deformable_conv_layer = dynamic_cast<DeformableConvolutionLayer*>(layer);
     if (!deformable_conv_layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!deformable_conv_layer) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of DeformableConvolutionLayer class";
     }
     deformable_conv_layer->_deformable_group = deformable_conv_layer->GetParamAsUInt("deformable_group", 1u);
@@ -506,8 +587,10 @@ void DeformableConvolutionValidator::parseParams(CNNLayer* layer) {
 }
 
 void DeformableConvolutionValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void DeformableConvolutionValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const ConvolutionLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of DeformableConvolutionLayer class";
     }
     casted->GetParamAsUInt("output");
@@ -525,7 +608,8 @@ void DeformableConvolutionValidator::checkParams(const CNNLayer* layer) {
     casted->GetParamAsUInt("deformable_group", 1);
 }
 
-DeformableConvolutionValidator::DeformableConvolutionValidator(const std::string& _type): ConvolutionValidator(_type) {}
+DeformableConvolutionValidator::DeformableConvolutionValidator(const std::string& _type): ConvolutionValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  DeformableConvolutionValidator::DeformableConvolutionValidator(const std::string& _type): ConvolutionValidator(_type) {" << std::endl;}
 
 void DeformableConvolutionValidator::checkCorrespondence(const CNNLayer* layer,
                                                          const std::map<std::string, Blob::Ptr>& blobs,
@@ -540,11 +624,14 @@ void DeformableConvolutionValidator::checkShapes(const CNNLayer* layer, const st
     checkNumOfInput(inShapes, {2, 3, 4});
 }
 
-PoolingValidator::PoolingValidator(const std::string& _type): LayerValidator(_type) {}
+PoolingValidator::PoolingValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  PoolingValidator::PoolingValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void PoolingValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PoolingValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto poolLayer = dynamic_cast<PoolingLayer*>(layer);
     if (!poolLayer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!poolLayer) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of PoolingLayer class";
     }
 
@@ -557,9 +644,11 @@ void PoolingValidator::parseParams(CNNLayer* layer) {
 
     vector<unsigned int> kernels = poolLayer->GetParamAsUInts("kernel", {});
     if (kernels.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (kernels.empty()) {" << std::endl;
         int kernel_x = poolLayer->GetParamAsInt("kernel-x", -1);
         /** Pooling as custom layer */
         if (kernel_x == -1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (kernel_x == -1) {" << std::endl;
             try {
                 unsigned int kernel_size = poolLayer->GetParamAsUInt("kernel_size");
                 unsigned int kernel_w = poolLayer->GetParamAsUInt("kernel_w", 0u);
@@ -583,6 +672,7 @@ void PoolingValidator::parseParams(CNNLayer* layer) {
                 poolLayer->_pads_end.insert(X_AXIS, 0u);
                 poolLayer->_pads_end.insert(Y_AXIS, 0u);
             } catch (...) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              } catch (...) {" << std::endl;
             }
 
             std::string alg = poolLayer->GetParamAsString("pool", "caffe.PoolingParameter.MAX");
@@ -595,10 +685,12 @@ void PoolingValidator::parseParams(CNNLayer* layer) {
             poolLayer->_stride.insert(Y_AXIS, poolLayer->GetParamAsUInt("stride-y", 1u));
             // TODO: maybe just throw exception, why do we change IR?
             if (0 == poolLayer->_stride[X_AXIS]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (0 == poolLayer->_stride[X_AXIS]) {" << std::endl;
                 poolLayer->_stride[X_AXIS] = 1u;
                 LogError("Warning! in layer %s: Stride x is 0, setting to 1 ", poolLayer->name.c_str());
             }
             if (0 == poolLayer->_stride[Y_AXIS]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (0 == poolLayer->_stride[Y_AXIS]) {" << std::endl;
                 poolLayer->_stride[Y_AXIS] = 1u;
                 LogError("Warning! in layer %s: Stride y is 0, setting to 1", poolLayer->name.c_str());
             }
@@ -614,11 +706,13 @@ void PoolingValidator::parseParams(CNNLayer* layer) {
             std::string alg = poolLayer->GetParamAsString("pool-method", "max");
             poolLayer->_type = alg == "avg" ? PoolingLayer::AVG : PoolingLayer::MAX;
             if (alg != "max" && alg != "avg") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (alg != 'max' && alg != 'avg') {" << std::endl;
                 THROW_IE_EXCEPTION << "Layer with type `" << _type << "` has incorrect pool-type!";
             }
         }
     } else {
         for (int i = 1; i <= kernels.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= kernels.size(); i++) {" << std::endl;
             poolLayer->_kernel.insert(i - 1, kernels[kernels.size() - i]);
         }
 
@@ -627,7 +721,9 @@ void PoolingValidator::parseParams(CNNLayer* layer) {
 
         vector<unsigned int> strides = poolLayer->GetParamAsUInts("strides", default_1);
         for (int i = 1; i <= strides.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= strides.size(); i++) {" << std::endl;
             if (strides[strides.size() - i] == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (strides[strides.size() - i] == 0) {" << std::endl;
                 THROW_IE_EXCEPTION << "Stride could not be 0.\nIn layer " << poolLayer->name;
             }
             poolLayer->_stride.insert(i - 1, strides[strides.size() - i]);
@@ -635,11 +731,13 @@ void PoolingValidator::parseParams(CNNLayer* layer) {
 
         vector<unsigned int> pads_begin = poolLayer->GetParamAsUInts("pads_begin", default_0);
         for (int i = 1; i <= pads_begin.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= pads_begin.size(); i++) {" << std::endl;
             poolLayer->_padding.insert(i - 1, pads_begin[pads_begin.size() - i]);
         }
 
         vector<unsigned int> pads_end = poolLayer->GetParamAsUInts("pads_end", pads_begin);
         for (int i = 1; i <= pads_end.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= pads_end.size(); i++) {" << std::endl;
             poolLayer->_pads_end.insert(i - 1, pads_end[pads_end.size() - i]);
         }
 
@@ -647,6 +745,7 @@ void PoolingValidator::parseParams(CNNLayer* layer) {
         std::string alg = poolLayer->GetParamAsString("pool-method", "max");
         poolLayer->_type = alg == "avg" ? PoolingLayer::AVG : PoolingLayer::MAX;
         if (alg != "max" && alg != "avg") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (alg != 'max' && alg != 'avg') {" << std::endl;
             THROW_IE_EXCEPTION << "Layer with type `" << _type << "` has incorrect pad-type!";
         }
     }
@@ -654,6 +753,7 @@ void PoolingValidator::parseParams(CNNLayer* layer) {
 }
 
 void PoolingValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PoolingValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     // TODO: check that values belong to the scope of the definition according to spec
 }
 
@@ -662,33 +762,41 @@ void PoolingValidator::checkShapes(const CNNLayer* layer, const std::vector<Size
 }
 
 void BatchNormalizationValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void BatchNormalizationValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<BatchNormalizationLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of BatchNormalizationLayer class";
     }
     casted->epsilon = casted->GetParamAsFloat("epsilon");
 }
 
 void BatchNormalizationValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void BatchNormalizationValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const BatchNormalizationLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of BatchNormalizationLayer class";
     }
     float epsilon = casted->GetParamAsFloat("epsilon");
     if (epsilon < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (epsilon < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of BatchNormalization layer epsilon parameter is invalid";
     }
 }
 
-BatchNormalizationValidator::BatchNormalizationValidator(const std::string& _type): LayerValidator(_type) {}
+BatchNormalizationValidator::BatchNormalizationValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  BatchNormalizationValidator::BatchNormalizationValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void BatchNormalizationValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
 void PowerValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PowerValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<PowerLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of PowerLayer class";
     }
     casted->offset = casted->GetParamAsFloat("shift");
@@ -697,56 +805,69 @@ void PowerValidator::parseParams(CNNLayer* layer) {
 }
 
 void PowerValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PowerValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
-PowerValidator::PowerValidator(const std::string& _type): LayerValidator(_type) {}
+PowerValidator::PowerValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  PowerValidator::PowerValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void PowerValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
 void PReLUValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PReLUValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<PReLULayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of PReLULayer class";
     }
     casted->_channel_shared = casted->GetParamAsBool("channel_shared", false);
 }
 
 void PReLUValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PReLUValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
-PReLUValidator::PReLUValidator(const std::string& _type): LayerValidator(_type) {}
+PReLUValidator::PReLUValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  PReLUValidator::PReLUValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void PReLUValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
 void ScaleShiftValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ScaleShiftValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<ScaleShiftLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of ScaleShiftLayer class";
     }
     if (!casted->params.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted->params.empty()) {" << std::endl;
         casted->_broadcast = casted->GetParamAsUInt("broadcast", 2);
     }
 }
 
 void ScaleShiftValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ScaleShiftValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
-ScaleShiftValidator::ScaleShiftValidator(const std::string& _type): LayerValidator(_type) {}
+ScaleShiftValidator::ScaleShiftValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ScaleShiftValidator::ScaleShiftValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ScaleShiftValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
 void TileValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void TileValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<TileLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of TileLayer class";
     }
     casted->axis = casted->GetParamAsInt("axis", -1);
@@ -754,33 +875,42 @@ void TileValidator::parseParams(CNNLayer* layer) {
 }
 
 void TileValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void TileValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const TileLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of TileLayer class";
     }
     int axis = casted->GetParamAsInt("axis", -1);
     int tiles = casted->GetParamAsInt("tiles", -1);
     if (axis < 0 && tiles < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (axis < 0 && tiles < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of Tile layer parameters is invalid";
     }
 }
 
-TileValidator::TileValidator(const std::string& _type): LayerValidator(_type) {}
+TileValidator::TileValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  TileValidator::TileValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void TileValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
-ReshapeValidator::ReshapeValidator(const std::string& _type): LayerValidator(_type) {}
+ReshapeValidator::ReshapeValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ReshapeValidator::ReshapeValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ReshapeValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ReshapeValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<ReshapeLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of ReshapeLayer class";
     }
     casted->shape.clear();
     if (!casted->params.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted->params.empty()) {" << std::endl;
         if (casted->type == "Flatten") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (casted->type == 'Flatten') {" << std::endl;
             casted->num_axes = casted->GetParamAsInt("end_axis", -1);
             casted->axis = casted->GetParamAsInt("axis", 0);
         } else {
@@ -790,10 +920,12 @@ void ReshapeValidator::parseParams(CNNLayer* layer) {
 }
 
 void ReshapeValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ReshapeValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const ReshapeLayer*>(layer);
     if (!casted) THROW_IE_EXCEPTION << "Layer is not instance of ReshapeLayer class";
     size_t num = 0;
     for (int dim : casted->shape) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (int dim : casted->shape) {" << std::endl;
         if (dim < -1)
             THROW_IE_EXCEPTION << "Invalid value of Reshape mask (dim attribute):" << dim
                                << ". Supported values: 0, -1, >0";
@@ -803,8 +935,10 @@ void ReshapeValidator::checkParams(const CNNLayer* layer) {
 }
 
 void EltwiseValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void EltwiseValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<EltwiseLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of EltwiseLayer class";
     }
     // TODO: fix this onece we switched to IR v2.x also enable dedicated unit tests
@@ -812,44 +946,64 @@ void EltwiseValidator::parseParams(CNNLayer* layer) {
     std::string op = casted->GetParamAsString("operation", "sum");
     // TODO: remove empty value case in IRv2.x
     if (op == "sum" || op == "") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (op == 'sum' || op == '') {" << std::endl;
         casted->_operation = EltwiseLayer::Sum;
     } else if (op == "mul" || op == "prod") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'mul' || op == 'prod') {" << std::endl;
         casted->_operation = EltwiseLayer::Prod;
     } else if (op == "max") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'max') {" << std::endl;
         casted->_operation = EltwiseLayer::Max;
     } else if (op == "sub") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'sub') {" << std::endl;
         casted->_operation = EltwiseLayer::Sub;
     } else if (op == "div") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'div') {" << std::endl;
         casted->_operation = EltwiseLayer::Div;
     } else if (op == "min") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'min') {" << std::endl;
         casted->_operation = EltwiseLayer::Min;
     } else if (op == "squared_diff") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'squared_diff') {" << std::endl;
         casted->_operation = EltwiseLayer::Squared_diff;
     } else if (op == "equal") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'equal') {" << std::endl;
         casted->_operation = EltwiseLayer::Equal;
     } else if (op == "not_equal") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'not_equal') {" << std::endl;
         casted->_operation = EltwiseLayer::Not_equal;
     } else if (op == "less") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'less') {" << std::endl;
         casted->_operation = EltwiseLayer::Less;
     } else if (op == "less_equal") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'less_equal') {" << std::endl;
         casted->_operation = EltwiseLayer::Less_equal;
     } else if (op == "greater") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'greater') {" << std::endl;
         casted->_operation = EltwiseLayer::Greater;
     } else if (op == "greater_equal") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'greater_equal') {" << std::endl;
         casted->_operation = EltwiseLayer::Greater_equal;
     } else if (op == "logical_not") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'logical_not') {" << std::endl;
         casted->_operation = EltwiseLayer::Logical_NOT;
     } else if (op == "logical_and") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'logical_and') {" << std::endl;
         casted->_operation = EltwiseLayer::Logical_AND;
     } else if (op == "logical_or") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'logical_or') {" << std::endl;
         casted->_operation = EltwiseLayer::Logical_OR;
     } else if (op == "logical_xor") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'logical_xor') {" << std::endl;
         casted->_operation = EltwiseLayer::Logical_XOR;
     } else if (op == "floor_mod") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'floor_mod') {" << std::endl;
         casted->_operation = EltwiseLayer::Floor_mod;
     } else if (op == "pow") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'pow') {" << std::endl;
         casted->_operation = EltwiseLayer::Pow;
     } else if (op == "mean") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (op == 'mean') {" << std::endl;
         casted->_operation = EltwiseLayer::Mean;
     } else {
         THROW_IE_EXCEPTION << "Unsupported element wise operation: " << op;
@@ -859,124 +1013,154 @@ void EltwiseValidator::parseParams(CNNLayer* layer) {
 }
 
 void EltwiseValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void EltwiseValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const EltwiseLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of EltwiseLayer class";
     }
 }
 
 void EltwiseValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     if (inShapes.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes.empty()) {" << std::endl;
         THROW_IE_EXCEPTION << "Number of inputs (" << inShapes.size() << ") of Eltwise layer is zero";
     }
 }
 
-EltwiseValidator::EltwiseValidator(const std::string& _type): LayerValidator(_type) {}
+EltwiseValidator::EltwiseValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  EltwiseValidator::EltwiseValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ClampValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ClampValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<ClampLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of ClampLayer class";
     }
     casted->min_value = casted->GetParamAsFloat("min");
     casted->max_value = casted->GetParamAsFloat("max");
 }
 
-ClampValidator::ClampValidator(const std::string& _type): LayerValidator(_type) {}
+ClampValidator::ClampValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ClampValidator::ClampValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ClampValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
 void ReLUValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ReLUValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<ReLULayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of ReLULayer class";
     }
     if (!casted->params.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted->params.empty()) {" << std::endl;
         casted->negative_slope = casted->GetParamAsFloat("negative_slope");
     }
 }
 
 void ReLUValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ReLUValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const ReLULayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of ReLULayer class";
     }
     if (!casted->params.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted->params.empty()) {" << std::endl;
         float negative_slope = casted->GetParamAsFloat("negative_slope");
     }
 }
 
-ReLUValidator::ReLUValidator(const std::string& _type): LayerValidator(_type) {}
+ReLUValidator::ReLUValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ReLUValidator::ReLUValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ReLUValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1, 2});
 }
 
 void MVNValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void MVNValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<MVNLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of MVNLayer class";
     }
     casted->across_channels = casted->GetParamAsInt("across_channels", 0);
     casted->normalize = casted->GetParamAsInt("normalize_variance", 1);
 }
 
-void MVNValidator::checkParams(const CNNLayer* layer) {}
+void MVNValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void MVNValidator::checkParams(const CNNLayer* layer) {" << std::endl;}
 
-MVNValidator::MVNValidator(const std::string& _type): LayerValidator(_type) {}
+MVNValidator::MVNValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  MVNValidator::MVNValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void MVNValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
 void GRNValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void GRNValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<GRNLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of GRNLayer class";
     }
     casted->bias = casted->GetParamAsFloat("bias", 0.f);
 }
 
 void GRNValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void GRNValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
-GRNValidator::GRNValidator(const std::string& _type): LayerValidator(_type) {}
+GRNValidator::GRNValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  GRNValidator::GRNValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void GRNValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
 void SoftMaxValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SoftMaxValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<SoftMaxLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of SoftMaxLayer class";
     }
     casted->axis = casted->GetParamAsInt("axis", 1);
 }
 
 void SoftMaxValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SoftMaxValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const SoftMaxLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of SoftMaxLayer class";
     }
     int axis = casted->GetParamAsInt("axis", 1);
     if (axis < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (axis < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of SoftMax layer axis parameter is invalid";
     }
 }
 
-SoftMaxValidator::SoftMaxValidator(const std::string& _type): LayerValidator(_type) {}
+SoftMaxValidator::SoftMaxValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SoftMaxValidator::SoftMaxValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void SoftMaxValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
 void NormValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void NormValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<NormLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of NormLayer class";
     }
     casted->_size = casted->GetParamAsUInt("local_size", 0);
@@ -988,36 +1172,45 @@ void NormValidator::parseParams(CNNLayer* layer) {
 }
 
 void NormValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void NormValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const NormLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of NormLayer class";
     }
     float _alpha = casted->GetParamAsFloat("alpha");
     float _beta = casted->GetParamAsFloat("beta");
     if (_alpha < 0 && _beta < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (_alpha < 0 && _beta < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of Norm layer alpha or beta parameters is invalid";
     }
 }
 
-NormValidator::NormValidator(const std::string& _type): LayerValidator(_type) {}
+NormValidator::NormValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  NormValidator::NormValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void NormValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
-SplitValidator::SplitValidator(const std::string& _type): LayerValidator(_type) {}
+SplitValidator::SplitValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SplitValidator::SplitValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void SplitValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SplitValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<SplitLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of SplitLayer class";
     }
     casted->_axis = casted->GetParamAsUInt("axis", 1);
 
     std::string out_sizes;
     for (auto& i : layer->outData) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (auto& i : layer->outData) {" << std::endl;
         if (!out_sizes.empty()) out_sizes += ",";
         if (static_cast<int>(i->getTensorDesc().getDims().size()) <= casted->_axis) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (static_cast<int>(i->getTensorDesc().getDims().size()) <= casted->_axis) {" << std::endl;
             THROW_IE_EXCEPTION << "Internal error - dimensions are empty";
         }
         out_sizes += std::to_string(i->getTensorDesc().getDims()[casted->_axis]);
@@ -1026,9 +1219,11 @@ void SplitValidator::parseParams(CNNLayer* layer) {
 }
 
 void SplitValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SplitValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
     std::vector<int> out_sizes = layer->GetParamAsInts("out_sizes", {});
     if (out_sizes.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (out_sizes.empty()) {" << std::endl;
         THROW_IE_EXCEPTION << "Value of out_sizes attribute is empty";
     }
 }
@@ -1036,6 +1231,7 @@ void SplitValidator::checkParams(const CNNLayer* layer) {
 void SplitValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const SplitLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of SplitLayer class";
     }
     checkNumOfInput(inShapes, {1});
@@ -1045,28 +1241,34 @@ void SplitValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVe
     if (inShapes.empty() || inShapes[0].size() <= casted->_axis)
         THROW_IE_EXCEPTION << "Layer has incorrect input shapes!";
     if (sum != inShapes[0][casted->_axis]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (sum != inShapes[0][casted->_axis]) {" << std::endl;
         THROW_IE_EXCEPTION << "The sum of the dimensions on the axis(" << casted->_axis
                            << ") is not equal out_sizes: " << details::dumpVec(out_sizes);
     }
 }
 
-ConcatValidator::ConcatValidator(const std::string& _type): LayerValidator(_type) {}
+ConcatValidator::ConcatValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ConcatValidator::ConcatValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ConcatValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ConcatValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<ConcatLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of ConcatLayer class";
     }
     casted->_axis = casted->GetParamAsUInt("axis", 1);
 }
 
-void ConcatValidator::checkParams(const CNNLayer* layer) {}
+void ConcatValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ConcatValidator::checkParams(const CNNLayer* layer) {" << std::endl;}
 
 void ConcatValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     if (inShapes.empty()) THROW_IE_EXCEPTION << "Inputs are empty";
 
     auto casted = dynamic_cast<const ConcatLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Invalid Concat layer.";
     }
 
@@ -1078,6 +1280,7 @@ void ConcatValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeV
                            << firstShapeSize << ")";
 
     for (size_t i = 1; i < inShapes.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (size_t i = 1; i < inShapes.size(); i++) {" << std::endl;
         auto shape = inShapes[i];
         if (shape.size() != firstShapeSize)
             THROW_IE_EXCEPTION << "Invalid inputs for Concat layer: number of dimensions must match: " << firstShapeSize
@@ -1091,11 +1294,14 @@ void ConcatValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeV
     }
 }
 
-GemmValidator::GemmValidator(const std::string& _type): LayerValidator(_type) {}
+GemmValidator::GemmValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  GemmValidator::GemmValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void GemmValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void GemmValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<GemmLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of GemmLayer class";
     }
     casted->alpha = casted->GetParamAsFloat("alpha", 1);
@@ -1105,12 +1311,14 @@ void GemmValidator::parseParams(CNNLayer* layer) {
 }
 
 void GemmValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void GemmValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void GemmValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const GemmLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of GemmLayer class";
     }
 
@@ -1120,6 +1328,7 @@ void GemmValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>&
     auto dims0 = inShapes[0];
     auto dims1 = inShapes[1];
     if (dims0.size() < 2 || dims1.size() < 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (dims0.size() < 2 || dims1.size() < 2) {" << std::endl;
         THROW_IE_EXCEPTION << "Gemm input shapes must have at least 2 dimensions";
     }
 
@@ -1138,8 +1347,10 @@ void GemmValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>&
                            << dims1[yAxis1] << ")";
 
     if (inShapes.size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes.size() == 3) {" << std::endl;
         auto dims2 = inShapes[2];
         if (dims2.size() < 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (dims2.size() < 2) {" << std::endl;
             THROW_IE_EXCEPTION << "Gemm input shapes must have at least 2 dimensions";
         }
 
@@ -1156,11 +1367,14 @@ void GemmValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>&
     }
 }
 
-PadValidator::PadValidator(const std::string& _type): LayerValidator(_type) {}
+PadValidator::PadValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  PadValidator::PadValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void PadValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PadValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<PadLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of PadLayer class";
     }
     std::vector<uint32_t> pads_begin = casted->GetParamAsUInts("pads_begin");
@@ -1168,11 +1382,13 @@ void PadValidator::parseParams(CNNLayer* layer) {
 
     casted->pads_begin.clear();
     for (size_t i = 0; i < pads_begin.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (size_t i = 0; i < pads_begin.size(); i++) {" << std::endl;
         casted->pads_begin.insert(i, pads_begin[i]);
     }
 
     casted->pads_end.clear();
     for (size_t i = 0; i < pads_end.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (size_t i = 0; i < pads_end.size(); i++) {" << std::endl;
         casted->pads_end.insert(i, pads_end[i]);
     }
 
@@ -1180,12 +1396,16 @@ void PadValidator::parseParams(CNNLayer* layer) {
 
     std::string mode = casted->GetParamAsString("pad_mode", "constant");
     if (mode == "constant") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (mode == 'constant') {" << std::endl;
         casted->pad_mode = PadLayer::Constant;
     } else if (mode == "edge") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (mode == 'edge') {" << std::endl;
         casted->pad_mode = PadLayer::Edge;
     } else if (mode == "reflect") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (mode == 'reflect') {" << std::endl;
         casted->pad_mode = PadLayer::Reflect;
     } else if (mode == "symmetric") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (mode == 'symmetric') {" << std::endl;
         casted->pad_mode = PadLayer::Symmetric;
     } else {
         THROW_IE_EXCEPTION << layer->name << " Unsupported pad mode operation: " << mode;
@@ -1193,12 +1413,14 @@ void PadValidator::parseParams(CNNLayer* layer) {
 }
 
 void PadValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PadValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void PadValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const PadLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of PadLayer class";
     }
 
@@ -1214,14 +1436,18 @@ void PadValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& 
                            << ". Expected: " << casted->pads_end.size() << " Got: " << inShapes[0].size();
 
     if (casted->pad_mode == PadLayer::Symmetric || casted->pad_mode == PadLayer::Reflect) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (casted->pad_mode == PadLayer::Symmetric || casted->pad_mode == PadLayer::Reflect) {" << std::endl;
         for (size_t i = 0; i < inShapes[0].size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (size_t i = 0; i < inShapes[0].size(); i++) {" << std::endl;
             if (inShapes[0][i] < casted->pads_begin[i]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (inShapes[0][i] < casted->pads_begin[i]) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name
                                    << " Pad can't be grater than input shape in symmetric and reflect modes."
                                    << " For dimension " << i << " pad_begin=" << casted->pads_begin[i]
                                    << " in_shape=" << inShapes[0][i];
             }
             if (inShapes[0][i] < casted->pads_end[i]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (inShapes[0][i] < casted->pads_end[i]) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name
                                    << " Pad can't be grater than input shape in symmetric and reflect modes."
                                    << " For dimension " << i << " pad_end=" << casted->pads_end[i]
@@ -1231,11 +1457,14 @@ void PadValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& 
     }
 }
 
-GatherValidator::GatherValidator(const std::string& _type): LayerValidator(_type) {}
+GatherValidator::GatherValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  GatherValidator::GatherValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void GatherValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void GatherValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<GatherLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of GatherLayer class";
     }
 
@@ -1243,12 +1472,14 @@ void GatherValidator::parseParams(CNNLayer* layer) {
 }
 
 void GatherValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void GatherValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void GatherValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const GatherLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of GatherLayer class";
     }
 
@@ -1264,11 +1495,14 @@ void GatherValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector
                            << " and axis number " << casted->axis;
 }
 
-StridedSliceValidator::StridedSliceValidator(const std::string& _type): LayerValidator(_type) {}
+StridedSliceValidator::StridedSliceValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  StridedSliceValidator::StridedSliceValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void StridedSliceValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void StridedSliceValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<StridedSliceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of StridedSlice class";
     }
 
@@ -1280,12 +1514,14 @@ void StridedSliceValidator::parseParams(CNNLayer* layer) {
 }
 
 void StridedSliceValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void StridedSliceValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void StridedSliceValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const StridedSliceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of StridedSliceLayer class";
     }
 
@@ -1296,17 +1532,21 @@ void StridedSliceValidator::checkShapes(const CNNLayer* layer, const vector<Size
 
     size_t ellipsis_mask_counter = 0;
     for (size_t i = 0; i < casted->ellipsis_mask.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (size_t i = 0; i < casted->ellipsis_mask.size(); ++i) {" << std::endl;
         if (casted->ellipsis_mask[i] == '1') ellipsis_mask_counter++;
     }
     if (ellipsis_mask_counter > 1)
         THROW_IE_EXCEPTION << layer->name << " 'Ellipsis_mask' must be a power of two (only one ellipsis)!";
 }
 
-ShuffleChannelsValidator::ShuffleChannelsValidator(const std::string& _type): LayerValidator(_type) {}
+ShuffleChannelsValidator::ShuffleChannelsValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ShuffleChannelsValidator::ShuffleChannelsValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ShuffleChannelsValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ShuffleChannelsValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<ShuffleChannelsLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of ShuffleChannels class";
     }
 
@@ -1315,12 +1555,14 @@ void ShuffleChannelsValidator::parseParams(CNNLayer* layer) {
 }
 
 void ShuffleChannelsValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ShuffleChannelsValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void ShuffleChannelsValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const ShuffleChannelsLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of ShuffleChannels class";
     }
 
@@ -1348,11 +1590,14 @@ void ShuffleChannelsValidator::checkShapes(const CNNLayer* layer, const vector<S
     if (dataLength == 0) THROW_IE_EXCEPTION << layer->name << " Incorrect input parameters dimension!";
 }
 
-DepthToSpaceValidator::DepthToSpaceValidator(const std::string& _type): LayerValidator(_type) {}
+DepthToSpaceValidator::DepthToSpaceValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  DepthToSpaceValidator::DepthToSpaceValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void DepthToSpaceValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void DepthToSpaceValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<DepthToSpaceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of DepthToSpace class";
     }
 
@@ -1360,12 +1605,14 @@ void DepthToSpaceValidator::parseParams(CNNLayer* layer) {
 }
 
 void DepthToSpaceValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void DepthToSpaceValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void DepthToSpaceValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const DepthToSpaceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of DepthToSpace class";
     }
 
@@ -1382,11 +1629,14 @@ void DepthToSpaceValidator::checkShapes(const CNNLayer* layer, const vector<Size
                            << " block_size parameter is incompatible with input tensor Color dimension size!";
 }
 
-SpaceToDepthValidator::SpaceToDepthValidator(const std::string& _type): LayerValidator(_type) {}
+SpaceToDepthValidator::SpaceToDepthValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SpaceToDepthValidator::SpaceToDepthValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void SpaceToDepthValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SpaceToDepthValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<SpaceToDepthLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of SpaceToDepth class";
     }
 
@@ -1394,12 +1644,14 @@ void SpaceToDepthValidator::parseParams(CNNLayer* layer) {
 }
 
 void SpaceToDepthValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SpaceToDepthValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void SpaceToDepthValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const SpaceToDepthLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of SpaceToDepth class";
     }
 
@@ -1420,22 +1672,27 @@ void SpaceToDepthValidator::checkShapes(const CNNLayer* layer, const vector<Size
                            << " block_size parameter is incompatible with input tensor Height dimension size!";
 }
 
-SparseFillEmptyRowsValidator::SparseFillEmptyRowsValidator(const std::string& _type): LayerValidator(_type) {}
+SparseFillEmptyRowsValidator::SparseFillEmptyRowsValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SparseFillEmptyRowsValidator::SparseFillEmptyRowsValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void SparseFillEmptyRowsValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SparseFillEmptyRowsValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<SparseFillEmptyRowsLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of SparseFillEmptyRows class";
     }
 }
 
 void SparseFillEmptyRowsValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SparseFillEmptyRowsValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void SparseFillEmptyRowsValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const SparseFillEmptyRowsLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of SparseFillEmptyRows class";
     }
 
@@ -1465,22 +1722,27 @@ void SparseFillEmptyRowsValidator::checkShapes(const CNNLayer* layer, const vect
         THROW_IE_EXCEPTION << layer->name << " Default value of SparseFillEmptyRows must be 1-D tensor";
 }
 
-SparseSegmentReduceValidator::SparseSegmentReduceValidator(const std::string& _type): LayerValidator(_type) {}
+SparseSegmentReduceValidator::SparseSegmentReduceValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SparseSegmentReduceValidator::SparseSegmentReduceValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void SparseSegmentReduceValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SparseSegmentReduceValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<SparseSegmentReduceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of SparseSegmentReduce class";
     }
 }
 
 void SparseSegmentReduceValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SparseSegmentReduceValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void SparseSegmentReduceValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const SparseSegmentReduceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of SparseSegmentReduce class";
     }
 
@@ -1491,29 +1753,36 @@ void SparseSegmentReduceValidator::checkShapes(const CNNLayer* layer, const vect
 
     // check that the second and the third inputs are one-dimensional
     if (inShapes[1].size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[1].size() != 1) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " The second input of SparseSegmentReduce must be one-dimensional";
     }
     if (inShapes[2].size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[2].size() != 1) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " The third input of SparseSegmentReduce must be one-dimensional";
     }
 }
 
-ExperimentalSparseWeightedReduceValidator::ExperimentalSparseWeightedReduceValidator(const std::string& _type) : LayerValidator(_type) {}
+ExperimentalSparseWeightedReduceValidator::ExperimentalSparseWeightedReduceValidator(const std::string& _type) : LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ExperimentalSparseWeightedReduceValidator::ExperimentalSparseWeightedReduceValidator(const std::string& _type) : LayerValidator(_type) {" << std::endl;}
 
 void ExperimentalSparseWeightedReduceValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ExperimentalSparseWeightedReduceValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<ExperimentalSparseWeightedReduceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of ExperimentalSparseWeightedReduce class";
     }
 }
 
 void ExperimentalSparseWeightedReduceValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ExperimentalSparseWeightedReduceValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void ExperimentalSparseWeightedReduceValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const ExperimentalSparseWeightedReduceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of ExperimentalSparseWeightedReduce class";
     }
 
@@ -1525,30 +1794,37 @@ void ExperimentalSparseWeightedReduceValidator::checkShapes(const CNNLayer* laye
 
     // check shapes of inputs
     if (inShapes[0].size() != 2 || inShapes[0][1] != 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[0].size() != 2 || inShapes[0][1] != 2) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
                            << " The first input with indices of ExperimentalSparseSegmentReduce must be two-dimensional";
     }
     if (inShapes[1].size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[1].size() != 1) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
                            << " The second input with values of ExperimentalSparseSegmentReduce must be one-dimensional";
     }
     if (inShapes[1][0] != inShapes[0][0]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[1][0] != inShapes[0][0]) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
             << "  The first dimension value of the first and second inputs of ExperimentalSparseSegmentReduce must be the same";
     }
     if (inShapes[2].size() != 1 || inShapes[2][0] != 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[2].size() != 1 || inShapes[2][0] != 2) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
             << " The third input with a dense shape of ExperimentalSparseSegmentReduce must be one-dimensional";
     }
     if (inShapes[3].size() < 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[3].size() < 2) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
             << " The fourth input with parameters table of ExperimentalSparseSegmentReduce must have two dimensions at least";
     }
     if (inShapes[4].size() != 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[4].size() != 0) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
             << " The fifth input with a default value of ExperimentalSparseSegmentReduce must be a scalar";
     }
     if (numInputs == 6 && (inShapes[5].size() != 1 || inShapes[5][0] != inShapes[1][0])) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (numInputs == 6 && (inShapes[5].size() != 1 || inShapes[5][0] != inShapes[1][0])) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
             << " The second and sixth inputs of ExperimentalSparseSegmentReduce must have the same shapes";
     }
@@ -1577,6 +1853,7 @@ void ExperimentalSparseWeightedReduceValidator::checkShapes(const CNNLayer* laye
     if (input_default_value_precision != Precision::I32)
         THROW_IE_EXCEPTION << layer->name << " Incorrect input default value precision. Only I32 are supported!";
     if (numInputs == 6) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (numInputs == 6) {" << std::endl;
         Precision input_weights_precision = layer->insData[INPUT_WEIGHTS].lock()->getTensorDesc().getPrecision();
         if (input_weights_precision != Precision::FP32)
             THROW_IE_EXCEPTION << layer->name << " Incorrect input weights precision. Only FP32 are supported!";
@@ -1584,22 +1861,27 @@ void ExperimentalSparseWeightedReduceValidator::checkShapes(const CNNLayer* laye
 }
 
 
-SparseToDenseValidator::SparseToDenseValidator(const std::string& _type) : LayerValidator(_type) {}
+SparseToDenseValidator::SparseToDenseValidator(const std::string& _type) : LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SparseToDenseValidator::SparseToDenseValidator(const std::string& _type) : LayerValidator(_type) {" << std::endl;}
 
 void SparseToDenseValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SparseToDenseValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<SparseToDenseLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of SparseToDense class";
     }
 }
 
 void SparseToDenseValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SparseToDenseValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void SparseToDenseValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const SparseToDenseLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of SparseToDense class";
     }
 
@@ -1611,18 +1893,22 @@ void SparseToDenseValidator::checkShapes(const CNNLayer* layer, const vector<Siz
 
     // check shapes of inputs
     if (inShapes[0].size() != 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[0].size() != 2) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
                            << " The first input with indices of SparseToDense must be two-dimensional";
     }
     if (inShapes[1].size() != 1 || inShapes[1][0] != inShapes[0][1]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[1].size() != 1 || inShapes[1][0] != inShapes[0][1]) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
                            << " The second input with a dense shape of SparseToDense must be one-dimensional";
     }
     if (inShapes[2].size() != 1 || inShapes[2][0] != inShapes[0][0]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[2].size() != 1 || inShapes[2][0] != inShapes[0][0]) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
                            << " The third input with values of SparseToDense must be one-dimensional";
     }
     if (numInputs == 4 && inShapes[3].size() != 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (numInputs == 4 && inShapes[3].size() != 0) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
             << " The fourth input with default value of SparseToDense must be a scalar";
     }
@@ -1643,6 +1929,7 @@ void SparseToDenseValidator::checkShapes(const CNNLayer* layer, const vector<Siz
     if (input_values_precision != Precision::I32)
         THROW_IE_EXCEPTION << layer->name << " Incorrect input values precision. Only I32 are supported!";
     if (numInputs == 4) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (numInputs == 4) {" << std::endl;
         Precision input_default_value_precision = layer->insData[INPUT_DEFAULT_VALUE].lock()->getTensorDesc().getPrecision();
         if (input_default_value_precision != Precision::I32)
             THROW_IE_EXCEPTION << layer->name << " Incorrect input default value precision. Only I32 are supported!";
@@ -1650,11 +1937,14 @@ void SparseToDenseValidator::checkShapes(const CNNLayer* layer, const vector<Siz
 }
 
 
-BucketizeValidator::BucketizeValidator(const std::string& _type) : LayerValidator(_type) {}
+BucketizeValidator::BucketizeValidator(const std::string& _type) : LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  BucketizeValidator::BucketizeValidator(const std::string& _type) : LayerValidator(_type) {" << std::endl;}
 
 void BucketizeValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void BucketizeValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<BucketizeLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Bucketize class";
     }
 
@@ -1662,12 +1952,14 @@ void BucketizeValidator::parseParams(CNNLayer* layer) {
 }
 
 void BucketizeValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void BucketizeValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void BucketizeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const BucketizeLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Bucketize class";
     }
 
@@ -1679,6 +1971,7 @@ void BucketizeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVec
 
     // check shapes of inputs
     if (inShapes[1].size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[1].size() != 1) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name
                            << " The second input of Bucketize must be one-dimensional";
     }
@@ -1695,11 +1988,14 @@ void BucketizeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVec
         THROW_IE_EXCEPTION << layer->name << " Incorrect input boundaries precision. Only FP32 are supported!";
 }
 
-ReverseSequenceValidator::ReverseSequenceValidator(const std::string& _type): LayerValidator(_type) {}
+ReverseSequenceValidator::ReverseSequenceValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ReverseSequenceValidator::ReverseSequenceValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ReverseSequenceValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ReverseSequenceValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<ReverseSequenceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of ReverseSequence class";
     }
 
@@ -1708,12 +2004,14 @@ void ReverseSequenceValidator::parseParams(CNNLayer* layer) {
 }
 
 void ReverseSequenceValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ReverseSequenceValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void ReverseSequenceValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const ReverseSequenceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of ReverseSequence class";
     }
 
@@ -1744,22 +2042,27 @@ void ReverseSequenceValidator::checkShapes(const CNNLayer* layer, const vector<S
         THROW_IE_EXCEPTION << layer->name << " Incorrect 'seq_lengths_dims' parameter dimensions!";
 }
 
-SqueezeValidator::SqueezeValidator(const std::string& _type): LayerValidator(_type) {}
+SqueezeValidator::SqueezeValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SqueezeValidator::SqueezeValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void SqueezeValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SqueezeValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<CNNLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Squeeze class";
     }
 }
 
 void SqueezeValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SqueezeValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void SqueezeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const CNNLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Squeeze class";
     }
 
@@ -1771,22 +2074,27 @@ void SqueezeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVecto
         THROW_IE_EXCEPTION << layer->name << " Incorrect number of 'indices_to_squeeze' input dimensions!";
 }
 
-UnsqueezeValidator::UnsqueezeValidator(const std::string& _type): LayerValidator(_type) {}
+UnsqueezeValidator::UnsqueezeValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  UnsqueezeValidator::UnsqueezeValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void UnsqueezeValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void UnsqueezeValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<CNNLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Unsqueeze class";
     }
 }
 
 void UnsqueezeValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void UnsqueezeValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void UnsqueezeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const CNNLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Unsqueeze class";
     }
 
@@ -1798,20 +2106,25 @@ void UnsqueezeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVec
         THROW_IE_EXCEPTION << layer->name << " Incorrect number of 'indices_to_set' input dimensions!";
 }
 
-RangeValidator::RangeValidator(const std::string& _type): LayerValidator(_type) {}
+RangeValidator::RangeValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  RangeValidator::RangeValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void RangeValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void RangeValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<RangeLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Range class";
     }
 }
 
-void RangeValidator::checkParams(const CNNLayer* layer) {}
+void RangeValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void RangeValidator::checkParams(const CNNLayer* layer) {" << std::endl;}
 
 void RangeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const RangeLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Range class";
     }
 
@@ -1826,11 +2139,14 @@ void RangeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>
     if (inShapes[2].size() != 1) THROW_IE_EXCEPTION << layer->name << " Incorrect number of 'delta' input dimensions!";
 }
 
-FillValidator::FillValidator(const std::string& _type): LayerValidator(_type) {}
+FillValidator::FillValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  FillValidator::FillValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
-void FillValidator::parseParams(CNNLayer* layer) {}
+void FillValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void FillValidator::parseParams(CNNLayer* layer) {" << std::endl;}
 
-void FillValidator::checkParams(const CNNLayer* layer) {}
+void FillValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void FillValidator::checkParams(const CNNLayer* layer) {" << std::endl;}
 
 void FillValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     size_t numInputs = inShapes.size();
@@ -1844,22 +2160,27 @@ void FillValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>&
         THROW_IE_EXCEPTION << layer->name << " Incorrect number of 'fill_value' input dimensions!";
 }
 
-BroadcastValidator::BroadcastValidator(const std::string& _type): LayerValidator(_type) {}
+BroadcastValidator::BroadcastValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  BroadcastValidator::BroadcastValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void BroadcastValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void BroadcastValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<BroadcastLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Broadcast class";
     }
 }
 
 void BroadcastValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void BroadcastValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void BroadcastValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const BroadcastLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Broadcast class";
     }
 
@@ -1875,8 +2196,10 @@ void BroadcastValidator::checkShapes(const CNNLayer* layer, const vector<SizeVec
 /****************************************/
 
 static RNNCellBase::CellType cell_type_from(string type_name) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  static RNNCellBase::CellType cell_type_from(string type_name) {" << std::endl;
     const vector<string> to_remove {"Cell", "Sequence"};
     for (auto& sub : to_remove) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (auto& sub : to_remove) {" << std::endl;
         auto idx = type_name.find(sub);
         if (idx != string::npos) type_name.erase(idx);
     }
@@ -1892,6 +2215,7 @@ static RNNCellBase::CellType cell_type_from(string type_name) {
 }
 
 static RNNSequenceLayer::Direction direction_from(string direction_name) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  static RNNSequenceLayer::Direction direction_from(string direction_name) {" << std::endl;
     if (!one_of(direction_name, "Forward", "Backward", "Bidirectional"))
         THROW_IE_EXCEPTION << "Unknown RNN direction type " << direction_name << ". "
                            << "Expected one of [ Forward | Backward | Bidirectional ].";
@@ -1904,19 +2228,23 @@ static RNNSequenceLayer::Direction direction_from(string direction_name) {
 }
 
 RNNBaseValidator::RNNBaseValidator(const std::string& _type, RNNSequenceLayer::CellType CELL): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  RNNBaseValidator::RNNBaseValidator(const std::string& _type, RNNSequenceLayer::CellType CELL): LayerValidator(_type) {" << std::endl;
     if (RNNSequenceLayer::LSTM == CELL) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (RNNSequenceLayer::LSTM == CELL) {" << std::endl;
         def_acts = {"sigmoid", "tanh", "tanh"};
         def_alpha = {0, 0, 0};
         def_beta = {0, 0, 0};
         G = 4;
         NS = 2;
     } else if (RNNSequenceLayer::GRU == CELL) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (RNNSequenceLayer::GRU == CELL) {" << std::endl;
         def_acts = {"sigmoid", "tanh"};
         def_alpha = {0, 0};
         def_beta = {0, 0};
         G = 3;
         NS = 1;
     } else if (RNNSequenceLayer::RNN == CELL) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      } else if (RNNSequenceLayer::RNN == CELL) {" << std::endl;
         def_acts = {"tanh"};
         def_alpha = {0};
         def_beta = {0};
@@ -1928,6 +2256,7 @@ RNNBaseValidator::RNNBaseValidator(const std::string& _type, RNNSequenceLayer::C
 }
 
 void RNNBaseValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void RNNBaseValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto rnn = dynamic_cast<RNNCellBase*>(layer);
     if (!rnn) THROW_IE_EXCEPTION << "Layer is not instance of RNNLayer class";
 
@@ -1939,12 +2268,14 @@ void RNNBaseValidator::parseParams(CNNLayer* layer) {
     rnn->activation_beta = rnn->GetParamAsFloats("activation_beta", def_beta);
 
     if (rnn->cellType == RNNCellBase::GRU) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (rnn->cellType == RNNCellBase::GRU) {" << std::endl;
         auto lbr = rnn->GetParamAsBool("linear_before_reset", false);
         if (lbr) rnn->cellType = RNNCellBase::GRU_LBR;
     }
 }
 
 void RNNBaseValidator::checkParams(const InferenceEngine::CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void RNNBaseValidator::checkParams(const InferenceEngine::CNNLayer* layer) {" << std::endl;
     auto rnn = dynamic_cast<const RNNCellBase*>(layer);
     if (!rnn) THROW_IE_EXCEPTION << "Layer is not instance of RNNLayer class";
 
@@ -1998,10 +2329,12 @@ void RNNBaseValidator::checkCorrespondence(const CNNLayer* layer, const map<stri
 }
 
 template <RNNSequenceLayer::CellType CELL>
-RNNSequenceValidator<CELL>::RNNSequenceValidator(const std::string& _type): RNNBaseValidator(_type, CELL) {}
+RNNSequenceValidator<CELL>::RNNSequenceValidator(const std::string& _type): RNNBaseValidator(_type, CELL) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  RNNSequenceValidator<CELL>::RNNSequenceValidator(const std::string& _type): RNNBaseValidator(_type, CELL) {" << std::endl;}
 
 template <RNNSequenceLayer::CellType CELL>
 void RNNSequenceValidator<CELL>::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void RNNSequenceValidator<CELL>::parseParams(CNNLayer* layer) {" << std::endl;
     RNNBaseValidator::parseParams(layer);
 
     auto casted = dynamic_cast<RNNSequenceLayer*>(layer);
@@ -2015,6 +2348,7 @@ void RNNSequenceValidator<CELL>::parseParams(CNNLayer* layer) {
 
 template <RNNSequenceLayer::CellType CELL>
 void RNNSequenceValidator<CELL>::checkParams(const InferenceEngine::CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void RNNSequenceValidator<CELL>::checkParams(const InferenceEngine::CNNLayer* layer) {" << std::endl;
     RNNBaseValidator::checkParams(layer);
 
     auto casted = dynamic_cast<const RNNSequenceLayer*>(layer);
@@ -2044,7 +2378,8 @@ void RNNSequenceValidator<CELL>::checkShapes(const CNNLayer* layer, const vector
     SizeVector expected_state_shape {N, S};
     SizeVector expected_seq_l_shape {N};
 
-    if (inShapes.size() > 1) {  // has an initial state blobs
+    if (inShapes.size() > 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes.size() > 1) {" << std::endl;  // has an initial state blobs
         if (inShapes.size() != 1 + NS && inShapes.size() != 2 + NS)
             THROW_IE_EXCEPTION << "Wrong number of input tensors. Expected 1 (data) or " << 1 + NS
                                << " (data and states) or " << 2 + NS << " (data, states and seq_length).";
@@ -2065,7 +2400,8 @@ template class details::RNNSequenceValidator<RNNSequenceLayer::GRU>;
 template class details::RNNSequenceValidator<RNNSequenceLayer::LSTM>;
 
 template <RNNSequenceLayer::CellType CELL>
-RNNCellValidator<CELL>::RNNCellValidator(const std::string& _type): RNNBaseValidator(_type, CELL) {}
+RNNCellValidator<CELL>::RNNCellValidator(const std::string& _type): RNNBaseValidator(_type, CELL) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  RNNCellValidator<CELL>::RNNCellValidator(const std::string& _type): RNNBaseValidator(_type, CELL) {" << std::endl;}
 
 template <RNNSequenceLayer::CellType CELL>
 void RNNCellValidator<CELL>::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
@@ -2097,6 +2433,7 @@ template class details::RNNCellValidator<RNNSequenceLayer::GRU>;
 template class details::RNNCellValidator<RNNSequenceLayer::LSTM>;
 
 void ArgMaxValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ArgMaxValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     unsigned int top_k_ = layer->GetParamAsUInt("top_k");
 }
 
@@ -2104,11 +2441,14 @@ void ArgMaxValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeV
     checkNumOfInput(inShapes, {1});
 }
 
-ArgMaxValidator::ArgMaxValidator(const std::string& _type): LayerValidator(_type) {}
+ArgMaxValidator::ArgMaxValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ArgMaxValidator::ArgMaxValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void CTCGreedyDecoderValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void CTCGreedyDecoderValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     int flag = layer->GetParamAsInt("ctc_merge_repeated", 0);
     if (flag != 0 && flag != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (flag != 0 && flag != 1) {" << std::endl;
         THROW_IE_EXCEPTION << "CTCGreedyDecoder layer parameter ctc_merge_repeated is invalid";
     }
 }
@@ -2117,15 +2457,19 @@ void CTCGreedyDecoderValidator::checkShapes(const CNNLayer* layer, const std::ve
     checkNumOfInput(inShapes, {1, 2});
 }
 
-CTCGreedyDecoderValidator::CTCGreedyDecoderValidator(const std::string& _type): LayerValidator(_type) {}
+CTCGreedyDecoderValidator::CTCGreedyDecoderValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  CTCGreedyDecoderValidator::CTCGreedyDecoderValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void DetectionOutputValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void DetectionOutputValidator::parseParams(CNNLayer* layer) {" << std::endl;
     unsigned int num_classes = layer->GetParamAsUInt("num_classes");
     if (num_classes == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (num_classes == 0) {" << std::endl;
         THROW_IE_EXCEPTION << "num_classes parameter of DetectionOutput layer can't be equal to zero";
     }
     float _nms_threshold = layer->GetParamAsFloat("nms_threshold");
     if (_nms_threshold < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (_nms_threshold < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "nms_threshold parameter of DetectionOutput layer can't be less then zero";
     }
     int _keep_top_k = layer->GetParamAsUInt("keep_top_k", -1);
@@ -2142,29 +2486,36 @@ void DetectionOutputValidator::parseParams(CNNLayer* layer) {
     if (layer->CheckParamPresence("interpolate_orientation"))
         int _interpolate_orientation = layer->GetParamAsInt("interpolate_orientation");
     if (layer->CheckParamPresence("confidence_threshold")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('confidence_threshold')) {" << std::endl;
         float _confidence_threshold = layer->GetParamAsFloat("confidence_threshold");
         if (_confidence_threshold < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (_confidence_threshold < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "_nms_threshold parameter of DetectionOutput layer can't be less then zero";
         }
     }
 
     if (layer->CheckParamPresence("code_type")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('code_type')) {" << std::endl;
         std::string _code_type = layer->GetParamAsString("code_type");
         std::vector<std::string> code_types = {"caffe.PriorBoxParameter.CENTER_SIZE", "caffe.PriorBoxParameter.CORNER"};
         auto it = std::find(code_types.begin(), code_types.end(), _code_type);
         if (it == code_types.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (it == code_types.end()) {" << std::endl;
             THROW_IE_EXCEPTION << "Parameter code_type of DetectionOutput layer ";
         }
     }
 }
 
 void DetectionOutputValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void DetectionOutputValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     unsigned int num_classes = layer->GetParamAsUInt("num_classes");
     if (num_classes == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (num_classes == 0) {" << std::endl;
         THROW_IE_EXCEPTION << "num_classes parameter of DetectionOutput layer can't be equal to zero";
     }
     float _nms_threshold = layer->GetParamAsFloat("nms_threshold");
     if (_nms_threshold < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (_nms_threshold < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "nms_threshold parameter of DetectionOutput layer can't be less then zero";
     }
     int _keep_top_k = layer->GetParamAsUInt("keep_top_k", -1);
@@ -2181,16 +2532,20 @@ void DetectionOutputValidator::checkParams(const CNNLayer* layer) {
     if (layer->CheckParamPresence("interpolate_orientation"))
         int _interpolate_orientation = layer->GetParamAsInt("interpolate_orientation");
     if (layer->CheckParamPresence("confidence_threshold")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('confidence_threshold')) {" << std::endl;
         float _confidence_threshold = layer->GetParamAsFloat("confidence_threshold");
         if (_confidence_threshold < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (_confidence_threshold < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "_nms_threshold parameter of DetectionOutput layer can't be less then zero";
         }
     }
     if (layer->CheckParamPresence("code_type")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('code_type')) {" << std::endl;
         std::string _code_type = layer->GetParamAsString("code_type");
         std::vector<std::string> code_types = {"caffe.PriorBoxParameter.CENTER_SIZE", "caffe.PriorBoxParameter.CORNER"};
         auto it = std::find(code_types.begin(), code_types.end(), _code_type);
         if (it == code_types.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (it == code_types.end()) {" << std::endl;
             THROW_IE_EXCEPTION << "Parameter code_type of DetectionOutput layer ";
         }
     }
@@ -2200,16 +2555,20 @@ void DetectionOutputValidator::checkShapes(const CNNLayer* layer, const std::vec
     checkNumOfInput(inShapes, {3, 5});
 }
 
-DetectionOutputValidator::DetectionOutputValidator(const std::string& _type): LayerValidator(_type) {}
+DetectionOutputValidator::DetectionOutputValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  DetectionOutputValidator::DetectionOutputValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
-void InterpValidator::checkParams(const CNNLayer* layer) {}
+void InterpValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void InterpValidator::checkParams(const CNNLayer* layer) {" << std::endl;}
 
 void InterpValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1, 2});
     auto IS_ZERO = [](float value) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      auto IS_ZERO = [](float value) {" << std::endl;
         return std::fabs(value) < std::numeric_limits<float>::epsilon();
     };
     if (inShapes.size() != 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes.size() != 2) {" << std::endl;
         float factor = layer->GetParamAsFloat("factor", 0);
         if (factor < 0) THROW_IE_EXCEPTION << "factor parameter of Interp layer can't be less then zero";
         float shrink_factor = layer->GetParamAsFloat("shrink_factor", 0);
@@ -2222,15 +2581,18 @@ void InterpValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeV
         auto width = layer->GetParamAsUInt("width", 0);
 
         if (noFactor && (height == 0 || width == 0)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (noFactor && (height == 0 || width == 0)) {" << std::endl;
             THROW_IE_EXCEPTION << "Can't reshape without factor, or target resolution. "
                                << "Supported attributes: factor, shrink_factor, zoom_factor, height, width";
         }
     }
 }
 
-InterpValidator::InterpValidator(const std::string& _type): LayerValidator(_type) {}
+InterpValidator::InterpValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  InterpValidator::InterpValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void InterpValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void InterpValidator::parseParams(CNNLayer* layer) {" << std::endl;
     float factor = layer->GetParamAsFloat("factor", 0);
     float shrink_factor = layer->GetParamAsFloat("shrink_factor", 0);
     float zoom_factor = layer->GetParamAsFloat("zoom_factor", 0);
@@ -2240,6 +2602,7 @@ void InterpValidator::parseParams(CNNLayer* layer) {
 }
 
 void PermuteValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PermuteValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     std::vector<unsigned int> layerOrder = layer->GetParamAsUInts("order");
 }
 
@@ -2247,9 +2610,11 @@ void PermuteValidator::checkShapes(const CNNLayer* layer, const std::vector<Size
     checkNumOfInput(inShapes, {1});
 }
 
-PermuteValidator::PermuteValidator(const std::string& _type): LayerValidator(_type) {}
+PermuteValidator::PermuteValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  PermuteValidator::PermuteValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void PriorBoxValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PriorBoxValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     std::vector<unsigned int> min_sizes = layer->GetParamAsUInts("min_size", {});
     std::vector<unsigned int> max_sizes = layer->GetParamAsUInts("max_size", {});
     bool flip = static_cast<bool>(layer->GetParamAsInt("flip"));
@@ -2258,17 +2623,21 @@ void PriorBoxValidator::checkParams(const CNNLayer* layer) {
     bool clip_ = static_cast<bool>(layer->GetParamAsInt("clip"));
     std::vector<float> variance_ = layer->GetParamAsFloats("variance", {});
     for (float i : variance_) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (float i : variance_) {" << std::endl;
         if (i < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (i < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "The value of PriorBox layer variance parameter is invalid. "
                                   "Positive value is expected";
         }
     }
     float step_ = layer->GetParamAsFloat("step", 0);
     if (step_ < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (step_ < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of PriorBox layer step_ parameter is invalid";
     }
     float offset_ = layer->GetParamAsFloat("offset");
     if (offset_ < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (offset_ < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of PriorBox layer offset_ parameter is invalid";
     }
 }
@@ -2277,18 +2646,24 @@ void PriorBoxValidator::checkShapes(const CNNLayer* layer, const std::vector<Siz
     checkNumOfInput(inShapes, {2});
 }
 
-PriorBoxValidator::PriorBoxValidator(const std::string& _type): LayerValidator(_type) {}
+PriorBoxValidator::PriorBoxValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  PriorBoxValidator::PriorBoxValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void PriorBoxClusteredValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PriorBoxClusteredValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     std::vector<float> widths = layer->GetParamAsFloats("width", {});
     for (auto i : widths) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (auto i : widths) {" << std::endl;
         if (i < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (i < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "The value of PriorBoxClustered layer width parameter is invalid";
         }
     }
     std::vector<float> heights = layer->GetParamAsFloats("height", {});
     for (auto i : heights) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (auto i : heights) {" << std::endl;
         if (i < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (i < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "The value of PriorBoxClustered layer heights parameter is invalid";
         }
     }
@@ -2296,30 +2671,37 @@ void PriorBoxClusteredValidator::checkParams(const CNNLayer* layer) {
     bool clip_ = static_cast<bool>(layer->GetParamAsInt("clip"));
     float offset_ = layer->GetParamAsFloat("offset");
     if (offset_ < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (offset_ < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of PriorBox layer offset_ parameter is invalid";
     }
 
     std::vector<float> variance_ = layer->GetParamAsFloats("variance", {});
     for (float i : variance_) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (float i : variance_) {" << std::endl;
         if (i < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (i < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "The value of PriorBox layer variance parameter is invalid. "
                                   "Positive value is expected";
         }
     }
     float step_h_ = layer->GetParamAsFloat("step_h", 0);
     if (step_h_ < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (step_h_ < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of PriorBox layer step_h_ parameter is invalid";
     }
     float step_w_ = layer->GetParamAsFloat("step_w", 0);
     if (step_w_ < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (step_w_ < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of PriorBox layer step_w_ parameter is invalid";
     }
     float img_h_ = layer->GetParamAsFloat("img_h", 0);
     if (img_h_ < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (img_h_ < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of PriorBox layer img_h_ parameter is invalid";
     }
     float img_w_ = layer->GetParamAsFloat("img_w", 0);
     if (img_w_ < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (img_w_ < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of PriorBox layer img_w_ parameter is invalid";
     }
 }
@@ -2328,13 +2710,16 @@ void PriorBoxClusteredValidator::checkShapes(const CNNLayer* layer, const std::v
     checkNumOfInput(inShapes, {2});
 }
 
-PriorBoxClusteredValidator::PriorBoxClusteredValidator(const std::string& _type): LayerValidator(_type) {}
+PriorBoxClusteredValidator::PriorBoxClusteredValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  PriorBoxClusteredValidator::PriorBoxClusteredValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ProposalValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ProposalValidator::parseParams(CNNLayer* layer) {" << std::endl;
     layer->params["num_outputs"] = std::to_string(layer->outData.size());
 }
 
 void ProposalValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ProposalValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     unsigned int post_nms_topn_ = layer->GetParamAsUInt("post_nms_topn");
 
     if (layer->CheckParamPresence("feat_stride")) unsigned int feat_stride_ = layer->GetParamAsUInt("feat_stride");
@@ -2342,8 +2727,10 @@ void ProposalValidator::checkParams(const CNNLayer* layer) {
     if (layer->CheckParamPresence("min_size")) unsigned int min_size_ = layer->GetParamAsUInt("min_size");
     if (layer->CheckParamPresence("pre_nms_topn")) unsigned int pre_nms_topn_ = layer->GetParamAsUInt("pre_nms_topn");
     if (layer->CheckParamPresence("nms_thresh")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('nms_thresh')) {" << std::endl;
         float nms_thresh_ = layer->GetParamAsFloat("nms_thresh");
         if (nms_thresh_ < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (nms_thresh_ < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "The value of Proposal layer nms_thresh_ parameter is invalid";
         }
     }
@@ -2353,14 +2740,18 @@ void ProposalValidator::checkShapes(const CNNLayer* layer, const std::vector<Siz
     checkNumOfInput(inShapes, {3});
 }
 
-ProposalValidator::ProposalValidator(const std::string& _type): LayerValidator(_type) {}
+ProposalValidator::ProposalValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ProposalValidator::ProposalValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void PSROIPoolingValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PSROIPoolingValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     unsigned int output_dim = layer->GetParamAsUInt("output_dim");
     unsigned int group_size = layer->GetParamAsUInt("group_size");
     if (layer->CheckParamPresence("spatial_scale")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('spatial_scale')) {" << std::endl;
         float spatial_scale_ = layer->GetParamAsFloat("spatial_scale");
         if (spatial_scale_ < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (spatial_scale_ < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "The value of PSROIPooling layer spatial_scale_ parameter is invalid";
         }
     }
@@ -2370,9 +2761,11 @@ void PSROIPoolingValidator::checkShapes(const CNNLayer* layer, const std::vector
     checkNumOfInput(inShapes, {1, 2, 3});
 }
 
-PSROIPoolingValidator::PSROIPoolingValidator(const std::string& _type): LayerValidator(_type) {}
+PSROIPoolingValidator::PSROIPoolingValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  PSROIPoolingValidator::PSROIPoolingValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void RegionYoloValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void RegionYoloValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2380,9 +2773,11 @@ void RegionYoloValidator::checkShapes(const CNNLayer* layer, const std::vector<S
     checkNumOfInput(inShapes, {1});
 }
 
-RegionYoloValidator::RegionYoloValidator(const std::string& _type): LayerValidator(_type) {}
+RegionYoloValidator::RegionYoloValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  RegionYoloValidator::RegionYoloValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ReorgYoloValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ReorgYoloValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2390,20 +2785,26 @@ void ReorgYoloValidator::checkShapes(const CNNLayer* layer, const std::vector<Si
     checkNumOfInput(inShapes, {1});
 }
 
-ReorgYoloValidator::ReorgYoloValidator(const std::string& _type): LayerValidator(_type) {}
+ReorgYoloValidator::ReorgYoloValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ReorgYoloValidator::ReorgYoloValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ResampleValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ResampleValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     if (layer->CheckParamPresence("antialias")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('antialias')) {" << std::endl;
         auto antialias = static_cast<size_t>(layer->GetParamAsInt("antialias"));
 
         if (antialias != 0 && antialias != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (antialias != 0 && antialias != 1) {" << std::endl;
             THROW_IE_EXCEPTION << "The value of resample layer antialias parameter is invalid";
         }
     }
     if (layer->CheckParamPresence("type")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('type')) {" << std::endl;
         std::string type = layer->GetParamAsString("type");
         if (type != "caffe.ResampleParameter.NEAREST" && type != "caffe.ResampleParameter.CUBIC" &&
             type != "caffe.ResampleParameter.LINEAR") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              type != 'caffe.ResampleParameter.LINEAR') {" << std::endl;
             THROW_IE_EXCEPTION << "The value of resample layer type parameter is invalid";
         }
     }
@@ -2413,13 +2814,16 @@ void ResampleValidator::checkShapes(const CNNLayer* layer, const std::vector<Siz
     checkNumOfInput(inShapes, {1, 2});
 }
 
-ResampleValidator::ResampleValidator(const std::string& _type): LayerValidator(_type) {}
+ResampleValidator::ResampleValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ResampleValidator::ResampleValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ROIPoolingValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ROIPoolingValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     unsigned int pooled_h = layer->GetParamAsUInt("pooled_h");
     unsigned int pooled_w = layer->GetParamAsUInt("pooled_w");
     float spatial_scale = layer->GetParamAsFloat("spatial_scale");
     if (spatial_scale < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (spatial_scale < 0) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of ROIPooling layer spatial_scale parameter is invalid";
     }
 }
@@ -2428,24 +2832,30 @@ void ROIPoolingValidator::checkShapes(const CNNLayer* layer, const std::vector<S
     checkNumOfInput(inShapes, {1, 2});
 }
 
-ROIPoolingValidator::ROIPoolingValidator(const std::string& _type): LayerValidator(_type) {}
+ROIPoolingValidator::ROIPoolingValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ROIPoolingValidator::ROIPoolingValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void SimplerNMSValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SimplerNMSValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     unsigned int post_nms_topn_ = layer->GetParamAsUInt("post_nms_topn");
 
     if (layer->CheckParamPresence("min_bbox_size")) unsigned int min_box_size_ = layer->GetParamAsUInt("min_bbox_size");
     if (layer->CheckParamPresence("feat_stride")) unsigned int feat_stride_ = layer->GetParamAsUInt("feat_stride");
     if (layer->CheckParamPresence("pre_nms_topn")) unsigned int pre_nms_topn_ = layer->GetParamAsUInt("pre_nms_topn");
     if (layer->CheckParamPresence("iou_threshold")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('iou_threshold')) {" << std::endl;
         float iou_threshold_ = layer->GetParamAsFloat("iou_threshold");
         if (iou_threshold_ < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (iou_threshold_ < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "The value of SimplerNMS layer iou_threshold_ parameter is invalid";
         }
     }
     if (layer->CheckParamPresence("scale")) std::vector<unsigned int> scale = layer->GetParamAsUInts("scale", {});
     if (layer->CheckParamPresence("cls_threshold")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('cls_threshold')) {" << std::endl;
         float cls_threshold = layer->GetParamAsFloat("cls_threshold");
         if (cls_threshold < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (cls_threshold < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "The value of SimplerNMS layer cls_threshold parameter is invalid";
         }
     }
@@ -2455,9 +2865,11 @@ void SimplerNMSValidator::checkShapes(const CNNLayer* layer, const std::vector<S
     checkNumOfInput(inShapes, {3});
 }
 
-SimplerNMSValidator::SimplerNMSValidator(const std::string& _type): LayerValidator(_type) {}
+SimplerNMSValidator::SimplerNMSValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SimplerNMSValidator::SimplerNMSValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void SpatialTransformerValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SpatialTransformerValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2465,9 +2877,11 @@ void SpatialTransformerValidator::checkShapes(const CNNLayer* layer, const std::
     checkNumOfInput(inShapes, {2});
 }
 
-SpatialTransformerValidator::SpatialTransformerValidator(const std::string& _type): LayerValidator(_type) {}
+SpatialTransformerValidator::SpatialTransformerValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SpatialTransformerValidator::SpatialTransformerValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void UpsamplingValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void UpsamplingValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2475,9 +2889,11 @@ void UpsamplingValidator::checkShapes(const CNNLayer* layer, const std::vector<S
     checkNumOfInput(inShapes, {1});
 }
 
-UpsamplingValidator::UpsamplingValidator(const std::string& _type): LayerValidator(_type) {}
+UpsamplingValidator::UpsamplingValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  UpsamplingValidator::UpsamplingValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void UnpoolingValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void UnpoolingValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2485,11 +2901,14 @@ void UnpoolingValidator::checkShapes(const CNNLayer* layer, const std::vector<Si
     checkNumOfInput(inShapes, {1});
 }
 
-UnpoolingValidator::UnpoolingValidator(const std::string& _type): LayerValidator(_type) {}
+UnpoolingValidator::UnpoolingValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  UnpoolingValidator::UnpoolingValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
-ActivationValidator::ActivationValidator(const std::string& _type): LayerValidator(_type) {}
+ActivationValidator::ActivationValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ActivationValidator::ActivationValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ActivationValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ActivationValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2497,9 +2916,11 @@ void ActivationValidator::checkShapes(const CNNLayer* layer, const std::vector<S
     checkNumOfInput(inShapes, {1});
 }
 
-ConstValidator::ConstValidator(const std::string& _type): LayerValidator(_type) {}
+ConstValidator::ConstValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ConstValidator::ConstValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ConstValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ConstValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2507,9 +2928,11 @@ void ConstValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVe
     checkNumOfInput(inShapes, {0, 1});
 }
 
-CopyValidator::CopyValidator(const std::string& _type): LayerValidator(_type) {}
+CopyValidator::CopyValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  CopyValidator::CopyValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void CopyValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void CopyValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2517,9 +2940,11 @@ void CopyValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVec
     checkNumOfInput(inShapes, {1});
 }
 
-ELUValidator::ELUValidator(const std::string& _type): LayerValidator(_type) {}
+ELUValidator::ELUValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ELUValidator::ELUValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ELUValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ELUValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2527,9 +2952,11 @@ void ELUValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVect
     checkNumOfInput(inShapes, {1});
 }
 
-InputValidator::InputValidator(const std::string& _type): LayerValidator(_type) {}
+InputValidator::InputValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  InputValidator::InputValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void InputValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void InputValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2537,11 +2964,14 @@ void InputValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVe
     checkNumOfInput(inShapes, {0});
 }
 
-MemoryValidator::MemoryValidator(const std::string& _type): LayerValidator(_type) {}
+MemoryValidator::MemoryValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  MemoryValidator::MemoryValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void MemoryValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void MemoryValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     int size = layer->GetParamAsInt("size");
     if (size != 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (size != 2) {" << std::endl;
         THROW_IE_EXCEPTION << "The value of Memory layer size parameter is invalid";
     }
 }
@@ -2550,23 +2980,29 @@ void MemoryValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeV
     checkNumOfInput(inShapes, {1, 0});
 }
 
-NormalizeValidator::NormalizeValidator(const std::string& _type): LayerValidator(_type) {}
+NormalizeValidator::NormalizeValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  NormalizeValidator::NormalizeValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void NormalizeValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void NormalizeValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     if (layer->CheckParamPresence("eps")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('eps')) {" << std::endl;
         float eps = layer->GetParamAsFloat("eps");
         if (eps < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (eps < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "The value of Normalize layer eps parameter is invalid";
         }
     }
 }
 
-SelectValidator::SelectValidator(const std::string& _type): LayerValidator(_type) {}
+SelectValidator::SelectValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SelectValidator::SelectValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void SelectValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     enum { condition, then_, else_, numOfInputs };
     auto casted = dynamic_cast<const SelectLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of SelectLayer class";
     }
 
@@ -2574,26 +3010,31 @@ void SelectValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeV
     if (numOfInputs != numInputs) THROW_IE_EXCEPTION << " Select can take 3 inputs, but actually it has: " << numInputs;
 
     if (inShapes[then_] != inShapes[else_]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[then_] != inShapes[else_]) {" << std::endl;
         THROW_IE_EXCEPTION << " Positive input shape should be the same as negative input shape";
     }
 
     if (inShapes[condition].size() > inShapes[then_].size()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[condition].size() > inShapes[then_].size()) {" << std::endl;
         THROW_IE_EXCEPTION << " Condition input dimensions count (" << inShapes[condition].size()
                            << ") should be less or equel then"
                            << " posititve input dimension count (" << inShapes[then_].size() << ")";
     }
 
     if (inShapes[condition].size() > inShapes[else_].size()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[condition].size() > inShapes[else_].size()) {" << std::endl;
         THROW_IE_EXCEPTION << " Condition input dimensions count (" << inShapes[condition].size()
                            << ") should be less or equel then"
                            << " negative input dimension count (" << inShapes[else_].size() << ")";
     }
 
     for (std::size_t i = 0; i < inShapes[condition].size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      for (std::size_t i = 0; i < inShapes[condition].size(); ++i) {" << std::endl;
         const auto& cond_dim = inShapes[condition][inShapes[condition].size() - 1 - i];
         const auto& then_dim = inShapes[then_][inShapes[then_].size() - 1 - i];
 
         if (cond_dim != then_dim && cond_dim != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (cond_dim != then_dim && cond_dim != 1) {" << std::endl;
             THROW_IE_EXCEPTION << " Condition input dimension " << (inShapes[condition].size() - 1 - i) << " ("
                                << cond_dim << ") should be less or equel then posititve and negative"
                                << " input dimension " << (inShapes[then_].size() - 1 - i) << " (" << then_dim << ")";
@@ -2605,9 +3046,11 @@ void NormalizeValidator::checkShapes(const CNNLayer* layer, const std::vector<Si
     checkNumOfInput(inShapes, {1});
 }
 
-PowerFileValidator::PowerFileValidator(const std::string& _type): LayerValidator(_type) {}
+PowerFileValidator::PowerFileValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  PowerFileValidator::PowerFileValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void PowerFileValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void PowerFileValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2615,9 +3058,11 @@ void PowerFileValidator::checkShapes(const CNNLayer* layer, const std::vector<Si
     checkNumOfInput(inShapes, {1});
 }
 
-ReLU6Validator::ReLU6Validator(const std::string& _type): LayerValidator(_type) {}
+ReLU6Validator::ReLU6Validator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ReLU6Validator::ReLU6Validator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ReLU6Validator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ReLU6Validator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2625,9 +3070,11 @@ void ReLU6Validator::checkShapes(const CNNLayer* layer, const std::vector<SizeVe
     checkNumOfInput(inShapes, {1});
 }
 
-SigmoidValidator::SigmoidValidator(const std::string& _type): LayerValidator(_type) {}
+SigmoidValidator::SigmoidValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  SigmoidValidator::SigmoidValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void SigmoidValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void SigmoidValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2635,21 +3082,26 @@ void SigmoidValidator::checkShapes(const CNNLayer* layer, const std::vector<Size
     checkNumOfInput(inShapes, {1});
 }
 
-TanHValidator::TanHValidator(const std::string& _type): LayerValidator(_type) {}
+TanHValidator::TanHValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  TanHValidator::TanHValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void TanHValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
-OneHotValidator::OneHotValidator(const std::string& _type): LayerValidator(_type) {}
+OneHotValidator::OneHotValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  OneHotValidator::OneHotValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void OneHotValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void OneHotValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<OneHotLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not an instance of the OneHot class";
     }
 
     if (layer->CheckParamPresence("depth")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (layer->CheckParamPresence('depth')) {" << std::endl;
         casted->depth = layer->GetParamAsUInt("depth");
     } else {
         THROW_IE_EXCEPTION << "The required depth parameter of OneHot layer is missing";
@@ -2660,6 +3112,7 @@ void OneHotValidator::parseParams(CNNLayer* layer) {
 
     // there are some key words to represent reserved values
     auto universal_read = [] (std::string str) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      auto universal_read = [] (std::string str) {" << std::endl;
         float res;
         if (str == "True")
             res = 1.0f;
@@ -2677,6 +3130,7 @@ void OneHotValidator::parseParams(CNNLayer* layer) {
 }
 
 void OneHotValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void OneHotValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2684,29 +3138,35 @@ void OneHotValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeV
     checkNumOfInput(inShapes, {1});
 }
 
-QuantizeValidator::QuantizeValidator(const std::string& _type): LayerValidator(_type) {}
+QuantizeValidator::QuantizeValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  QuantizeValidator::QuantizeValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void QuantizeValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void QuantizeValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<QuantizeLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of QuantizeLayer class";
     }
 
     casted->levels = casted->GetParamAsInt("levels", 1);
 
     if (casted->levels <= 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (casted->levels <= 1) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << ": Incorrect value for parameter levels = " << casted->levels
                            << ". Expected to be > 1.";
     }
 }
 
 void QuantizeValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void QuantizeValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
 void QuantizeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const QuantizeLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of QuantizeLayer class";
     }
 
@@ -2715,15 +3175,19 @@ void QuantizeValidator::checkShapes(const CNNLayer* layer, const vector<SizeVect
 
     auto dims0 = inShapes[0];
     if (dims0.size() < 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (dims0.size() < 1) {" << std::endl;
         THROW_IE_EXCEPTION << "Quantize input0 shape must have at least 1 dimension";
     }
 }
 
-BinaryConvolutionValidator::BinaryConvolutionValidator(const std::string& _type): LayerValidator(_type) {}
+BinaryConvolutionValidator::BinaryConvolutionValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  BinaryConvolutionValidator::BinaryConvolutionValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void BinaryConvolutionValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void BinaryConvolutionValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto binConvLayer = dynamic_cast<BinaryConvolutionLayer*>(layer);
     if (!binConvLayer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!binConvLayer) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of BinaryConvolutionLayer class";
     }
 
@@ -2743,6 +3207,7 @@ void BinaryConvolutionValidator::parseParams(CNNLayer* layer) {
 
     vector<unsigned int> kernels = binConvLayer->GetParamAsUInts("kernel", {});
     if (kernels.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (kernels.empty()) {" << std::endl;
         // IR_v == 2
         binConvLayer->_kernel.insert(X_AXIS, binConvLayer->GetParamAsUInt("kernel-x"));
         binConvLayer->_kernel.insert(Y_AXIS, binConvLayer->GetParamAsUInt("kernel-y"));
@@ -2751,10 +3216,12 @@ void BinaryConvolutionValidator::parseParams(CNNLayer* layer) {
         binConvLayer->_stride.insert(Y_AXIS, binConvLayer->GetParamAsUInt("stride-y", 1u));
         // TODO: maybe just throw exception, why do we change IR?
         if (0 == binConvLayer->_stride[X_AXIS]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (0 == binConvLayer->_stride[X_AXIS]) {" << std::endl;
             binConvLayer->_stride[X_AXIS] = 1u;
             LogError("Warning! in layer %s: Stride x is 0, setting to 1 ", binConvLayer->name.c_str());
         }
         if (0 == binConvLayer->_stride[Y_AXIS]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          if (0 == binConvLayer->_stride[Y_AXIS]) {" << std::endl;
             binConvLayer->_stride[Y_AXIS] = 1u;
             LogError("Warning! in layer %s: Stride y is 0, setting to 1", binConvLayer->name.c_str());
         }
@@ -2770,6 +3237,7 @@ void BinaryConvolutionValidator::parseParams(CNNLayer* layer) {
     } else {
         // IR_v > 2
         for (int i = 1; i <= kernels.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= kernels.size(); i++) {" << std::endl;
             binConvLayer->_kernel.insert(i - 1, kernels[kernels.size() - i]);
         }
 
@@ -2778,7 +3246,9 @@ void BinaryConvolutionValidator::parseParams(CNNLayer* layer) {
 
         vector<unsigned int> strides = binConvLayer->GetParamAsUInts("strides", default_1);
         for (int i = 1; i <= strides.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= strides.size(); i++) {" << std::endl;
             if (strides[strides.size() - i] == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:              if (strides[strides.size() - i] == 0) {" << std::endl;
                 THROW_IE_EXCEPTION << "Stride could not be 0.\nIn layer " << binConvLayer->name;
             }
             binConvLayer->_stride.insert(i - 1, strides[strides.size() - i]);
@@ -2786,16 +3256,19 @@ void BinaryConvolutionValidator::parseParams(CNNLayer* layer) {
 
         vector<unsigned int> pads_begin = binConvLayer->GetParamAsUInts("pads_begin", default_0);
         for (int i = 1; i <= pads_begin.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= pads_begin.size(); i++) {" << std::endl;
             binConvLayer->_padding.insert(i - 1, pads_begin[pads_begin.size() - i]);
         }
 
         vector<unsigned int> pads_end = binConvLayer->GetParamAsUInts("pads_end", pads_begin);
         for (int i = 1; i <= pads_end.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= pads_end.size(); i++) {" << std::endl;
             binConvLayer->_pads_end.insert(i - 1, pads_end[pads_end.size() - i]);
         }
 
         vector<unsigned int> dilations = binConvLayer->GetParamAsUInts("dilations", default_1);
         for (int i = 1; i <= dilations.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:          for (int i = 1; i <= dilations.size(); i++) {" << std::endl;
             binConvLayer->_dilation.insert(i - 1, dilations[dilations.size() - i]);
         }
     }
@@ -2805,8 +3278,10 @@ void BinaryConvolutionValidator::parseParams(CNNLayer* layer) {
 }
 
 void BinaryConvolutionValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void BinaryConvolutionValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<const BinaryConvolutionLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer is not instance of BinaryConvolutionLayer class";
     }
 }
@@ -2822,17 +3297,21 @@ void BinaryConvolutionValidator::checkShapes(const CNNLayer* layer, const std::v
     checkNumOfInput(inShapes, {1});
 }
 
-MathValidator::MathValidator(const std::string& _type): LayerValidator(_type) {}
+MathValidator::MathValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  MathValidator::MathValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void MathValidator::checkShapes(const CNNLayer* layer, const std::vector<SizeVector>& inShapes) const {
     checkNumOfInput(inShapes, {1});
 }
 
-ReduceValidator::ReduceValidator(const std::string& _type): LayerValidator(_type) {}
+ReduceValidator::ReduceValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ReduceValidator::ReduceValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ReduceValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ReduceValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<ReduceLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Reduce class";
     }
 
@@ -2840,6 +3319,7 @@ void ReduceValidator::parseParams(CNNLayer* layer) {
 }
 
 void ReduceValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ReduceValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2849,9 +3329,12 @@ void ReduceValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector
         THROW_IE_EXCEPTION << layer->name << " Reduce can take up to 2 inputs, but actually it has: " << numInputs;
 }
 
-GatherTreeValidator::GatherTreeValidator(const std::string& _type): LayerValidator(_type) {}
-void GatherTreeValidator::parseParams(CNNLayer* layer) {}
+GatherTreeValidator::GatherTreeValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  GatherTreeValidator::GatherTreeValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
+void GatherTreeValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void GatherTreeValidator::parseParams(CNNLayer* layer) {" << std::endl;}
 void GatherTreeValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void GatherTreeValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2866,15 +3349,19 @@ void GatherTreeValidator::checkShapes(const CNNLayer* layer, const std::vector<S
     if (inShapes[3].size() != 1)
         THROW_IE_EXCEPTION << layer->name << " end_token vector should be 1 dimension " << inShapes[3].size();
     if (inShapes[0] != inShapes[1] || inShapes[0][1] != inShapes[2][0]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (inShapes[0] != inShapes[1] || inShapes[0][1] != inShapes[2][0]) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Input tensors dimensions mismatch";
     }
 }
 
-TopKValidator::TopKValidator(const std::string& _type): LayerValidator(_type) {}
+TopKValidator::TopKValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  TopKValidator::TopKValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void TopKValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void TopKValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<TopKLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of TopK class";
     }
 
@@ -2896,11 +3383,14 @@ void TopKValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>&
         THROW_IE_EXCEPTION << layer->name << " TopK can take only 2 inputs, but actually it has: " << numInputs;
 }
 
-UniqueValidator::UniqueValidator(const std::string& _type): LayerValidator(_type) {}
+UniqueValidator::UniqueValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  UniqueValidator::UniqueValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void UniqueValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void UniqueValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<UniqueLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of Unique class";
     }
 
@@ -2915,11 +3405,14 @@ void UniqueValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector
         THROW_IE_EXCEPTION << layer->name << " Unique can take only 1 input, but actually it has: " << numInputs;
 }
 
-NMSValidator::NMSValidator(const std::string& _type): LayerValidator(_type) {}
+NMSValidator::NMSValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  NMSValidator::NMSValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void NMSValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void NMSValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<NonMaxSuppressionLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of NonMaxSuppression class";
     }
 
@@ -2928,6 +3421,7 @@ void NMSValidator::parseParams(CNNLayer* layer) {
 }
 
 void NMSValidator::checkParams(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void NMSValidator::checkParams(const CNNLayer* layer) {" << std::endl;
     LayerValidator::checkParams(layer);
 }
 
@@ -2960,11 +3454,14 @@ void NMSValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& 
         THROW_IE_EXCEPTION << layer->name << " 'score_threshold' should be scalar";
 }
 
-ScatterValidator::ScatterValidator(const std::string& _type): LayerValidator(_type) {}
+ScatterValidator::ScatterValidator(const std::string& _type): LayerValidator(_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  ScatterValidator::ScatterValidator(const std::string& _type): LayerValidator(_type) {" << std::endl;}
 
 void ScatterValidator::parseParams(CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  void ScatterValidator::parseParams(CNNLayer* layer) {" << std::endl;
     auto casted = dynamic_cast<ScatterLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of ScatterLayer class";
     }
 
@@ -2974,6 +3471,7 @@ void ScatterValidator::parseParams(CNNLayer* layer) {
 void ScatterValidator::checkShapes(const CNNLayer* layer, const vector<SizeVector>& inShapes) const {
     auto casted = dynamic_cast<const ScatterLayer*>(layer);
     if (!casted) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:      if (!casted) {" << std::endl;
         THROW_IE_EXCEPTION << layer->name << " Layer is not instance of ScatterLayer class";
     }
 
@@ -3012,6 +3510,7 @@ void ScatterValidator::checkShapes(const CNNLayer* layer, const vector<SizeVecto
 #define REG_LAYER_VALIDATOR_FOR_TYPE(__validator, __type) _validators[#__type] = std::make_shared<__validator>(#__type)
 
 LayerValidators::LayerValidators() {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_validators.cpp:  LayerValidators::LayerValidators() {" << std::endl;
     REG_LAYER_VALIDATOR_FOR_TYPE(ActivationValidator, Activation);
     REG_LAYER_VALIDATOR_FOR_TYPE(ArgMaxValidator, ArgMax);
     REG_LAYER_VALIDATOR_FOR_TYPE(BatchNormalizationValidator, BatchNormalization);

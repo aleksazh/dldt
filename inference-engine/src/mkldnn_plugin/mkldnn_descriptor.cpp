@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -11,6 +12,7 @@ mkldnn::primitive_desc_iterator MKLDNNDescriptor::createPrimitiveDescriptorItera
 }
 
 MKLDNNDescriptor::operator bool() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator bool() {" << std::endl;
     return desc.get() != nullptr;
 }
 
@@ -18,11 +20,13 @@ size_t MKLDNNDescriptor::inputNumbers() const {
     DescFwdImpl<mkldnn::roi_pooling_forward::desc> *roiPooling =
             dynamic_cast<DescFwdImpl<mkldnn::roi_pooling_forward::desc> *>(desc.get());
     if (roiPooling != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (roiPooling != nullptr) {" << std::endl;
         return roiPooling->getPtr()->c_api_inputs.size();
     }
     DescFwdImpl<mkldnn::deformable_convolution_forward::desc> *defConv =
             dynamic_cast<DescFwdImpl<mkldnn::deformable_convolution_forward::desc> *>(desc.get());
     if (defConv != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (defConv != nullptr) {" << std::endl;
         return defConv->getPtr()->c_api_inputs.size();
     }
     return 1;
@@ -33,26 +37,32 @@ size_t MKLDNNDescriptor::outputNumbers() const {
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::batch_normalization_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::batch_normalization_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::batch_normalization_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::batch_normalization_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::batch_normalization_forward::desc>() {" << std::endl;
     DescFwdImpl<mkldnn::batch_normalization_forward::desc> *typeDesc =
             dynamic_cast<DescFwdImpl<mkldnn::batch_normalization_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::convolution_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::convolution_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::convolution_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::convolution_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::convolution_forward::desc>() {" << std::endl;
     DescFwdImpl<mkldnn::convolution_forward::desc> *typeDesc =
             dynamic_cast<DescFwdImpl<mkldnn::convolution_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
@@ -60,166 +70,204 @@ MKLDNNDescriptor::operator std::shared_ptr<mkldnn::convolution_forward::desc>() 
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::convolution_backward_data::desc> desc,
                                    std::shared_ptr<mkldnn::convolution_forward::primitive_desc> prim) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:                                     std::shared_ptr<mkldnn::convolution_forward::primitive_desc> prim) {" << std::endl;
     this->desc.reset(
             new DescBwdImpl<mkldnn::convolution_backward_data::desc,
                     mkldnn::convolution_forward::primitive_desc>(desc, prim));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::convolution_backward_data::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::convolution_backward_data::desc>() {" << std::endl;
     DescBwdImpl<mkldnn::convolution_backward_data::desc, mkldnn::convolution_forward::primitive_desc> *typeDesc =
             dynamic_cast<DescBwdImpl<mkldnn::convolution_backward_data::desc,
                     mkldnn::convolution_forward::primitive_desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::convolution_forward::primitive_desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::convolution_forward::primitive_desc>() {" << std::endl;
     DescBwdImpl<mkldnn::convolution_backward_data::desc, mkldnn::convolution_forward::primitive_desc> *typeDesc =
             dynamic_cast<DescBwdImpl<mkldnn::convolution_backward_data::desc,
                     mkldnn::convolution_forward::primitive_desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPrimPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::inner_product_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::inner_product_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::inner_product_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::inner_product_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::inner_product_forward::desc>() {" << std::endl;
     DescFwdImpl<mkldnn::inner_product_forward::desc> *typeDesc =
             dynamic_cast<DescFwdImpl<mkldnn::inner_product_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::lrn_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::lrn_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::lrn_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::lrn_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::lrn_forward::desc>() {" << std::endl;
     DescFwdImpl<mkldnn::lrn_forward::desc> *typeDesc =
             dynamic_cast<DescFwdImpl<mkldnn::lrn_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::pooling_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::pooling_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::pooling_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::pooling_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::pooling_forward::desc>() {" << std::endl;
     DescFwdImpl<mkldnn::pooling_forward::desc> *typeDesc =
             dynamic_cast<DescFwdImpl<mkldnn::pooling_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::roi_pooling_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::roi_pooling_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::roi_pooling_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::roi_pooling_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::roi_pooling_forward::desc>() {" << std::endl;
     DescFwdImpl<mkldnn::roi_pooling_forward::desc> *typeDesc =
             dynamic_cast<DescFwdImpl<mkldnn::roi_pooling_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::softmax_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::softmax_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::softmax_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::softmax_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::softmax_forward::desc>() {" << std::endl;
     DescFwdImpl<mkldnn::softmax_forward::desc> *typeDesc =
             dynamic_cast<DescFwdImpl<mkldnn::softmax_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::depthwise_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::depthwise_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::depthwise_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::depthwise_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::depthwise_forward::desc>() {" << std::endl;
     DescFwdImpl<mkldnn::depthwise_forward::desc> *typeDesc =
             dynamic_cast<DescFwdImpl<mkldnn::depthwise_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::rnn_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::rnn_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::rnn_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::rnn_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::rnn_forward::desc>() {" << std::endl;
     DescFwdImpl<mkldnn::rnn_forward::desc> *typeDesc =
             dynamic_cast<DescFwdImpl<mkldnn::rnn_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::eltwise_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::eltwise_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::eltwise_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::eltwise_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::eltwise_forward::desc>() {" << std::endl;
     DescFwdImpl<mkldnn::eltwise_forward::desc> *typeDesc =
             dynamic_cast<DescFwdImpl<mkldnn::eltwise_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::quantization_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::quantization_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::quantization_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::quantization_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::quantization_forward::desc>() {" << std::endl;
     auto *typeDesc = dynamic_cast<DescFwdImpl<mkldnn::quantization_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::binary_convolution_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::binary_convolution_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::binary_convolution_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::binary_convolution_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::binary_convolution_forward::desc>() {" << std::endl;
     auto *typeDesc = dynamic_cast<DescFwdImpl<mkldnn::binary_convolution_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();
 }
 
 MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::deformable_convolution_forward::desc> desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::MKLDNNDescriptor(std::shared_ptr<mkldnn::deformable_convolution_forward::desc> desc) {" << std::endl;
     this->desc.reset(new DescFwdImpl<mkldnn::deformable_convolution_forward::desc>(desc));
 }
 
 MKLDNNDescriptor::operator std::shared_ptr<mkldnn::deformable_convolution_forward::desc>() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:  MKLDNNDescriptor::operator std::shared_ptr<mkldnn::deformable_convolution_forward::desc>() {" << std::endl;
     auto *typeDesc = dynamic_cast<DescFwdImpl<mkldnn::deformable_convolution_forward::desc> *>(desc.get());
     if (typeDesc == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_descriptor.cpp:      if (typeDesc == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast descriptor!";
     }
     return typeDesc->getPtr();

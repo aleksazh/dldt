@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -26,9 +27,11 @@ private:
 
 public:
     explicit SparseSegmentReduceImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:      explicit SparseSegmentReduceImpl(const CNNLayer* layer) {" << std::endl;
         try {
             // check a number of input/output edges
             if (layer->insData.size() != 3 || layer->outData.size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (layer->insData.size() != 3 || layer->outData.size() != 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
             }
 
@@ -43,33 +46,40 @@ public:
             // check a precision of input tensors
             Precision input_data_precision = layer->insData[INPUT_DATA_PORT].lock()->getTensorDesc().getPrecision();
             if (input_data_precision != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (input_data_precision != Precision::FP32) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect precision of the input data. Only FP32 is supported!";
             }
             Precision input_indices_precision = layer->insData[INPUT_INDICES_PORT].lock()->getTensorDesc().getPrecision();
             if (input_indices_precision != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (input_indices_precision != Precision::FP32) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect precision of the input indices. Only FP32 is supported!";
             }
             Precision input_segment_ids_precision = layer->insData[INPUT_SEGMENT_IDS_PORT].lock()->getTensorDesc().getPrecision();
             if (input_segment_ids_precision != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (input_segment_ids_precision != Precision::FP32) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect precision of segment IDs. Only FP32 is supported!";
             }
 
             // check shapes of the second and third input tensors
             input_indices_dims = layer->insData[INPUT_INDICES_PORT].lock()->getTensorDesc().getDims();
             if (input_indices_dims.size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (input_indices_dims.size() != 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for input indices. It must be a one-dimensional tensor.";
             }
             input_segment_ids_dims = layer->insData[INPUT_SEGMENT_IDS_PORT].lock()->getTensorDesc().getDims();
             if (input_segment_ids_dims.size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (input_segment_ids_dims.size() != 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for input segment IDs. It must be a one-dimensional tensor.";
             }
             if (input_indices_dims[0] != input_segment_ids_dims[0]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (input_indices_dims[0] != input_segment_ids_dims[0]) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Shapes for input indices and segment IDs must match.";
             }
 
             // check a precision of output tensor
             Precision output_precision = layer->insData[OUTPUT_PORT].lock()->getTensorDesc().getPrecision();
             if (output_precision != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (output_precision != Precision::FP32) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect precision of output data. Only FP32 is supported!";
             }
 
@@ -77,13 +87,17 @@ public:
             input_data_dims = layer->insData[INPUT_DATA_PORT].lock()->getTensorDesc().getDims();
             output_dims = layer->outData[OUTPUT_PORT]->getTensorDesc().getDims();
             if (output_dims.size() != input_data_dims.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (output_dims.size() != input_data_dims.size()) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for output.";
             }
             if (output_dims[0] != input_segment_ids_dims[0]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (output_dims[0] != input_segment_ids_dims[0]) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for output.";
             }
             for (size_t i = 1; i < output_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              for (size_t i = 1; i < output_dims.size(); i++) {" << std::endl;
                 if (output_dims[i] != input_data_dims[i]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:                  if (output_dims[i] != input_data_dims[i]) {" << std::endl;
                     THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for output.";
                 }
             }
@@ -94,6 +108,7 @@ public:
                 { DataConfigurator(ConfLayout::PLN) });
         }
         catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:          catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -116,12 +131,15 @@ public:
         // check that indices in a range [0; num_slices)
         if (std::any_of(input_indices_ptr, input_indices_ptr + num_indices,
             [num_slices](float idx) {return idx < 0.f || idx >= static_cast<float>(num_slices);})) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              [num_slices](float idx) {return idx < 0.f || idx >= static_cast<float>(num_slices);})) {" << std::endl;
             return GENERAL_ERROR;
         }
 
         // check that segment IDs are sorted
         for (size_t i = 1; i < num_indices; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:          for (size_t i = 1; i < num_indices; i++) {" << std::endl;
             if (input_segment_ids_ptr[i] < input_segment_ids_ptr[i - 1]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (input_segment_ids_ptr[i] < input_segment_ids_ptr[i - 1]) {" << std::endl;
                 return GENERAL_ERROR;
             }
         }
@@ -131,11 +149,14 @@ public:
         std::vector<size_t> segment_starts(num_segments);
         int prev_segment_id = -1;
         for (size_t i = 0; i < num_indices; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:          for (size_t i = 0; i < num_indices; i++) {" << std::endl;
             if (i > 0 && input_segment_ids_ptr[i] == input_segment_ids_ptr[i - 1]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              if (i > 0 && input_segment_ids_ptr[i] == input_segment_ids_ptr[i - 1]) {" << std::endl;
                 continue;
             }
             int cur_segment_id = static_cast<int>(input_segment_ids_ptr[i]);
             for (int tmp_segment_ids = prev_segment_id + 1; tmp_segment_ids <= cur_segment_id; tmp_segment_ids++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              for (int tmp_segment_ids = prev_segment_id + 1; tmp_segment_ids <= cur_segment_id; tmp_segment_ids++) {" << std::endl;
                 segment_starts[tmp_segment_ids] = i;
             }
             prev_segment_id = cur_segment_id;
@@ -146,12 +167,14 @@ public:
 
         // compute the result for each segment in parallel
         parallel_for(num_segments, [&](size_t segment_id) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:          parallel_for(num_segments, [&](size_t segment_id) {" << std::endl;
             float *segment_ptr = output_ptr + segment_id * num_elements_in_slice;
             size_t start = segment_starts[segment_id];
             size_t end = (segment_id == (num_segments - 1)) ? num_indices : segment_starts[segment_id + 1];
 
             // scatter data and reduce for one segment
             for (size_t idx = start; idx < end; idx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              for (size_t idx = start; idx < end; idx++) {" << std::endl;
                 size_t indice = input_indices_ptr[idx];
                 std::transform(segment_ptr, segment_ptr + num_elements_in_slice,
                     input_data_ptr + indice * num_elements_in_slice,
@@ -160,27 +183,35 @@ public:
         });
 
         if (reduction_op == ReducedOp::mean) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:          if (reduction_op == ReducedOp::mean) {" << std::endl;
             parallel_for(num_segments, [&](size_t segment_id) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              parallel_for(num_segments, [&](size_t segment_id) {" << std::endl;
                 float *segment_ptr = output_ptr + segment_id * num_elements_in_slice;
                 size_t start = segment_starts[segment_id];
                 size_t end = (segment_id == (num_segments - 1)) ? num_indices : segment_starts[segment_id + 1];
                 float num_adds = static_cast<float>(end - start);
                 if (num_adds > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:                  if (num_adds > 0) {" << std::endl;
                     std::transform(segment_ptr, segment_ptr + num_elements_in_slice, segment_ptr,
-                        [num_adds](float elem) { return elem / num_adds; });
+                        [num_adds](float elem) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:                          [num_adds](float elem) {" << std::endl; return elem / num_adds; });
                 }
             });
         }
 
         if (reduction_op == ReducedOp::sqrtn) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:          if (reduction_op == ReducedOp::sqrtn) {" << std::endl;
             parallel_for(num_segments, [&](size_t segment_id) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:              parallel_for(num_segments, [&](size_t segment_id) {" << std::endl;
                 float *segment_ptr = output_ptr + segment_id * num_elements_in_slice;
                 size_t start = segment_starts[segment_id];
                 size_t end = (segment_id == (num_segments - 1)) ? num_indices : segment_starts[segment_id + 1];
                 float sqrtn = sqrtf(static_cast<float>(end - start));
                 if (sqrtn > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:                  if (sqrtn > 0) {" << std::endl;
                     std::transform(segment_ptr, segment_ptr + num_elements_in_slice, segment_ptr,
-                        [sqrtn](float elem) { return elem / sqrtn; });
+                        [sqrtn](float elem) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_segment_reduce.cpp:                          [sqrtn](float elem) {" << std::endl; return elem / sqrtn; });
                 }
             });
         }

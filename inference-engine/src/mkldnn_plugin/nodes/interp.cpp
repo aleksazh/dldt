@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -35,10 +36,13 @@ struct jit_args_interp {
 struct jit_uni_interp_kernel {
     void (*ker_)(const jit_args_interp *);
 
-    void operator()(const jit_args_interp *args) { assert(ker_); ker_(args); }
+    void operator()(const jit_args_interp *args) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:      void operator()(const jit_args_interp *args) {" << std::endl; assert(ker_); ker_(args); }
 
-    jit_uni_interp_kernel() : ker_(nullptr) {}
-    virtual ~jit_uni_interp_kernel() {}
+    jit_uni_interp_kernel() : ker_(nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:      jit_uni_interp_kernel() : ker_(nullptr) {" << std::endl;}
+    virtual ~jit_uni_interp_kernel() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:      virtual ~jit_uni_interp_kernel() {" << std::endl;}
 };
 
 template <cpu_isa_t isa>
@@ -46,6 +50,7 @@ struct jit_uni_interp_kernel_f32 : public jit_uni_interp_kernel, public jit_gene
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_uni_interp_kernel_f32)
 
     jit_uni_interp_kernel_f32() : jit_uni_interp_kernel(), jit_generator() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:      jit_uni_interp_kernel_f32() : jit_uni_interp_kernel(), jit_generator() {" << std::endl;
         this->preamble();
 
         mov(reg_src00, ptr[reg_params + GET_OFF(src00)]);
@@ -75,6 +80,7 @@ struct jit_uni_interp_kernel_f32 : public jit_uni_interp_kernel, public jit_gene
         uni_vfmadd231ps(vmm_src01, vmm_h_lambda0, vmm_src11);
         uni_vmovups(ptr[reg_dst], vmm_src01);
         if (isa == sse42) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          if (isa == sse42) {" << std::endl;
             int stride = 4*sizeof(float);  //  block is also 8 when sse42
             add(reg_src00, stride);
             add(reg_src01, stride);
@@ -129,6 +135,7 @@ private:
 class InterpImpl: public ExtLayerBase {
 public:
     explicit InterpImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:      explicit InterpImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 1 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -150,6 +157,7 @@ public:
 
             ConfLayout blk_layout;
             if (src_precision == Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:              if (src_precision == Precision::U8) {" << std::endl;
                 LayerConfig config;
                 DataConfig dataConfigDct;
                 dataConfigDct.desc = TensorDesc(Precision::U8, layer->insData[0].lock()->getTensorDesc().getDims(), Layout::NCHW);
@@ -163,6 +171,7 @@ public:
                 SizeVector strides(blocks.size());
                 size_t offset((std::numeric_limits<size_t>::max)());
                 for (size_t i = 0; i < order.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:                  for (size_t i = 0; i < order.size(); i++) {" << std::endl;
                     strides[i] = (std::numeric_limits<size_t>::max)();
                     dimOffsets[i] = 0;
                     order[i] = i;
@@ -173,9 +182,11 @@ public:
                 confs.push_back(config);
             } else {
                 if (mayiuse(avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:                  if (mayiuse(avx512_common)) {" << std::endl;
                     blk_layout = ConfLayout::BLK16;
                     interp_kernel.reset(new jit_uni_interp_kernel_f32<avx512_common>());
                 } else if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:                  } else if (mayiuse(avx2)) {" << std::endl;
                     blk_layout = ConfLayout::BLK8;
                     interp_kernel.reset(new jit_uni_interp_kernel_f32<avx2>());
                 } else {
@@ -185,6 +196,7 @@ public:
                 addConfig(layer, { DataConfigurator(blk_layout) }, { DataConfigurator(blk_layout) });
             }
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -206,6 +218,7 @@ public:
         auto *dst_data = outputs[0]->buffer().as<float *>();
 
         switch (inputs[0]->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          switch (inputs[0]->getTensorDesc().getPrecision()) {" << std::endl;
         case Precision::FP32:
         {
             size_t IC = inputs[0]->getTensorDesc().getBlockingDesc().getBlockDims()[1] *
@@ -223,6 +236,7 @@ public:
         break;
         default:
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Incorrect input precision. Only U8 or FP32 are supported!";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }
@@ -243,8 +257,11 @@ private:
                      const int IH_pad, const int IW_pad, const size_t IH, const size_t IW,
                      float *dst, const int x2, const int y2,
                      const int OH_pad, const int OW_pad, const size_t OH, const size_t OW) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:                       const int OH_pad, const int OW_pad, const size_t OH, const size_t OW) {" << std::endl;
         if (IH_pad == OH_pad && IW_pad == OW_pad) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          if (IH_pad == OH_pad && IW_pad == OW_pad) {" << std::endl;
             for (size_t i = 0; i < N * C * OH * OW; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:              for (size_t i = 0; i < N * C * OH * OW; i++) {" << std::endl;
                 dst[i] = src[i];
             }
             return;
@@ -253,6 +270,7 @@ private:
         float rh;
         float rw;
         if (align_corners) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          if (align_corners) {" << std::endl;
             rh = (OH_pad > 1) ? static_cast<float>(IH_pad - 1) / (OH_pad - 1) : 0.0f;
             rw = (OW_pad > 1) ? static_cast<float>(IW_pad - 1) / (OW_pad - 1) : 0.0f;
         } else {
@@ -262,6 +280,7 @@ private:
 
         int block_size = 1;
         if (mayiuse(avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          if (mayiuse(avx512_common)) {" << std::endl;
             block_size = 16;
         } else {
             block_size = 8;
@@ -273,6 +292,7 @@ private:
         size_t CH = (C + block_size - 1) / block_size;
 
         parallel_for3d(N, CH, OH_pad, [&](size_t n, size_t cb, size_t h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          parallel_for3d(N, CH, OH_pad, [&](size_t n, size_t cb, size_t h) {" << std::endl;
                     const float *psrc_n_cb = src + n * CB * IH * IW + cb * block_size * IW * IH;  //  n+cb src address
 
                     // h is output h
@@ -293,6 +313,7 @@ private:
                     arg.h_lambda0 = static_cast<float*>(&h_lambda0);
                     arg.h_lambda1 = static_cast<float*>(&h_lambda1);
                     for (int w = 0; w < OW_pad; ++w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:                      for (int w = 0; w < OW_pad; ++w) {" << std::endl;
                         float fw = rw * w;
                         int iw0 = static_cast<int>(fw);
                         int iw1 = (iw0 < IW_pad - 1) ? iw0 + 1 : iw0;
@@ -324,8 +345,11 @@ private:
         const int IH_pad, const int IW_pad, const size_t IH, const size_t IW,
         float *dst, const int x2, const int y2,
         const int OH_pad, const int OW_pad, const size_t OH, const size_t OW) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          const int OH_pad, const int OW_pad, const size_t OH, const size_t OW) {" << std::endl;
         if (IH_pad == OH_pad && IW_pad == OW_pad) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          if (IH_pad == OH_pad && IW_pad == OW_pad) {" << std::endl;
             for (size_t i = 0; i < N * C * OH * OW; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:              for (size_t i = 0; i < N * C * OH * OW; i++) {" << std::endl;
                 dst[i] = static_cast<float>(src[i]);
             }
             return;
@@ -334,6 +358,7 @@ private:
         float rh;
         float rw;
         if (align_corners) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          if (align_corners) {" << std::endl;
             rh = (OH_pad > 1) ? static_cast<float>(IH_pad - 1) / (OH_pad - 1) : 0.0f;
             rw = (OW_pad > 1) ? static_cast<float>(IW_pad - 1) / (OW_pad - 1) : 0.0f;
         } else {
@@ -342,6 +367,7 @@ private:
         }
 
         parallel_for3d(N, C, OH_pad, [&](size_t n, size_t cb, size_t h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:          parallel_for3d(N, C, OH_pad, [&](size_t n, size_t cb, size_t h) {" << std::endl;
             const uint8_t *psrc = src + n * C * IH * IW;
 
             float fh = rh * h;
@@ -352,6 +378,7 @@ private:
             float h_lambda1 = 1.0f - h_lambda0;
 
             for (int w = 0; w < OW_pad; ++w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/interp.cpp:              for (int w = 0; w < OW_pad; ++w) {" << std::endl;
                 float fw = rw * w;
                 int iw0 = static_cast<int>(fw);
                 int iw1 = (iw0 < IW_pad - 1) ? iw0 + 1 : iw0;

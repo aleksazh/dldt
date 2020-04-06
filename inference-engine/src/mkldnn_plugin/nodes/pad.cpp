@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,6 +19,7 @@ namespace Cpu {
 class PadImpl: public ExtLayerBase {
 public:
     explicit PadImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:      explicit PadImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -32,18 +34,24 @@ public:
 
             std::string pad_mode = layer->GetParamAsString("pad_mode");
             if (pad_mode == "constant") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:              if (pad_mode == 'constant') {" << std::endl;
                 padMode = CONSTANT;
             } else if (pad_mode == "edge") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:              } else if (pad_mode == 'edge') {" << std::endl;
                 padMode = EDGE;
             } else if (pad_mode == "reflect") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:              } else if (pad_mode == 'reflect') {" << std::endl;
                 padMode = REFLECT;
                 for (size_t i = 0; i < src_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:                  for (size_t i = 0; i < src_dims.size(); i++) {" << std::endl;
                     if ((src_dims[i] - 1) < pads_begin[i] || (src_dims[i] - 1) < pads_end[i])
                         THROW_IE_EXCEPTION << layer->name << " Incorrect pads_begin or pads_end for 'reflect' pad mode";
                 }
             } else if (pad_mode == "symmetric") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:              } else if (pad_mode == 'symmetric') {" << std::endl;
                 padMode = SYMMETRIC;
                 for (size_t i = 0; i < src_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:                  for (size_t i = 0; i < src_dims.size(); i++) {" << std::endl;
                     if (src_dims[i] < pads_begin[i] || src_dims[i] < pads_end[i])
                         THROW_IE_EXCEPTION << layer->name << " Incorrect pads_begin or pads_end for 'symmetric' pad mode";
                 }
@@ -63,6 +71,7 @@ public:
 
             addConfig(layer, { DataConfigurator(ConfLayout::PLN) }, { DataConfigurator(ConfLayout::PLN) });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -74,6 +83,7 @@ public:
             outputs[0]->getTensorDesc().getBlockingDesc().getOffsetPadding();
 
         switch (padMode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:          switch (padMode) {" << std::endl;
             case CONSTANT:
                 pad_constant(src_data, dst_data);
                 break;
@@ -118,7 +128,9 @@ private:
 
 
 inline size_t parallel_init(size_t start, size_t size, std::vector<size_t> &counters, std::vector<size_t> &dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:  inline size_t parallel_init(size_t start, size_t size, std::vector<size_t> &counters, std::vector<size_t> &dims) {" << std::endl;
     for (int j = size - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:      for (int j = size - 1; j >= 0; j--) {" << std::endl;
         counters[j] = start % dims[j];
         start = start / dims[j];
     }
@@ -126,7 +138,9 @@ inline size_t parallel_init(size_t start, size_t size, std::vector<size_t> &coun
 }
 
 inline void parallel_step(size_t size, std::vector<size_t> &counters, std::vector<size_t> &dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:  inline void parallel_step(size_t size, std::vector<size_t> &counters, std::vector<size_t> &dims) {" << std::endl;
     for (int j = size - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:      for (int j = size - 1; j >= 0; j--) {" << std::endl;
         counters[j] = (counters[j] + 1) % dims[j];
         if (counters[j] != 0)
             return;
@@ -134,30 +148,36 @@ inline void parallel_step(size_t size, std::vector<size_t> &counters, std::vecto
 }
 
 void PadImpl::pad_constant(const float *src_data, float* dst_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:  void PadImpl::pad_constant(const float *src_data, float* dst_data) {" << std::endl;
     int offset = 0;
     for (size_t i = 0; i < srcStrides.size(); ++i)
         offset += pads_begin[i] * srcStrides[i];
 
     parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:      parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
         size_t start = 0, end = 0;
         SizeVector counters(dst_dims.size(), 0);
         splitter(work_amount, nthr, ithr, start, end);
 
         parallel_init(start, dst_dims.size(), counters, dst_dims);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int srcIdx = 1;
             int dstIdx = 0;
             for (size_t i = 0; i < dstStrides.size(); ++i)
                 dstIdx += counters[i] * dstStrides[i];
 
             for (size_t i = 0; i < counters.size(); ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:              for (size_t i = 0; i < counters.size(); ++i) {" << std::endl;
                 if (counters[i] < pads_begin[i] || counters[i] >= src_o_dms[i]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:                  if (counters[i] < pads_begin[i] || counters[i] >= src_o_dms[i]) {" << std::endl;
                     dst_data[dstIdx] = pad_value;
                     srcIdx = 0;
                     break;
                 }
             }
             if (srcIdx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:              if (srcIdx) {" << std::endl;
                 int srcIdx = 0;
                 for (size_t i = 0; i < srcStrides.size(); ++i)
                     srcIdx += counters[i] * srcStrides[i];
@@ -169,19 +189,23 @@ void PadImpl::pad_constant(const float *src_data, float* dst_data) {
 }
 
 void PadImpl::pad_edge(const float *src_data, float* dst_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:  void PadImpl::pad_edge(const float *src_data, float* dst_data) {" << std::endl;
     parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:      parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
         size_t start = 0, end = 0;
         SizeVector counters(dst_dims.size(), 0);
         splitter(work_amount, nthr, ithr, start, end);
 
         parallel_init(start, dst_dims.size(), counters, dst_dims);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int srcIdx = 0;
             int dstIdx = 0;
             for (size_t i = 0; i < dstStrides.size(); ++i)
                 dstIdx += counters[i] * dstStrides[i];
 
             for (size_t i = 0; i < srcStrides.size(); ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:              for (size_t i = 0; i < srcStrides.size(); ++i) {" << std::endl;
                 int idx = (counters[i] < pads_begin[i]) ? 0 :
                     ((counters[i] >= src_o_dms[i]) ? (src_dims[i] - 1) : (counters[i] - pads_begin[i]));
                 srcIdx += idx * srcStrides[i];
@@ -194,23 +218,27 @@ void PadImpl::pad_edge(const float *src_data, float* dst_data) {
 }
 
 void PadImpl::pad_reflect(const float *src_data, float* dst_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:  void PadImpl::pad_reflect(const float *src_data, float* dst_data) {" << std::endl;
     SizeVector src_2;
     for (size_t i = 0; i < src_dims.size(); i++)
         src_2.push_back(src_dims[i] + src_o_dms[i] - 2);
 
     parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:      parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
         size_t start = 0, end = 0;
         SizeVector counters(dst_dims.size(), 0);
         splitter(work_amount, nthr, ithr, start, end);
 
         parallel_init(start, dst_dims.size(), counters, dst_dims);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int srcIdx = 0;
             int dstIdx = 0;
             for (size_t i = 0; i < dstStrides.size(); ++i)
                 dstIdx += counters[i] * dstStrides[i];
 
             for (size_t i = 0; i < srcStrides.size(); ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:              for (size_t i = 0; i < srcStrides.size(); ++i) {" << std::endl;
                 int idx = (counters[i] < pads_begin[i]) ? (pads_begin[i] - counters[i]) :
                     ((counters[i] >= src_o_dms[i]) ? (src_2[i] - counters[i]) : (counters[i] - pads_begin[i]));
                 srcIdx += idx * srcStrides[i];
@@ -223,23 +251,27 @@ void PadImpl::pad_reflect(const float *src_data, float* dst_data) {
 }
 
 void PadImpl::pad_symmetric(const float *src_data, float* dst_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:  void PadImpl::pad_symmetric(const float *src_data, float* dst_data) {" << std::endl;
     SizeVector src_2;
     for (size_t i = 0; i < src_dims.size(); i++)
         src_2.push_back(src_dims[i] + src_o_dms[i] - 1);
 
     parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:      parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
         size_t start = 0, end = 0;
         SizeVector counters(dst_dims.size(), 0);
         splitter(work_amount, nthr, ithr, start, end);
 
         parallel_init(start, dst_dims.size(), counters, dst_dims);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int srcIdx = 0;
             int dstIdx = 0;
             for (size_t i = 0; i < dstStrides.size(); ++i)
                 dstIdx += counters[i] * dstStrides[i];
 
             for (size_t i = 0; i < srcStrides.size(); ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/pad.cpp:              for (size_t i = 0; i < srcStrides.size(); ++i) {" << std::endl;
                 int idx = (counters[i] < pads_begin[i]) ? (pads_begin[i] - 1 - counters[i]) :
                     ((counters[i] >= src_o_dms[i]) ? (src_2[i] - counters[i]) : (counters[i] - pads_begin[i]));
                 srcIdx += idx * srcStrides[i];

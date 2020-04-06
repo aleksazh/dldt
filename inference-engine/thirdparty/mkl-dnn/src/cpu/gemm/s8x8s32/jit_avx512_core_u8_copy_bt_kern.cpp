@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018-2019 Intel Corporation
 *
@@ -23,6 +24,7 @@ namespace cpu {
 
 jit_avx512_core_u8_copy_bt_kern::jit_avx512_core_u8_copy_bt_kern() :
     jit_generator(nullptr, U8_COPY_KERNEL_CODE_SIZE) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_u8_copy_bt_kern.cpp:      jit_generator(nullptr, U8_COPY_KERNEL_CODE_SIZE) {" << std::endl;
 
 #ifndef _WIN32
 #define M	rdi

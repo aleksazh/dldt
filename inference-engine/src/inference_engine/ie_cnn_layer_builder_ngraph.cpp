@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -137,6 +138,7 @@ namespace Builder {
 
 template <>
 inline std::string INodeConverter::asString<double>(const double& value) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:  inline std::string INodeConverter::asString<double>(const double& value) {" << std::endl;
     std::ostringstream sStrm;
     sStrm.precision(std::numeric_limits<double>::digits10);
     sStrm << std::fixed << value;
@@ -153,6 +155,7 @@ inline std::string INodeConverter::asString<double>(const double& value) {
 
 template <>
 inline std::string INodeConverter::asString<float>(const float& value) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:  inline std::string INodeConverter::asString<float>(const float& value) {" << std::endl;
     return asString(static_cast<double>(value));
 }
 
@@ -180,11 +183,15 @@ CNNLayer::Ptr NodeConverter<ngraph::op::GenericIE>::createLayer(const std::share
     auto weightableLayer = std::dynamic_pointer_cast<InferenceEngine::WeightableLayer>(res);
 
     for (const auto& param : castedLayer->getParameters()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& param : castedLayer->getParameters()) {" << std::endl;
         if (param.second.is<Blob::Ptr>()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (param.second.is<Blob::Ptr>()) {" << std::endl;
             res->blobs[param.first] = param.second.as<Blob::Ptr>();
         } else if (param.second.is<Blob::CPtr>()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          } else if (param.second.is<Blob::CPtr>()) {" << std::endl;
             res->blobs[param.first] = std::const_pointer_cast<Blob>(param.second.as<Blob::CPtr>());
         } else if (param.second.is<std::string>()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          } else if (param.second.is<std::string>()) {" << std::endl;
             res->params[param.first] = param.second.as<std::string>();
         }
         if (weightableLayer && param.first == "weights")
@@ -198,12 +205,15 @@ CNNLayer::Ptr NodeConverter<ngraph::op::GenericIE>::createLayer(const std::share
 template <>
 CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::shared_ptr<ngraph::Node>& layer) const {
     auto find_input_idx = [](const CNNLayerPtr& where, const DataPtr& what) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      auto find_input_idx = [](const CNNLayerPtr& where, const DataPtr& what) {" << std::endl;
         auto it = std::find_if(where->insData.begin(), where->insData.end(), [&](const DataWeakPtr& wk_ptr) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          auto it = std::find_if(where->insData.begin(), where->insData.end(), [&](const DataWeakPtr& wk_ptr) {" << std::endl;
             auto layer_data = wk_ptr.lock();
             IE_ASSERT(layer_data != nullptr);
             return what->getName() == layer_data->getName();
         });
         if (it == where->insData.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (it == where->insData.end()) {" << std::endl;
             THROW_IE_EXCEPTION << "Input layer not found.";
         }
 
@@ -212,6 +222,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
 
     auto tensor_iterator = ngraph::as_type_ptr<ngraph::op::TensorIterator>(layer);
     if (!tensor_iterator) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (!tensor_iterator) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot cast layer to TensorIterator.";
     }
 
@@ -240,8 +251,10 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
         CNNNetwork net(tiBody);
         // Paranoid check for cycles
         bool res = CNNNetForestDFS(
-            CNNNetGetAllInputLayers(net), [](const CNNLayerPtr& layer) {}, false);
+            CNNNetGetAllInputLayers(net), [](const CNNLayerPtr& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:              CNNNetGetAllInputLayers(net), [](const CNNLayerPtr& layer) {" << std::endl;}, false);
         if (!res) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (!res) {" << std::endl;
             THROW_IE_EXCEPTION << "Loop detected. TensorIterator body should not contain loops.";
         }
 
@@ -253,10 +266,12 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
         // Fill the map to get layer and port of the body by the parameter index.
         uint64_t counter = 0;
         for (const auto& param : parameters) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          for (const auto& param : parameters) {" << std::endl;
             auto info = in_info_map_with_parameters.at(param->get_friendly_name());
             auto data_ptr = info->getInputData();
             auto input_to = data_ptr->getInputTo();
             for (const auto& next_layer : input_to) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:              for (const auto& next_layer : input_to) {" << std::endl;
                 auto port_idx = find_input_idx(next_layer.second, data_ptr);
                 ngraph_parameter_id_to_ie_layer_port[counter].push_back({next_layer.first, port_idx});
             }
@@ -266,23 +281,29 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
         // Temporary body to call deep copy
         InferenceEngine::TensorIterator::Body temp_body;
         for (const auto& in : in_info_map_with_parameters) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          for (const auto& in : in_info_map_with_parameters) {" << std::endl;
             temp_body.inputs.emplace_back(in.second->getInputData());
         }
 
         for (const auto& out : out_info_map) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          for (const auto& out : out_info_map) {" << std::endl;
             temp_body.outputs.emplace_back(out.second);
         }
 
         // This deep copy will hold all unreachable constants. See the comment in CopyTIBody function.
         auto deep_cp_body = InferenceEngine::NetPass::CopyTIBody(temp_body);
         for (const auto& data_ptr : deep_cp_body.inputs) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          for (const auto& data_ptr : deep_cp_body.inputs) {" << std::endl;
             auto input_to = data_ptr->getInputTo();
             for (const auto& node : input_to) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:              for (const auto& node : input_to) {" << std::endl;
                 // Make it compatible with ir v7: delete Input layers in body
                 if (node.second->type != "Input") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:                  if (node.second->type != 'Input') {" << std::endl;
                     body_input_layers.emplace(node.second);
                     // Save information about data nodes to re-create them with correct names.
                     for (const auto& data : node.second->insData) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:                      for (const auto& data : node.second->insData) {" << std::endl;
                         layer_name_to_tensor_desc[node.second->name].emplace_back(data.lock()->getTensorDesc());
                     }
                 }
@@ -290,21 +311,26 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
         }
 
         for (const auto& data_ptr : deep_cp_body.outputs) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          for (const auto& data_ptr : deep_cp_body.outputs) {" << std::endl;
             out_info_map[data_ptr->getName()] = data_ptr;
         }
     }
 
     auto holder = std::make_shared<Data>("const_holder", Precision::UNSPECIFIED);
     for (const auto& input_layer : body_input_layers) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& input_layer : body_input_layers) {" << std::endl;
         // Save all constants to the holder so that they are not deleted.
         if (input_layer->insData.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (input_layer->insData.empty()) {" << std::endl;
             holder->getInputTo()[input_layer->name] = input_layer;
             continue;
         }
 
         // Re-create the data nodes with the correct names and fill inputs of TensorIterator (ie)
         for (size_t i = 0; i < input_layer->insData.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          for (size_t i = 0; i < input_layer->insData.size(); i++) {" << std::endl;
             if (!input_layer->insData[i].lock()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:              if (!input_layer->insData[i].lock()) {" << std::endl;
                 std::string data_name = (input_layer->insData.size() == 1)
                                             ? input_layer->name
                                             : input_layer->name + "." + std::to_string(i);
@@ -325,11 +351,13 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
     // Body: inputs
     uint64_t counter = 0;
     for (const auto& in : in_info_map) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& in : in_info_map) {" << std::endl;
         res->body.inputs.emplace_back(in.second);
 
         // Fill the map to get the input index by layer and port of the body.
         auto input_to = in.second->getInputTo();
         for (const auto& next_layer : input_to) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          for (const auto& next_layer : input_to) {" << std::endl;
             auto port_idx = find_input_idx(next_layer.second, in.second);
             ie_layer_port_to_tensor_iterator_input_id[{next_layer.first, port_idx}] = counter;
         }
@@ -340,21 +368,25 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
 
     // Body: outputs
     for (const auto& out : out_info_map) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& out : out_info_map) {" << std::endl;
         res->body.outputs.emplace_back(out.second);
     }
 
     // Port map: outputs
     for (const auto& desc : tensor_iterator->get_output_descriptions()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& desc : tensor_iterator->get_output_descriptions()) {" << std::endl;
         auto result = results[desc->m_body_value_index]->inputs()[0].get_source_output();
 
         // GetOutputElement layer can be inserted by ngraph deep copy functions
         // (e.g. specialize_function, clone_function)
         // Take the previous layer.
         if (::ngraph::is_type<ngraph::op::GetOutputElement>(result.get_node_shared_ptr())) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (::ngraph::is_type<ngraph::op::GetOutputElement>(result.get_node_shared_ptr())) {" << std::endl;
             result = result.get_node()->input(0).get_source_output();
         }
         std::string name = result.get_node()->get_friendly_name();
         if (result.get_node()->get_output_size() > 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (result.get_node()->get_output_size() > 1) {" << std::endl;
             name += "." + std::to_string(result.get_index());
         }
         auto output_layer = out_info_map.at(name);
@@ -362,12 +394,14 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
         // Find index in outputs of the IE TensorIterator body
         auto it = std::find(res->body.outputs.begin(), res->body.outputs.end(), output_layer);
         if (it == res->body.outputs.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (it == res->body.outputs.end()) {" << std::endl;
             THROW_IE_EXCEPTION << "Output layer not found.";
         }
         auto body_output_idx = it - res->body.outputs.begin();
 
         std::string type_name = desc->get_type_info().name;
         if (type_name == "ConcatOutputDescription") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (type_name == 'ConcatOutputDescription') {" << std::endl;
             auto output_desc = ::ngraph::as_type_ptr<ngraph::op::TensorIterator::ConcatOutputDescription>(desc);
             IE_ASSERT(output_desc != nullptr);
 
@@ -378,6 +412,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
                 static_cast<int>(output_desc->m_part_size)});
 
         } else if (type_name == "BodyOutputDescription") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          } else if (type_name == 'BodyOutputDescription') {" << std::endl;
             auto output_desc = ::ngraph::as_type_ptr<ngraph::op::TensorIterator::BodyOutputDescription>(desc);
             IE_ASSERT(output_desc != nullptr);
 
@@ -390,11 +425,14 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
 
     // Port map : inputs and back edges
     for (const auto& desc : tensor_iterator->get_input_descriptions()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& desc : tensor_iterator->get_input_descriptions()) {" << std::endl;
         for (const auto& mapping : ngraph_parameter_id_to_ie_layer_port[desc->m_body_parameter_index]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          for (const auto& mapping : ngraph_parameter_id_to_ie_layer_port[desc->m_body_parameter_index]) {" << std::endl;
             auto body_input_index = ie_layer_port_to_tensor_iterator_input_id.at(mapping);
             std::string type_name = desc->get_type_info().name;
 
             if (type_name == "SliceInputDescription") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:              if (type_name == 'SliceInputDescription') {" << std::endl;
                 auto input_desc = ::ngraph::as_type_ptr<ngraph::op::TensorIterator::SliceInputDescription>(desc);
                 IE_ASSERT(input_desc != nullptr);
 
@@ -404,6 +442,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
                     static_cast<int>(input_desc->m_start), static_cast<int>(input_desc->m_end),
                     static_cast<int>(input_desc->m_part_size)});
             } else if (type_name == "MergedInputDescription") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:              } else if (type_name == 'MergedInputDescription') {" << std::endl;
                 auto input_desc = ::ngraph::as_type_ptr<ngraph::op::TensorIterator::MergedInputDescription>(desc);
                 IE_ASSERT(input_desc != nullptr);
 
@@ -416,11 +455,13 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
                 // (e.g. specialize_function, clone_function)
                 // Take the previous layer.
                 if (::ngraph::is_type<ngraph::op::GetOutputElement>(result.get_node_shared_ptr())) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:                  if (::ngraph::is_type<ngraph::op::GetOutputElement>(result.get_node_shared_ptr())) {" << std::endl;
                     result = result.get_node()->input(0).get_source_output();
                 }
                 // Create correct name for output.
                 std::string output_name = result.get_node()->get_friendly_name();
                 if (result.get_node()->get_output_size() > 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:                  if (result.get_node()->get_output_size() > 1) {" << std::endl;
                     output_name += "." + std::to_string(result.get_index());
                 }
 
@@ -428,6 +469,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
                 // Find index in outputs of the IE TensorIterator body
                 auto it = std::find(res->body.outputs.begin(), res->body.outputs.end(), output_layer);
                 if (it == res->body.outputs.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:                  if (it == res->body.outputs.end()) {" << std::endl;
                     THROW_IE_EXCEPTION << "Output layer not found.";
                 }
                 auto body_output_idx = it - res->body.outputs.begin();
@@ -435,6 +477,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::TensorIterator>::createLayer(const std::
                 res->back_edges.emplace_back(InferenceEngine::TensorIterator::PortMap {
                     static_cast<int>(body_output_idx), static_cast<int>(body_input_index), -1, 1, 0, -1, 1});
             } else if (type_name == "InvariantInputDescription") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:              } else if (type_name == 'InvariantInputDescription') {" << std::endl;
                 auto input_desc = ::ngraph::as_type_ptr<ngraph::op::TensorIterator::InvariantInputDescription>(desc);
                 IE_ASSERT(input_desc != nullptr);
 
@@ -469,6 +512,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::Convert>::createLayer(const std::shared_
     auto p = details::ngraph::convertPrecision(layer->get_output_element_type(0));
     std::string precision_str;
     switch (p) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (p) {" << std::endl;
     case Precision::FP16:
         precision_str = "FP16";
         break;
@@ -597,6 +641,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::MVN>::createLayer(const std::shared_ptr<
 
     res->params["eps"] = asString(castedLayer->get_eps());
     if (castedLayer->get_reduction_axes().size() == castedLayer->get_shape().size()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (castedLayer->get_reduction_axes().size() == castedLayer->get_shape().size()) {" << std::endl;
         res->params["across_channels"] = "1";
     } else {
         res->params["across_channels"] = "0";
@@ -636,6 +681,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::CropIE>::createLayer(const std::shared_p
 
     std::string value;
     for (const auto& val : castedLayer->axes) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->axes) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -643,6 +689,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::CropIE>::createLayer(const std::shared_p
 
     value.clear();
     for (const auto& val : castedLayer->dim) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->dim) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -650,6 +697,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::CropIE>::createLayer(const std::shared_p
 
     value.clear();
     for (const auto& val : castedLayer->offset) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->offset) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -798,6 +846,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ConvolutionIE>::createLayer(
 
     std::string value;
     for (const auto& val : castedLayer->get_pads_begin()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_begin()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -805,12 +854,14 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ConvolutionIE>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_pads_end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_end()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
     res->params["pads_end"] = value;
 
     switch (castedLayer->get_auto_pad()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (castedLayer->get_auto_pad()) {" << std::endl;
         case ngraph::op::PadType::SAME_UPPER:
             res->params["auto_pad"] = "same_upper";
             break;
@@ -826,6 +877,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ConvolutionIE>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_strides()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_strides()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -833,6 +885,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ConvolutionIE>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_dilations()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_dilations()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -845,6 +898,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ConvolutionIE>::createLayer(
 
     value.clear();
     for (size_t i = 2; i < shape.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (size_t i = 2; i < shape.size(); i++) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(shape[i]);
     }
@@ -857,13 +911,16 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ConvolutionIE>::createLayer(
     NodeConverter<ngraph::op::Constant> converter;
     const auto weightsNode = castedLayer->input_value(1).get_node_shared_ptr();
     if (!keep_constants && converter.canCreate(weightsNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (!keep_constants && converter.canCreate(weightsNode)) {" << std::endl;
         const auto& weights = converter.createLayer(weightsNode);
         res->blobs["weights"] = weights->blobs["custom"];
         res->_weights = weights->blobs["custom"];
 
         if (castedLayer->inputs().size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (castedLayer->inputs().size() == 3) {" << std::endl;
             const auto biasNode = castedLayer->get_inputs()[2].get_output().get_node();
             if (converter.canCreate(biasNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:              if (converter.canCreate(biasNode)) {" << std::endl;
                 const auto& bias = converter.createLayer(biasNode);
                 res->blobs["biases"] = bias->blobs["custom"];
                 res->_biases = bias->blobs["custom"];
@@ -884,6 +941,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::DeconvolutionIE>::createLayer(
 
     std::string value;
     for (const auto& val : castedLayer->get_pads_begin()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_begin()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -891,6 +949,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::DeconvolutionIE>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_pads_end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_end()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -898,6 +957,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::DeconvolutionIE>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_strides()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_strides()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -905,6 +965,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::DeconvolutionIE>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_dilations()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_dilations()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -916,6 +977,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::DeconvolutionIE>::createLayer(
 
     value.clear();
     for (size_t i = 2; i < shape.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (size_t i = 2; i < shape.size(); i++) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(shape[i]);
     }
@@ -925,13 +987,16 @@ CNNLayer::Ptr NodeConverter<ngraph::op::DeconvolutionIE>::createLayer(
     NodeConverter<ngraph::op::Constant> converter;
     const auto weightsNode = castedLayer->input_value(1).get_node_shared_ptr();
     if (converter.canCreate(weightsNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (converter.canCreate(weightsNode)) {" << std::endl;
         const auto& weights = converter.createLayer(weightsNode);
         res->blobs["weights"] = weights->blobs["custom"];
         res->_weights = weights->blobs["custom"];
 
         if (castedLayer->inputs().size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (castedLayer->inputs().size() == 3) {" << std::endl;
             const auto biasNode = castedLayer->get_inputs()[2].get_output().get_node();
             if (converter.canCreate(biasNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:              if (converter.canCreate(biasNode)) {" << std::endl;
                 const auto& bias = converter.createLayer(biasNode);
                 res->blobs["biases"] = bias->blobs["custom"];
                 res->_biases = bias->blobs["custom"];
@@ -952,6 +1017,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::BinaryConvolution>::createLayer(
 
     std::string value;
     for (const auto& val : castedLayer->get_pads_begin()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_begin()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -959,12 +1025,14 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::BinaryConvolution>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_pads_end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_end()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
     res->params["pads_end"] = value;
 
     switch (castedLayer->get_auto_pad()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (castedLayer->get_auto_pad()) {" << std::endl;
         case ngraph::op::PadType::SAME_UPPER:
             res->params["auto_pad"] = "same_upper";
             break;
@@ -980,6 +1048,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::BinaryConvolution>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_strides()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_strides()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -987,6 +1056,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::BinaryConvolution>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_dilations()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_dilations()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -998,12 +1068,14 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::BinaryConvolution>::createLayer(
 
     value.clear();
     for (size_t i = 2; i < shape.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (size_t i = 2; i < shape.size(); i++) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(shape[i]);
     }
     res->params["kernel"] = value;
 
     switch (castedLayer->get_mode()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (castedLayer->get_mode()) {" << std::endl;
         case ngraph::op::v1::BinaryConvolution::BinaryConvolutionMode::XNOR_POPCOUNT:
             res->params["mode"] = "xnor-popcount";
     }
@@ -1016,6 +1088,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::BinaryConvolution>::createLayer(
 
     const auto weightsNode = castedLayer->get_inputs()[1].get_output().get_node();
     if (converter.canCreate(weightsNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (converter.canCreate(weightsNode)) {" << std::endl;
         const auto& weights = converter.createLayer(weightsNode);
         res->blobs["weights"] = weights->blobs["custom"];
         res->_weights = weights->blobs["custom"];
@@ -1034,6 +1107,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::DeformableConvolution>::createLayer(
 
     std::string value;
     for (const auto& val : castedLayer->get_pads_begin()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_begin()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -1041,12 +1115,14 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::DeformableConvolution>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_pads_end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_end()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
     res->params["pads_end"] = value;
 
     switch (castedLayer->get_auto_pad()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (castedLayer->get_auto_pad()) {" << std::endl;
         case ngraph::op::PadType::SAME_UPPER:
             res->params["auto_pad"] = "same_upper";
             break;
@@ -1062,6 +1138,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::DeformableConvolution>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_strides()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_strides()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -1069,6 +1146,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::DeformableConvolution>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_dilations()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_dilations()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -1080,6 +1158,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::DeformableConvolution>::createLayer(
 
     value.clear();
     for (size_t i = 2; i < shape.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (size_t i = 2; i < shape.size(); i++) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(shape[i]);
     }
@@ -1095,6 +1174,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::DeformableConvolution>::createLayer(
     NodeConverter<ngraph::op::Constant> converter;
     const auto weightsNode = castedLayer->input_value(2).get_node_shared_ptr();
     if (!keep_constants && converter.canCreate(weightsNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (!keep_constants && converter.canCreate(weightsNode)) {" << std::endl;
         const auto& weights = converter.createLayer(weightsNode);
         res->blobs["weights"] = weights->blobs["custom"];
         res->_weights = weights->blobs["custom"];
@@ -1112,6 +1192,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::AvgPool>::createLayer(const std::sha
 
     std::string value;
     for (const auto& val : castedLayer->get_pads_begin()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_begin()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -1119,6 +1200,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::AvgPool>::createLayer(const std::sha
 
     value.clear();
     for (const auto& val : castedLayer->get_pads_end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_end()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -1126,6 +1208,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::AvgPool>::createLayer(const std::sha
 
     value.clear();
     for (const auto& val : castedLayer->get_strides()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_strides()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -1133,12 +1216,14 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::AvgPool>::createLayer(const std::sha
 
     value.clear();
     for (const auto& val : castedLayer->get_kernel()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_kernel()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
     res->params["kernel"] = value;
 
     switch (castedLayer->get_auto_pad()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (castedLayer->get_auto_pad()) {" << std::endl;
     case ngraph::op::PadType::VALID:
         res->params["auto_pad"] = "valid";
         break;
@@ -1156,6 +1241,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::AvgPool>::createLayer(const std::sha
     res->params["exclude-pad"] = exclude_pad ? "true" : "false";
     res->params["pool-method"] = "avg";
     switch (castedLayer->get_rounding_type()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (castedLayer->get_rounding_type()) {" << std::endl;
     case ngraph::op::RoundingType::CEIL:
         res->params["rounding_type"] = "ceil";
         break;
@@ -1178,6 +1264,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::MaxPool>::createLayer(const std::sha
 
     std::string value;
     for (const auto& val : castedLayer->get_pads_begin()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_begin()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -1185,6 +1272,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::MaxPool>::createLayer(const std::sha
 
     value.clear();
     for (const auto& val : castedLayer->get_pads_end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_pads_end()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -1192,6 +1280,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::MaxPool>::createLayer(const std::sha
 
     value.clear();
     for (const auto& val : castedLayer->get_strides()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_strides()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -1199,6 +1288,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::MaxPool>::createLayer(const std::sha
 
     value.clear();
     for (const auto& val : castedLayer->get_kernel()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_kernel()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -1206,6 +1296,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::MaxPool>::createLayer(const std::sha
     res->params["pool-method"] = "max";
 
     switch (castedLayer->get_auto_pad()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (castedLayer->get_auto_pad()) {" << std::endl;
     case ngraph::op::PadType::VALID:
         res->params["auto_pad"] = "valid";
         break;
@@ -1220,6 +1311,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::MaxPool>::createLayer(const std::sha
     }
 
     switch (castedLayer->get_rounding_type()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (castedLayer->get_rounding_type()) {" << std::endl;
     case ngraph::op::RoundingType::CEIL:
         res->params["rounding_type"] = "ceil";
         break;
@@ -1302,8 +1394,10 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PRelu>::createLayer(const std::shared_pt
 
     const auto weightsNode = castedLayer->input(1).get_source_output().get_node_shared_ptr();
     if (auto const_weights = ngraph::as_type_ptr<ngraph::op::Constant>(weightsNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (auto const_weights = ngraph::as_type_ptr<ngraph::op::Constant>(weightsNode)) {" << std::endl;
         SizeVector dataShape = const_weights->get_shape();
         if (dataShape.size() >= 2 && ngraph::shape_size(dataShape) == dataShape[1]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (dataShape.size() >= 2 && ngraph::shape_size(dataShape) == dataShape[1]) {" << std::endl;
             dataShape = {dataShape[1]};
         }
 
@@ -1315,6 +1409,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PRelu>::createLayer(const std::shared_pt
 
     auto const_shape = castedLayer->input(1).get_shape(), tensor_shape = castedLayer->input(0).get_shape();
     if (const_shape.size() == 1 && const_shape[0] == 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (const_shape.size() == 1 && const_shape[0] == 1) {" << std::endl;
         res->params["channel_shared"] = "true";
     }
 
@@ -1332,10 +1427,12 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::Split>::createLayer(const std::share
     auto axis_node = castedLayer->input_value(1).get_node_shared_ptr();
     const auto axis_node_const = std::dynamic_pointer_cast<ngraph::op::Constant>(axis_node);
     if (!axis_node_const) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (!axis_node_const) {" << std::endl;
         THROW_IE_EXCEPTION << "Split " << castedLayer->get_friendly_name() << " has no axes as Constant";
     }
     auto axis = axis_node_const->get_vector<int64_t>()[0];
     if (axis < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (axis < 0) {" << std::endl;
         axis += castedLayer->get_input_shape(0).size();
     }
     res->params["axis"] = asString(axis);
@@ -1353,10 +1450,12 @@ CNNLayer::Ptr NodeConverter<ngraph::op::VariadicSplit>::createLayer(const std::s
     auto axis_node = castedLayer->input_value(1).get_node_shared_ptr();
     const auto axis_node_const = std::dynamic_pointer_cast<ngraph::op::Constant>(axis_node);
     if (!axis_node_const) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (!axis_node_const) {" << std::endl;
         THROW_IE_EXCEPTION << "Split " << castedLayer->get_friendly_name() << " has no axes as Constant";
     }
     auto axis = axis_node_const->get_vector<int64_t>()[0];
     if (axis < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (axis < 0) {" << std::endl;
         axis += castedLayer->get_input_shape(0).size();
     }
     res->params["axis"] = asString(axis);
@@ -1447,8 +1546,10 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::Reshape>::createLayer(const std::sha
 
     const auto constNode = castedLayer->get_inputs()[1].get_output().get_node();
     if (auto constValue = ngraph::as_type_ptr<ngraph::op::Constant>(constNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (auto constValue = ngraph::as_type_ptr<ngraph::op::Constant>(constNode)) {" << std::endl;
         auto value = constValue->get_vector<int64_t>();
         for (auto & i : value) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          for (auto & i : value) {" << std::endl;
             if (i == 0 && !castedLayer->get_special_zero())
                 THROW_IE_EXCEPTION << "Reshape " << params.name << " has `special_zero`=False and zeros in second input. This combination is not supported";
         }
@@ -1470,6 +1571,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PadIE>::createLayer(const std::shared_pt
     if (castedLayer == nullptr) THROW_IE_EXCEPTION << "Cannot get " << params.type << " layer " << params.name;
 
     switch (castedLayer->get_pad_mode()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (castedLayer->get_pad_mode()) {" << std::endl;
     case ngraph::op::PadMode::EDGE:
         res->params["pad_mode"] = "edge";
         break;
@@ -1485,6 +1587,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PadIE>::createLayer(const std::shared_pt
     }
     std::string pad;
     for (const auto& p : castedLayer->get_pads_begin()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& p : castedLayer->get_pads_begin()) {" << std::endl;
         if (!pad.empty()) pad += ",";
         pad += asString(p);
     }
@@ -1492,6 +1595,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PadIE>::createLayer(const std::shared_pt
 
     pad.clear();
     for (const auto& p : castedLayer->get_pads_end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& p : castedLayer->get_pads_end()) {" << std::endl;
         if (!pad.empty()) pad += ",";
         pad += asString(p);
     }
@@ -1509,6 +1613,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ScaleShiftIE>::createLayer(const std::sh
     NodeConverter<ngraph::op::Constant> converter;
     const auto weightsNode = layer->get_inputs()[1].get_output().get_node();
     if (converter.canCreate(weightsNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (converter.canCreate(weightsNode)) {" << std::endl;
         const auto& weightsLayer = converter.createLayer(weightsNode);
         res->blobs["weights"] = weightsLayer->blobs["custom"];
         res->_weights = weightsLayer->blobs["custom"];
@@ -1516,6 +1621,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ScaleShiftIE>::createLayer(const std::sh
 
     const auto biasNode = layer->get_inputs()[2].get_output().get_node();
     if (converter.canCreate(biasNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (converter.canCreate(biasNode)) {" << std::endl;
         const auto& bias = converter.createLayer(biasNode);
         res->blobs["biases"] = bias->blobs["custom"];
         res->_biases = bias->blobs["custom"];
@@ -1564,6 +1670,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::DetectionOutput>::createLayer(
     res->params["top_k"] = asString(attr.top_k);
     res->params["variance_encoded_in_target"] = (attr.variance_encoded_in_target ? "1" : "0");
     for (const auto& val : attr.keep_top_k) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : attr.keep_top_k) {" << std::endl;
         if (!param.empty()) param += ",";
         param += asString(val);
     }
@@ -1592,11 +1699,13 @@ CNNLayer::Ptr NodeConverter<ngraph::op::Transpose>::createLayer(const std::share
     NodeConverter<ngraph::op::Constant> converter;
     const auto orderNode = layer->get_inputs()[1].get_output().get_node();
     if (converter.canCreate(orderNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (converter.canCreate(orderNode)) {" << std::endl;
         const auto& orderLayer = converter.createLayer(orderNode);
         auto order = orderLayer->blobs["custom"];
         int64_t* data = order->buffer().as<int64_t*>();
         std::string orderStr;
         for (size_t i = 0; i < order->size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          for (size_t i = 0; i < order->size(); i++) {" << std::endl;
             if (!orderStr.empty()) orderStr += ",";
             orderStr += asString(data[i]);
         }
@@ -1622,6 +1731,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ProposalIE>::createLayer(const std::shar
     auto attr = castedLayer->get_attrs();
     std::string param;
     for (const auto& val : attr.ratio) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : attr.ratio) {" << std::endl;
         if (!param.empty()) param += ",";
         param += asString(val);
     }
@@ -1629,6 +1739,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ProposalIE>::createLayer(const std::shar
 
     param.clear();
     for (const auto& val : attr.scale) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : attr.scale) {" << std::endl;
         if (!param.empty()) param += ",";
         param += asString(val);
     }
@@ -1662,6 +1773,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PriorBoxClusteredIE>::createLayer(
     auto attr = castedLayer->get_attrs();
     std::string param;
     for (const auto& val : attr.widths) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : attr.widths) {" << std::endl;
         if (!param.empty()) param += ",";
         param += asString(val);
     }
@@ -1669,6 +1781,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PriorBoxClusteredIE>::createLayer(
 
     param.clear();
     for (const auto& val : attr.heights) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : attr.heights) {" << std::endl;
         if (!param.empty()) param += ",";
         param += asString(val);
     }
@@ -1676,12 +1789,14 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PriorBoxClusteredIE>::createLayer(
 
     param.clear();
     for (const auto& val : attr.variances) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : attr.variances) {" << std::endl;
         if (!param.empty()) param += ",";
         param += asString(val);
     }
     res->params["variance"] = param;
 
     if (std::abs(attr.step_heights - attr.step_widths) < 1e-5) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (std::abs(attr.step_heights - attr.step_widths) < 1e-5) {" << std::endl;
         res->params["step"] = asString(attr.step_widths);
     } else {
         res->params["step_w"] = asString(attr.step_widths);
@@ -1711,6 +1826,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PriorBoxIE>::createLayer(const std::shar
     auto attr = castedLayer->get_attrs();
     std::string param;
     for (const auto& val : attr.max_size) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : attr.max_size) {" << std::endl;
         if (!param.empty()) param += ",";
         param += asString(val);
     }
@@ -1718,6 +1834,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PriorBoxIE>::createLayer(const std::shar
 
     param.clear();
     for (const auto& val : attr.min_size) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : attr.min_size) {" << std::endl;
         if (!param.empty()) param += ",";
         param += asString(val);
     }
@@ -1725,6 +1842,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PriorBoxIE>::createLayer(const std::shar
 
     param.clear();
     for (const auto& val : attr.aspect_ratio) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : attr.aspect_ratio) {" << std::endl;
         if (!param.empty()) param += ",";
         param += asString(val);
     }
@@ -1732,6 +1850,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::PriorBoxIE>::createLayer(const std::shar
 
     param.clear();
     for (const auto& val : attr.variance) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : attr.variance) {" << std::endl;
         if (!param.empty()) param += ",";
         param += asString(val);
     }
@@ -1781,6 +1900,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::TopK>::createLayer(const std::shared
     auto mode = castedLayer->get_mode();
     std::string str_mode;
     switch (mode) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (mode) {" << std::endl;
     case ngraph::op::v1::TopK::Mode::MIN:
         str_mode = "min";
         break;
@@ -1794,6 +1914,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::v1::TopK>::createLayer(const std::shared
     auto sort = castedLayer->get_sort_type();
     std::string str_sort;
     switch (sort) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (sort) {" << std::endl;
     case ngraph::op::v1::TopK::SortType::NONE:
         str_sort = "none";
         break;
@@ -1839,6 +1960,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::Eltwise>::createLayer(const std::shared_
 
     std::string type;
     switch (castedLayer->eltwise_type) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      switch (castedLayer->eltwise_type) {" << std::endl;
     case ELTWISE_TYPE::Sum:
         type = "sum";
         break;
@@ -1880,12 +2002,16 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ResampleV2>::createLayer(const std::shar
 
     res->params["antialias"] = attrs.antialias ? "1" : "0";
     if (attrs.mode == "nearest") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (attrs.mode == 'nearest') {" << std::endl;
         res->params["type"] = "caffe.ResampleParameter.NEAREST";
     } else if (attrs.mode == "cubic") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      } else if (attrs.mode == 'cubic') {" << std::endl;
         res->params["type"] = "caffe.ResampleParameter.CUBIC";
     } else if (attrs.mode == "area") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      } else if (attrs.mode == 'area') {" << std::endl;
         res->params["type"] = "caffe.ResampleParameter.AREA";
     } else if (attrs.mode == "linear") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      } else if (attrs.mode == 'linear') {" << std::endl;
         res->params["type"] = "caffe.ResampleParameter.LINEAR";
     }
 
@@ -1904,9 +2030,11 @@ CNNLayer::Ptr NodeConverter<ngraph::op::Interp>::createLayer(const std::shared_p
     auto attrs = castedLayer->get_attrs();
 
     if (attrs.antialias) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (attrs.antialias) {" << std::endl;
         THROW_IE_EXCEPTION << "Interp do not support antialias";
     }
     if (attrs.mode != "linear") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (attrs.mode != 'linear') {" << std::endl;
         THROW_IE_EXCEPTION << "Interp do not support mode '" << attrs.mode << "'";
     }
 
@@ -1947,12 +2075,14 @@ CNNLayer::Ptr NodeConverter<ngraph::op::FullyConnected>::createLayer(const std::
 
     const auto weightsNode = layer->get_inputs()[1].get_output().get_node();
     if (!keep_constants && converter.canCreate(weightsNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (!keep_constants && converter.canCreate(weightsNode)) {" << std::endl;
         const auto& weights = converter.createLayer(weightsNode);
         res->blobs["weights"] = weights->blobs["custom"];
         res->_weights = weights->blobs["custom"];
 
         const auto biasNode = layer->get_inputs()[2].get_output().get_node();
         if (converter.canCreate(biasNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:          if (converter.canCreate(biasNode)) {" << std::endl;
             const auto& bias = converter.createLayer(biasNode);
             res->blobs["biases"] = bias->blobs["custom"];
             res->_biases = bias->blobs["custom"];
@@ -1977,6 +2107,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::LSTMCellIE>::createLayer(const std::shar
     res->params["hidden_size"] = asString(castedLayer->get_hidden_size());
     std::string value;
     for (const auto& val : castedLayer->get_activations()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_activations()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += val;
     }
@@ -1984,6 +2115,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::LSTMCellIE>::createLayer(const std::shar
 
     value.clear();
     for (const auto& val : castedLayer->get_activations_alpha()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_activations_alpha()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += val;
     }
@@ -1991,6 +2123,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::LSTMCellIE>::createLayer(const std::shar
 
     value.clear();
     for (const auto& val : castedLayer->get_activations_beta()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_activations_beta()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += val;
     }
@@ -2000,6 +2133,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::LSTMCellIE>::createLayer(const std::shar
     NodeConverter<ngraph::op::Constant> converter;
     const auto weightsNode = layer->get_inputs()[3].get_output().get_node();
     if (converter.canCreate(weightsNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (converter.canCreate(weightsNode)) {" << std::endl;
         const auto& weights = converter.createLayer(weightsNode);
         res->blobs["weights"] = weights->blobs["custom"];
         res->_weights = weights->blobs["custom"];
@@ -2007,6 +2141,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::LSTMCellIE>::createLayer(const std::shar
 
     const auto biasNode = layer->get_inputs()[4].get_output().get_node();
     if (converter.canCreate(biasNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (converter.canCreate(biasNode)) {" << std::endl;
         const auto& bias = converter.createLayer(biasNode);
         res->blobs["biases"] = bias->blobs["custom"];
         res->_biases = bias->blobs["custom"];
@@ -2039,6 +2174,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::RegionYolo>::createLayer(const std::shar
 
     std::string value;
     for (const auto& val : castedLayer->get_mask()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_mask()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -2046,6 +2182,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::RegionYolo>::createLayer(const std::shar
 
     value = "";
     for (const auto& val : castedLayer->get_anchors()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_anchors()) {" << std::endl;
         if (!value.empty())
             value += ",";
         value += asString(val);
@@ -2072,6 +2209,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::ReorgYolo>::createLayer(const std::share
 
     std::string value;
     for (const auto& val : castedLayer->get_strides()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_strides()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -2168,6 +2306,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::NormalizeIE>::createLayer(const std::sha
     NodeConverter<ngraph::op::Constant> converter;
     const auto weightsNode = castedLayer->get_inputs()[1].get_output().get_node();
     if (converter.canCreate(weightsNode)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      if (converter.canCreate(weightsNode)) {" << std::endl;
         const auto& weights = converter.createLayer(weightsNode);
         res->blobs["weights"] = weights->blobs["custom"];
     }
@@ -2294,6 +2433,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::StridedSliceIE>::createLayer(
 
     std::string value;
     for (const auto& val : castedLayer->get_begin_mask()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_begin_mask()) {" << std::endl;
         if (!value.empty()) value += ",";
         // plugins require reverse value of this mask.
         value += asString((1-val));
@@ -2302,6 +2442,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::StridedSliceIE>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_end_mask()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_end_mask()) {" << std::endl;
         if (!value.empty()) value += ",";
         // plugins require reverse value of this mask.
         value += asString((1-val));
@@ -2310,6 +2451,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::StridedSliceIE>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_new_axis_mask()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_new_axis_mask()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -2317,6 +2459,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::StridedSliceIE>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_shrink_axis_mask()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_shrink_axis_mask()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }
@@ -2324,6 +2467,7 @@ CNNLayer::Ptr NodeConverter<ngraph::op::StridedSliceIE>::createLayer(
 
     value.clear();
     for (const auto& val : castedLayer->get_ellipsis_mask()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_cnn_layer_builder_ngraph.cpp:      for (const auto& val : castedLayer->get_ellipsis_mask()) {" << std::endl;
         if (!value.empty()) value += ",";
         value += asString(val);
     }

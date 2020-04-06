@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -48,16 +49,21 @@ unsigned int LLC_data_size = get_cache_size(3, false);
 int get_divisor_satisfying_cond(jit_conv_winograd_conf_t &jcp, int number,
         int default_best, bool (*test)(jit_conv_winograd_conf_t &, int, int))
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          int default_best, bool (*test)(jit_conv_winograd_conf_t &, int, int)) {" << std::endl;
     int best_divisor = default_best;
     auto test_num
             = [&best_divisor, test](jit_conv_winograd_conf_t &jcp, int num) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              = [&best_divisor, test](jit_conv_winograd_conf_t &jcp, int num) {" << std::endl;
                   if (test(jcp, num, best_divisor)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                    if (test(jcp, num, best_divisor)) {" << std::endl;
                       best_divisor = num;
                   }
               };
 
     for (int divisor = 1; divisor <= ::sqrt(number); divisor++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      for (int divisor = 1; divisor <= ::sqrt(number); divisor++) {" << std::endl;
         if (number % divisor == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          if (number % divisor == 0) {" << std::endl;
             test_num(jcp, divisor);
             test_num(jcp, number / divisor);
         }
@@ -68,6 +74,7 @@ int get_divisor_satisfying_cond(jit_conv_winograd_conf_t &jcp, int number,
 
 namespace {
 bool is_winograd_faster_than_direct(const jit_conv_winograd_conf_t &jcp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:  bool is_winograd_faster_than_direct(const jit_conv_winograd_conf_t &jcp) {" << std::endl;
     if (jcp.ver == ver_4fma)
         return jcp.mb >= 32;
     else
@@ -90,6 +97,7 @@ struct prefetcher_t {
         , cache_type_(cache_type)
         , cache_block_size_(block_size)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          , cache_block_size_(block_size)     {" << std::endl;
         nb_cache_lines_to_prefetch_ = cache_block_size_ / (64 / sizeof(data_t));
         prefetch_spread_
                 = div_up(nb_instructions_in_block, nb_cache_lines_to_prefetch_);
@@ -99,6 +107,7 @@ struct prefetcher_t {
         /* assumption: when fetch in Li, data is already in L(i+1) */
         int cache_latency;
         switch (cache_type_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          switch (cache_type_) {" << std::endl;
         case L1: cache_latency = 14; break;
         case L2:
         case L3:
@@ -110,10 +119,13 @@ struct prefetcher_t {
 
     void prefetch(int instruction_number)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      void prefetch(int instruction_number)     {" << std::endl;
         if (instruction_number % prefetch_spread_ == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          if (instruction_number % prefetch_spread_ == 0) {" << std::endl;
             for (int i = 0; (i < prefetch_blk_)
                     && (prefetches_issued_ < nb_cache_lines_to_prefetch_);
                     i++, prefetches_issued_++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                      i++, prefetches_issued_++) {" << std::endl;
                 prefetch_inst_(cg_->EVEX_compress_addr(
                         reg_base_addr_, (cache_block_size_ * prefetch_distance_)
                                         * sizeof(data_t)
@@ -125,7 +137,9 @@ struct prefetcher_t {
 private:
     void prefetch_inst_(const Xbyak::Address &addr)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      void prefetch_inst_(const Xbyak::Address &addr)     {" << std::endl;
         switch (cache_type_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          switch (cache_type_) {" << std::endl;
         case L1: cg_->prefetcht0(addr); break;
         case L2: cg_->prefetcht1(addr); break;
         case L3: cg_->prefetcht2(addr); break;
@@ -149,6 +163,7 @@ private:
 bool check_cond1(int dimN_reg_block, int dimK_block, int dimK_reg_block,
         int dimM_block, int dimM_simd_block, float C)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          int dimM_block, int dimM_simd_block, float C) {" << std::endl;
     float lhs = (dimM_block * dimN_reg_block * dimM_simd_block
                         + dimM_block * dimK_block * dimK_reg_block
                                 * dimM_simd_block
@@ -161,6 +176,7 @@ bool check_cond1(int dimN_reg_block, int dimK_block, int dimK_reg_block,
 bool check_cond1_bis(int dimN_reg_block, int dimK_block, int dimK_reg_block,
         int dimM_block, int dimM_simd_block, float C)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          int dimM_block, int dimM_simd_block, float C) {" << std::endl;
     float lhs = (dimM_block * dimK_block * dimK_reg_block * dimM_simd_block
                         + dimK_block * dimN_reg_block * dimK_reg_block)
             * (float)sizeof(float);
@@ -172,6 +188,7 @@ bool check_cond2(int nb_dimN_reg_block, int dimN_reg_block, int dimK_nb_block,
         int dimK_block, int dimK_reg_block, int dimM_block, int dimM_simd_block,
         float C)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          float C) {" << std::endl;
     float lhs = (nb_dimN_reg_block * dimM_block * dimN_reg_block * dimM_simd_block
                       + dimK_nb_block * dimM_block * dimK_block * dimK_reg_block
                               * dimM_simd_block
@@ -190,6 +207,7 @@ using namespace Xbyak;
 void _jit_avx512_common_conv_winograd_data_kernel_f32::gemm_loop_generate(
         bool is_beta_zero)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          bool is_beta_zero) {" << std::endl;
     // const int dimK_simd_block = jcp.dimK_reg_block;
 
     // for (int dimM_block =0; dimM_block < jcp.dimM_block; dimM_block++)
@@ -206,6 +224,7 @@ void _jit_avx512_common_conv_winograd_data_kernel_f32::gemm_loop_generate(
     // dimK_reg_block. I think it should be
 
     auto inner_loops = [=]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      auto inner_loops = [=]() {" << std::endl;
         Label dimM_block_loop, dimK_block_loop;
         const int inc_dimK_reg_block = jcp.ver == ver_4fma ? 4 : 1;
         const int fma_ipc = jcp.ver == ver_4fma ? 1 : 2;
@@ -220,6 +239,7 @@ void _jit_avx512_common_conv_winograd_data_kernel_f32::gemm_loop_generate(
                 fma_ipc);
 
         if (jcp.dimM_block > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          if (jcp.dimM_block > 1) {" << std::endl;
             mov(reg_dimM_block_loop_cnt, jcp.dimM_block);
             L(dimM_block_loop);
         }
@@ -227,6 +247,7 @@ void _jit_avx512_common_conv_winograd_data_kernel_f32::gemm_loop_generate(
             // First, we zero the accumulators if first nb_ic iteration,
             // otherwise we load them
             for (int tile = 0; tile < jcp.dimN_reg_block; tile++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              for (int tile = 0; tile < jcp.dimN_reg_block; tile++) {" << std::endl;
                 Zmm zmm(jcp.zmm_start + tile);
                 if (is_beta_zero)
                     vpxord(zmm, zmm, zmm);
@@ -235,11 +256,13 @@ void _jit_avx512_common_conv_winograd_data_kernel_f32::gemm_loop_generate(
             }
 
             if (jcp.dimK_block > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              if (jcp.dimK_block > 1) {" << std::endl;
                 mov(reg_dimK_block_loop_cnt, jcp.dimK_block);
                 L(dimK_block_loop);
             }
             {
                 auto load_A = [=](int reg_idx, int offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  auto load_A = [=](int reg_idx, int offset) {" << std::endl;
                     for (int i = 0; i < inc_dimK_reg_block; i++)
                         vmovups(Zmm(reg_idx + i),
                                 zword[reg_srcA + 64 * (offset + i)]);
@@ -248,15 +271,18 @@ void _jit_avx512_common_conv_winograd_data_kernel_f32::gemm_loop_generate(
                 // Used when doing double buffering
                 int next = 0;
                 if (jcp.double_buffering) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  if (jcp.double_buffering) {" << std::endl;
                     load_A(next, 0);
                 }
                 for (int dimK_reg_block = 0;
                         dimK_reg_block < jcp.dimK_reg_block;
                         dimK_reg_block += inc_dimK_reg_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                          dimK_reg_block += inc_dimK_reg_block) {" << std::endl;
                     int current;
                     /* Loading the next vector from A */
                     current = next;
                     if (jcp.double_buffering) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                      if (jcp.double_buffering) {" << std::endl;
                         next = (dimK_reg_block + inc_dimK_reg_block)
                                 % (2 * inc_dimK_reg_block);
                         load_A(next, dimK_reg_block + inc_dimK_reg_block);
@@ -266,6 +292,7 @@ void _jit_avx512_common_conv_winograd_data_kernel_f32::gemm_loop_generate(
                     }
                     /* Performing the fmas */
                     for (int tile = 0; tile < jcp.dimN_reg_block; tile++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                      for (int tile = 0; tile < jcp.dimN_reg_block; tile++) {" << std::endl;
                         Zmm zmm(jcp.zmm_start + tile);
                         if (jcp.ver != ver_avx512_core)
                             L1_pf.prefetch(
@@ -288,6 +315,7 @@ void _jit_avx512_common_conv_winograd_data_kernel_f32::gemm_loop_generate(
                 add(reg_srcA, jcp.dimK_reg_block * 64);
                 add(reg_srcB, jcp.dimN_reg_block * 64);
                 if (jcp.dimK_block > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  if (jcp.dimK_block > 1) {" << std::endl;
                     sub(reg_dimK_block_loop_cnt, 1);
                     jnz(dimK_block_loop);
                 }
@@ -295,7 +323,9 @@ void _jit_avx512_common_conv_winograd_data_kernel_f32::gemm_loop_generate(
 
 
             auto store_output = [=](bool output_is_aligned) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              auto store_output = [=](bool output_is_aligned) {" << std::endl;
                 for (int tile = 0; tile < jcp.dimN_reg_block; tile++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  for (int tile = 0; tile < jcp.dimN_reg_block; tile++) {" << std::endl;
                     Zmm zmm(jcp.zmm_start + tile);
                     if (output_is_aligned
                         && jcp.dimK_nb_block == 1
@@ -318,6 +348,7 @@ void _jit_avx512_common_conv_winograd_data_kernel_f32::gemm_loop_generate(
             L(end_store);
 
             if (jcp.dimM_block > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              if (jcp.dimM_block > 1) {" << std::endl;
                 sub(reg_srcB, jcp.dimK_block * jcp.dimN_reg_block * 64);
                 add(reg_dstC, jcp.dimN_reg_block * 64);
                 sub(reg_dimM_block_loop_cnt, 1);
@@ -342,6 +373,7 @@ status_t _jit_avx512_common_conv_winograd_data_kernel_f32::init_conf_common(
         const memory_desc_wrapper &src_d, const memory_desc_wrapper &weights_d,
         const memory_desc_wrapper &dst_d)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          const memory_desc_wrapper &dst_d) {" << std::endl;
 
     if (mayiuse(avx512_core))
         return status::unimplemented;
@@ -384,6 +416,7 @@ status_t _jit_avx512_common_conv_winograd_data_kernel_f32::init_conf_common(
 
     bool ok_to_pad_channels = jcp.ngroups == 1;
     if (ok_to_pad_channels) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      if (ok_to_pad_channels) {" << std::endl;
         jcp.oc = rnd_up(jcp.oc, simd_w);
         jcp.ic = rnd_up(jcp.ic, simd_w);
     }
@@ -423,9 +456,11 @@ status_t _jit_avx512_common_conv_winograd_data_kernel_f32::init_conf_common(
 
 
 status_t set_wsched_DATA_W_S_G_D_avx512_common(jit_conv_winograd_conf_t &jcp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:  status_t set_wsched_DATA_W_S_G_D_avx512_common(jit_conv_winograd_conf_t &jcp) {" << std::endl;
 
     auto test_cond_dimN_reg_block = [](jit_conv_winograd_conf_t &jcp,
             int dimN_reg_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              int dimN_reg_block, int current_best) {" << std::endl;
         return (dimN_reg_block >= MIN_REQUIRED_DIMN_REG_BLOCK)
                 && (dimN_reg_block < jcp.nb_reg)
                 && (dimN_reg_block < current_best);
@@ -434,8 +469,10 @@ status_t set_wsched_DATA_W_S_G_D_avx512_common(jit_conv_winograd_conf_t &jcp) {
             jcp, jcp.dimN, jcp.dimN, test_cond_dimN_reg_block);
 
     if (jcp.dimN_reg_block >= jcp.nb_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      if (jcp.dimN_reg_block >= jcp.nb_reg) {" << std::endl;
         auto test_cond_dimN_reg_block = [](jit_conv_winograd_conf_t &jcp,
                 int dimN_reg_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  int dimN_reg_block, int current_best) {" << std::endl;
             return (dimN_reg_block < jcp.nb_reg)
                     && (dimN_reg_block > current_best);
         };
@@ -447,6 +484,7 @@ status_t set_wsched_DATA_W_S_G_D_avx512_common(jit_conv_winograd_conf_t &jcp) {
     //********************* Choosing dimK_block **********************//
     auto test_cond1_dimK_block = [](
             jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {" << std::endl;
         return check_cond1(jcp.dimN_reg_block, dimK_block, jcp.dimK_reg_block,
                        1, jcp.dimM_simd_block, .75f)
                 && (dimK_block > current_best);
@@ -454,6 +492,7 @@ status_t set_wsched_DATA_W_S_G_D_avx512_common(jit_conv_winograd_conf_t &jcp) {
 
     auto test_cond1_bis_dimK_block = [](
             jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {" << std::endl;
         return check_cond1_bis(jcp.dimN_reg_block, dimK_block,
                        jcp.dimK_reg_block, 1, jcp.dimM_simd_block, .9f)
                 && (dimK_block > current_best);
@@ -472,6 +511,7 @@ status_t set_wsched_DATA_W_S_G_D_avx512_common(jit_conv_winograd_conf_t &jcp) {
     /*XXX: Why C=0.5 here but C=0.75 for dimK_block?*/
     auto test_cond1_dimM_block = [](
             jit_conv_winograd_conf_t &jcp, int dimM_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimM_block, int current_best) {" << std::endl;
         return check_cond1(jcp.dimN_reg_block, jcp.dimK_block,
                        jcp.dimK_reg_block, dimM_block, jcp.dimM_simd_block, .5f)
                 && (dimM_block > current_best);
@@ -479,6 +519,7 @@ status_t set_wsched_DATA_W_S_G_D_avx512_common(jit_conv_winograd_conf_t &jcp) {
 
     auto test_cond1_bis_dimM_block = [](
             jit_conv_winograd_conf_t &jcp, int dimM_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimM_block, int current_best) {" << std::endl;
         return check_cond1_bis(jcp.dimN_reg_block, jcp.dimK_block,
                        jcp.dimK_reg_block, dimM_block, jcp.dimM_simd_block, .3f)
                 && (dimM_block > current_best);
@@ -495,6 +536,7 @@ status_t set_wsched_DATA_W_S_G_D_avx512_common(jit_conv_winograd_conf_t &jcp) {
     //******************* Choosing dimN_block *******************//
     auto test_cond2_dimN_block = [](
             jit_conv_winograd_conf_t &jcp, int dimN_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimN_block, int current_best) {" << std::endl;
         return check_cond2(dimN_block, jcp.dimN_reg_block, jcp.dimK_nb_block,
                        jcp.dimK_block, jcp.dimK_reg_block, jcp.dimM_block,
                        jcp.dimM_simd_block, .5f)
@@ -511,6 +553,7 @@ status_t set_wsched_DATA_W_S_G_D_avx512_common(jit_conv_winograd_conf_t &jcp) {
 status_t _jit_avx512_common_conv_winograd_data_kernel_f32::init_conf_kernel(
         jit_conv_winograd_conf_t &jcp, int dimM, int dimN, int dimK)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          jit_conv_winograd_conf_t &jcp, int dimM, int dimN, int dimK) {" << std::endl;
     jcp.dimK_reg_block = 16;
     jcp.dimM_simd_block = 16;
 
@@ -538,12 +581,16 @@ status_t _jit_avx512_common_conv_winograd_data_kernel_f32::init_conf_kernel(
 
 bool jit_avx512_common_conv_winograd_fwd_kernel_f32::post_ops_ok(
         jit_conv_conf_t &jcp, const primitive_attr_t &attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          jit_conv_conf_t &jcp, const primitive_attr_t &attr) {" << std::endl;
     const auto &p = attr.post_ops_;
 
-    auto is_relu = [&](int idx) { return p.entry_[idx].is_relu(); };
-    auto is_sum = [&](int idx) { return p.entry_[idx].is_sum(); };
+    auto is_relu = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      auto is_relu = [&](int idx) {" << std::endl; return p.entry_[idx].is_relu(); };
+    auto is_sum = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      auto is_sum = [&](int idx) {" << std::endl; return p.entry_[idx].is_sum(); };
 
     switch (p.len_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      switch (p.len_) {" << std::endl;
     case 0: return true; // no post_ops
     case 1: return is_relu(0) || is_sum(0); // relu or sum
     case 2: return (is_sum(0) && is_relu(1)) ||
@@ -559,6 +606,7 @@ status_t jit_avx512_common_conv_winograd_fwd_kernel_f32::init_conf(
         jit_conv_winograd_conf_t &jcp, const convolution_desc_t &cd,
         const memory_desc_wrapper &src_d, const memory_desc_wrapper &weights_d,
         const memory_desc_wrapper &dst_d, const primitive_attr_t &attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          const memory_desc_wrapper &dst_d, const primitive_attr_t &attr) {" << std::endl;
     status_t st = init_conf_common(jcp, cd, src_d, weights_d, dst_d);
 
     if (st != status::success)
@@ -601,6 +649,7 @@ status_t jit_avx512_common_conv_winograd_bwd_data_kernel_f32::init_conf(
         const memory_desc_wrapper &weights_d,
         const memory_desc_wrapper &diff_dst_d)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          const memory_desc_wrapper &diff_dst_d) {" << std::endl;
     status_t st = init_conf_common(jcp, cd, diff_src_d, weights_d, diff_dst_d);
 
     if (st != status::success)
@@ -627,8 +676,11 @@ status_t jit_avx512_common_conv_winograd_bwd_data_kernel_f32::init_conf(
 
 void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::transpose_ker_generate()
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:  void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::transpose_ker_generate() {" << std::endl;
     auto load_B = [=](int reg_idx, int offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      auto load_B = [=](int reg_idx, int offset) {" << std::endl;
         for (int i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          for (int i = 0; i < 4; i++) {" << std::endl;
             vmovups(Zmm(reg_idx + i), zword[reg_origB + (offset + i) * jcp.dimN_reg_block * sizeof(float)]);
         }
     };
@@ -636,21 +688,27 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::transpose_ker_gener
     preamble();
     int curr = 0;
     for (int j = 0; j < alpha; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      for (int j = 0; j < alpha; j++) {" << std::endl;
         for (int i = 0; i < alpha; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          for (int i = 0; i < alpha; i++) {" << std::endl;
             int origB_offset = (j * alpha + i) * jcp.dimK_4fma;
             size_t transB_offset = (size_t)(j * alpha + i) * jcp.dimK_nb_block *
                 jcp.dimN_block * jcp.dimK_block * jcp.dimK_reg_block *
                 jcp.dimK_4fma * jcp.dimN_reg_block * sizeof(float);
             mov(reg_transB_idx, transB_offset);
             for (int tb = 0; tb < jcp.dimK_4fma; tb+=4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              for (int tb = 0; tb < jcp.dimK_4fma; tb+=4) {" << std::endl;
                 /*double buffering to hide load latencies*/
                 int next = (curr + 4) % 8;
                 if (i == 0 && tb == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  if (i == 0 && tb == 0) {" << std::endl;
                     load_B(0, origB_offset);
                 }
                 if (tb + 4 < (jcp.dimK_4fma -1)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  if (tb + 4 < (jcp.dimK_4fma -1)) {" << std::endl;
                     load_B(next, origB_offset + 4);
                 } else if (i < alpha - 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  } else if (i < alpha - 1) {" << std::endl;
                     load_B(next, origB_offset + jcp.dimK_4fma);
                 }
 
@@ -688,6 +746,7 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::transpose_ker_gener
 void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::gemm_loop_generate(
         bool is_first_tile)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          bool is_first_tile) {" << std::endl;
     // for (int ofm2 = 0; ofm2 < jcp.oc_block; ofm2++)
     //     for (int ifm2 = 0; ifm2 < jcp.ic_block; ifm2++)
     //             for (int nb_tile_block_ur = 0; nb_tile_block_ur <
@@ -700,6 +759,7 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::gemm_loop_generate(
     //                              *
     //                              broadcast(V[ifm2][nb_tile_block_ur][ifm3][tile_block_ur])
     auto inner_loops = [=]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      auto inner_loops = [=]() {" << std::endl;
         int inc_fma = jcp.ver == ver_4fma ? 4 : 1;
         const int fma_ipc = jcp.ver == ver_4fma ? 1 : 2;
         prefetcher_t<float> L1_pf(this, reg_srcB, L1,
@@ -714,7 +774,9 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::gemm_loop_generate(
                 fma_ipc);
 
         auto load_A = [=](int reg_idx, int offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          auto load_A = [=](int reg_idx, int offset) {" << std::endl;
             for (int i = 0; i < inc_fma; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              for (int i = 0; i < inc_fma; i++) {" << std::endl;
                 vmovups(Zmm(reg_idx + i),
                         zword[reg_srcA +
                         sizeof(float) * jcp.dimM_simd_block * (offset + i)]);
@@ -723,17 +785,20 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::gemm_loop_generate(
 
         Label dimM_block_loop, dimK_block_loop, dimN_block_loop;
         if (jcp.dimM_block > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          if (jcp.dimM_block > 1) {" << std::endl;
             mov(reg_dimM_block_loop_cnt, jcp.dimM_block);
             L(dimM_block_loop);
         }
         { /************* OC_block (M) loop ***********/
             if (jcp.dimN_block > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              if (jcp.dimN_block > 1) {" << std::endl;
                 mov(reg_dimN_block_loop_cnt, jcp.dimN_block);
                 L(dimN_block_loop);
             }
             { /*************** IC_block (N) loop *********/
                 for (int dimN_reg_block = 0;
                         dimN_reg_block < jcp.dimN_reg_block; ++dimN_reg_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                          dimN_reg_block < jcp.dimN_reg_block; ++dimN_reg_block) {" << std::endl;
                     Zmm zmm(jcp.zmm_start + dimN_reg_block);
                     if (is_first_tile)
                         vpxord(zmm, zmm, zmm);
@@ -744,23 +809,28 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::gemm_loop_generate(
                 }
 
                 if (jcp.dimK_block > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  if (jcp.dimK_block > 1) {" << std::endl;
                     mov(reg_dimK_block_loop_cnt, jcp.dimK_block);
                     L(dimK_block_loop);
                 }
                 { /************* nb_tile_ur(K) loop ********/
                     int next = 0;
                     if (jcp.double_buffering) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                      if (jcp.double_buffering) {" << std::endl;
                         load_A(next, 0);
                     }
                     for (int dimK_reg_block = 0;
                             dimK_reg_block < jcp.dimK_reg_block;
                             dimK_reg_block++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                              dimK_reg_block++) {" << std::endl;
                         int srcB_offset = dimK_reg_block * jcp.dimK_4fma
                                 * jcp.dimN_reg_block;
                         for (int dimK_4fma = 0; dimK_4fma < jcp.dimK_4fma;
                                 dimK_4fma += inc_fma) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                                  dimK_4fma += inc_fma) {" << std::endl;
                             int current = next;
                             if (jcp.double_buffering) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                              if (jcp.double_buffering) {" << std::endl;
                                 next = (dimK_reg_block * jcp.dimK_4fma
                                                + dimK_4fma + inc_fma)
                                         % (2 * inc_fma);
@@ -774,6 +844,7 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::gemm_loop_generate(
                             for (int dimN_reg_block = 0;
                                     dimN_reg_block < jcp.dimN_reg_block;
                                     ++dimN_reg_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                                      ++dimN_reg_block) {" << std::endl;
                                 L1_pf.prefetch(srcB_offset / inc_fma
                                         + dimK_4fma / inc_fma
                                                 * jcp.dimN_reg_block
@@ -783,6 +854,7 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::gemm_loop_generate(
                                                 * jcp.dimN_reg_block
                                         + dimN_reg_block);
                                 if (jcp.ver == ver_4fma) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                                  if (jcp.ver == ver_4fma) {" << std::endl;
                                     int srcB_trans_offset = (dimK_4fma / 4) * 64
                                             + dimK_4fma % 4;
                                     v4fmaddps(
@@ -812,6 +884,7 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::gemm_loop_generate(
                 add(reg_srcB, jcp.dimK_reg_block * jcp.dimN_reg_block
                                 * jcp.dimK_4fma * sizeof(float));
                 if (jcp.dimK_block > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  if (jcp.dimK_block > 1) {" << std::endl;
                     sub(reg_dimK_block_loop_cnt, 1);
                     jnz(dimK_block_loop);
                 }
@@ -819,6 +892,7 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::gemm_loop_generate(
                 /******** Write C back to memory *******/
                 for (int dimN_reg_block = 0;
                         dimN_reg_block < jcp.dimN_reg_block; ++dimN_reg_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                          dimN_reg_block < jcp.dimN_reg_block; ++dimN_reg_block) {" << std::endl;
                     Zmm zmm(jcp.zmm_start + dimN_reg_block);
                     vmovups(zword[reg_dstC +
                             dimN_reg_block * jcp.dimM_simd_block * sizeof(float)],
@@ -830,12 +904,14 @@ void jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::gemm_loop_generate(
                 add(reg_dstC, jcp.dimN_reg_block * jcp.dimM_simd_block
                         * sizeof(float));
                 if (jcp.dimN_block > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                  if (jcp.dimN_block > 1) {" << std::endl;
                     sub(reg_dimN_block_loop_cnt, 1);
                     jnz(dimN_block_loop);
                 }
             }
 
             if (jcp.dimM_block > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              if (jcp.dimM_block > 1) {" << std::endl;
                 sub(reg_srcB, jcp.dimN_block * jcp.dimK_block
                                 * jcp.dimK_reg_block * jcp.dimN_reg_block
                                 * jcp.dimK_4fma * sizeof(float));
@@ -862,6 +938,7 @@ namespace {
 bool check_cond1_wu(int dimM_block, int dimM_simdw, int dimK_block,
         int dimK_reg_block, int dimK_4fma, int dimN_reg_block, float C)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          int dimK_reg_block, int dimK_4fma, int dimN_reg_block, float C) {" << std::endl;
     float lhs = 1.0f * dimM_block * dimN_reg_block * dimM_simdw;
     lhs += dimM_block * dimK_block * dimK_reg_block * dimK_4fma * dimM_simdw;
     lhs += dimK_block * dimN_reg_block * dimK_reg_block * dimK_4fma;
@@ -873,6 +950,7 @@ bool check_cond1_wu(int dimM_block, int dimM_simdw, int dimK_block,
 bool check_cond1bis_wu(int dimM_block, int dimM_simdw, int dimK_block,
         int dimK_reg_block, int dimK_4fma, int dimN_reg_block, float C)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          int dimK_reg_block, int dimK_4fma, int dimN_reg_block, float C) {" << std::endl;
     float lhs = 1.0f * dimM_block * dimK_block * dimK_reg_block * dimK_4fma
             * dimM_simdw;
     lhs += dimK_block * dimN_reg_block * dimK_reg_block * dimK_4fma;
@@ -885,6 +963,7 @@ bool check_cond2bis_wu(int dimM_block, int dimM_simdw, int dimK_block,
         int dimK_reg_block, int dimK_4fma, int dimN_block, int dimN_reg_block,
         float C)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          float C) {" << std::endl;
     float lhs = 1.0f * dimM_block * dimM_simdw * dimK_block * dimK_reg_block
             * dimK_4fma;
     lhs += dimK_block * dimK_reg_block * dimK_4fma * dimN_block
@@ -898,6 +977,7 @@ bool check_cond2_wu(int dimM_block, int dimM_simdw, int dimK_block,
         int dimK_reg_block, int dimK_4fma, int dimN_block, int dimN_reg_block,
         float C)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          float C) {" << std::endl;
     float lhs = 1.0f * dimM_block * dimM_simdw * dimN_block * dimN_reg_block;
     lhs += dimM_block * dimM_simdw * dimK_block * dimK_reg_block * dimK_4fma;
     lhs += dimK_block * dimK_reg_block * dimK_4fma * dimN_block
@@ -910,6 +990,7 @@ bool check_cond2_wu(int dimM_block, int dimM_simdw, int dimK_block,
 
 status_t set_wsched_WEI_S_D_G_W_avx512_common(jit_conv_winograd_conf_t &jcp)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:  status_t set_wsched_WEI_S_D_G_W_avx512_common(jit_conv_winograd_conf_t &jcp) {" << std::endl;
     /*************** Choose dimN_reg_block (ic_simd_block)
      * *******************************/
     jcp.dimN = jcp.ic;
@@ -928,6 +1009,7 @@ status_t set_wsched_WEI_S_D_G_W_avx512_common(jit_conv_winograd_conf_t &jcp)
 
     auto test_cond1bis_dimK_block = [](
             jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {" << std::endl;
         return check_cond1bis_wu(1, jcp.dimM_simd_block, dimK_block, 1,
                        jcp.dimK_4fma, jcp.dimN_reg_block, 0.4f)
                 && (dimK_block > current_best);
@@ -935,6 +1017,7 @@ status_t set_wsched_WEI_S_D_G_W_avx512_common(jit_conv_winograd_conf_t &jcp)
 
     auto test_cond1_dimK_block = [](
             jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {" << std::endl;
         return check_cond1_wu(1, jcp.dimM_simd_block, dimK_block, 1,
                        jcp.dimK_4fma, jcp.dimN_reg_block, 0.4f)
                 && (dimK_block > current_best);
@@ -942,6 +1025,7 @@ status_t set_wsched_WEI_S_D_G_W_avx512_common(jit_conv_winograd_conf_t &jcp)
 
     auto test_cond2bis_dimK_block = [](
             jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {" << std::endl;
         return check_cond2bis_wu(1, jcp.dimM_simd_block, dimK_block, 1,
                        jcp.dimK_4fma, 1, jcp.dimN_reg_block, 0.5f)
                 && (dimK_block > current_best);
@@ -949,6 +1033,7 @@ status_t set_wsched_WEI_S_D_G_W_avx512_common(jit_conv_winograd_conf_t &jcp)
 
     auto test_cond2_dimK_block = [](
             jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimK_block, int current_best) {" << std::endl;
         return check_cond2_wu(1, jcp.dimM_simd_block, dimK_block, 1,
                        jcp.dimK_4fma, 1, jcp.dimN_reg_block, 0.1f)
                 && (dimK_block > current_best);
@@ -963,6 +1048,7 @@ status_t set_wsched_WEI_S_D_G_W_avx512_common(jit_conv_winograd_conf_t &jcp)
     jcp.dimK_reg_block = get_divisor_satisfying_cond(
             jcp, jcp.dimK_block, 1, test_cond1bis_dimK_block);
     if (jcp.dimK_reg_block < jcp.dimK_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      if (jcp.dimK_reg_block < jcp.dimK_block) {" << std::endl;
         jcp.dimK_reg_block = get_divisor_satisfying_cond(
                 jcp, jcp.dimK_block, 1, test_cond1_dimK_block);
     }
@@ -977,6 +1063,7 @@ status_t set_wsched_WEI_S_D_G_W_avx512_common(jit_conv_winograd_conf_t &jcp)
      * ****************************/
     auto test_cond2_dimN_block = [](
             jit_conv_winograd_conf_t &jcp, int dimN_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimN_block, int current_best) {" << std::endl;
         return check_cond2_wu(1, jcp.dimM_simd_block, jcp.dimK_block,
                        jcp.dimK_reg_block, jcp.dimK_4fma, dimN_block,
                        jcp.dimN_reg_block, 0.5f)
@@ -995,6 +1082,7 @@ status_t set_wsched_WEI_S_D_G_W_avx512_common(jit_conv_winograd_conf_t &jcp)
 
     auto test_cond1_dimM_block = [](
             jit_conv_winograd_conf_t &jcp, int dimM_block, int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:              jit_conv_winograd_conf_t &jcp, int dimM_block, int current_best) {" << std::endl;
         return check_cond1_wu(dimM_block, jcp.dimM_simd_block, 1,
                        jcp.dimK_reg_block, jcp.dimK_4fma, jcp.dimN_reg_block,
                        1.0f)
@@ -1015,6 +1103,7 @@ status_t jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::init_conf(
         const memory_desc_wrapper &src_d, const memory_desc_wrapper &diff_dst_d,
         const memory_desc_wrapper &diff_weights_d)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:          const memory_desc_wrapper &diff_weights_d) {" << std::endl;
     jcp.nthr = mkldnn_get_max_threads();
 
     const bool with_groups = diff_weights_d.ndims() == src_d.ndims() + 1;
@@ -1048,6 +1137,7 @@ status_t jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::init_conf(
 
     bool ok_to_pad_channels = jcp.ngroups == 1;
     if (ok_to_pad_channels) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      if (ok_to_pad_channels) {" << std::endl;
         jcp.oc = rnd_up(jcp.oc, simd_w);
         jcp.ic = rnd_up(jcp.ic, simd_w);
     }
@@ -1103,8 +1193,10 @@ status_t jit_avx512_common_conv_winograd_bwd_weights_kernel_f32::init_conf(
 
 #define MAX_4FMA_UR 8
     if (jcp.ver == ver_4fma) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:      if (jcp.ver == ver_4fma) {" << std::endl;
         auto test_cond_4fma = [](jit_conv_winograd_conf_t &jcp, int dimK_4fma,
                                       int current_best) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_common_conv_winograd_kernel_f32.cpp:                                        int current_best) {" << std::endl;
             return (dimK_4fma % 4 == 0) && (dimK_4fma <= MAX_4FMA_UR)
                     && (dimK_4fma > current_best);
         };

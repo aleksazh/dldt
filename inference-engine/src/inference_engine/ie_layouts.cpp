@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -11,17 +12,21 @@ using namespace InferenceEngine;
 
 TensorDesc::TensorDesc(const Precision& precision, SizeVector dims, Layout layout)
     : blockingDesc(dims, layout), precision(precision) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      : blockingDesc(dims, layout), precision(precision) {" << std::endl;
     this->dims = dims;
     this->layout = layout;
 }
 
 TensorDesc::TensorDesc(const Precision& precision, Layout layout): blockingDesc(), precision(precision) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:  TensorDesc::TensorDesc(const Precision& precision, Layout layout): blockingDesc(), precision(precision) {" << std::endl;
     this->layout = layout;
 }
 
 TensorDesc::TensorDesc(const Precision& precision, SizeVector dims, const BlockingDesc& blockDesc)
     : dims(dims), blockingDesc(blockDesc), precision(precision) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      : dims(dims), blockingDesc(blockDesc), precision(precision) {" << std::endl;
     if (dims.size() == 0 || blockingDesc.getBlockDims().size() == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      if (dims.size() == 0 || blockingDesc.getBlockDims().size() == 0) {" << std::endl;
         layout = Layout::SCALAR;
         return;
     }
@@ -30,7 +35,9 @@ TensorDesc::TensorDesc(const Precision& precision, SizeVector dims, const Blocki
 
     layout = Layout::BLOCKED;
     if (dims.size() == blockingDesc.getBlockDims().size()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      if (dims.size() == blockingDesc.getBlockDims().size()) {" << std::endl;
         switch (dims.size()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:          switch (dims.size()) {" << std::endl;
         case 1:
             layout = Layout::C;
             break;
@@ -42,25 +49,30 @@ TensorDesc::TensorDesc(const Precision& precision, SizeVector dims, const Blocki
             break;
         case 3:
             if (blockingDesc.getOrder()[0] == 0 && blockingDesc.getOrder()[1] == 1 && blockingDesc.getOrder()[2] == 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:              if (blockingDesc.getOrder()[0] == 0 && blockingDesc.getOrder()[1] == 1 && blockingDesc.getOrder()[2] == 2) {" << std::endl;
                 layout = Layout::CHW;
             }
             break;
         case 4:
             if (blockingDesc.getOrder()[0] == 0 && blockingDesc.getOrder()[1] == 1 && blockingDesc.getOrder()[2] == 2 &&
                 blockingDesc.getOrder()[3] == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:                  blockingDesc.getOrder()[3] == 3) {" << std::endl;
                 layout = Layout::NCHW;
             } else if (blockingDesc.getOrder()[0] == 0 && blockingDesc.getOrder()[1] == 2 &&
                        blockingDesc.getOrder()[2] == 3 && blockingDesc.getOrder()[3] == 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:                         blockingDesc.getOrder()[2] == 3 && blockingDesc.getOrder()[3] == 1) {" << std::endl;
                 layout = Layout::NHWC;
             }
             break;
         case 5:
             if (blockingDesc.getOrder()[0] == 0 && blockingDesc.getOrder()[1] == 1 && blockingDesc.getOrder()[2] == 2 &&
                 blockingDesc.getOrder()[3] == 3 && blockingDesc.getOrder()[4] == 4) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:                  blockingDesc.getOrder()[3] == 3 && blockingDesc.getOrder()[4] == 4) {" << std::endl;
                 layout = Layout::NCDHW;
             } else if (blockingDesc.getOrder()[0] == 0 && blockingDesc.getOrder()[1] == 2 &&
                        blockingDesc.getOrder()[2] == 3 && blockingDesc.getOrder()[3] == 4 &&
                        blockingDesc.getOrder()[4] == 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:                         blockingDesc.getOrder()[4] == 1) {" << std::endl;
                 layout = Layout::NDHWC;
             }
             break;
@@ -71,17 +83,22 @@ TensorDesc::TensorDesc(const Precision& precision, SizeVector dims, const Blocki
 }
 
 TensorDesc::TensorDesc() {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:  TensorDesc::TensorDesc() {" << std::endl;
     this->layout = Layout::ANY;
     precision = Precision::UNSPECIFIED;
 }
 
 void TensorDesc::setDims(const SizeVector& dims) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:  void TensorDesc::setDims(const SizeVector& dims) {" << std::endl;
     if (layout == Layout::BLOCKED) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      if (layout == Layout::BLOCKED) {" << std::endl;
         auto newDims = blockingDesc.getBlockDims();
         auto newOrder = blockingDesc.getOrder();
         if (newDims.empty()) newDims = dims;
         if (newOrder.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:          if (newOrder.empty()) {" << std::endl;
             for (size_t i = 0; i < newDims.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:              for (size_t i = 0; i < newDims.size(); i++) {" << std::endl;
                 newOrder.push_back(i);
             }
         }
@@ -103,7 +120,9 @@ bool TensorDesc::operator!=(const TensorDesc& rhs) const {
 }
 
 Layout TensorDesc::getLayoutByDims(SizeVector dims) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:  Layout TensorDesc::getLayoutByDims(SizeVector dims) {" << std::endl;
     switch (dims.size()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      switch (dims.size()) {" << std::endl;
     case 0:
         return Layout::SCALAR;
     case 1:
@@ -133,15 +152,18 @@ size_t TensorDesc::offset(const SizeVector& v) const {
 
     size_t n_blocked_dims = order.size();
     if (blockedDims.size() != n_blocked_dims || strides.size() != n_blocked_dims) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      if (blockedDims.size() != n_blocked_dims || strides.size() != n_blocked_dims) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot calculate offset. Incorrect primitive descriptor!";
     }
     SizeVector blockedShift(n_blocked_dims);
     for (size_t i = 1; i <= n_blocked_dims; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      for (size_t i = 1; i <= n_blocked_dims; i++) {" << std::endl;
         blockedShift[n_blocked_dims - i] = off_v[order[n_blocked_dims - i]] % blockedDims[n_blocked_dims - i];
         off_v[order[n_blocked_dims - i]] /= blockedDims[n_blocked_dims - i];
     }
     size_t offset = blockingDesc.getOffsetPadding();
     for (int d = 0; d < n_blocked_dims; ++d) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      for (int d = 0; d < n_blocked_dims; ++d) {" << std::endl;
         const size_t p = blockedShift[d] + blockingDesc.getOffsetPaddingToData()[d];
         offset += p * strides[d];
     }
@@ -152,6 +174,7 @@ size_t TensorDesc::offset(size_t l) const {
     size_t n_dims = dims.size();
     SizeVector pos(n_dims);
     for (int rd = 1; rd <= n_dims; ++rd) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      for (int rd = 1; rd <= n_dims; ++rd) {" << std::endl;
         const size_t d = n_dims - rd;
         const size_t cur_dim = dims[d];
         pos[d] = l % cur_dim;
@@ -161,10 +184,13 @@ size_t TensorDesc::offset(size_t l) const {
 }
 
 void TensorDesc::reshape(const SizeVector& dims, Layout layout) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:  void TensorDesc::reshape(const SizeVector& dims, Layout layout) {" << std::endl;
     for (auto& padd : blockingDesc.getOffsetPaddingToData()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      for (auto& padd : blockingDesc.getOffsetPaddingToData()) {" << std::endl;
         if (padd) THROW_IE_EXCEPTION << "Cannot reshape a non-packaged blob!";
     }
     if (layout != Layout::ANY) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      if (layout != Layout::ANY) {" << std::endl;
         blockingDesc = BlockingDesc(dims, layout);
         this->layout = layout;
     } else {
@@ -174,27 +200,32 @@ void TensorDesc::reshape(const SizeVector& dims, Layout layout) {
 }
 
 void TensorDesc::reshape(const SizeVector& dims, const BlockingDesc& blockDesc) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:  void TensorDesc::reshape(const SizeVector& dims, const BlockingDesc& blockDesc) {" << std::endl;
     blockingDesc = blockDesc;
     this->dims = dims;
     this->layout = Layout::BLOCKED;
 }
 
 BlockingDesc::BlockingDesc(const SizeVector& block_dims, const SizeVector& order): offsetPadding(0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:  BlockingDesc::BlockingDesc(const SizeVector& block_dims, const SizeVector& order): offsetPadding(0) {" << std::endl;
     this->order = order;
     if (block_dims.empty() || order.empty()) return;
     fillDesc(block_dims, order);
 }
 
-BlockingDesc::BlockingDesc(): BlockingDesc({}, Layout::ANY) {}
+BlockingDesc::BlockingDesc(): BlockingDesc({}, Layout::ANY) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:  BlockingDesc::BlockingDesc(): BlockingDesc({}, Layout::ANY) {" << std::endl;}
 
 BlockingDesc::BlockingDesc(const SizeVector& blocked_dims, const SizeVector& order, size_t offset)
     : BlockingDesc(blocked_dims, order) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      : BlockingDesc(blocked_dims, order) {" << std::endl;
     this->offsetPadding = offset;
 }
 
 BlockingDesc::BlockingDesc(const SizeVector& blocked_dims, const SizeVector& order, size_t offset,
                            SizeVector dimOffsets)
     : BlockingDesc(blocked_dims, order) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      : BlockingDesc(blocked_dims, order) {" << std::endl;
     this->offsetPadding = offset;
     if (blocked_dims.size() != dimOffsets.size())
         THROW_IE_EXCEPTION << "Offsets are not initialized for all dimensions.";
@@ -204,6 +235,7 @@ BlockingDesc::BlockingDesc(const SizeVector& blocked_dims, const SizeVector& ord
 BlockingDesc::BlockingDesc(const SizeVector& blocked_dims, const SizeVector& order, size_t offset,
                            SizeVector dimOffsets, SizeVector strides)
     : BlockingDesc(blocked_dims, order) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      : BlockingDesc(blocked_dims, order) {" << std::endl;
     this->offsetPadding = offset;
     if (blocked_dims.size() != strides.size()) THROW_IE_EXCEPTION << "Strides are not initialized for all dimensions.";
     this->strides = strides;
@@ -213,15 +245,18 @@ BlockingDesc::BlockingDesc(const SizeVector& blocked_dims, const SizeVector& ord
 }
 
 BlockingDesc::BlockingDesc(const SizeVector& dims, Layout layout): offsetPadding(0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:  BlockingDesc::BlockingDesc(const SizeVector& dims, Layout layout): offsetPadding(0) {" << std::endl;
     if (dims.empty()) return;
 
     offsetPadding = 0;
     auto checkDims = [](size_t r_size, size_t e_size) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      auto checkDims = [](size_t r_size, size_t e_size) {" << std::endl;
         if (r_size != e_size) THROW_IE_EXCEPTION << "Dims and format are inconsistent.";
     };
     SizeVector l_order;
     SizeVector l_dims;
     switch (layout) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      switch (layout) {" << std::endl;
     case Layout::SCALAR:
     case Layout::ANY:
         return;
@@ -285,6 +320,7 @@ BlockingDesc::BlockingDesc(const SizeVector& dims, Layout layout): offsetPadding
 }
 
 void BlockingDesc::fillDesc(const SizeVector& blocked_dims, const SizeVector& order) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:  void BlockingDesc::fillDesc(const SizeVector& blocked_dims, const SizeVector& order) {" << std::endl;
     if (order.size() != blocked_dims.size())
         THROW_IE_EXCEPTION << "Cannot fill descriptor. Size of dimensions and order vector don't match.";
     if (blocked_dims.empty() || order.empty())
@@ -297,6 +333,7 @@ void BlockingDesc::fillDesc(const SizeVector& blocked_dims, const SizeVector& or
     strides[strides.size() - 1] = 1;
     offsetPaddingToData[offsetPaddingToData.size() - 1] = 0;
     for (size_t i = 2; i <= order.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layouts.cpp:      for (size_t i = 2; i <= order.size(); i++) {" << std::endl;
         offsetPaddingToData[offsetPaddingToData.size() - i] = 0;
         strides[strides.size() - i] = strides[strides.size() - (i - 1)] * blocked_dims[blocked_dims.size() - (i - 1)];
     }

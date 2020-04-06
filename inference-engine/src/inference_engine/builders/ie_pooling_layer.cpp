@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -11,6 +12,7 @@
 using namespace InferenceEngine;
 
 Builder::PoolingLayer::PoolingLayer(const std::string& name): LayerDecorator("Pooling", name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer::PoolingLayer(const std::string& name): LayerDecorator('Pooling', name) {" << std::endl;
     getLayer()->getInputPorts().resize(1);
     getLayer()->getOutputPorts().resize(1);
     setKernel({});
@@ -23,6 +25,7 @@ Builder::PoolingLayer::PoolingLayer(const std::string& name): LayerDecorator("Po
 }
 
 Builder::PoolingLayer::PoolingLayer(const Layer::Ptr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer::PoolingLayer(const Layer::Ptr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("Pooling");
 
     std::string typeStr = getLayer()->getParameters()["pool-method"];
@@ -39,6 +42,7 @@ Builder::PoolingLayer::PoolingLayer(const Layer::Ptr& layer): LayerDecorator(lay
 }
 
 Builder::PoolingLayer::PoolingLayer(const Layer::CPtr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer::PoolingLayer(const Layer::CPtr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("Pooling");
 
     const auto cLayer = static_cast<const PoolingLayer*>(this)->getLayer();
@@ -80,6 +84,7 @@ Builder::PoolingLayer::operator Builder::Layer() const {
 }
 
 Builder::PoolingLayer& Builder::PoolingLayer::setName(const std::string& name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer& Builder::PoolingLayer::setName(const std::string& name) {" << std::endl;
     getLayer()->setName(name);
     return *this;
 }
@@ -89,6 +94,7 @@ const Port& Builder::PoolingLayer::getInputPort() const {
 }
 
 Builder::PoolingLayer& Builder::PoolingLayer::setInputPort(const Port& port) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer& Builder::PoolingLayer::setInputPort(const Port& port) {" << std::endl;
     getLayer()->getInputPorts()[0] = port;
     return *this;
 }
@@ -98,6 +104,7 @@ const Port& Builder::PoolingLayer::getOutputPort() const {
 }
 
 Builder::PoolingLayer& Builder::PoolingLayer::setOutputPort(const Port& port) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer& Builder::PoolingLayer::setOutputPort(const Port& port) {" << std::endl;
     getLayer()->getOutputPorts()[0] = port;
     return *this;
 }
@@ -106,6 +113,7 @@ const std::vector<size_t> Builder::PoolingLayer::getKernel() const {
     return getLayer()->getParameters().at("kernel");
 }
 Builder::PoolingLayer& Builder::PoolingLayer::setKernel(const std::vector<size_t>& kernel) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer& Builder::PoolingLayer::setKernel(const std::vector<size_t>& kernel) {" << std::endl;
     getLayer()->getParameters()["kernel"] = kernel;
     return *this;
 }
@@ -114,6 +122,7 @@ const std::vector<size_t> Builder::PoolingLayer::getStrides() const {
     return getLayer()->getParameters().at("strides");
 }
 Builder::PoolingLayer& Builder::PoolingLayer::setStrides(const std::vector<size_t>& strides) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer& Builder::PoolingLayer::setStrides(const std::vector<size_t>& strides) {" << std::endl;
     getLayer()->getParameters()["strides"] = strides;
     return *this;
 }
@@ -122,6 +131,7 @@ const std::vector<size_t> Builder::PoolingLayer::getPaddingsBegin() const {
     return getLayer()->getParameters().at("pads_begin");
 }
 Builder::PoolingLayer& Builder::PoolingLayer::setPaddingsBegin(const std::vector<size_t>& paddings) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer& Builder::PoolingLayer::setPaddingsBegin(const std::vector<size_t>& paddings) {" << std::endl;
     getLayer()->getParameters()["pads_begin"] = paddings;
     return *this;
 }
@@ -130,6 +140,7 @@ const std::vector<size_t> Builder::PoolingLayer::getPaddingsEnd() const {
     return getLayer()->getParameters().at("pads_end");
 }
 Builder::PoolingLayer& Builder::PoolingLayer::setPaddingsEnd(const std::vector<size_t>& paddings) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer& Builder::PoolingLayer::setPaddingsEnd(const std::vector<size_t>& paddings) {" << std::endl;
     getLayer()->getParameters()["pads_end"] = paddings;
     return *this;
 }
@@ -138,8 +149,10 @@ Builder::PoolingLayer::PoolingType Builder::PoolingLayer::getPoolingType() const
     return type;
 }
 Builder::PoolingLayer& Builder::PoolingLayer::setPoolingType(Builder::PoolingLayer::PoolingType type) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer& Builder::PoolingLayer::setPoolingType(Builder::PoolingLayer::PoolingType type) {" << std::endl;
     std::string typeStr;
     switch (type) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:      switch (type) {" << std::endl;
     case MAX:
         typeStr = "max";
         break;
@@ -156,9 +169,11 @@ Builder::PoolingLayer::RoundingType Builder::PoolingLayer::getRoundingType() con
     return roundingType;
 }
 Builder::PoolingLayer& Builder::PoolingLayer::setRoundingType(Builder::PoolingLayer::RoundingType type) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer& Builder::PoolingLayer::setRoundingType(Builder::PoolingLayer::RoundingType type) {" << std::endl;
     roundingType = type;
     std::string typeStr;
     switch (type) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:      switch (type) {" << std::endl;
     case CEIL:
         typeStr = "ceil";
         break;
@@ -175,11 +190,13 @@ bool Builder::PoolingLayer::getExcludePad() const {
 }
 
 Builder::PoolingLayer& Builder::PoolingLayer::setExcludePad(bool exclude) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  Builder::PoolingLayer& Builder::PoolingLayer::setExcludePad(bool exclude) {" << std::endl;
     getLayer()->getParameters()["exclude-pad"] = exclude;
     return *this;
 }
 
 REG_VALIDATOR_FOR(Pooling, [](const Builder::Layer::CPtr& layer, bool partial) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  REG_VALIDATOR_FOR(Pooling, [](const Builder::Layer::CPtr& layer, bool partial) {" << std::endl;
     // WA for old IRs
     if (layer->getParameters().find("kernel") == layer->getParameters().end() &&
         layer->getParameters().find("kernel-x") != layer->getParameters().end() &&
@@ -202,6 +219,7 @@ REG_VALIDATOR_FOR(Pooling, [](const Builder::Layer::CPtr& layer, bool partial) {
 });
 
 REG_CONVERTER_FOR(Pooling, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:  REG_CONVERTER_FOR(Pooling, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {" << std::endl;
     if (cnnLayer->params.find("kernel") == cnnLayer->params.end() &&
         cnnLayer->params.find("kernel-x") != cnnLayer->params.end() &&
         cnnLayer->params.find("kernel-y") != cnnLayer->params.end())
@@ -209,24 +227,28 @@ REG_CONVERTER_FOR(Pooling, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer
     std::vector<unsigned int> tmp = cnnLayer->GetParamAsUInts("kernel");
     layer.getParameters()["kernel"] = std::vector<size_t>(tmp.size());
     for (size_t i = 0; i < tmp.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:      for (size_t i = 0; i < tmp.size(); ++i) {" << std::endl;
         layer.getParameters()["kernel"].as<std::vector<size_t>>()[i] = static_cast<size_t>(tmp[i]);
     }
 
     tmp = cnnLayer->GetParamAsUInts("strides");
     layer.getParameters()["strides"] = std::vector<size_t>(tmp.size());
     for (size_t i = 0; i < tmp.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:      for (size_t i = 0; i < tmp.size(); ++i) {" << std::endl;
         layer.getParameters()["strides"].as<std::vector<size_t>>()[i] = static_cast<size_t>(tmp[i]);
     }
 
     tmp = cnnLayer->GetParamAsUInts("pads_begin");
     layer.getParameters()["pads_begin"] = std::vector<size_t>(tmp.size());
     for (size_t i = 0; i < tmp.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:      for (size_t i = 0; i < tmp.size(); ++i) {" << std::endl;
         layer.getParameters()["pads_begin"].as<std::vector<size_t>>()[i] = static_cast<size_t>(tmp[i]);
     }
 
     tmp = cnnLayer->GetParamAsUInts("pads_end");
     layer.getParameters()["pads_end"] = std::vector<size_t>(tmp.size());
     for (size_t i = 0; i < tmp.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_pooling_layer.cpp:      for (size_t i = 0; i < tmp.size(); ++i) {" << std::endl;
         layer.getParameters()["pads_end"].as<std::vector<size_t>>()[i] = static_cast<size_t>(tmp[i]);
     }
 

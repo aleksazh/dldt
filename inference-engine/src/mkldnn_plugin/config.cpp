@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -24,12 +25,16 @@ namespace MKLDNNPlugin {
 using namespace InferenceEngine;
 
 void Config::readProperties(const std::map<std::string, std::string> &prop) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:  void Config::readProperties(const std::map<std::string, std::string> &prop) {" << std::endl;
     for (auto& kvp : prop) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:      for (auto& kvp : prop) {" << std::endl;
         std::string key = kvp.first;
         std::string val = kvp.second;
 
         if (key == PluginConfigParams::KEY_CPU_BIND_THREAD) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          if (key == PluginConfigParams::KEY_CPU_BIND_THREAD) {" << std::endl;
             if (val == PluginConfigParams::YES || val == PluginConfigParams::NUMA) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:              if (val == PluginConfigParams::YES || val == PluginConfigParams::NUMA) {" << std::endl;
                 #ifdef _WIN32
                 // on the Windows the CORES and NUMA pinning options are the same
                 useThreadBinding = InferenceThreadsBinding::NUMA;
@@ -38,32 +43,39 @@ void Config::readProperties(const std::map<std::string, std::string> &prop) {
                         ? InferenceThreadsBinding::CORES : InferenceThreadsBinding::NUMA;
                 #endif
             } else if (val == PluginConfigParams::NO) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:              } else if (val == PluginConfigParams::NO) {" << std::endl;
                 useThreadBinding = InferenceThreadsBinding::NONE;
             } else {
                 THROW_IE_EXCEPTION << "Wrong value for property key " << PluginConfigParams::KEY_CPU_BIND_THREAD
                                    << ". Expected only YES(binds to cores) / NO(no binding) / NUMA(binds to NUMA nodes)";
             }
         } else if (key == PluginConfigParams::KEY_DYN_BATCH_LIMIT) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          } else if (key == PluginConfigParams::KEY_DYN_BATCH_LIMIT) {" << std::endl;
             int val_i = std::stoi(val);
             // zero and any negative value will be treated
             // as default batch size
             batchLimit = std::max(val_i, 0);
         } else if (key == PluginConfigParams::KEY_PERF_COUNT) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          } else if (key == PluginConfigParams::KEY_PERF_COUNT) {" << std::endl;
             if (val == PluginConfigParams::YES) collectPerfCounters = true;
             else if (val == PluginConfigParams::NO) collectPerfCounters = false;
             else
                 THROW_IE_EXCEPTION << "Wrong value for property key " << PluginConfigParams::KEY_PERF_COUNT
                                    << ". Expected only YES/NO";
         } else if (key == PluginConfigParams::KEY_EXCLUSIVE_ASYNC_REQUESTS) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          } else if (key == PluginConfigParams::KEY_EXCLUSIVE_ASYNC_REQUESTS) {" << std::endl;
             if (val == PluginConfigParams::YES) exclusiveAsyncRequests = true;
             else if (val == PluginConfigParams::NO) exclusiveAsyncRequests = false;
             else
                 THROW_IE_EXCEPTION << "Wrong value for property key " << PluginConfigParams::KEY_EXCLUSIVE_ASYNC_REQUESTS
                                    << ". Expected only YES/NO";
         } else if (key == PluginConfigParams::KEY_CPU_THROUGHPUT_STREAMS) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          } else if (key == PluginConfigParams::KEY_CPU_THROUGHPUT_STREAMS) {" << std::endl;
             if (val == PluginConfigParams::CPU_THROUGHPUT_NUMA) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:              if (val == PluginConfigParams::CPU_THROUGHPUT_NUMA) {" << std::endl;
                 throughputStreams = MKLDNNPlugin::cpu::getAvailableNUMANodes().size();
             } else if (val == PluginConfigParams::CPU_THROUGHPUT_AUTO) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:              } else if (val == PluginConfigParams::CPU_THROUGHPUT_AUTO) {" << std::endl;
                 const int sockets = MKLDNNPlugin::cpu::getAvailableNUMANodes().size();
                 // bare minimum of streams (that evenly divides available number of core)
                 const int num_cores = sockets == 1 ? parallel_get_max_threads() : cpu::getNumberOfCPUCores();
@@ -80,6 +92,7 @@ void Config::readProperties(const std::map<std::string, std::string> &prop) {
                 try {
                     val_i = std::stoi(val);
                 } catch (const std::exception&) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:                  } catch (const std::exception&) {" << std::endl;
                     THROW_IE_EXCEPTION << "Wrong value for property key " << PluginConfigParams::KEY_CPU_THROUGHPUT_STREAMS
                                        << ". Expected only positive numbers (#streams) or "
                                        << "PluginConfigParams::CPU_THROUGHPUT_NUMA/CPU_THROUGHPUT_AUTO";
@@ -88,10 +101,12 @@ void Config::readProperties(const std::map<std::string, std::string> &prop) {
                     throughputStreams = val_i;
             }
         } else if (key == PluginConfigParams::KEY_CPU_THREADS_NUM) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          } else if (key == PluginConfigParams::KEY_CPU_THREADS_NUM) {" << std::endl;
             int val_i;
             try {
                 val_i = std::stoi(val);
             } catch (const std::exception&) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:              } catch (const std::exception&) {" << std::endl;
                 THROW_IE_EXCEPTION << "Wrong value for property key " << PluginConfigParams::KEY_CPU_THREADS_NUM
                                    << ". Expected only positive numbers (#threads)";
             }
@@ -100,6 +115,7 @@ void Config::readProperties(const std::map<std::string, std::string> &prop) {
                                    << ". Expected only positive numbers (#threads)";
             threadsNum = val_i;
         } else if (key.compare(PluginConfigParams::KEY_DYN_BATCH_ENABLED) == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          } else if (key.compare(PluginConfigParams::KEY_DYN_BATCH_ENABLED) == 0) {" << std::endl;
             if (val.compare(PluginConfigParams::YES) == 0)
                 enableDynamicBatch = true;
             else if (val.compare(PluginConfigParams::NO) == 0)
@@ -108,9 +124,11 @@ void Config::readProperties(const std::map<std::string, std::string> &prop) {
                 THROW_IE_EXCEPTION << "Wrong value for property key " << PluginConfigParams::KEY_DYN_BATCH_ENABLED
                 << ". Expected only YES/NO";
         } else if (key.compare(PluginConfigParams::KEY_DUMP_EXEC_GRAPH_AS_DOT) == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          } else if (key.compare(PluginConfigParams::KEY_DUMP_EXEC_GRAPH_AS_DOT) == 0) {" << std::endl;
             // empty string means that dumping is switched off
             dumpToDot = val;
         } else if (key.compare(PluginConfigInternalParams::KEY_LP_TRANSFORMS_MODE) == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          } else if (key.compare(PluginConfigInternalParams::KEY_LP_TRANSFORMS_MODE) == 0) {" << std::endl;
             if (val == PluginConfigInternalParams::LP_TRANSFORMS_MODE_OFF)
                 lpTransformsMode = LPTransformsMode::Off;
             else if (val == PluginConfigInternalParams::LP_TRANSFORMS_MODE_ON)
@@ -118,8 +136,10 @@ void Config::readProperties(const std::map<std::string, std::string> &prop) {
             else
                 THROW_IE_EXCEPTION << "Wrong value for property key " << PluginConfigInternalParams::KEY_LP_TRANSFORMS_MODE;
         } else if (key.compare(PluginConfigParams::KEY_DUMP_QUANTIZED_GRAPH_AS_DOT) == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          } else if (key.compare(PluginConfigParams::KEY_DUMP_QUANTIZED_GRAPH_AS_DOT) == 0) {" << std::endl;
             dumpQuantizedGraphToDot = val;
         } else if (key.compare(PluginConfigParams::KEY_DUMP_QUANTIZED_GRAPH_AS_IR) == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:          } else if (key.compare(PluginConfigParams::KEY_DUMP_QUANTIZED_GRAPH_AS_IR) == 0) {" << std::endl;
             dumpQuantizedGraphToIr = val;
         } else {
             THROW_IE_EXCEPTION << NOT_FOUND_str << "Unsupported property " << key << " by CPU plugin";
@@ -132,7 +152,9 @@ void Config::readProperties(const std::map<std::string, std::string> &prop) {
     updateProperties();
 }
 void Config::updateProperties() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:  void Config::updateProperties() {" << std::endl;
     if (!_config.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/config.cpp:      if (!_config.size()) {" << std::endl;
         if (useThreadBinding == true)
             _config.insert({ PluginConfigParams::KEY_CPU_BIND_THREAD, PluginConfigParams::YES });
         else

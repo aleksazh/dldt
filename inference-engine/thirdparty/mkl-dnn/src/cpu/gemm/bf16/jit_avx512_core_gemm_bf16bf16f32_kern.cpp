@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -33,14 +34,19 @@ namespace cpu {
 using namespace Xbyak;
 
 // Convert between vector register lengths.
-static inline Xmm make_xmm(const Xmm &v) { return Xmm(v.getIdx()); }
-static inline Ymm make_ymm(const Xmm &v) { return Ymm(v.getIdx()); }
-static inline Zmm make_zmm(const Xmm &v) { return Zmm(v.getIdx()); }
+static inline Xmm make_xmm(const Xmm &v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:  static inline Xmm make_xmm(const Xmm &v) {" << std::endl; return Xmm(v.getIdx()); }
+static inline Ymm make_ymm(const Xmm &v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:  static inline Ymm make_ymm(const Xmm &v) {" << std::endl; return Ymm(v.getIdx()); }
+static inline Zmm make_zmm(const Xmm &v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:  static inline Zmm make_zmm(const Xmm &v) {" << std::endl; return Zmm(v.getIdx()); }
 
 // Load from or store to C.
 void jit_avx512_core_gemm_bf16bf16f32_kern::c_load(const Xbyak::Xmm &dst,
         const Xbyak::Address &src, int nelems) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          const Xbyak::Address &src, int nelems) {" << std::endl;
     switch (nelems) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:      switch (nelems) {" << std::endl;
     case 1: vmovss(make_xmm(dst), src); break;
     case 2: vmovlps(make_xmm(dst), src); break;
     case 4: vmovups(make_xmm(dst), src); break;
@@ -54,7 +60,9 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::c_load(const Xbyak::Xmm &dst,
 
 void jit_avx512_core_gemm_bf16bf16f32_kern::c_store(const Xbyak::Address &dst,
         const Xbyak::Xmm &src, int nelems) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          const Xbyak::Xmm &src, int nelems) {" << std::endl;
     switch (nelems) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:      switch (nelems) {" << std::endl;
     case 1: vmovss(dst, make_xmm(src)); break;
     case 2: vmovsd(dst, make_xmm(src)); break;
     case 4: vmovups(dst, make_xmm(src)); break;
@@ -70,6 +78,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::c_store(const Xbyak::Address &dst,
 // Use vdpbf16ps if available, otherwise emulate.
 void jit_avx512_core_gemm_bf16bf16f32_kern::dot_product(const Xmm &dst, const
         Xmm &src1, const Xmm &src2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          Xmm &src1, const Xmm &src2) {" << std::endl;
     if (bfloat16_)
         vdpbf16ps(dst, src1, src2);
     else
@@ -79,12 +88,15 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::dot_product(const Xmm &dst, const
 // Inner kernel.
 void jit_avx512_core_gemm_bf16bf16f32_kern::kernel_loop(int unroll_m,
         int unroll_n, bool cfetch) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          int unroll_n, bool cfetch) {" << std::endl;
     int um_vecs = (unroll_m + 15) >> 4;
     Label label_kernel_loop;
 
     L_aligned(label_kernel_loop); {
         for (int h = 0; h < 4; h++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          for (int h = 0; h < 4; h++) {" << std::endl;
             for (int j = 0; j < unroll_n; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:              for (int j = 0; j < unroll_n; j++) {" << std::endl;
                 const Zmm b = b_regs_[j & 1];
 
                 vbroadcastss(b, ptr[BO_ + isize_ *
@@ -102,6 +114,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::kernel_loop(int unroll_m,
                     dot_product(c_regs_[i][j], b, a_regs_[i]);
 
                 if (cfetch && (j == std::min(1, unroll_n - 1))) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:                  if (cfetch && (j == std::min(1, unroll_n - 1))) {" << std::endl;
                     if (h == 3)
                         lea(CO2_, ptr[CO2_ + LDC_]);
                     else if (h < um_vecs)
@@ -130,6 +143,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::kernel_loop(int unroll_m,
 // k remainder loop for kernel.
 void jit_avx512_core_gemm_bf16bf16f32_kern::remainder_kernel(int unroll_m,
         int unroll_n, int unroll_k, int bwidth) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          int unroll_n, int unroll_k, int bwidth) {" << std::endl;
     if ((unroll_m > UNROLL_M_) || (unroll_n > UNROLL_N_)
             || (unroll_m < 0)  || (unroll_n < 0))
         return;
@@ -137,12 +151,15 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::remainder_kernel(int unroll_m,
     int um_vecs = (unroll_m + 15) >> 4;
 
     for (int h = 0; h < unroll_k; h++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:      for (int h = 0; h < unroll_k; h++) {" << std::endl;
         for (int j = 0; j < unroll_n; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          for (int j = 0; j < unroll_n; j++) {" << std::endl;
             Zmm b = b_regs_[j & 1];
             auto b_src = ptr[BO_ + (-isize_ * offset_b_
                 + bwidth * (j + h * unroll_n))];
 
             switch (bwidth) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:              switch (bwidth) {" << std::endl;
             case 4:
                 vbroadcastss(b, b_src);
                 break;
@@ -155,6 +172,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::remainder_kernel(int unroll_m,
         }
 
         if (unroll_k > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          if (unroll_k > 1) {" << std::endl;
             for (int i = 0; i < um_vecs; i++)
                 vmovups(a_regs_[i], ptr[AO_ + isize_ * (32 * i
                     + (h + 1) * 2 * unroll_m - offset_a_)]);
@@ -168,6 +186,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::remainder_kernel(int unroll_m,
 // Inner loop.
 void jit_avx512_core_gemm_bf16bf16f32_kern::innerloop(int unroll_m,
         int unroll_n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          int unroll_n) {" << std::endl;
     if ((unroll_m > UNROLL_M_) || (unroll_n > UNROLL_N_)
             || (unroll_m < 0)  || (unroll_n < 0))
         return;
@@ -233,6 +252,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::innerloop(int unroll_m,
 
     vpxorq(zero, zero, zero);
     for (int i = 0; i < um_vecs; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:      for (int i = 0; i < um_vecs; i++) {" << std::endl;
         Zmm a = a_regs_[i];
         vbroadcasti64x4(a, ptr[AO_ + isize_ * (16 * i - offset_a_)]);
         vpunpcklwd(tmp, a, zero);
@@ -252,7 +272,9 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::innerloop(int unroll_m,
     // C updates.
     int c_off_j = 0;
     for (int j = 0; j < unroll_n; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:      for (int j = 0; j < unroll_n; j++) {" << std::endl;
         if (j > 0 && (j & 3) == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          if (j > 0 && (j & 3) == 0) {" << std::endl;
             lea(CO1_, ptr[CO1_ + LDC_ * 4]);
             c_off_j += 4;
         }
@@ -260,6 +282,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::innerloop(int unroll_m,
         int jj = j - c_off_j;
 
         for (int i = 0; i < um_vecs; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          for (int i = 0; i < um_vecs; i++) {" << std::endl;
             Zmm c = c_regs_[i][j];
             Zmm c_old = zmm0;
             decltype(LDC_ * jj) ldc_mult = (jj == 3) ? LDC3 : LDC_ * jj;
@@ -267,6 +290,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::innerloop(int unroll_m,
             auto c_mem = ptr[CO1_ + ldc_mult + size_ * 16 * i];
 
             if (beta_zero_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:              if (beta_zero_) {" << std::endl;
                 vmulps(c, c, alpha_);
                 c_store(c_mem, c, unroll_m);
             } else {
@@ -285,11 +309,13 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::innerloop(int unroll_m,
 // Outer loop.
 void jit_avx512_core_gemm_bf16bf16f32_kern::outerloop(int unroll_x,
         int unroll_y, Label *&cur_outerloop_label) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          int unroll_y, Label *&cur_outerloop_label) {" << std::endl;
     Label label_m_loop, label_n_loop, label_n_remainder_loops[6];
 
     L(*cur_outerloop_label);
     cur_outerloop_label++;
     if (unroll_x >= UNROLL_M_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:      if (unroll_x >= UNROLL_M_) {" << std::endl;
         mov(J_, M_);
         cmp(J_, unroll_x);
         jl(*cur_outerloop_label, T_NEAR);    // Jump to next outerloop label.
@@ -323,8 +349,10 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::outerloop(int unroll_x,
 
         int label_idx = 0;
         for (int uy = 16; uy > 0; uy >>= 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          for (int uy = 16; uy > 0; uy >>= 1) {" << std::endl;
             L(label_n_remainder_loops[label_idx++]);
             if (unroll_y > uy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:              if (unroll_y > uy) {" << std::endl;
                 test(I_, uy);
                 jle(label_n_remainder_loops[label_idx], T_NEAR);
 
@@ -336,6 +364,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::outerloop(int unroll_x,
 
         mov(A_, AO_);
         if (unroll_x >= UNROLL_M_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          if (unroll_x >= UNROLL_M_) {" << std::endl;
             sub(J_, unroll_x);
             cmp(J_, unroll_x);
             jge(label_m_loop);
@@ -346,6 +375,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::outerloop(int unroll_x,
 }
 
 void jit_avx512_core_gemm_bf16bf16f32_kern::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:  void jit_avx512_core_gemm_bf16bf16f32_kern::generate() {" << std::endl;
     // Prologue
     preamble();
     sub(rsp, stack_alloc_size_);
@@ -353,6 +383,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::generate() {
     vbroadcastss(alpha_, qword[ALPHA_]);
 
     if (is_windows) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:      if (is_windows) {" << std::endl;
         mov(A_, arg_a_);
         mov(B_, arg_b_);
     }
@@ -370,7 +401,9 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::generate() {
     lea(LDC_, ptr[LDC_ * size_]);
 
     for (int i = 0; i < (max_unroll_m_ >> 4); i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:      for (int i = 0; i < (max_unroll_m_ >> 4); i++) {" << std::endl;
         for (int j = 0; j < max_unroll_n_; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:          for (int j = 0; j < max_unroll_n_; j++) {" << std::endl;
             auto &c = c_regs_[i][j];
             vpxorq(c, c, c);
         }
@@ -397,6 +430,7 @@ void jit_avx512_core_gemm_bf16bf16f32_kern::generate() {
 jit_avx512_core_gemm_bf16bf16f32_kern::jit_avx512_core_gemm_bf16bf16f32_kern(
         bool beta_zero) : jit_generator(nullptr, 170000), arg_a_(0), arg_b_(0),
     arg_c_(0), arg_ldc_(0), arg_coffset_c_(0), arg_coffset_r_(0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:      arg_c_(0), arg_ldc_(0), arg_coffset_c_(0), arg_coffset_r_(0) {" << std::endl;
 
     beta_zero_ = beta_zero;
     bfloat16_ = mayiuse(avx512_core_bf16);
@@ -448,6 +482,7 @@ jit_avx512_core_gemm_bf16bf16f32_kern::jit_avx512_core_gemm_bf16bf16f32_kern(
 
     bf16_emu_ = nullptr;
     if (!bfloat16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:      if (!bfloat16_) {" << std::endl;
 
         // Those register will not be used by bf16 emulation since we only use
         // r_vdpbf16ps.
@@ -466,6 +501,7 @@ jit_avx512_core_gemm_bf16bf16f32_kern::jit_avx512_core_gemm_bf16bf16f32_kern(
 }
 
 jit_avx512_core_gemm_bf16bf16f32_kern::~jit_avx512_core_gemm_bf16bf16f32_kern() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_gemm_bf16bf16f32_kern.cpp:  jit_avx512_core_gemm_bf16bf16f32_kern::~jit_avx512_core_gemm_bf16bf16f32_kern() {" << std::endl;
     delete bf16_emu_;
 }
 

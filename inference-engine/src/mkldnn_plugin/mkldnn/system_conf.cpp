@@ -29,8 +29,11 @@ static const unsigned numberOfOpenMpEnvVars =
         sizeof(openMpEnvVars) / sizeof(openMpEnvVars[0]);
 
 bool checkOpenMpEnvVars(bool includeOMPNumThreads) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn/system_conf.cpp:  bool checkOpenMpEnvVars(bool includeOMPNumThreads) {" << std::endl;
     for (unsigned i = 0; i < numberOfOpenMpEnvVars; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn/system_conf.cpp:      for (unsigned i = 0; i < numberOfOpenMpEnvVars; i++) {" << std::endl;
         if (getenv(openMpEnvVars[i])) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn/system_conf.cpp:          if (getenv(openMpEnvVars[i])) {" << std::endl;
             if (0 != strcmp(openMpEnvVars[i], "OMP_NUM_THREADS") || includeOMPNumThreads)
                 return true;
         }
@@ -40,11 +43,13 @@ bool checkOpenMpEnvVars(bool includeOMPNumThreads) {
 #if defined(__APPLE__)
     // for Linux and Windows the getNumberOfCPUCores (that accounts only for physical cores) implementation is OS-specific
     // (see cpp files in corresponding folders), for __APPLE__ it is default :
-    int getNumberOfCPUCores() { return parallel_get_max_threads();}
+    int getNumberOfCPUCores() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn/system_conf.cpp:      int getNumberOfCPUCores() {" << std::endl; return parallel_get_max_threads();}
 #endif
 
 #if ((IE_THREAD == IE_THREAD_TBB) || (IE_THREAD == IE_THREAD_TBB_AUTO))
     std::vector<int> getAvailableNUMANodes() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn/system_conf.cpp:      std::vector<int> getAvailableNUMANodes() {" << std::endl;
         std::vector<int> numa_indexes = tbb::info::numa_nodes();
         return numa_indexes;
     }

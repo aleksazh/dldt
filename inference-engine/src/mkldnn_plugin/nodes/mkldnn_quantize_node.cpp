@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,9 +20,11 @@ using namespace InferenceEngine;
 using namespace InferenceEngine::details;
 
 MKLDNNQuantizeNode::MKLDNNQuantizeNode(InferenceEngine::CNNLayerPtr layer, const mkldnn::engine& eng, int socket) :
-        MKLDNNNode(layer, eng, socket) {}
+        MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNQuantizeNode::initValues() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:  void MKLDNNQuantizeNode::initValues() {" << std::endl;
     auto* quantizeLayer = dynamic_cast<QuantizeLayer*>(getCnnLayer().get());
     if (quantizeLayer == nullptr)
         THROW_IE_EXCEPTION << "Cannot convert Quantize layer " << getName();
@@ -36,32 +39,40 @@ void MKLDNNQuantizeNode::initValues() {
         THROW_IE_EXCEPTION << "Incorrect number of output edges for layer " << getName();
 
     for (size_t i = 0; i < getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      for (size_t i = 0; i < getParentEdges().size(); i++) {" << std::endl;
         if (getParentEdgesAtPort(i).size() != 1)
             THROW_IE_EXCEPTION << "Quantize layer " << getName() << " has unsupported number of parent edges at port " << i;
     }
 
     if (getParentEdgesAtPort(0)[0]->getDims().ndims() < 1ul || getParentEdgesAtPort(0)[0]->getDims().ndims() > 5ul) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      if (getParentEdgesAtPort(0)[0]->getDims().ndims() < 1ul || getParentEdgesAtPort(0)[0]->getDims().ndims() > 5ul) {" << std::endl;
         THROW_IE_EXCEPTION << "Unsupported number of dimensions for input at edge 0 in Quantize layer " << getName();
     }
 
     auto initAxisIdx = [&](size_t edgeIdx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      auto initAxisIdx = [&](size_t edgeIdx) {" << std::endl;
         auto edge = getParentEdgesAtPort(edgeIdx)[0];
 
         size_t axisIdx = 0;
         int numberOfNonUnit = 0;
         if (edge->getDims().size() > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          if (edge->getDims().size() > 0) {" << std::endl;
             if (edge->getDims()[0] > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              if (edge->getDims()[0] > 1) {" << std::endl;
                 numberOfNonUnit++;
             }
         }
 
         for (int i = 1; i < edge->getDims().ndims(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          for (int i = 1; i < edge->getDims().ndims(); i++) {" << std::endl;
             if (edge->getDims()[i] > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              if (edge->getDims()[i] > 1) {" << std::endl;
                 axisIdx = i;
                 numberOfNonUnit++;
             }
         }
         if (numberOfNonUnit > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          if (numberOfNonUnit > 1) {" << std::endl;
             THROW_IE_EXCEPTION << "Quantize layer " << getName() << " supports only per-tensor and per-channel quantizations";
         }
 
@@ -80,7 +91,9 @@ void MKLDNNQuantizeNode::initValues() {
         auto edge = getParentEdgesAtPort(0)[0];
 
         for (int i = 0; i < edge->getDims().ndims(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          for (int i = 0; i < edge->getDims().ndims(); i++) {" << std::endl;
             if (edge->getDims()[i] == dim) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              if (edge->getDims()[i] == dim) {" << std::endl;
                 return i;
             }
         }
@@ -97,15 +110,18 @@ void MKLDNNQuantizeNode::initValues() {
         (inputHighAxis != 0 && inputHighAxis != axis) ||
         (outputLowAxis != 0 && outputLowAxis != axis) ||
         (outputHighAxis != 0 && outputHighAxis != axis)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          (outputHighAxis != 0 && outputHighAxis != axis)) {" << std::endl;
         THROW_IE_EXCEPTION << "Quantize layer " << getName() << " has inconsistent input dims";
     }
 
     // WA to enable jit implementation
     if ((axis == 0) && (getChildEdgeAt(0)->getDims().ndims() > 1ul)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      if ((axis == 0) && (getChildEdgeAt(0)->getDims().ndims() > 1ul)) {" << std::endl;
         if (getParentEdgesAtPort(1)[0]->getDims()[inputLowAxis] == 1 &&
             getParentEdgesAtPort(2)[0]->getDims()[inputHighAxis] == 1 &&
             getParentEdgesAtPort(3)[0]->getDims()[outputLowAxis] == 1 &&
             getParentEdgesAtPort(4)[0]->getDims()[outputHighAxis] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              getParentEdgesAtPort(4)[0]->getDims()[outputHighAxis] == 1) {" << std::endl;
             axis = 1;
         }
     }
@@ -132,15 +148,20 @@ void MKLDNNQuantizeNode::initValues() {
     bool binarization = levels == 2;
 
     if (binarization) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      if (binarization) {" << std::endl;
         for (int i = 0; i < getParentEdgesAtPort(3)[0]->getDims()[outputLowAxis]; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          for (int i = 0; i < getParentEdgesAtPort(3)[0]->getDims()[outputLowAxis]; i++) {" << std::endl;
             if (outputLowData[i] != 1.f && outputLowData[i] != 0.f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              if (outputLowData[i] != 1.f && outputLowData[i] != 0.f) {" << std::endl;
                 binarization = false;
                 break;
             }
         }
 
         for (int i = 0; i < getParentEdgesAtPort(4)[0]->getDims()[outputHighAxis]; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          for (int i = 0; i < getParentEdgesAtPort(4)[0]->getDims()[outputHighAxis]; i++) {" << std::endl;
             if (outputHighData[i] != 1.f && outputHighData[i] != 0.f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              if (outputHighData[i] != 1.f && outputHighData[i] != 0.f) {" << std::endl;
                 binarization = false;
                 break;
             }
@@ -148,12 +169,14 @@ void MKLDNNQuantizeNode::initValues() {
     }
 
     if (binarization) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      if (binarization) {" << std::endl;
         quantizeAlgorithm = algorithm::binarization_depthwise;
 
         binarizationThresholds.resize(axisPaddedSize);
         binarizationOutputMask.resize(axisPaddedSize);
 
         for (int i = 0; i < axisRealSize; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          for (int i = 0; i < axisRealSize; i++) {" << std::endl;
             binarizationThresholds[i] = inputLowData[isInputLowBroadcasted ? 0 : i];
             binarizationOutputMask[i] = outputHighData[isOutputHighBroadcasted ? 0 : i] == 1.f ? 0xffffffff : 0x00000000;
         }
@@ -168,6 +191,7 @@ void MKLDNNQuantizeNode::initValues() {
         bool quantizationOnly = true;
 
         for (int i = 0; i < axisRealSize; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          for (int i = 0; i < axisRealSize; i++) {" << std::endl;
             float il = inputLowData[isInputLowBroadcasted ? 0 : i];
             float ih = inputHighData[isInputHighBroadcasted ? 0 : i];
             float ol = outputLowData[isOutputLowBroadcasted ? 0 : i];
@@ -181,6 +205,7 @@ void MKLDNNQuantizeNode::initValues() {
             outputShift[i] = ol;
 
             if (outputScale[i] != 1.f || outputShift[i] != 0.f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              if (outputScale[i] != 1.f || outputShift[i] != 0.f) {" << std::endl;
                 quantizationOnly = false;
             }
         }
@@ -189,6 +214,7 @@ void MKLDNNQuantizeNode::initValues() {
     }
 
     if (binarization) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      if (binarization) {" << std::endl;
         inputPrecision = Precision::FP32;
         outputPrecision = Precision::BIN;
     } else {
@@ -200,17 +226,21 @@ void MKLDNNQuantizeNode::initValues() {
 }
 
 std::vector<mkldnn::memory::format> MKLDNNQuantizeNode::getDataFormats() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:  std::vector<mkldnn::memory::format> MKLDNNQuantizeNode::getDataFormats() {" << std::endl;
     // Special case for first FQ in the network
     if (getParentEdgesAtPort(0)[0]->getDims()[getAxis()] == 3) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      if (getParentEdgesAtPort(0)[0]->getDims()[getAxis()] == 3) {" << std::endl;
         return { MKLDNNMemory::GetPlainFormat(getParentEdgesAtPort(0)[0]->getDims()) };
     } else {
         if (isBinarization()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          if (isBinarization()) {" << std::endl;
             if (getParentEdgesAtPort(0)[0]->getDims().ndims() == 4)
                 return {memory::nhwc };
             else
                 return { MKLDNNMemory::GetPlainFormat(getParentEdgesAtPort(0)[0]->getDims()) };
         } else {
             switch (getParentEdgesAtPort(0)[0]->getDims().ndims()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              switch (getParentEdgesAtPort(0)[0]->getDims().ndims()) {" << std::endl;
                 case 2:
                     return {memory::nc};
                 case 4:
@@ -225,11 +255,13 @@ std::vector<mkldnn::memory::format> MKLDNNQuantizeNode::getDataFormats() {
 }
 
 void MKLDNNQuantizeNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:  void MKLDNNQuantizeNode::getSupportedDescriptors() {" << std::endl;
     mkldnn::memory::data_type idt = MKLDNNExtensionUtils::IEPrecisionToDataType(getInputPrecision());
     mkldnn::memory::data_type wdt = MKLDNNExtensionUtils::IEPrecisionToDataType(InferenceEngine::Precision::FP32);
     mkldnn::memory::data_type ddt = MKLDNNExtensionUtils::IEPrecisionToDataType(getOutputPrecision());
 
     for (auto& format : getDataFormats()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      for (auto& format : getDataFormats()) {" << std::endl;
         MKLDNNMemoryDesc in_candidate = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), idt, format);
         MKLDNNMemoryDesc out_candidate = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), ddt, format);
 
@@ -239,6 +271,7 @@ void MKLDNNQuantizeNode::getSupportedDescriptors() {
         MKLDNNMemoryDesc wgh_candidate{blocked_weightDims, wdt, memory::x};
 
         if (isBinarization()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          if (isBinarization()) {" << std::endl;
             std::shared_ptr<mkldnn::quantization_forward::desc> bin_conv_desc;
             bin_conv_desc.reset(new quantization_forward::desc(prop_kind::forward_scoring, quantizeAlgorithm, getAxis(),
                                                                in_candidate, wgh_candidate, wgh_candidate,
@@ -246,6 +279,7 @@ void MKLDNNQuantizeNode::getSupportedDescriptors() {
 
             descs.emplace_back(bin_conv_desc);
         } else if (levels != 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          } else if (levels != 2) {" << std::endl;
             std::shared_ptr<mkldnn::quantization_forward::desc> quantization_desc;
             quantization_desc.reset(
                     new quantization_forward::desc(prop_kind::forward_scoring, quantizeAlgorithm, getAxis(),
@@ -258,6 +292,7 @@ void MKLDNNQuantizeNode::getSupportedDescriptors() {
 }
 
 void MKLDNNQuantizeNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:  void MKLDNNQuantizeNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -268,11 +303,13 @@ void MKLDNNQuantizeNode::initSupportedPrimitiveDescriptors() {
         InferenceEngine::LayerConfig config;
         config.dynBatchSupport = true;
         for (size_t i = 0; i < getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          for (size_t i = 0; i < getParentEdges().size(); i++) {" << std::endl;
             InferenceEngine::DataConfig dataConfig;
             dataConfig.inPlace = -1;
             dataConfig.constant = false;
 
             if (i == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              if (i == 0) {" << std::endl;
                 dataConfig.desc = MKLDNNMemoryDesc(getParentEdgeAt(i)->getDims(), inputDataType, fmt);
             } else {
                 dataConfig.desc = MKLDNNMemoryDesc(getParentEdgeAt(i)->getDims(), inputDataType, MKLDNNMemory::GetPlainFormat(getParentEdgeAt(i)->getDims()));
@@ -289,9 +326,12 @@ void MKLDNNQuantizeNode::initSupportedPrimitiveDescriptors() {
     };
 
     if (!descs.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      if (!descs.empty()) {" << std::endl;
         for (int i = 0; i < descs.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          for (int i = 0; i < descs.size(); i++) {" << std::endl;
             primitive_desc_iterator itpd = descs[i].createPrimitiveDescriptorIterator(getEngine());
             while (itpd.is_not_end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              while (itpd.is_not_end()) {" << std::endl;
                 impl_desc_type impl_type = parse_impl_name(itpd.get_impl_info_str());
 
                 supportedPrimitiveDescriptors.push_back(same(getDataFormats()[i], impl_type));
@@ -309,6 +349,7 @@ void MKLDNNQuantizeNode::initSupportedPrimitiveDescriptors() {
 }
 
 void MKLDNNQuantizeNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:  void MKLDNNQuantizeNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
@@ -325,6 +366,7 @@ void MKLDNNQuantizeNode::createPrimitive() {
     MKLDNNMemoryDesc weightsDataDesc = {{(uint32_t)axisPaddedSize}, memory::f32, memory::x};
 
     if (isBinarization()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      if (isBinarization()) {" << std::endl;
         auto prim_desc = createPrimitiveDescriptor<quantization_forward::primitive_desc, quantization_forward::desc>();
 
         auto binarizationThresholdsDataMem = std::make_shared<MKLDNNMemory>(getEngine());
@@ -340,6 +382,7 @@ void MKLDNNQuantizeNode::createPrimitive() {
                                             internalBlobMemory[1]->GetPrimitive(),
                                             getChildEdgeAt(0)->getMemory().GetPrimitive()));
     } else if (levels != 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      } else if (levels != 2) {" << std::endl;
         auto prim_desc = createPrimitiveDescriptor<quantization_forward::primitive_desc, quantization_forward::desc>();
 
         auto cropLowDataMem = std::make_shared<MKLDNNMemory>(getEngine());
@@ -378,7 +421,9 @@ void MKLDNNQuantizeNode::createPrimitive() {
 }
 
 void MKLDNNQuantizeNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:  void MKLDNNQuantizeNode::execute(mkldnn::stream strm) {" << std::endl;
     if (prim) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:      if (prim) {" << std::endl;
         MKLDNNNode::execute(strm);
     } else {
         auto &srcMemory = getParentEdgeAt(0)->getMemoryPtr();
@@ -426,13 +471,16 @@ void MKLDNNQuantizeNode::execute(mkldnn::stream strm) {
         bool isOutputHighBroadcasted = outputHighMemory->GetDims().empty() || outputHighMemory->GetDims()[outputHighAxis] == 1;
 
         for (size_t ou = 0; ou < outerSize; ou++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:          for (size_t ou = 0; ou < outerSize; ou++) {" << std::endl;
             for (size_t ax = 0; ax < axisSize; ax++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:              for (size_t ax = 0; ax < axisSize; ax++) {" << std::endl;
                 float inputLow = inputLowData[isInputLowBroadcasted ? 0 : ax];
                 float inputHigh = inputHighData[isInputHighBroadcasted ? 0 : ax];
                 float outputLow = outputLowData[isOutputLowBroadcasted ? 0 : ax];
                 float outputHigh = outputHighData[isOutputHighBroadcasted ? 0 : ax];
 
                 for (size_t is = 0; is < innerSize; is++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_quantize_node.cpp:                  for (size_t is = 0; is < innerSize; is++) {" << std::endl;
                     size_t idx = ou * outerOffset + ax * axisOffset + is;
 
                     if (srcData[idx] <= inputLow)

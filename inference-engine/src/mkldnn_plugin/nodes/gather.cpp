@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -22,6 +23,7 @@ namespace Cpu {
 class GatherImpl: public ExtLayerBase {
 public:
     explicit GatherImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:      explicit GatherImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 2 || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -70,30 +72,35 @@ public:
             config.dynBatchSupport = false;
             confs.push_back(config);
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
 
     struct f32toUi32 {
         inline unsigned int operator()(const float value) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:          inline unsigned int operator()(const float value) {" << std::endl;
             return static_cast<unsigned int>(value);
         }
     };
 
     struct f16toUi32 {
         inline unsigned int operator()(const ie_fp16 value) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:          inline unsigned int operator()(const ie_fp16 value) {" << std::endl;
             return static_cast<unsigned int>(f16tof32(value));
         }
     };
 
     struct i32toUi32 {
         inline unsigned int operator()(const int32_t value) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:          inline unsigned int operator()(const int32_t value) {" << std::endl;
             return static_cast<unsigned int>(value);
         }
     };
 
     StatusCode execute(std::vector<Blob::Ptr>& inputs, std::vector<Blob::Ptr>& outputs, ResponseDesc *resp) noexcept override {
         switch (inputs[GATHER_INDEXES]->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:          switch (inputs[GATHER_INDEXES]->getTensorDesc().getPrecision()) {" << std::endl;
             case Precision::FP32:
                 gather<float, f32toUi32>(inputs[GATHER_INDEXES], inputs[GATHER_DICTIONARY], outputs[0]);
                 break;
@@ -113,6 +120,7 @@ public:
 private:
     template <typename index_t, class Conversion>
     void gather(Blob::Ptr indexes, Blob::Ptr dictionary, Blob::Ptr output) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:      void gather(Blob::Ptr indexes, Blob::Ptr dictionary, Blob::Ptr output) {" << std::endl;
         size_t src_indexSize = indexes->size();
         const index_t *src_index = indexes->cbuffer().as<const index_t *>() + indexes->getTensorDesc().getBlockingDesc().getOffsetPadding();
         const uint8_t *src_dataDict = dictionary->cbuffer().as<const uint8_t *>() + dictionary->getTensorDesc().getBlockingDesc().getOffsetPadding();
@@ -120,12 +128,15 @@ private:
         size_t len = dataLength * dictionary->getTensorDesc().getPrecision().size();
 
         parallel_for(src_indexSize, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:          parallel_for(src_indexSize, [&](size_t i) {" << std::endl;
             unsigned int idx = Conversion()(src_index[i]);
 
             //  Index clipping
             if (idx < indexRange) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:              if (idx < indexRange) {" << std::endl;
                 //  Copying data to destination from Dictionary
                 for (size_t j = 0; j < numDictionaries; j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:                  for (size_t j = 0; j < numDictionaries; j++) {" << std::endl;
                     simple_copy(&dst_data[len * (i + j * src_indexSize)],
                                 output->byteSize() - (len * (i + j * src_indexSize)),
                                 &src_dataDict[len * (idx + j * indexRange)],
@@ -133,6 +144,7 @@ private:
                 }
             } else {
                 for (size_t j = 0; j < numDictionaries; j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather.cpp:                  for (size_t j = 0; j < numDictionaries; j++) {" << std::endl;
                     memset(&dst_data[len * (i + j * src_indexSize)], 0, len);
                 }
             }

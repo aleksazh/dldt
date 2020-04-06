@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,6 +20,7 @@ namespace Cpu {
 class BroadcastImpl: public ExtLayerBase {
 public:
     explicit BroadcastImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:      explicit BroadcastImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -48,6 +50,7 @@ public:
             config.dynBatchSupport = false;
             confs.push_back(config);
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -65,7 +68,9 @@ public:
             srcStrides = SizeVector(1, 1);
 
         if (dst_dims.size() != shape_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:          if (dst_dims.size() != shape_size) {" << std::endl;
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Output tensor dimension mismatch";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }
@@ -73,7 +78,9 @@ public:
         }
 
         if (src_dims.size() > dst_dims.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:          if (src_dims.size() > dst_dims.size()) {" << std::endl;
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Output tensor dimension is smaller then input tensor dimension";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }
@@ -85,7 +92,9 @@ public:
         InferenceEngine::SizeVector srcStrides_aligned(dst_dims.size());
         size_t prefix_size = dst_dims.size() - src_dims.size();
         for (size_t i = 0; i < dst_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:          for (size_t i = 0; i < dst_dims.size(); i++) {" << std::endl;
             if (i < prefix_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:              if (i < prefix_size) {" << std::endl;
                 src_aligned[i] = 1;
                 srcStrides_aligned[i] = srcStrides[0];
             } else {
@@ -101,20 +110,24 @@ public:
                           outputs[0]->getTensorDesc().getBlockingDesc().getOffsetPadding();
 
         parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:          parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
             size_t i, src_idx, start = 0, end = 0;
             SizeVector counters(dst_dims.size(), 0);
             splitter(work_amount_dst, nthr, ithr, start, end);
             for (int j = dst_dims.size() - 1, i = start; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:              for (int j = dst_dims.size() - 1, i = start; j >= 0; j--) {" << std::endl;
                 counters[j] = i % dst_dims[j];
                 i /= dst_dims[j];
             }
             for (size_t iwork = start * data_size; iwork < end * data_size; iwork += data_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:              for (size_t iwork = start * data_size; iwork < end * data_size; iwork += data_size) {" << std::endl;
                 for (i = 0, src_idx = 0; i < dst_dims.size(); ++i)
                     src_idx += counters[i] ? ((counters[i] % src_aligned[i]) * srcStrides_aligned[i]) : 0;
 
                 simple_copy(&dst_data[iwork], data_size, &src_data[src_idx * data_size], data_size);
 
                 for (int j = dst_dims.size() - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/broadcast.cpp:                  for (int j = dst_dims.size() - 1; j >= 0; j--) {" << std::endl;
                     counters[j] = (counters[j] + 1) % dst_dims[j];
                     if (counters[j] != 0) break;
                 }

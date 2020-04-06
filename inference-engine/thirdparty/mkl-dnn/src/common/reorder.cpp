@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -33,6 +34,7 @@ status_t mkldnn_reorder_primitive_desc_create_v2(
         primitive_desc_t **reorder_primitive_desc,
         const primitive_desc_t *input, const primitive_desc_t *output,
         const primitive_attr_t *attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/reorder.cpp:          const primitive_attr_t *attr) {" << std::endl;
     bool args_ok = true
         && !any_null(reorder_primitive_desc, input, output)
         && everyone_is(primitive_kind::memory, input->kind(), output->kind());
@@ -61,7 +63,9 @@ status_t mkldnn_reorder_primitive_desc_create_v2(
         attr = &dummy_attr;
 
     for (auto r = e->get_reorder_implementation_list(); *r; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/reorder.cpp:      for (auto r = e->get_reorder_implementation_list(); *r; ++r) {" << std::endl;
         if ((*r)(r_pd, i_mpd, o_mpd, attr) == success) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/reorder.cpp:          if ((*r)(r_pd, i_mpd, o_mpd, attr) == success) {" << std::endl;
             (*r_pd)->init_info();
             return success;
         }
@@ -72,6 +76,7 @@ status_t mkldnn_reorder_primitive_desc_create_v2(
 status_t mkldnn_reorder_primitive_desc_create(
         primitive_desc_t **reorder_primitive_desc,
         const primitive_desc_t *input, const primitive_desc_t *output) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/reorder.cpp:          const primitive_desc_t *input, const primitive_desc_t *output) {" << std::endl;
     return mkldnn_reorder_primitive_desc_create_v2(reorder_primitive_desc,
             input, output, nullptr);
 }

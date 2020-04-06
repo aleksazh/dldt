@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -38,6 +39,7 @@ void simple_concat_t<data_type>::execute() const {
     auto o_base_ptr = reinterpret_cast<data_t *>(this->memory());
 
     for (int a = 0; a < num_arrs; ++a) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_concat.cpp:      for (int a = 0; a < num_arrs; ++a) {" << std::endl;
         const memory_desc_wrapper i_d(pd()->src_pd(a));
         const memory_desc_wrapper o_d(pd()->src_image_pd(a));
 
@@ -46,6 +48,7 @@ void simple_concat_t<data_type>::execute() const {
         optrs[a] = o_base_ptr + o_d.blk_off(0);
         nelems_to_copy[a] = pd()->nelems_to_concat(i_d);
         for (int i = 0; i < TENSOR_MAX_DIMS; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_concat.cpp:          for (int i = 0; i < TENSOR_MAX_DIMS; i++) {" << std::endl;
             if (i < perm[concat_dim])
                 is[a][i] = size_t(i_d.blocking_desc().strides[0][iperm[i]]);
             else
@@ -66,16 +69,20 @@ void simple_concat_t<data_type>::execute() const {
             ?  o_d.dims()[iperm[i]] / blk.block_dims[iperm[i]] : 1;
 
     if (perm[concat_dim] == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_concat.cpp:      if (perm[concat_dim] == 0) {" << std::endl;
         for (int a = 0; a < num_arrs; ++a) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_concat.cpp:          for (int a = 0; a < num_arrs; ++a) {" << std::endl;
             const data_t *i = &iptrs[a][0];
             data_t *o = &optrs[a][0];
             parallel_nd((ptrdiff_t)nelems_to_copy[a],
-                    [&](ptrdiff_t e) { o[e] = i[e]; });
+                    [&](ptrdiff_t e) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_concat.cpp:                      [&](ptrdiff_t e) {" << std::endl; o[e] = i[e]; });
         }
     } else {
         parallel_nd(phys_dims[0], phys_dims[1], phys_dims[2], phys_dims[3],
             phys_dims[4], num_arrs,
             [&](int n0, int n1, int n2, int n3, int n4, int a) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_concat.cpp:              [&](int n0, int n1, int n2, int n3, int n4, int a) {" << std::endl;
             // XXX: this code may access uninitialized values in is[*][0-4] --
             // that's why we have to set them to zero although this is
             // probably benign
@@ -96,12 +103,14 @@ void simple_concat_t<data_type>::execute() const {
                 (nelems_to_copy[a] * sizeof(data_t)) % sizeof(uint32_t);
             PRAGMA_OMP_SIMD()
             for (size_t e = 0; e < main_part; ++e) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_concat.cpp:              for (size_t e = 0; e < main_part; ++e) {" << std::endl;
                 *(reinterpret_cast<uint32_t *>(ptro))
                     = *(reinterpret_cast<const uint32_t *>(ptri));
                 ptro += sizeof(uint32_t);
                 ptri += sizeof(uint32_t);
             }
             for (size_t e = 0; e < tail_part; ++e) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_concat.cpp:              for (size_t e = 0; e < tail_part; ++e) {" << std::endl;
                 *ptro = *ptri;
                 ++ptro;
                 ++ptri;

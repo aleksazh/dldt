@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -21,6 +22,7 @@ namespace Cpu {
 class ScatterImpl: public ExtLayerBase {
 public:
     explicit ScatterImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:      explicit ScatterImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 3 || layer->outData.size() != 1)
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output tensors!";
@@ -67,6 +69,7 @@ public:
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of 'indexes' and 'updates' tensors dimension";
 
             for (size_t i = 0; i < idx_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:              for (size_t i = 0; i < idx_dims.size(); i++) {" << std::endl;
                 if (i == static_cast<size_t>(axis)) continue;
                 if (idx_dims[i] > data_dims[i])
                     THROW_IE_EXCEPTION << layer->name << " Incorrect number of data and indexes dimensions!";
@@ -95,12 +98,14 @@ public:
             config.dynBatchSupport = false;
             confs.push_back(config);
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
 
     StatusCode execute(std::vector<Blob::Ptr>& inputs, std::vector<Blob::Ptr>& outputs, ResponseDesc *resp) noexcept override {
         switch (inputs[SCATTER_INDEXES]->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:          switch (inputs[SCATTER_INDEXES]->getTensorDesc().getPrecision()) {" << std::endl;
             case Precision::FP32:
                 scatter<float>(inputs[SCATTER_DATA], inputs[SCATTER_INDEXES], inputs[SCATTER_UPDATES], outputs[0]);
                 break;
@@ -117,6 +122,7 @@ public:
 private:
     template <typename index_t>
     void scatter(Blob::Ptr data, Blob::Ptr indexes, Blob::Ptr updates, Blob::Ptr output) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:      void scatter(Blob::Ptr data, Blob::Ptr indexes, Blob::Ptr updates, Blob::Ptr output) {" << std::endl;
         const uint8_t *src_data = data->cbuffer().as<const uint8_t *>() + data->getTensorDesc().getBlockingDesc().getOffsetPadding();
         const index_t *src_index = indexes->cbuffer().as<const index_t *>() + indexes->getTensorDesc().getBlockingDesc().getOffsetPadding();
         const uint8_t *src_updates = updates->cbuffer().as<const uint8_t *>() + updates->getTensorDesc().getBlockingDesc().getOffsetPadding();
@@ -128,7 +134,9 @@ private:
         InferenceEngine::SizeVector dataStrides = data->getTensorDesc().getBlockingDesc().getStrides();
 
         if (src_data != dst_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:          if (src_data != dst_data) {" << std::endl;
             parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:              parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
                 size_t start = 0, end = 0;
                 splitter(output->size(), nthr, ithr, start, end);
                 size_t size = (end - start) * data_size;
@@ -138,11 +146,13 @@ private:
         }
 
         parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:          parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
             int j;
             size_t i, dst_idx = 0, start = 0, end = 0;
             SizeVector counters(index_dims.size(), 0);
             splitter(indexes->size(), nthr, ithr, start, end);
             for (j = index_dims.size() - 1, i = start; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:              for (j = index_dims.size() - 1, i = start; j >= 0; j--) {" << std::endl;
                 counters[j] = i % index_dims[j];
                 i /= index_dims[j];
             }
@@ -153,14 +163,17 @@ private:
                 dst_idx += counters[i] * dataStrides[i];
 
             for (size_t iwork = start; iwork < end; iwork++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:              for (size_t iwork = start; iwork < end; iwork++) {" << std::endl;
                 unsigned int idx = static_cast<unsigned int>(src_index[iwork]);
                 if (idx < data_dims[axis])
                     simple_copy(dst_data + data_size * (dst_idx + idx * dataStrides[axis]), data_size,
                                 src_updates + iwork * data_size, data_size);
 
                 for (j = index_dims.size() - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:                  for (j = index_dims.size() - 1; j >= 0; j--) {" << std::endl;
                     counters[j]++;
                     if (counters[j] < index_dims[j]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/scatter.cpp:                      if (counters[j] < index_dims[j]) {" << std::endl;
                         if (j != static_cast<size_t>(axis))
                             dst_idx += dataStrides[j];
                         break;

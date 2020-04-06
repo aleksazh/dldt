@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -21,8 +22,10 @@ class SelectImpl: public ExtLayerBase {
 
 public:
     explicit SelectImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/select.cpp:      explicit SelectImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (numOfInputs != layer->insData.size() || 1 != layer->outData.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/select.cpp:              if (numOfInputs != layer->insData.size() || 1 != layer->outData.size()) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
             }
 
@@ -31,6 +34,7 @@ public:
             if (Precision::I32 != conditionPrecision
                 && Precision::FP32 != conditionPrecision
                 && Precision::U8 != conditionPrecision) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/select.cpp:                  && Precision::U8 != conditionPrecision) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect condition tensor precision: " << conditionPrecision
                 << ". Should be I32, U8 or FP32";
             }
@@ -40,6 +44,7 @@ public:
                               {ConfLayout::PLN, false}},
                              {{ConfLayout::PLN, false}});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/select.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -62,7 +67,9 @@ public:
         std::copy(std::begin(cDims), std::end(cDims), std::begin(cdim) + (Dims - cDims.size()));
 
         parallel_for3d(dim[N], dim[H], dim[W], [&](int b, int h, int w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/select.cpp:          parallel_for3d(dim[N], dim[H], dim[W], [&](int b, int h, int w) {" << std::endl;
             for (int c = 0; c < dim[C]; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/select.cpp:              for (int c = 0; c < dim[C]; c++) {" << std::endl;
                 dstData[b*dim[C]*dim[H]*dim[W] + c*dim[H]*dim[W] + h*dim[W] + w]
                         = conditionData[(b % cdim[N])*cdim[C]*cdim[H]*cdim[W] +
                                         (c % cdim[C])*cdim[H]*cdim[W] +
@@ -82,6 +89,7 @@ public:
 
         auto compare = getPrecisionMask(cond_precision, data_precision);
         switch (compare) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/select.cpp:          switch (compare) {" << std::endl;
             /* 64 bit data type */
             case getPrecisionMask(Precision::I32, Precision::I64):
                 execute_impl<int32_t , int32_t>(inputs, outputData);
@@ -126,6 +134,7 @@ public:
 
             default:
                 if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/select.cpp:                  if (resp) {" << std::endl;
                     std::string errorMsg = "Incorrect Reduce layer type";
                     errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
                 }

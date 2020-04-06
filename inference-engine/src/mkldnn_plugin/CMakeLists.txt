@@ -346,7 +346,7 @@ if (ENABLE_AVX512F)
 endif()
 
 # create plugin
-message(STATUS "MKLDNNPlugin: ${SOURCES} ${HEADERS}")
+#message(STATUS "MKLDNNPlugin: ${SOURCES} ${HEADERS}")
 ie_add_plugin(NAME ${TARGET_NAME}
               DEVICE_NAME "CPU"
               OBJECT_LIBRARIES ${object_libraries}

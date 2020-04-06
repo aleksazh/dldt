@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,10 +20,12 @@ constexpr NodeTypeInfo op::LRN_IE::type_info;
 op::LRN_IE::LRN_IE(const ngraph::Output<ngraph::Node>& arg, double alpha, double beta, double bias, size_t size,
                    std::string region)
     : Op({arg}), m_alpha(alpha), m_beta(beta), m_bias(bias), m_size(size), m_region(region) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/lrn_ie.cpp:      : Op({arg}), m_alpha(alpha), m_beta(beta), m_bias(bias), m_size(size), m_region(region) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 void op::LRN_IE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/lrn_ie.cpp:  void op::LRN_IE::validate_and_infer_types() {" << std::endl;
     element::Type arg_type = get_input_element_type(0);
     PartialShape arg_shape = get_input_partial_shape(0);
     set_output_type(0, arg_type, arg_shape);

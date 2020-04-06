@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -50,6 +51,7 @@ void _ref_rnn_common_t<aprop, src_type, weights_type>::gates_reduction(
         const rnn_conf_t &rnn, const acc_data_t *ws_gates_,
         float *diff_bias_) const {
     auto body = [&](int i, int k) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      auto body = [&](int i, int k) {" << std::endl;
         for (int j = 0; j < rnn.mb; j++)
             diff_bias_[i * rnn.dic + k]
                     += ws_gates_[j * rnn.gates_ws_ld + i * rnn.dic + k];
@@ -70,6 +72,7 @@ void _ref_rnn_common_t<aprop, src_type, weights_type>::gates_reduction(
 
 template <prop_kind_t aprop, data_type_t src_type, data_type_t weights_type>
 rnn_gemm_sig((_ref_rnn_common_t<aprop, src_type, weights_type>::gemm)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:  rnn_gemm_sig((_ref_rnn_common_t<aprop, src_type, weights_type>::gemm)) {" << std::endl;
     assert(ldA * ldB * ldC != 0);
     extended_sgemm(&transA, &transB, &m, &n, &k, &alpha, a_, &ldA, b_, &ldB,
             &beta, c_, &ldC, nullptr, pd()->rnn_.use_jit_gemm);
@@ -77,11 +80,13 @@ rnn_gemm_sig((_ref_rnn_common_t<aprop, src_type, weights_type>::gemm)) {
 
 template <>
 rnn_gemm_sig((ref_rnn_fwd_u8s8_t::gemm)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:  rnn_gemm_sig((ref_rnn_fwd_u8s8_t::gemm)) {" << std::endl;
     assert(!"non packed gemm is disabled for int8");
 }
 
 template <prop_kind_t aprop, data_type_t src_type, data_type_t weights_type>
 rnn_gemm_sig((_ref_rnn_common_t<aprop, src_type, weights_type>::packed_gemm)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:  rnn_gemm_sig((_ref_rnn_common_t<aprop, src_type, weights_type>::packed_gemm)) {" << std::endl;
 #if (USE_MKL_PACKED_GEMM)
     assert(transA == 'N');
     cblas_sgemm_compute(CblasColMajor, CblasPacked,
@@ -106,6 +111,7 @@ rnn_gemm_sig((_ref_rnn_common_t<aprop, src_type, weights_type>::packed_gemm)) {
 
 template <>
 rnn_gemm_sig((ref_rnn_fwd_u8s8_t::packed_gemm)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:  rnn_gemm_sig((ref_rnn_fwd_u8s8_t::packed_gemm)) {" << std::endl;
 #if (USE_MKL_PACKED_GEMM)
     int8_t offseta = 0, offsetb = 0;
     int32_t offsetc = 0;
@@ -133,6 +139,7 @@ rnn_gemm_sig((ref_rnn_fwd_u8s8_t::packed_gemm)) {
 template <prop_kind_t aprop, data_type_t src_type, data_type_t weights_type>
 rnn_grid_execution_sig(
         (_ref_rnn_common_t<aprop, src_type, weights_type>::linear_execution)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          (_ref_rnn_common_t<aprop, src_type, weights_type>::linear_execution)) {" << std::endl;
     AOC<src_data_t, 4> ws_states(ws_states_, rnn.n_layer + 1, rnn.n_dir,
             rnn.n_iter + 1, rnn.states_nld * rnn.states_ws_ld);
     AOC<float, 4> ws_c_states(ws_c_states_, rnn.n_layer + 1, rnn.n_dir,
@@ -160,10 +167,13 @@ rnn_grid_execution_sig(
 
     // We run the grid of computation
     for (int dir = 0; dir < rnn.n_dir; dir++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      for (int dir = 0; dir < rnn.n_dir; dir++) {" << std::endl;
         for (int j = 0; j < rnn.n_layer; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          for (int j = 0; j < rnn.n_layer; j++) {" << std::endl;
             int lay = (aprop == prop_kind::forward) ? j : rnn.n_layer - j - 1;
 
             if ((aprop == prop_kind::forward) && rnn.merge_gemm_layer) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              if ((aprop == prop_kind::forward) && rnn.merge_gemm_layer) {" << std::endl;
                 (this->*gemm_layer_func)('N', 'N', rnn.n_gates * rnn.dic,
                         rnn.mb * rnn.n_iter, rnn.slc, 1.0,
                         weights_input(lay, dir, 0), rnn.weights_layer_ld,
@@ -172,6 +182,7 @@ rnn_grid_execution_sig(
             }
 
             for (int i = 0; i < rnn.n_iter; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int i = 0; i < rnn.n_iter; i++) {" << std::endl;
                 int iter = (aprop == prop_kind::forward) ? i : rnn.n_iter - i - 1;
                 (this->*cell_func)(rnn,
                         &(ws_states(lay + 1, dir, iter + 1, 0)),
@@ -194,6 +205,7 @@ rnn_grid_execution_sig(
             }
 
             if ((aprop == prop_kind::backward) && rnn.merge_gemm_layer) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              if ((aprop == prop_kind::backward) && rnn.merge_gemm_layer) {" << std::endl;
                 (this->*gemm_layer_func)('N', 'N', rnn.slc, rnn.mb * rnn.n_iter,
                         rnn.n_gates * rnn.dic, 1.0, weights_input(lay, dir, 0),
                         rnn.weights_layer_ld,
@@ -212,6 +224,7 @@ rnn_grid_execution_sig(
                         rnn.diff_weights_layer_ld);
             }
             if ((aprop == prop_kind::backward) && rnn.merge_gemm_iter) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              if ((aprop == prop_kind::backward) && rnn.merge_gemm_iter) {" << std::endl;
                 gemm('N', 'T', rnn.n_gates * rnn.dic, rnn.sic,
                         rnn.mb * rnn.n_iter, 1.0,
                         (weights_data_t *)(&(ws_gates(lay, dir, 0, 0))),
@@ -238,6 +251,7 @@ void _ref_rnn_common_t<aprop, src_type, weights_type>::copy_init_layer(
     auto xt_d = memory_desc_wrapper(pd()->src_pd(0));
 
     parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {" << std::endl;
         auto xxt = xt_ + xt_d.blk_off(it, b);
         src_data_t *ws_l2r_ptr = &(ws_states(0, it + 1, b, 0));
         src_data_t *ws_r2l_ptr = &(ws_states(rnn.n_dir - 1, rnn.n_iter - it, b, 0));
@@ -259,11 +273,14 @@ void ref_rnn_bwd_f32_t::copy_init_layer(const rnn_conf_t &rnn,
     auto diff_dst_layer_d = memory_desc_wrapper(pd()->diff_dst_pd(0));
 
     switch (rnn.exec_dir) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      switch (rnn.exec_dir) {" << std::endl;
     case bi_concat:
         parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {" << std::endl;
             auto diff_dst_layer_x
                     = diff_dst_layer_ + diff_dst_layer_d.blk_off(it, b);
             for (int s = 0; s < rnn.dic; s++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int s = 0; s < rnn.dic; s++) {" << std::endl;
                 ws_diff_states(rnn.n_layer, 0, rnn.n_states, it, b, s)
                         = diff_dst_layer_x[s];
                 ws_diff_states(
@@ -274,9 +291,11 @@ void ref_rnn_bwd_f32_t::copy_init_layer(const rnn_conf_t &rnn,
         break;
     case bi_sum:
         parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {" << std::endl;
             auto diff_dst_layer_x
                     = diff_dst_layer_ + diff_dst_layer_d.blk_off(it, b);
             for (int s = 0; s < rnn.dic; s++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int s = 0; s < rnn.dic; s++) {" << std::endl;
                 ws_diff_states(rnn.n_layer, 0, rnn.n_states, it, b, s)
                         = diff_dst_layer_x[s];
                 ws_diff_states(
@@ -287,9 +306,11 @@ void ref_rnn_bwd_f32_t::copy_init_layer(const rnn_conf_t &rnn,
         break;
     case l2r:
         parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {" << std::endl;
             auto diff_dst_layer_x
                     = diff_dst_layer_ + diff_dst_layer_d.blk_off(it, b);
             for (int s = 0; s < rnn.dic; s++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int s = 0; s < rnn.dic; s++) {" << std::endl;
                 ws_diff_states(rnn.n_layer, 0, rnn.n_states, it, b, s)
                         = diff_dst_layer_x[s];
             }
@@ -297,9 +318,11 @@ void ref_rnn_bwd_f32_t::copy_init_layer(const rnn_conf_t &rnn,
         break;
     case r2l:
         parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {" << std::endl;
             auto diff_dst_layer_x = diff_dst_layer_
                     + diff_dst_layer_d.blk_off(rnn.n_iter - it - 1, b);
             for (int s = 0; s < rnn.dic; s++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int s = 0; s < rnn.dic; s++) {" << std::endl;
                 ws_diff_states(rnn.n_layer, 0, rnn.n_states, it, b, s)
                         = diff_dst_layer_x[s];
             }
@@ -333,7 +356,9 @@ void _ref_rnn_common_t<aprop, src_type, weights_type>::copy_init_iter(
             = pd()->desc()->src_iter_desc.data_type == data_type::f32
             && rnn.dt_conf != all_f32;
     auto maybe_q = [&](input_data_t f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      auto maybe_q = [&](input_data_t f) {" << std::endl;
         if (quantize) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          if (quantize) {" << std::endl;
             float qf = f * data_scale + data_shift;
             return qz_a1b0<float, src_data_t>()(qf, rmode);
         } else
@@ -343,6 +368,7 @@ void _ref_rnn_common_t<aprop, src_type, weights_type>::copy_init_iter(
     const bool dequantize
             = pd()->desc()->src_iter_desc.data_type == data_type::u8;
     auto maybe_deq = [&](input_data_t s) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      auto maybe_deq = [&](input_data_t s) {" << std::endl;
         if (dequantize)
             return (((float)s - data_shift) / data_scale);
         else
@@ -350,8 +376,10 @@ void _ref_rnn_common_t<aprop, src_type, weights_type>::copy_init_iter(
     };
     auto firstit_states_d = memory_desc_wrapper(pd()->src_pd(1));
     if (firstit_states_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      if (firstit_states_) {" << std::endl;
         parallel_nd(
                 rnn.n_layer, rnn.n_dir, rnn.mb, [&](int lay, int dir, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                  rnn.n_layer, rnn.n_dir, rnn.mb, [&](int lay, int dir, int b) {" << std::endl;
                     for (int s = 0; s < rnn.sic; s++)
                         ws_states(lay + 1, dir, 0, b, s) = maybe_q(
                                 firstit_states_[firstit_states_d.blk_off(
@@ -365,7 +393,9 @@ void _ref_rnn_common_t<aprop, src_type, weights_type>::copy_init_iter(
     } else {
         parallel_nd(
                 rnn.n_layer, rnn.n_dir, rnn.mb, [&](int lay, int dir, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                  rnn.n_layer, rnn.n_dir, rnn.mb, [&](int lay, int dir, int b) {" << std::endl;
                     for (int j = 0; j < rnn.sic; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                      for (int j = 0; j < rnn.sic; j++) {" << std::endl;
                         ws_states(lay + 1, dir, 0, b, j) = (src_data_t)0;
                         ws_c_states(lay + 1, dir, 0, b, j) = 0.0f;
                     }
@@ -383,8 +413,10 @@ void ref_rnn_bwd_f32_t::copy_init_iter(const rnn_conf_t &rnn,
             rnn.n_states + 1, rnn.n_iter + 1, rnn.mb, rnn.states_ws_ld);
     auto diff_dst_iter_d = memory_desc_wrapper(pd()->diff_dst_pd(1));
     if (diff_dst_iter_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      if (diff_dst_iter_) {" << std::endl;
         parallel_nd(rnn.n_layer, rnn.n_dir, rnn.n_states, rnn.mb,
                 [&](int lay, int dir, int state, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                  [&](int lay, int dir, int state, int b) {" << std::endl;
                     array_copy(&(ws_diff_states(
                                        lay, dir, state, rnn.n_iter, b, 0)),
                             diff_dst_iter_
@@ -395,6 +427,7 @@ void ref_rnn_bwd_f32_t::copy_init_iter(const rnn_conf_t &rnn,
     } else {
         parallel_nd(rnn.n_layer, rnn.n_dir, rnn.n_states, rnn.mb,
                 [&](int lay, int dir, int state, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                  [&](int lay, int dir, int state, int i) {" << std::endl;
                     for (int j = 0; j < rnn.dic; j++)
                         ws_diff_states(lay, dir, state, rnn.n_iter, i, j)
                                 = 0.0f;
@@ -418,23 +451,29 @@ void _ref_rnn_common_t<aprop, src_type, weights_type>::copy_res_layer(
             = pd()->desc()->dst_layer_desc.data_type == data_type::f32
             && rnn.dt_conf != all_f32;
     auto maybe_deq = [&](src_data_t s) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      auto maybe_deq = [&](src_data_t s) {" << std::endl;
         if (dequantize)
             return (dst_data_t)(((float)s - shift) / scale);
         else
             return (dst_data_t)s;
     };
     parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {" << std::endl;
         int dir = 0;
         if (rnn.exec_dir != r2l) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          if (rnn.exec_dir != r2l) {" << std::endl;
             for (int s = 0; s < rnn.dic; s++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int s = 0; s < rnn.dic; s++) {" << std::endl;
                 dst_layer_[dst_layer_d.blk_off(it, b, dir * rnn.dic + s)]
                         = maybe_deq(ws_states(rnn.n_layer, dir, it + 1, b, s));
             }
             dir = 1;
         }
         if (rnn.exec_dir != l2r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          if (rnn.exec_dir != l2r) {" << std::endl;
             for (int s = 0; s < rnn.dic; s++)
                 switch (rnn.exec_dir) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                  switch (rnn.exec_dir) {" << std::endl;
                 case bi_sum:
                     dst_layer_[dst_layer_d.blk_off(it, b, s)]
                             += maybe_deq(ws_states(
@@ -460,8 +499,10 @@ void ref_rnn_bwd_f32_t::copy_res_layer(
             rnn.states_ws_ld);
 
     parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      parallel_nd(rnn.n_iter, rnn.mb, [&](int it, int b) {" << std::endl;
         int dir = 0;
         for (int s = 0; s < rnn.slc; s++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          for (int s = 0; s < rnn.slc; s++) {" << std::endl;
             float *dst_addr = diff_src_layer_
                     + diff_src_layer_d.blk_off(
                               (rnn.exec_dir == r2l) ? rnn.n_iter - 1 - it : it,
@@ -493,7 +534,9 @@ void _ref_rnn_common_t<aprop, src_type, weights_type>::copy_res_iter(
     const bool quantize = pd()->desc()->dst_iter_desc.data_type == data_type::u8
             && rnn.dt_conf != all_f32;
     auto maybe_q = [&](float f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      auto maybe_q = [&](float f) {" << std::endl;
         if (quantize) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          if (quantize) {" << std::endl;
             float qf = f * data_scale + data_shift;
             return qz_a1b0<float, output_data_t>()(qf, rmode);
         } else
@@ -504,20 +547,25 @@ void _ref_rnn_common_t<aprop, src_type, weights_type>::copy_res_iter(
             = pd()->desc()->dst_iter_desc.data_type == data_type::f32
             && rnn.dt_conf != all_f32;
     auto maybe_deq = [&](src_data_t s) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      auto maybe_deq = [&](src_data_t s) {" << std::endl;
         if (dequantize)
             return (output_data_t)(((float)s - data_shift) / data_scale);
         else
             return (output_data_t)s;
     };
     if (dst_iter_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      if (dst_iter_) {" << std::endl;
         parallel_nd(rnn.n_layer, rnn.n_dir, rnn.mb,
                 [&](int lay, int dir, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                  [&](int lay, int dir, int b) {" << std::endl;
             for (int s = 0; s < rnn.dic; s++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int s = 0; s < rnn.dic; s++) {" << std::endl;
                 dst_iter_[dst_iter_d.blk_off(lay, dir, 0, b, s)]
                         = maybe_deq(ws_states(lay + 1, dir, rnn.n_iter, b, s));
             }
             if (pd()->cell_kind() == alg_kind::vanilla_lstm)
                     for (int s = 0; s < rnn.dic; s++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                      for (int s = 0; s < rnn.dic; s++) {" << std::endl;
                         dst_iter_[dst_iter_d.blk_off(lay, dir, 1, b, s)]
                                 = maybe_q(ws_c_states(
                                         lay + 1, dir, rnn.n_iter, b, s));
@@ -537,9 +585,12 @@ void ref_rnn_bwd_f32_t::copy_res_iter(
             rnn.n_dir, rnn.n_states + 1, rnn.n_iter + 1, rnn.mb,
             rnn.states_ws_ld);
     if (diff_src_iter_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      if (diff_src_iter_) {" << std::endl;
         parallel_nd(rnn.n_layer, rnn.n_dir, rnn.n_states, rnn.mb,
                 [&](int lay, int dir, int state, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                  [&](int lay, int dir, int state, int b) {" << std::endl;
                     for (int s = 0; s < rnn.sic; s++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                      for (int s = 0; s < rnn.sic; s++) {" << std::endl;
                         diff_src_iter_[diff_src_iter_d.blk_off(
                                 lay, dir, state, b, s)]
                                 = ws_diff_states(lay, dir, state, 0, b, s);
@@ -550,6 +601,7 @@ void ref_rnn_bwd_f32_t::copy_res_iter(
 
 template <prop_kind_t aprop, data_type_t src_type, data_type_t weights_type>
 rnn_bias_prepare_sig((_ref_rnn_common_t<aprop, src_type, weights_type>::bias_prepare)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:  rnn_bias_prepare_sig((_ref_rnn_common_t<aprop, src_type, weights_type>::bias_prepare)) {" << std::endl;
     /* Original set of bias provided by the user */
     AOC<const float, 5> b(
             b_, rnn.n_layer, rnn.n_dir, rnn.n_bias * rnn.dic);
@@ -559,14 +611,19 @@ rnn_bias_prepare_sig((_ref_rnn_common_t<aprop, src_type, weights_type>::bias_pre
             scratch_bias_, rnn.n_layer, rnn.n_dir, rnn.n_bias * rnn.dic);
 
     if (rnn.copy_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      if (rnn.copy_bias) {" << std::endl;
         parallel_nd(rnn.n_layer * rnn.n_dir * rnn.n_bias * rnn.dic,
-                [&](size_t i) { scratch_bias_[i] = b_[i]; });
+                [&](size_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:                  [&](size_t i) {" << std::endl; scratch_bias_[i] = b_[i]; });
     }
 
     for (int i = 0; i < rnn.n_layer; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      for (int i = 0; i < rnn.n_layer; i++) {" << std::endl;
         for (int d = 0; d < rnn.n_dir; d++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          for (int d = 0; d < rnn.n_dir; d++) {" << std::endl;
             int offset_bias = 0;
             for (int p = 0; p < rnn.n_parts_bias; p++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int p = 0; p < rnn.n_parts_bias; p++) {" << std::endl;
                 bias(i, d, p) = rnn.copy_bias
                         ? (float *) &scratch_bias(i, d, offset_bias)
                         : (float *) &b(i, d, offset_bias);
@@ -580,13 +637,16 @@ rnn_bias_prepare_sig((_ref_rnn_common_t<aprop, src_type, weights_type>::bias_pre
 template <prop_kind_t aprop, data_type_t src_type, data_type_t weights_type>
 rnn_bias_finalize_sig(
         (_ref_rnn_common_t<aprop, src_type, weights_type>::bias_finalize)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          (_ref_rnn_common_t<aprop, src_type, weights_type>::bias_finalize)) {" << std::endl;
     if (rnn.dt_conf != all_f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:      if (rnn.dt_conf != all_f32) {" << std::endl;
         float data_shift = pd()->attr()->rnn_data_qparams_.shift_;
         float data_scale = pd()->attr()->rnn_data_qparams_.scale_;
         float *weights_scales = pd()->attr()->rnn_weights_qparams_.scales_;
         bool scale_per_oc = pd()->attr()->rnn_weights_qparams_.mask_ != 0;
         for (int i = 0; i < rnn.n_layer * rnn.n_dir; i++)
             for (int j = 0; j < rnn.n_bias * rnn.dic; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int j = 0; j < rnn.n_bias * rnn.dic; j++) {" << std::endl;
                 size_t off = i * rnn.n_bias * rnn.dic + j;
                 float weights_scale
                         = scale_per_oc ? weights_scales[j] : weights_scales[0];
@@ -599,12 +659,15 @@ rnn_bias_finalize_sig(
 template <prop_kind_t aprop, data_type_t src_type, data_type_t weights_type>
 rnn_weights_assign_sig((_ref_rnn_common_t<aprop, src_type,
         weights_type>::assign_packed_weights)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          weights_type>::assign_packed_weights)) {" << std::endl;
     AOC<weights_data_t *, 3> weights(weights_, rnn.n_layer, rnn.n_dir, n_parts);
 
     size_t offset_packed = 0;
     for (int l = 0; l < rnn.n_layer; l++)
         for (int d = 0; d < rnn.n_dir; d++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          for (int d = 0; d < rnn.n_dir; d++) {" << std::endl;
             for (int p = 0; p < n_parts; p++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int p = 0; p < n_parts; p++) {" << std::endl;
                 weights(l, d, p) = (weights_data_t *)&w_[offset_packed];
                 offset_packed
                         += part_weights_pack_size[p] / sizeof(weights_data_t);
@@ -615,6 +678,7 @@ rnn_weights_assign_sig((_ref_rnn_common_t<aprop, src_type,
 template <prop_kind_t aprop, data_type_t src_type, data_type_t weights_type>
 rnn_weights_assign_sig(
         (_ref_rnn_common_t<aprop, src_type, weights_type>::assign_weights)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          (_ref_rnn_common_t<aprop, src_type, weights_type>::assign_weights)) {" << std::endl;
     assert(nld * ld != 0);
     /* Original set of weights provided by the user */
     AOC<const weights_data_t, 3> w(w_, rnn.n_layer, rnn.n_dir, nld * ld);
@@ -623,8 +687,10 @@ rnn_weights_assign_sig(
 
     for (int i = 0; i < rnn.n_layer; i++)
         for (int d = 0; d < rnn.n_dir; d++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:          for (int d = 0; d < rnn.n_dir; d++) {" << std::endl;
             size_t offset_weights = 0;
             for (int p = 0; p < n_parts; p++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_rnn.cpp:              for (int p = 0; p < n_parts; p++) {" << std::endl;
                 weights(i, d, p) = (weights_data_t *)&w(i, d, offset_weights);
                 offset_weights += fmt == memory_format::ldigo ?
                         gates_per_part[p] * OC_size :

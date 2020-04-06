@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -28,10 +29,12 @@ using namespace mkldnn::impl::utils;
 
 namespace {
 memory_desc_t copy_maybe_null(const memory_desc_t *md) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:  memory_desc_t copy_maybe_null(const memory_desc_t *md) {" << std::endl;
     return md ? *md : zero_md();
 }
 
 rnn_desc_t zero_rnn_desc() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:  rnn_desc_t zero_rnn_desc() {" << std::endl;
     auto rd = rnn_desc_t();
     rd.src_layer_desc = zero_md();
     rd.src_iter_desc = zero_md();
@@ -56,6 +59,7 @@ rnn_desc_t zero_rnn_desc() {
 status_t mkldnn_rnn_cell_desc_init(rnn_cell_desc_t *rnn_cell_desc,
         mkldnn_alg_kind_t cell_kind, mkldnn_alg_kind_t act_f,
         unsigned int flags, float alpha, float clipping) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:          unsigned int flags, float alpha, float clipping) {" << std::endl;
     using namespace mkldnn::impl::alg_kind;
 
     bool args_ok = true
@@ -80,7 +84,9 @@ status_t mkldnn_rnn_cell_desc_init(rnn_cell_desc_t *rnn_cell_desc,
 }
 
 int mkldnn_rnn_cell_get_gates_count(const rnn_cell_desc_t *rnn_cell_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:  int mkldnn_rnn_cell_get_gates_count(const rnn_cell_desc_t *rnn_cell_desc) {" << std::endl;
     switch (rnn_cell_desc->cell_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:      switch (rnn_cell_desc->cell_kind) {" << std::endl;
     case mkldnn::impl::alg_kind::vanilla_rnn: return 1;
     case mkldnn::impl::alg_kind::vanilla_gru: return 3;
     case mkldnn::impl::alg_kind::gru_linear_before_reset: return 3;
@@ -91,7 +97,9 @@ int mkldnn_rnn_cell_get_gates_count(const rnn_cell_desc_t *rnn_cell_desc) {
 }
 
 int mkldnn_rnn_cell_get_states_count(const rnn_cell_desc_t *rnn_cell_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:  int mkldnn_rnn_cell_get_states_count(const rnn_cell_desc_t *rnn_cell_desc) {" << std::endl;
     switch (rnn_cell_desc->cell_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:      switch (rnn_cell_desc->cell_kind) {" << std::endl;
     case mkldnn::impl::alg_kind::vanilla_rnn: return 1;
     case mkldnn::impl::alg_kind::vanilla_gru: return 1;
     case mkldnn::impl::alg_kind::gru_linear_before_reset: return 1;
@@ -108,6 +116,7 @@ status_t check_data_type_consistency_fwd(const rnn_cell_desc_t *rnn_cell_desc,
         const memory_desc_t *weights_iter_desc, const memory_desc_t *bias_desc,
         const memory_desc_t *dst_layer_desc,
         const memory_desc_t *dst_iter_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:          const memory_desc_t *dst_iter_desc) {" << std::endl;
     using namespace data_type;
     data_type_t src_layer_dt = src_layer_desc->data_type;
     data_type_t dst_layer_dt = dst_layer_desc->data_type;
@@ -160,6 +169,7 @@ status_t check_dim_consistency(const rnn_cell_desc_t *rnn_cell_desc,
         const memory_desc_t *weights_iter_desc, const memory_desc_t *bias_desc,
         const memory_desc_t *dst_layer_desc,
         const memory_desc_t *dst_iter_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:          const memory_desc_t *dst_iter_desc) {" << std::endl;
     bool args_ok;
 
     // * algorithm specific
@@ -264,6 +274,7 @@ status_t MKLDNN_API mkldnn_rnn_forward_desc_init(mkldnn_rnn_desc_t *rnn_desc,
         const memory_desc_t *weights_iter_desc, const memory_desc_t *bias_desc,
         const memory_desc_t *dst_layer_desc,
         const memory_desc_t *dst_iter_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:          const memory_desc_t *dst_iter_desc) {" << std::endl;
     bool args_ok = true && rnn_cell_desc != nullptr
             && !any_null(src_layer_desc, weights_layer_desc, weights_iter_desc,
                        dst_layer_desc);
@@ -327,6 +338,7 @@ status_t MKLDNN_API mkldnn_rnn_backward_desc_init(mkldnn_rnn_desc_t *rnn_desc,
         const memory_desc_t *diff_bias_desc,
         const memory_desc_t *diff_dst_layer_desc,
         const memory_desc_t *diff_dst_iter_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:          const memory_desc_t *diff_dst_iter_desc) {" << std::endl;
     bool args_ok = true
             && !any_null(src_layer_desc, weights_layer_desc, weights_iter_desc,
                        dst_layer_desc, diff_src_layer_desc,
@@ -336,6 +348,7 @@ status_t MKLDNN_API mkldnn_rnn_backward_desc_init(mkldnn_rnn_desc_t *rnn_desc,
         return invalid_arguments;
 
     auto xnor_md = [=](const memory_desc_t *a_md, const memory_desc_t *b_md) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/rnn.cpp:      auto xnor_md = [=](const memory_desc_t *a_md, const memory_desc_t *b_md) {" << std::endl;
         return is_zero_md(a_md) == is_zero_md(b_md);
     };
 

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -13,9 +14,11 @@ using namespace MKLDNNPlugin;
 using namespace InferenceEngine;
 
 MKLDNNLrnNode::MKLDNNLrnNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) :
-        MKLDNNNode(layer, eng, socket) {}
+        MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_lrn_node.cpp:          MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNLrnNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_lrn_node.cpp:  void MKLDNNLrnNode::getSupportedDescriptors() {" << std::endl;
     if (!descs.empty())
         return;
     InferenceEngine::Precision precision = getCnnLayer()->insData[0].lock()->getPrecision();
@@ -41,12 +44,14 @@ void MKLDNNLrnNode::getSupportedDescriptors() {
     auto parentDims = getParentEdgeAt(0)->getDims();
 
     for (auto format : getAvailableFormatsForDims(parentDims)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_lrn_node.cpp:      for (auto format : getAvailableFormatsForDims(parentDims)) {" << std::endl;
         MKLDNNMemoryDesc in_candidate(parentDims, inputDataType, format);
         createDescriptor({in_candidate}, {});
     }
 }
 
 void MKLDNNLrnNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_lrn_node.cpp:  void MKLDNNLrnNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
@@ -61,6 +66,7 @@ bool MKLDNNLrnNode::created() const {
 }
 
 void MKLDNNLrnNode::initOptimalPrimitiveDescriptor() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_lrn_node.cpp:  void MKLDNNLrnNode::initOptimalPrimitiveDescriptor() {" << std::endl;
     auto selected_pd = getSelectedPrimitiveDescriptor();
     if (selected_pd == nullptr)
         THROW_IE_EXCEPTION << "Preferable primitive descriptor is not set.";
@@ -74,8 +80,10 @@ void MKLDNNLrnNode::initOptimalPrimitiveDescriptor() {
         THROW_IE_EXCEPTION << "Layer " << getName() << " has incorrect selected config!";
 
     if (!isUninitTensorDesc(config.inConfs[0].desc)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_lrn_node.cpp:      if (!isUninitTensorDesc(config.inConfs[0].desc)) {" << std::endl;
         config.outConfs[0].desc = config.inConfs[0].desc;
     } else if (!isUninitTensorDesc(config.outConfs[0].desc)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_lrn_node.cpp:      } else if (!isUninitTensorDesc(config.outConfs[0].desc)) {" << std::endl;
         config.inConfs[0].desc = config.outConfs[0].desc;
     } else {
         config.outConfs[0].desc = config.inConfs[0].desc = getConfiguredInputDesc(config, 0);
@@ -86,6 +94,7 @@ void MKLDNNLrnNode::initOptimalPrimitiveDescriptor() {
 
 void MKLDNNLrnNode::createDescriptor(const std::vector<InferenceEngine::TensorDesc> &inputDesc,
                                      const std::vector<InferenceEngine::TensorDesc> &outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_lrn_node.cpp:                                       const std::vector<InferenceEngine::TensorDesc> &outputDesc) {" << std::endl;
     algorithm alg = (isAcrossMaps) ? lrn_across_channels : lrn_within_channel;
     MKLDNNMemoryDesc in_candidate(inputDesc[0]);
     MKLDNNDescriptor desc(std::shared_ptr<lrn_forward::desc>(

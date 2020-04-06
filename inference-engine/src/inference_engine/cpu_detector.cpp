@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,6 +18,7 @@ static Xbyak::util::Cpu cpu;
 #endif
 
 bool with_cpu_x86_sse42() {
+    std::cerr << "./inference-engine/src/inference_engine/cpu_detector.cpp:  bool with_cpu_x86_sse42() {" << std::endl;
 #ifdef ENABLE_MKL_DNN
     return cpu.has(Xbyak::util::Cpu::tSSE42);
 #else

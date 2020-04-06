@@ -1,4 +1,5 @@
-﻿// Copyright (C) 2018-2020 Intel Corporation
+#include <iostream>
+// Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -27,21 +28,25 @@ using namespace InferenceEngine::details;
 
 void FullyConnectedTransformation::transform(TransformationContext& context, CNNLayer& fullyConnected) const {
     if (!WeightableLayerTransformation::canBeTransformed(context, fullyConnected)) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (!WeightableLayerTransformation::canBeTransformed(context, fullyConnected)) {" << std::endl;
         return;
     }
 
     if (!CaselessEq<std::string>()(fullyConnected.type, "FullyConnected") &&
         !CaselessEq<std::string>()(fullyConnected.type, "GEMM")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          !CaselessEq<std::string>()(fullyConnected.type, 'GEMM')) {" << std::endl;
         THROW_IE_EXCEPTION << "layer '" << fullyConnected.name << "' is not correct";
     }
 
     if ((fullyConnected.insData.size() != 1) && (fullyConnected.insData.size() != 2) &&
         (fullyConnected.insData.size() != 3)) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          (fullyConnected.insData.size() != 3)) {" << std::endl;
         THROW_IE_EXCEPTION << "layer inputs '" << fullyConnected.insData.size() << "' is not correct";
     }
 
     const CNNLayerPtr scaleShiftOnData = CNNNetworkHelper::getParent(fullyConnected, 0);
     if (scaleShiftOnData->type != "ScaleShift") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (scaleShiftOnData->type != 'ScaleShift') {" << std::endl;
         return;
     }
 
@@ -51,6 +56,7 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
         QuantizationDetails();
 
     if (fullyConnected.outData.size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (fullyConnected.outData.size() != 1) {" << std::endl;
         THROW_IE_EXCEPTION << "layer outputs '" << fullyConnected.outData.size() << "' is not correct";
     }
 
@@ -62,7 +68,9 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
     std::vector<float> originalWeightsDequantizationShifts;
 
     if (parentOnWeights != nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (parentOnWeights != nullptr) {" << std::endl;
         if (parentOnWeights->type == "FakeQuantize") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          if (parentOnWeights->type == 'FakeQuantize') {" << std::endl;
             fillDequantizationsForWeightsPath(
                 fullyConnected,
                 supportAsymmetricQuantization,
@@ -70,6 +78,7 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
                 originalWeightsDequantizationShifts);
 
         } else if (parentOnWeights->type == "Const") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          } else if (parentOnWeights->type == 'Const') {" << std::endl;
             originalWeightsDequantizationScales.push_back(1.0);
             originalWeightsDequantizationShifts.push_back(0.0);
         } else {
@@ -81,17 +90,21 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
     std::vector<float> dequantizationShifts;
     std::vector<float> biasesShifts;
     if (supportAsymmetricQuantization) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (supportAsymmetricQuantization) {" << std::endl;
         std::vector<float> dataShifts(originalDataDequantizationShifts.size());
         for (size_t i = 0; i < dataShifts.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          for (size_t i = 0; i < dataShifts.size(); ++i) {" << std::endl;
             dataShifts[i] = -originalDataDequantizationShifts[i] / originalDataDequantizationScales[i];
         }
         std::vector<float> weightsShifts(originalWeightsDequantizationShifts.size());
         for (size_t i = 0; i < weightsShifts.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          for (size_t i = 0; i < weightsShifts.size(); ++i) {" << std::endl;
             weightsShifts[i] = -originalWeightsDequantizationShifts[i] / originalWeightsDequantizationScales[i];
         }
 
         std::vector<float> dataZeroPoints(originalDataDequantizationShifts.size());
         for (size_t i = 0ul; i < originalDataDequantizationShifts.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          for (size_t i = 0ul; i < originalDataDequantizationShifts.size(); ++i) {" << std::endl;
             dataZeroPoints[i] = originalDataDequantizationShifts[i] / originalDataDequantizationScales[i];
         }
 
@@ -107,6 +120,7 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
         Precision weightsOriginalPrecision;
         Precision weightsLowPrecision;
         if (parentOnWeights->type == "FakeQuantize") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          if (parentOnWeights->type == 'FakeQuantize') {" << std::endl;
             weightsOriginalPrecision = parentOnWeights->outData[0]->getTensorDesc().getPrecision();
             weightsLowPrecision = getDataPrecision(
                 *parentOnWeights,
@@ -133,6 +147,7 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
             originalWeightsDequantizationShifts.begin(),
             originalWeightsDequantizationShifts.end(),
             [](const float value) { return value != 0.f; })) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:              [](const float value) { return value != 0.f; })) {" << std::endl;
             return;
         }
 
@@ -146,10 +161,12 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
     }
 
     if (this->updateBiases) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (this->updateBiases) {" << std::endl;
         updateLayerBiases(context, fullyConnected, dequantizationScales, dequantizationShifts, biasesShifts);
     }
 
     if ((parentOnWeights != nullptr) && (parentOnWeights->type == "FakeQuantize")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if ((parentOnWeights != nullptr) && (parentOnWeights->type == 'FakeQuantize')) {" << std::endl;
         const DataPrecision dataPrecision = getDataPrecision(
             *parentOnWeights,
             originalQuantizationDetails,
@@ -162,6 +179,7 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
         // updateWeights(parentOnWeights, outputLowValues, outputHighValues);
 
         if (weightsToConst) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          if (weightsToConst) {" << std::endl;
             const QuantizationDetails quantizationDetails = QuantizationDetails::getDetails(*parentOnWeights);
             const DataPrecision dataPrecision = getDataPrecision(
                 *parentOnWeights,
@@ -177,7 +195,9 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
                 context, parentOnWeights, weights, CNNNetworkHelper::getParent(*parentOnWeights, 0)->name);
 
             if (updatePrecisions) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:              if (updatePrecisions) {" << std::endl;
                 for (const CNNLayerPtr constLayer : constLayers) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:                  for (const CNNLayerPtr constLayer : constLayers) {" << std::endl;
                     CNNNetworkHelper::setOutDataPrecision(*constLayer, dataPrecision.precision);
                 }
             }
@@ -190,6 +210,7 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
     const std::vector<CNNLayerPtr> children = CNNNetworkHelper::getChildren(fullyConnected);
     const size_t outputChannelsCount = CNNNetworkHelper::getOutputChannelsCount(fullyConnected);
     if (children.size() == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (children.size() == 0) {" << std::endl;
         const std::string originalName = fullyConnected.name;
         CNNNetworkHelper::renameLayer(
             context.network,
@@ -205,6 +226,7 @@ void FullyConnectedTransformation::transform(TransformationContext& context, CNN
         context.dequantizationLayersNames.insert(dequantizationLayer->name);
     } else {
         for (const CNNLayerPtr& child : children) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          for (const CNNLayerPtr& child : children) {" << std::endl;
             CNNLayerPtr dequantizationLayer = CNNNetworkHelper::addScaleShiftBetween(
                 context,
                 std::make_shared<CNNLayer>(fullyConnected),
@@ -223,23 +245,28 @@ void FullyConnectedTransformation::calculateDequantizationForSymmetric(
     std::vector<float>& dequantizationShifts,
     std::vector<float>& biasesShifts) const {
     for (size_t i = 0; i < originalWeightsDequantizationShifts.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      for (size_t i = 0; i < originalWeightsDequantizationShifts.size(); ++i) {" << std::endl;
         if (originalWeightsDequantizationShifts[i] != 0.0) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          if (originalWeightsDequantizationShifts[i] != 0.0) {" << std::endl;
             THROW_IE_EXCEPTION << "shift values on weights for '" << fullyConnected.type << "' layer '" << fullyConnected.name << "' are not supported";
         }
     }
 
     const DataPtr inputData = fullyConnected.insData[0].lock();
     if (inputData == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (inputData == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "input data is absent for layer " << fullyConnected.name;
     }
     const Layout inputLayout = inputData->getLayout();
     if (inputLayout != Layout::NC) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (inputLayout != Layout::NC) {" << std::endl;
         THROW_IE_EXCEPTION << "Unexpected input layout " << inputLayout;
     }
     const size_t inputChannelsCount = fullyConnected.insData[0].lock()->getDims()[1];
 
     const Layout outputLayout = fullyConnected.outData[0]->getLayout();
     if (outputLayout != Layout::NC) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (outputLayout != Layout::NC) {" << std::endl;
         THROW_IE_EXCEPTION << "Unexpected output layout " << outputLayout;
     }
     const size_t outputChannelsCount = fullyConnected.outData[0]->getDims()[1];
@@ -249,6 +276,7 @@ void FullyConnectedTransformation::calculateDequantizationForSymmetric(
 
     CNNLayerPtr scaleShift = CNNNetworkHelper::getParent(fullyConnected);
     if (scaleShift->type != "ScaleShift") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (scaleShift->type != 'ScaleShift') {" << std::endl;
         THROW_IE_EXCEPTION << "Unexpected layer type to calculate quantization values " << scaleShift->type;
     }
 
@@ -264,6 +292,7 @@ void FullyConnectedTransformation::calculateDequantizationForSymmetric(
 
     const float prevDequantizationScale = prevDequantizationScaleBuffer.get()[0];
     for (size_t i = 0; i < outputChannelsCount; ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      for (size_t i = 0; i < outputChannelsCount; ++i) {" << std::endl;
         dequantizationScales[i] = prevDequantizationScale *
             (originalWeightsDequantizationScales.size() == 0 ?
                 1.0 :
@@ -271,12 +300,14 @@ void FullyConnectedTransformation::calculateDequantizationForSymmetric(
     }
 
     for (size_t channel = 0lu; channel < outputChannelsCount; ++channel) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      for (size_t channel = 0lu; channel < outputChannelsCount; ++channel) {" << std::endl;
         float sum = 0.0;
         const float weightsDequantizationScale = originalWeightsDequantizationScales.size() == 0 ?
             1.0 :
             (originalWeightsDequantizationScales.size() == 1 ? originalWeightsDequantizationScales[0] : originalWeightsDequantizationScales[channel]);
 
         for (size_t inputChannel = 0; inputChannel < inputChannelsCount; ++inputChannel) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          for (size_t inputChannel = 0; inputChannel < inputChannelsCount; ++inputChannel) {" << std::endl;
             const float w = weightsBuffer.get()[channel * inputChannelsCount + inputChannel];
             sum += w * prevDequantizationShiftBuffer.get()[inputChannel] * weightsDequantizationScale;
         }
@@ -296,16 +327,19 @@ void FullyConnectedTransformation::calculateDequantizationForAsymmetric(
     std::vector<float>& dequantizationShifts) const {
     const DataPtr inputData = fullyConnected.insData[0].lock();
     if (inputData == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (inputData == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "input data is absent for layer " << fullyConnected.name;
     }
     const Layout inputLayout = inputData->getLayout();
     if (inputLayout != Layout::NC) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (inputLayout != Layout::NC) {" << std::endl;
         THROW_IE_EXCEPTION << "Unexpected input layout " << inputLayout;
     }
     const size_t inputChannelsCount = fullyConnected.insData[0].lock()->getDims()[1];
 
     const Layout outputLayout = fullyConnected.outData[0]->getLayout();
     if (outputLayout != Layout::NC) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (outputLayout != Layout::NC) {" << std::endl;
         THROW_IE_EXCEPTION << "Unexpected output layout " << outputLayout;
     }
     const size_t outputChannelsCount = fullyConnected.outData[0]->getDims()[1];
@@ -314,6 +348,7 @@ void FullyConnectedTransformation::calculateDequantizationForAsymmetric(
 
     CNNLayerPtr scaleShift = CNNNetworkHelper::getParent(fullyConnected);
     if (scaleShift->type != "ScaleShift") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      if (scaleShift->type != 'ScaleShift') {" << std::endl;
         THROW_IE_EXCEPTION << "Unexpected layer type to calculate quantization values " << scaleShift->type;
     }
 
@@ -328,6 +363,7 @@ void FullyConnectedTransformation::calculateDequantizationForAsymmetric(
     const auto biasesBuffer = biasesBlob == nullptr ? nullptr : CNNNetworkHelper::getFloatData(biasesBlob);
 
     for (size_t i = 0; i < outputChannelsCount; ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      for (size_t i = 0; i < outputChannelsCount; ++i) {" << std::endl;
         dequantizationScales[i] =
             prevDequantizationScaleBuffer.get()[0] *
             (originalWeightsDequantizationScales.size() == 0
@@ -337,6 +373,7 @@ void FullyConnectedTransformation::calculateDequantizationForAsymmetric(
     }
 
     for (size_t channel = 0lu; channel < outputChannelsCount; ++channel) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:      for (size_t channel = 0lu; channel < outputChannelsCount; ++channel) {" << std::endl;
         float sum1 = 0.0;
         float sum2 = 0.0;
         const float weightsDequantizationScale =
@@ -346,6 +383,7 @@ void FullyConnectedTransformation::calculateDequantizationForAsymmetric(
                                                                    : originalWeightsDequantizationScales[channel]);
 
         for (size_t w = 0; w < inputChannelsCount; ++w) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fully_connected.cpp:          for (size_t w = 0; w < inputChannelsCount; ++w) {" << std::endl;
             const float kernel = weightsBuffer.get()[channel * inputChannelsCount + w];
             sum1 += kernel * prevDequantizationShiftBuffer.get()[channel] * weightsDequantizationScale;
             sum2 += kernel * dataZeroPoints[w] * weightsDequantizationScale;

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -30,6 +31,7 @@ namespace cpu {
 using namespace memory_tracking::names;
 
 void reduce_balancer_t::balance() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:  void reduce_balancer_t::balance() {" << std::endl;
     using namespace nstl;
     using namespace utils;
 
@@ -52,6 +54,7 @@ void reduce_balancer_t::balance() {
     /* brute force parameters for the best balance... */
     for (int c_njobs_per_group = min_njobs_per_group;
             c_njobs_per_group < njobs_; ++c_njobs_per_group) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:              c_njobs_per_group < njobs_; ++c_njobs_per_group) {" << std::endl;
         /* current assumption */
         int c_ngroups = min(njobs_ / c_njobs_per_group, nthr_);
         int c_nthr_per_group = syncable_
@@ -68,6 +71,7 @@ void reduce_balancer_t::balance() {
                 + (c_nthr_per_group != 1));
 
         if (c_thread_complexity_ub < thread_complexity_ub) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          if (c_thread_complexity_ub < thread_complexity_ub) {" << std::endl;
             ngroups = c_ngroups;
             nthr_per_group = c_nthr_per_group;
             njobs_per_group_ub = c_njobs_per_group_ub;
@@ -97,10 +101,13 @@ struct reducer_2d_driver_t: public c_compatible {
     reducer_2d_driver_t(int n_src, size_t src_ld,
             size_t src_step, size_t dst_step, bool nullify_dst)
         : n_src_(n_src), src_ld_(src_ld), src_step_(src_step)
-        , dst_step_(dst_step), nullify_dst_(nullify_dst), ker_(nullptr) {}
-    virtual ~reducer_2d_driver_t() {}
+        , dst_step_(dst_step), nullify_dst_(nullify_dst), ker_(nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          , dst_step_(dst_step), nullify_dst_(nullify_dst), ker_(nullptr) {" << std::endl;}
+    virtual ~reducer_2d_driver_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      virtual ~reducer_2d_driver_t() {" << std::endl;}
     void operator()(data_t *dst, const data_t *srcs, size_t ny, size_t nx)
-    { assert(ker_); ker_(dst, srcs, ny, nx); }
+    {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      void operator()(data_t *dst, const data_t *srcs, size_t ny, size_t nx)     {" << std::endl; assert(ker_); ker_(dst, srcs, ny, nx); }
 
 protected:
     int n_src_;
@@ -119,10 +126,12 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
     using Vmm = typename utils::conditional<isa == avx2, Ymm, Zmm>::type;
     const AddressFrame &vmmword = (isa == avx2) ? yword : zword;
     void uni_vadd(const Xmm& x1, const Xmm& x2, const Operand& op)
-    { if (data_type == data_type::f32) vaddps(x1, x2, op);
+    {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      void uni_vadd(const Xmm& x1, const Xmm& x2, const Operand& op)     {" << std::endl; if (data_type == data_type::f32) vaddps(x1, x2, op);
       else vpaddd(x1, x2, op); }
     void uni_add(const Xmm& x1, const Operand& op)
-    { if (data_type == data_type::f32) addss(x1, op); else paddd(x1, op); }
+    {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      void uni_add(const Xmm& x1, const Operand& op)     {" << std::endl; if (data_type == data_type::f32) addss(x1, op); else paddd(x1, op); }
 
     const int vlen = cpu_isa_traits<isa>::vlen;
     const int typesize
@@ -139,9 +148,11 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
             size_t dst_step, bool nullify_dst)
         : reducer_2d_driver_t<data_type>(n_src, src_ld, src_step,
                 dst_step, nullify_dst)
-    { generate(); }
+    {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:                  dst_step, nullify_dst)     {" << std::endl; generate(); }
 
     void nullify_dst(int nloads, int load_len) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      void nullify_dst(int nloads, int load_len) {" << std::endl;
         UNUSED(load_len);
         for (int i = 0; i < nloads; ++i)
             uni_vpxor(Vmm(i), Vmm(i), Vmm(i));
@@ -149,7 +160,9 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
     }
 
     void load_dst(int nloads, int load_len) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      void load_dst(int nloads, int load_len) {" << std::endl;
         for (int i = 0; i < nloads; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          for (int i = 0; i < nloads; ++i) {" << std::endl;
             if (load_len == typesize)
                 movd(Xmm(i), ptr[reg_dst + i * load_len]);
             else if (load_len == vlen)
@@ -160,7 +173,9 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
     }
 
     void store_dst(int nloads, int load_len) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      void store_dst(int nloads, int load_len) {" << std::endl;
         for (int i = 0; i < nloads; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          for (int i = 0; i < nloads; ++i) {" << std::endl;
             if (load_len == typesize)
                 movd(ptr[reg_dst + i * load_len], Xmm(i));
             else if (load_len == vlen)
@@ -171,7 +186,9 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
     }
 
     void accumulate(int nloads, int load_len, size_t base_off) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      void accumulate(int nloads, int load_len, size_t base_off) {" << std::endl;
         for (int i = 0; i < nloads; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          for (int i = 0; i < nloads; ++i) {" << std::endl;
             size_t off = base_off + i * load_len;
 
             if (load_len == typesize)
@@ -184,6 +201,7 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
     }
 
     void loop_x() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      void loop_x() {" << std::endl;
         const int nloads[] = {cpu_isa_traits<isa>::n_vregs, 1, 1};
         const int nbranches = sizeof(nloads) / sizeof(nloads[0]);
 
@@ -193,6 +211,7 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
         mov(reg_x, reg_nx);
 
         for (int id = 0; id < nbranches; ++id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          for (int id = 0; id < nbranches; ++id) {" << std::endl;
             L(loop_x_label[id]);
 
             cmp(reg_x, nloads[id] * load_len[id]);
@@ -204,6 +223,7 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
                 load_dst(nloads[id], load_len[id]);
 
             if (nloads[id] > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:              if (nloads[id] > 1) {" << std::endl;
                 Label loop_srcs;
                 mov(reg_src_id, this->n_src_);
                 L(loop_srcs);
@@ -217,6 +237,7 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
                 sub(reg_src, this->n_src_ * this->src_ld_ * typesize);
             } else {
                 for (int src_id = 0; src_id < this->n_src_; ++src_id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:                  for (int src_id = 0; src_id < this->n_src_; ++src_id) {" << std::endl;
                     const size_t base_off = src_id * this->src_ld_ * typesize;
                     accumulate(nloads[id], load_len[id], base_off);
                 }
@@ -240,6 +261,7 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
     }
 
     void generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      void generate() {" << std::endl;
         assert(isa == avx2 || isa == avx512_common || isa == avx512_mic);
 
         preamble();
@@ -266,6 +288,7 @@ struct reducer_2d_driver_f_s_32_t: public reducer_2d_driver_t<data_type>,
 template <impl::data_type_t data_type>
 inline reducer_2d_driver_t<data_type> *create_reduce_2d_drv(int n_src,
         size_t src_ld, size_t src_step, size_t dst_step, bool nullify_dst) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          size_t src_ld, size_t src_step, size_t dst_step, bool nullify_dst) {" << std::endl;
     if (mayiuse(avx512_common))
         return new reducer_2d_driver_f_s_32_t<data_type, avx512_common>(n_src,
             src_ld, src_step, dst_step, nullify_dst);
@@ -295,6 +318,7 @@ template <impl::data_type_t data_type>
 cpu_reducer_t<data_type>::cpu_reducer_t(const conf_t &conf)
     : conf_(conf), drv_(nullptr)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      : conf_(conf), drv_(nullptr) {" << std::endl;
     if (balancer().nthr_per_group_ == 1) return;
 
     drv_ = create_reduce_2d_drv<data_type>(balancer().nthr_per_group_ - 1,
@@ -302,7 +326,8 @@ cpu_reducer_t<data_type>::cpu_reducer_t(const conf_t &conf)
 }
 
 template <impl::data_type_t data_type>
-cpu_reducer_t<data_type>::~cpu_reducer_t() { delete drv_; }
+cpu_reducer_t<data_type>::~cpu_reducer_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:  cpu_reducer_t<data_type>::~cpu_reducer_t() {" << std::endl; delete drv_; }
 
 template <impl::data_type_t data_type>
 typename cpu_reducer_t<data_type>::data_t *
@@ -337,6 +362,7 @@ void cpu_reducer_t<data_type>::reduce_nolock(int ithr, data_t *dst,
     data_t *d = get_local_ptr(ithr, dst, scratchpad);
     for (int id_in_grp = 1; id_in_grp < balancer_.nthr_per_group_; ++id_in_grp)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      for (int id_in_grp = 1; id_in_grp < balancer_.nthr_per_group_; ++id_in_grp)     {" << std::endl;
         const data_t *space = get_local_ptr(ithr + id_in_grp, dst, scratchpad);
         for (size_t i = 0; i < (size_t)njobs_in_grp * balancer().job_size_; ++i)
             d[i] += space[i];
@@ -385,6 +411,7 @@ template <impl::data_type_t data_type>
 cpu_reducer_2d_t<data_type>::cpu_reducer_2d_t(const conf_t &conf)
     : conf_(conf), drv_(nullptr)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      : conf_(conf), drv_(nullptr) {" << std::endl;
     if (balancer().nthr_per_group_ == 1) return;
 
     drv_ = create_reduce_2d_drv<data_type>(balancer().nthr_per_group_,
@@ -393,7 +420,8 @@ cpu_reducer_2d_t<data_type>::cpu_reducer_2d_t(const conf_t &conf)
 }
 
 template <impl::data_type_t data_type>
-cpu_reducer_2d_t<data_type>::~cpu_reducer_2d_t() { delete drv_; }
+cpu_reducer_2d_t<data_type>::~cpu_reducer_2d_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:  cpu_reducer_2d_t<data_type>::~cpu_reducer_2d_t() {" << std::endl; delete drv_; }
 
 template <impl::data_type_t data_type>
 typename cpu_reducer_2d_t<data_type>::data_t *cpu_reducer_2d_t<data_type>::
@@ -415,6 +443,7 @@ int cpu_reducer_2d_t<data_type>::choose_x_blocking(int nx, int ny,
     int min_x_blocking =
             utils::div_up(x_blocking, nstl::max(1, nthr_per_grp / ny));
     while (true) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      while (true) {" << std::endl;
         if (x_blocking % 2 == 0 && x_blocking >= min_x_blocking * 2)
             x_blocking /= 2;
         else if (x_blocking % 3 == 0 && x_blocking >= min_x_blocking * 3)
@@ -437,9 +466,11 @@ void cpu_reducer_2d_t<data_type>::reduce_block(const data_t* space_base,
                             + ny_start * conf_.job_size_x_ + nx_start;
 #ifdef SIMPLE_IMPL
     for (int idg = 0; idg < balancer().nthr_per_group_; ++idg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      for (int idg = 0; idg < balancer().nthr_per_group_; ++idg) {" << std::endl;
         const data_t *w = &space[idg * space_per_thread(balancer())];
         for (int y = 0; y < ny_step; ++y)
             for (int x = 0; x < nx_step; ++x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:              for (int x = 0; x < nx_step; ++x) {" << std::endl;
                 d[y * conf_.dst_x_ + x]
                     = (idg == 0 ? 0 : d[y * conf_.dst_x_ + x])
                     + w[y * conf_.job_size_x_ + x];
@@ -477,6 +508,7 @@ void cpu_reducer_2d_t<data_type>::reduce_nolock(int ithr, data_t *dst,
     balance211(njobs_in_grp, pr_grps, pr_my_grp, pr_job_start, pr_job_end);
 
     for (int j = pr_job_start; j < pr_job_end; ++j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:      for (int j = pr_job_start; j < pr_job_end; ++j) {" << std::endl;
         const int global_job = global_job_start + j;
         const int j_y = global_job / njobs_x;
         const int j_x = global_job % njobs_x;
@@ -495,18 +527,21 @@ void cpu_reducer_2d_t<data_type>::reduce_nolock(int ithr, data_t *dst,
 
         int nxy = nxy_start;
         if (nxy % nx != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          if (nxy % nx != 0) {" << std::endl;
             int nx_step = nstl::min(nx - nxy % nx, nxy_end - nxy);
             reduce_block(space_base, dst, j, start_y, start_x,
                         nxy / nx, nxy % nx, 1, nx_step);
             nxy += nx_step;
         }
         if ((nxy_end - nxy) > nx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          if ((nxy_end - nxy) > nx) {" << std::endl;
             int ny_step = (nxy_end - nxy) / nx;
             reduce_block(space_base, dst, j, start_y, start_x,
                         nxy / nx, nxy % nx, ny_step, nx);
             nxy += nx * ny_step;
         }
         if ((nxy_end - nxy) > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          if ((nxy_end - nxy) > 0) {" << std::endl;
             reduce_block(space_base, dst, j, start_y, start_x,
                         nxy / nx, nxy % nx, 1, nxy_end - nxy);
         }
@@ -520,17 +555,20 @@ template struct cpu_reducer_2d_t<data_type::s32>;
 
 template <impl::data_type_t data_type>
 cpu_accumulator_1d_t<data_type>::cpu_accumulator_1d_t(): drv_(nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:  cpu_accumulator_1d_t<data_type>::cpu_accumulator_1d_t(): drv_(nullptr) {" << std::endl;
     drv_ = create_reduce_2d_drv<data_type>(1, 0, 0, 0, false);
 }
 
 template <impl::data_type_t data_type>
 cpu_accumulator_1d_t<data_type>::~cpu_accumulator_1d_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:  cpu_accumulator_1d_t<data_type>::~cpu_accumulator_1d_t() {" << std::endl;
     delete drv_;
 }
 
 template <impl::data_type_t data_type>
 void cpu_accumulator_1d_t<data_type>::accumulate(data_t *dst,
         const data_t *src, size_t size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_reducer.cpp:          const data_t *src, size_t size) {" << std::endl;
     (*drv_)(dst, src, 1, size);
 }
 

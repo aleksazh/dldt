@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,6 +19,7 @@ namespace Cpu {
 class RangeImpl: public ExtLayerBase {
 public:
     explicit RangeImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/range.cpp:      explicit RangeImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -49,6 +51,7 @@ public:
                   layer->insData[RANGE_LIMIT].lock()->getTensorDesc().getPrecision() == Precision::FP32 &&
                   layer->insData[RANGE_DELTA].lock()->getTensorDesc().getPrecision() == Precision::FP32 &&
                   layer->outData[0]->getTensorDesc().getPrecision() == Precision::FP32)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/range.cpp:                    layer->outData[0]->getTensorDesc().getPrecision() == Precision::FP32)) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name <<
                     " 'Start', 'Limit', 'Delta' input scalars and output tensor should have same precision" <<
                     "and only FP32 and I32 are supported!";
@@ -57,6 +60,7 @@ public:
             addConfig(layer, { DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN) },
                              { DataConfigurator(ConfLayout::PLN) });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/range.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -64,6 +68,7 @@ public:
     StatusCode execute(std::vector<Blob::Ptr>& inputs, std::vector<Blob::Ptr>& outputs, ResponseDesc *resp) noexcept override {
         StatusCode retcode = OK;
         switch (outputs[0]->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/range.cpp:          switch (outputs[0]->getTensorDesc().getPrecision()) {" << std::endl;
         case Precision::FP32: {
             retcode = range((inputs[RANGE_START]->cbuffer().as<float *>() +
                              inputs[RANGE_START]->getTensorDesc().getBlockingDesc().getOffsetPadding())[0],
@@ -84,12 +89,14 @@ public:
         break;
         default:
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/range.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Incorrect output precision. Only FP32 and I32 are supported!";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }
             retcode = GENERAL_ERROR;
         }
         if (resp && retcode == PARAMETER_MISMATCH) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/range.cpp:          if (resp && retcode == PARAMETER_MISMATCH) {" << std::endl;
             std::string errorMsg = "Range indexes exceeds data tensor dimension";
             errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
         }
@@ -107,6 +114,7 @@ private:
 
 template <typename data_t>
 StatusCode RangeImpl::range(data_t start, data_t limit, data_t delta, Blob::Ptr output) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/range.cpp:  StatusCode RangeImpl::range(data_t start, data_t limit, data_t delta, Blob::Ptr output) {" << std::endl;
     size_t dst_size = (output->getTensorDesc().getDims())[0];
     data_t* dst_data = output->cbuffer().as<data_t *>() +
                        output->getTensorDesc().getBlockingDesc().getOffsetPadding();
@@ -115,11 +123,13 @@ StatusCode RangeImpl::range(data_t start, data_t limit, data_t delta, Blob::Ptr 
         return PARAMETER_MISMATCH;
 
     parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/range.cpp:      parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
         size_t iwork = 0, end = 0;
         splitter(work_amount_dst, nthr, ithr, iwork, end);
         data_t dst_value = start + iwork * delta;
 
         for (; iwork < end; ++iwork, dst_value += delta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/range.cpp:          for (; iwork < end; ++iwork, dst_value += delta) {" << std::endl;
             dst_data[iwork] = dst_value;
         }
     });

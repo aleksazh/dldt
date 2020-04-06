@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -33,6 +34,7 @@ namespace {
 status_t depthwise_desc_init(depthwise_desc_t *depthwise_desc, prop_kind_t prop_kind,
         alg_kind_t alg_kind, const memory_desc_t *src_desc, const memory_desc_t *dst_desc,
         const memory_desc_t *weights_desc, const memory_desc_t *bias_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/depthwise.cpp:          const memory_desc_t *weights_desc, const memory_desc_t *bias_desc) {" << std::endl;
     bool args_ok = true
         && !any_null(depthwise_desc, src_desc, dst_desc)
         && one_of(prop_kind, forward_training, forward_inference)
@@ -64,6 +66,7 @@ status_t mkldnn_depthwise_forward_desc_init(depthwise_desc_t *depthwise_desc,
         prop_kind_t prop_kind, alg_kind_t alg_kind,
         const memory_desc_t *src_desc, const memory_desc_t *dst_desc, const memory_desc_t *weights_desc,
         const memory_desc_t *bias_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/depthwise.cpp:          const memory_desc_t *bias_desc) {" << std::endl;
     if (!one_of(prop_kind, forward_training, forward_inference))
         return invalid_arguments;
     return depthwise_desc_init(depthwise_desc, prop_kind, alg_kind, src_desc, dst_desc,
@@ -73,6 +76,7 @@ status_t mkldnn_depthwise_forward_desc_init(depthwise_desc_t *depthwise_desc,
 status_t mkldnn_depthwise_forward_desc_init(depthwise_desc_t *depthwise_desc,
         prop_kind_t prop_kind, alg_kind_t alg_kind,
         const memory_desc_t *src_desc, const memory_desc_t *dst_desc, const memory_desc_t *weights_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/depthwise.cpp:          const memory_desc_t *src_desc, const memory_desc_t *dst_desc, const memory_desc_t *weights_desc) {" << std::endl;
     if (!one_of(prop_kind, forward_training, forward_inference))
         return invalid_arguments;
     return depthwise_desc_init(depthwise_desc, prop_kind, alg_kind, src_desc, dst_desc,

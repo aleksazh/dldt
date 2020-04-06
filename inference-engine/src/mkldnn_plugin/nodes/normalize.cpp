@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -38,14 +39,17 @@ struct jit_uni_normalize_per_spatial_kernel {
     void (*ker_)(const jit_args_normalize *);
 
     void operator()(const jit_args_normalize *args) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      void operator()(const jit_args_normalize *args) {" << std::endl;
         assert(ker_);
         ker_(args);
     }
 
     explicit jit_uni_normalize_per_spatial_kernel(bool channel_shared) : ker_(nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      explicit jit_uni_normalize_per_spatial_kernel(bool channel_shared) : ker_(nullptr) {" << std::endl;
         is_channel_shared = channel_shared;
     }
-    virtual ~jit_uni_normalize_per_spatial_kernel() {}
+    virtual ~jit_uni_normalize_per_spatial_kernel() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      virtual ~jit_uni_normalize_per_spatial_kernel() {" << std::endl;}
     bool is_channel_shared = true;
 };
 
@@ -53,14 +57,17 @@ struct jit_uni_normalize_across_spatial_kernel {
     void (*ker_)(const jit_args_normalize *);
 
     void operator()(const jit_args_normalize *args) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      void operator()(const jit_args_normalize *args) {" << std::endl;
         assert(ker_);
         ker_(args);
     }
 
     explicit jit_uni_normalize_across_spatial_kernel(bool channel_shared) : ker_(nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      explicit jit_uni_normalize_across_spatial_kernel(bool channel_shared) : ker_(nullptr) {" << std::endl;
         is_channel_shared = channel_shared;
     }
-    virtual ~jit_uni_normalize_across_spatial_kernel() {}
+    virtual ~jit_uni_normalize_across_spatial_kernel() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      virtual ~jit_uni_normalize_across_spatial_kernel() {" << std::endl;}
     bool is_channel_shared = true;
 };
 
@@ -68,12 +75,15 @@ struct jit_uni_sqr_sum_kernel {
     void (*ker_)(const jit_args_normalize *);
 
     void operator()(const jit_args_normalize *args) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      void operator()(const jit_args_normalize *args) {" << std::endl;
         assert(ker_);
         ker_(args);
     }
 
-    jit_uni_sqr_sum_kernel() : ker_(nullptr) {}
-    virtual ~jit_uni_sqr_sum_kernel() {}
+    jit_uni_sqr_sum_kernel() : ker_(nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      jit_uni_sqr_sum_kernel() : ker_(nullptr) {" << std::endl;}
+    virtual ~jit_uni_sqr_sum_kernel() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      virtual ~jit_uni_sqr_sum_kernel() {" << std::endl;}
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -85,6 +95,7 @@ struct jit_uni_normalize_across_spatial_kernel_f32
 
     explicit jit_uni_normalize_across_spatial_kernel_f32(bool channel_shared)
         : jit_uni_normalize_across_spatial_kernel(channel_shared), jit_generator() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:          : jit_uni_normalize_across_spatial_kernel(channel_shared), jit_generator() {" << std::endl;
         this->preamble();
         mov(reg_src, ptr[reg_params + GET_OFF(src)]);
         mov(reg_dst, ptr[reg_params + GET_OFF(dst)]);
@@ -144,6 +155,7 @@ struct jit_uni_sqr_sum_kernel_f32 : public jit_uni_sqr_sum_kernel,
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_uni_sqr_sum_kernel_f32)
 
     jit_uni_sqr_sum_kernel_f32() : jit_uni_sqr_sum_kernel(), jit_generator() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      jit_uni_sqr_sum_kernel_f32() : jit_uni_sqr_sum_kernel(), jit_generator() {" << std::endl;
         this->preamble();
         mov(reg_src, ptr[reg_params + GET_OFF(src)]);
         mov(reg_sqr_sums, ptr[reg_params + GET_OFF(sqr_sums)]);
@@ -170,8 +182,10 @@ struct jit_uni_sqr_sum_kernel_f32 : public jit_uni_sqr_sum_kernel,
         L(sqr_sum_loop_end_label);
         // hsum+store
         if (isa == sse42) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:          if (isa == sse42) {" << std::endl;
             hsum_store(vmm_sqr_sum);
         } else if (isa == avx2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:          } else if (isa == avx2) {" << std::endl;
             Xbyak::Ymm ymm_sqr_sum = Xbyak::Ymm(vmm_sqr_sum.getIdx());
             vextractf128(xmm_aux1, ymm_sqr_sum, 0);
             vextractf128(xmm_aux2, ymm_sqr_sum, 1);
@@ -210,6 +224,7 @@ private:
     Xbyak::Xmm xmm_aux3 = Xbyak::Xmm(4);
 
     void hsum_store(Xbyak::Xmm xmm_sqr_sum) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      void hsum_store(Xbyak::Xmm xmm_sqr_sum) {" << std::endl;
         movshdup(xmm_aux3, xmm_sqr_sum);  //  sqrt_sum:1,2,3,4; aux3:2,2,4,4
         addps(xmm_sqr_sum, xmm_aux3);     //  sqrt_sum:1+2,2+2,3+4,4+4
         movhlps(xmm_aux3, xmm_sqr_sum);   //  aux3:3+4,4+4,4,4
@@ -226,6 +241,7 @@ struct jit_uni_normalize_per_spatial_kernel_f32
 
     explicit jit_uni_normalize_per_spatial_kernel_f32(bool channel_shared)
         : jit_uni_normalize_per_spatial_kernel(channel_shared), jit_generator() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:          : jit_uni_normalize_per_spatial_kernel(channel_shared), jit_generator() {" << std::endl;
         this->preamble();
 
         mov(reg_src, ptr[reg_params + GET_OFF(src)]);
@@ -267,6 +283,7 @@ struct jit_uni_normalize_per_spatial_kernel_f32
         mov(aux_reg_work_amount, reg_work_amount);
         mov(aux_reg_src, reg_src);
         if (is_channel_shared) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:          if (is_channel_shared) {" << std::endl;
             uni_vbroadcastss(vmm_scale, ptr[reg_weights]);
         }
         L(div_loop_label);
@@ -279,6 +296,7 @@ struct jit_uni_normalize_per_spatial_kernel_f32
             uni_vdivps(vmm_val, vmm_val, vmm_sqrt_sum);
 
             if (!is_channel_shared) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:              if (!is_channel_shared) {" << std::endl;
                 uni_vbroadcastss(vmm_scale, ptr[reg_weights]);
                 add(reg_weights, 1*sizeof(float));
             }
@@ -324,12 +342,14 @@ private:
 class NormalizeImpl : public ExtLayerBase {
 public:
     explicit NormalizeImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:      explicit NormalizeImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 1 || layer->outData.size() != 1)
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
 
             if (layer->insData[0].lock()->getTensorDesc().getDims().size() < 2 ||
                 layer->insData[0].lock()->getTensorDesc().getDims().size() > 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  layer->insData[0].lock()->getTensorDesc().getDims().size() > 4) {" << std::endl;
                 THROW_IE_EXCEPTION << "Normalize supports from 2D to 4D blobs!";
             }
 
@@ -342,19 +362,23 @@ public:
 
             block_size = 1;
             if (across_spatial) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:              if (across_spatial) {" << std::endl;
                 if (mayiuse(avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  if (mayiuse(avx512_common)) {" << std::endl;
                     normalize_across_spatial_kernel.reset(
                             new jit_uni_normalize_across_spatial_kernel_f32<avx512_common>(channel_shared));
                     sqr_sum_kernel.reset(
                             new jit_uni_sqr_sum_kernel_f32<avx512_common>());
                     block_size = 16;
                 } else if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  } else if (mayiuse(avx2)) {" << std::endl;
                     normalize_across_spatial_kernel.reset(
                             new jit_uni_normalize_across_spatial_kernel_f32<avx2>(channel_shared));
                     sqr_sum_kernel.reset(
                             new jit_uni_sqr_sum_kernel_f32<avx2>());
                     block_size = 8;
                 } else if (mayiuse(sse42)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  } else if (mayiuse(sse42)) {" << std::endl;
                     normalize_across_spatial_kernel.reset(
                             new jit_uni_normalize_across_spatial_kernel_f32<sse42>(channel_shared));
                     sqr_sum_kernel.reset(
@@ -363,14 +387,17 @@ public:
                 }
             } else {
                 if (mayiuse(avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  if (mayiuse(avx512_common)) {" << std::endl;
                     normalize_per_spatial_kernel.reset(
                             new jit_uni_normalize_per_spatial_kernel_f32<avx512_common>(channel_shared));
                     block_size = 16;
                 } else if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  } else if (mayiuse(avx2)) {" << std::endl;
                     normalize_per_spatial_kernel.reset(
                             new jit_uni_normalize_per_spatial_kernel_f32<avx2>(channel_shared));
                     block_size = 8;
                 } else if (mayiuse(sse42)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  } else if (mayiuse(sse42)) {" << std::endl;
                     normalize_per_spatial_kernel.reset(
                             new jit_uni_normalize_per_spatial_kernel_f32<sse42>(channel_shared));
                     block_size = 4;
@@ -379,6 +406,7 @@ public:
 
             addConfig(layer, { { ConfLayout::PLN, false, 0 } }, { { ConfLayout::PLN, false, 0 } }, true);
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -404,14 +432,17 @@ public:
                 : 1;
 
         for (int b = 0; b < B; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:          for (int b = 0; b < B; b++) {" << std::endl;
             float *src_data_b = src_data + b * C * H * W;
             float *dst_data_b = dst_data + b * C * H * W;
             if (across_spatial) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:              if (across_spatial) {" << std::endl;
                 int tail_start_sqr_sum = 0;
                 float addition_identity_value = 0;
                 float sqrt_sum_kernel = 0;
                 float sqrt_sum_tail = 0;
                 if (sqr_sum_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  if (sqr_sum_kernel) {" << std::endl;
                     size_t advance = (H * W / block_size) * block_size;
                     sqrt_sum_kernel = parallel_sum(C, addition_identity_value, [&](int ic) -> float {
                         float sqr_sum_value = 0;
@@ -435,8 +466,10 @@ public:
 
                 int tail_start_across_spatial = 0;
                 if (normalize_across_spatial_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  if (normalize_across_spatial_kernel) {" << std::endl;
                     tail_start_across_spatial = (H * W / block_size) * block_size;
-                    parallel_for(C, [&](int ic) {  //  parallel for each channel, element*scl/sqrt_sum
+                    parallel_for(C, [&](int ic) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                      parallel_for(C, [&](int ic) {" << std::endl;  //  parallel for each channel, element*scl/sqrt_sum
                         auto arg = jit_args_normalize();
                         arg.src = src_data_b + ic * H * W;
                         arg.dst = dst_data_b + ic * H * W;
@@ -448,6 +481,7 @@ public:
                         (*normalize_across_spatial_kernel)(&arg);
                         //  rest for this channel
                         for (int tail = tail_start_across_spatial; tail < H * W; tail++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                          for (int tail = tail_start_across_spatial; tail < H * W; tail++) {" << std::endl;
                             dst_data_b[ic * H * W + tail] = src_data_b[ic * H * W + tail] / sqrt_sum;
                             dst_data_b[ic * H * W + tail] = channel_shared
                                     ? dst_data_b[ic * H * W + tail] * scl[0]
@@ -456,9 +490,11 @@ public:
                     });
                 } else {
                     for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                      for (int c = 0; c < C; c++) {" << std::endl;
                         int hw = 0;
                         float s = channel_shared ? scl[0] : scl[c];
                         for (; hw < H * W; hw++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                          for (; hw < H * W; hw++) {" << std::endl;
                             dst_data_b[c * H * W + hw]
                                     = (src_data_b[c * H * W + hw] / sqrt_sum) * s;
                         }
@@ -467,8 +503,10 @@ public:
             } else {
                 int tail_start_per_spatial = 0;
                 if (normalize_per_spatial_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  if (normalize_per_spatial_kernel) {" << std::endl;
                     int blocks_num = H * W / block_size;
                     parallel_for(blocks_num, [&](int ib) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                      parallel_for(blocks_num, [&](int ib) {" << std::endl;
                         auto arg = jit_args_normalize();
 
                         arg.src = src_data_b + ib * block_size;
@@ -483,10 +521,12 @@ public:
                     tail_start_per_spatial = (H * W / block_size) * block_size;
                 }
                 parallel_for(H * W - tail_start_per_spatial, [&](int i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                  parallel_for(H * W - tail_start_per_spatial, [&](int i) {" << std::endl;
                     int offset = i + tail_start_per_spatial;
 
                     float norm = eps;
                     for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                      for (int c = 0; c < C; c++) {" << std::endl;
                         const float *src_data_b_c = src_data_b + c * W * H;
                         norm += src_data_b_c[offset] * src_data_b_c[offset];
                     }
@@ -494,6 +534,7 @@ public:
                     norm = std::sqrt(norm);
 
                     for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/normalize.cpp:                      for (int c = 0; c < C; c++) {" << std::endl;
                         const float *src_data_b_c = src_data_b + c * W * H;
                         float *dst_data_b_c = dst_data_b + c * W * H;
 

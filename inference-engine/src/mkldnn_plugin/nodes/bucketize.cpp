@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -22,8 +23,10 @@ namespace Cpu {
 class BucketizeImpl : public ExtLayerBase {
 public:
     explicit BucketizeImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:      explicit BucketizeImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 2 || layer->outData.size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:              if (layer->insData.size() != 2 || layer->outData.size() != 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
             }
 
@@ -33,11 +36,14 @@ public:
             // check precisions for input tensors
             Precision input_tensor_precision = layer->insData[INPUT_TENSOR_PORT].lock()->getTensorDesc().getPrecision();
             if (input_tensor_precision != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:              if (input_tensor_precision != Precision::FP32) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect input precision of the input. Only FP32 is supported!";
             }
             if (with_bins) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:              if (with_bins) {" << std::endl;
                 Precision input_bins_precision = layer->insData[INPUT_BINS_PORT].lock()->getTensorDesc().getPrecision();
                 if (input_bins_precision != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:                  if (input_bins_precision != Precision::FP32) {" << std::endl;
                     THROW_IE_EXCEPTION << layer->name
                                        << " Incorrect input precision of the boundaries tensor. Only FP32 is supported!";
                 }
@@ -46,19 +52,23 @@ public:
             // check dimensions of input tensors
             SizeVector input_tensor_dims = layer->insData[INPUT_TENSOR_PORT].lock()->getTensorDesc().getDims();
             if (input_tensor_dims.size() < 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:              if (input_tensor_dims.size() < 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions of the input.";
             }
             SizeVector input_bin_dims = layer->insData[INPUT_BINS_PORT].lock()->getTensorDesc().getDims();
             if (input_bin_dims.size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:              if (input_bin_dims.size() != 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions of the boundaries tensor.";
             }
             if (input_bin_dims[0] != 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:              if (input_bin_dims[0] != 0) {" << std::endl;
                 with_bins = true;
             }
             num_bin_values = input_bin_dims[0];
 
             num_values = 1;
             for (size_t ind = 0; ind < input_tensor_dims.size(); ind++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:              for (size_t ind = 0; ind < input_tensor_dims.size(); ind++) {" << std::endl;
                 num_values *= input_tensor_dims[ind];
             }
 
@@ -68,6 +78,7 @@ public:
             { DataConfigurator(ConfLayout::PLN) });
         }
         catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:          catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -77,6 +88,7 @@ public:
             inputs[INPUT_TENSOR_PORT]->getTensorDesc().getBlockingDesc().getOffsetPadding();
         const float *input_bins_ptr = nullptr;
         if (with_bins) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:          if (with_bins) {" << std::endl;
             input_bins_ptr = inputs[INPUT_BINS_PORT]->cbuffer().as<const float *>() +
                 inputs[INPUT_BINS_PORT]->getTensorDesc().getBlockingDesc().getOffsetPadding();
         }
@@ -84,27 +96,34 @@ public:
             inputs[OUTPUT_TENSOR_PORT]->getTensorDesc().getBlockingDesc().getOffsetPadding();
 
         if (with_bins == false) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:          if (with_bins == false) {" << std::endl;
             for (size_t ind = 0; ind < num_values; ind++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:              for (size_t ind = 0; ind < num_values; ind++) {" << std::endl;
                 output_tensor_ptr[ind] = 0;
             }
             return OK;
         }
 
         for (size_t ind = 0; ind < num_values; ind++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:          for (size_t ind = 0; ind < num_values; ind++) {" << std::endl;
             float value = input_tensor_ptr[ind];
 
             // find a bin to which value belongs
             output_tensor_ptr[ind] = -1;
             for (size_t bin_ind = 0; bin_ind < num_bin_values; bin_ind++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:              for (size_t bin_ind = 0; bin_ind < num_bin_values; bin_ind++) {" << std::endl;
                 if (with_right && value <= input_bins_ptr[bin_ind]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:                  if (with_right && value <= input_bins_ptr[bin_ind]) {" << std::endl;
                     output_tensor_ptr[ind] = static_cast<int>(bin_ind);
                     break;
                 } else if (!with_right && value < input_bins_ptr[bin_ind]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:                  } else if (!with_right && value < input_bins_ptr[bin_ind]) {" << std::endl;
                     output_tensor_ptr[ind] = static_cast<int>(bin_ind);
                     break;
                 }
             }
             if (output_tensor_ptr[ind] == -1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/bucketize.cpp:              if (output_tensor_ptr[ind] == -1) {" << std::endl;
                 output_tensor_ptr[ind] = static_cast<int>(num_bin_values);
             }
         }

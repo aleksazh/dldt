@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -26,12 +27,14 @@ using namespace mkldnn::impl::status;
 
 status_t primitive_desc_t::query(query_t what, int idx, void *result) const {
     auto safe_ret_pd = [&](const memory_pd_t *_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_desc.cpp:      auto safe_ret_pd = [&](const memory_pd_t *_) {" << std::endl;
         if (_ == nullptr) return not_required;
         *(const primitive_desc_t **)result = _;
         return success;
     };
 
     switch (what) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_desc.cpp:      switch (what) {" << std::endl;
         case query::engine: *(engine_t**)result = engine(); break;
         case query::primitive_kind: *(primitive_kind_t*)result = kind(); break;
 
@@ -67,6 +70,7 @@ status_t primitive_desc_t::query(query_t what, int idx, void *result) const {
 
 status_t mkldnn_primitive_desc_get_attr(const primitive_desc_t *primitive_desc,
         const primitive_attr_t **attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive_desc.cpp:          const primitive_attr_t **attr) {" << std::endl;
     if (utils::any_null(primitive_desc, attr))
         return invalid_arguments;
 

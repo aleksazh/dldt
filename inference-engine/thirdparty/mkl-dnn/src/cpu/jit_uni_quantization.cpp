@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -53,11 +54,14 @@ struct jit_uni_quantization_kernel : public c_compatible {
     const quantization_desc_t &desc_;
     void (*ker_)(const jit_args *);
 
-    void operator()(const jit_args *args) { assert(ker_); ker_(args); }
+    void operator()(const jit_args *args) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      void operator()(const jit_args *args) {" << std::endl; assert(ker_); ker_(args); }
 
     jit_uni_quantization_kernel(const quantization_desc_t &desc)
-        : desc_(desc), ker_(nullptr) {}
-    virtual ~jit_uni_quantization_kernel() {}
+        : desc_(desc), ker_(nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          : desc_(desc), ker_(nullptr) {" << std::endl;}
+    virtual ~jit_uni_quantization_kernel() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      virtual ~jit_uni_quantization_kernel() {" << std::endl;}
 };
 
 /* jit kernels */
@@ -70,6 +74,7 @@ struct jit_uni_bin_depthwise_kernel : public jit_uni_quantization_kernel,
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_uni_bin_depthwise_kernel)
     jit_uni_bin_depthwise_kernel(const quantization_desc_t &desc)
         : jit_uni_quantization_kernel(desc), jit_generator() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          : jit_uni_quantization_kernel(desc), jit_generator() {" << std::endl;
         assert(one_of(desc.alg_kind, alg_kind::binarization_depthwise));
         assert(isa == sse42 || isa == avx2 || isa == avx512_common);
 
@@ -101,10 +106,12 @@ struct jit_uni_bin_depthwise_kernel : public jit_uni_quantization_kernel,
 
             xor_(reg_bin_32, reg_bin_32);
             for (int ch = 0; ch < ur_ch; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:              for (int ch = 0; ch < ur_ch; ch++) {" << std::endl;
                 uni_vmovups(vmm_src(0), ptr[reg_from + ch*step*sizeof(float)]);
                 uni_vmovups(vmm_wei(0), ptr[reg_thresholds + ch*step*sizeof(float)]);
                 uni_vmovups(vmm_mask(0), ptr[reg_output_mask + ch*step*sizeof(float)]);
                 if (isa == avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:                  if (isa == avx512_common) {" << std::endl;
                     vcmpps(k_mask0, vmm_src(0), vmm_wei(0), _cmp_gt_os);
                     vptestmd(k_mask1, vmm_mask(0), vmm_mask(0));
                     kxnorw(k_mask0, k_mask0, k_mask1);
@@ -138,10 +145,12 @@ struct jit_uni_bin_depthwise_kernel : public jit_uni_quantization_kernel,
 
             xor_(reg_bin_32, reg_bin_32);
             for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:              for (int i = 0; i < repeats; i++) {" << std::endl;
                 uni_vmovups(vmm_src(0), ptr[reg_from + i*step*sizeof(float)]);
                 uni_vmovups(vmm_wei(0), ptr[reg_thresholds + i*step*sizeof(float)]);
                 uni_vmovups(vmm_mask(0), ptr[reg_output_mask + i*step*sizeof(float)]);
                 if (isa == avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:                  if (isa == avx512_common) {" << std::endl;
                     vcmpps(k_mask0, vmm_src(0), vmm_wei(0), _cmp_gt_os);
                     vptestmd(k_mask1, vmm_mask(0), vmm_mask(0));
                     kxnorw(k_mask0, k_mask0, k_mask1);
@@ -170,9 +179,11 @@ struct jit_uni_bin_depthwise_kernel : public jit_uni_quantization_kernel,
 
         L(tail_label); {
             if (tail_size != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:              if (tail_size != 0) {" << std::endl;
                 xor_(reg_bin_32, reg_bin_32);
                 mov(reg_mask, 1);
                 for (int c = 0; c < tail_size; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:                  for (int c = 0; c < tail_size; c++) {" << std::endl;
                     uni_vpxor(xmm_src(0), xmm_src(0), xmm_src(0));
                     uni_vpxor(xmm_wei(0), xmm_wei(0), xmm_wei(0));
                     uni_vpxor(xmm_mask(0), xmm_mask(0), xmm_mask(0));
@@ -207,12 +218,18 @@ private:
     using Vmm = typename utils::conditional3<isa == sse42, Xmm,
                                              isa == avx2, Ymm, Zmm>::type;
 
-    inline Vmm vmm_src(int idx) { return Vmm(idx); }
-    inline Xmm xmm_src(int idx) { return Xmm(idx); }
-    inline Vmm vmm_wei(int idx) { return Vmm(idx + 4); }
-    inline Vmm vmm_mask(int idx) { return Vmm(idx + 5); }
-    inline Xmm xmm_wei(int idx) { return Xmm(idx + 4); }
-    inline Xmm xmm_mask(int idx) { return Xmm(idx + 5); }
+    inline Vmm vmm_src(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Vmm vmm_src(int idx) {" << std::endl; return Vmm(idx); }
+    inline Xmm xmm_src(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Xmm xmm_src(int idx) {" << std::endl; return Xmm(idx); }
+    inline Vmm vmm_wei(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Vmm vmm_wei(int idx) {" << std::endl; return Vmm(idx + 4); }
+    inline Vmm vmm_mask(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Vmm vmm_mask(int idx) {" << std::endl; return Vmm(idx + 5); }
+    inline Xmm xmm_wei(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Xmm xmm_wei(int idx) {" << std::endl; return Xmm(idx + 4); }
+    inline Xmm xmm_mask(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Xmm xmm_mask(int idx) {" << std::endl; return Xmm(idx + 5); }
 
     Reg64 param = abi_param1;
     Reg64 reg_from = r8;
@@ -238,6 +255,7 @@ struct jit_uni_quant_depthwise_kernel : public jit_uni_quantization_kernel,
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_uni_bin_depthwise_kernel)
     jit_uni_quant_depthwise_kernel(const quantization_desc_t &desc)
         : jit_uni_quantization_kernel(desc), jit_generator() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          : jit_uni_quantization_kernel(desc), jit_generator() {" << std::endl;
         assert(one_of(desc.alg_kind, alg_kind::quantization_quantize_dequantize, alg_kind::quantization_quantize));
         assert(isa == sse42 || isa == avx2 || isa == avx512_common);
 
@@ -264,29 +282,50 @@ private:
     using Vmm = typename utils::conditional3<isa == sse42, Xmm,
                                              isa == avx2, Ymm, Zmm>::type;
 
-    inline Vmm vmm_val(int idx) { return Vmm(idx + 0); }
-    inline Vmm vmm_crop_low(int idx) { return Vmm(idx + 2); }
-    inline Vmm vmm_crop_high(int idx) { return Vmm(idx + 4); }
-    inline Vmm vmm_input_scale(int idx) { return Vmm(idx + 6); }
-    inline Vmm vmm_input_shift(int idx) { return Vmm(idx + 8); }
-    inline Vmm vmm_output_scale(int idx) { return Vmm(idx + 10); }
-    inline Vmm vmm_output_shift(int idx) { return Vmm(idx + 12); }
+    inline Vmm vmm_val(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Vmm vmm_val(int idx) {" << std::endl; return Vmm(idx + 0); }
+    inline Vmm vmm_crop_low(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Vmm vmm_crop_low(int idx) {" << std::endl; return Vmm(idx + 2); }
+    inline Vmm vmm_crop_high(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Vmm vmm_crop_high(int idx) {" << std::endl; return Vmm(idx + 4); }
+    inline Vmm vmm_input_scale(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Vmm vmm_input_scale(int idx) {" << std::endl; return Vmm(idx + 6); }
+    inline Vmm vmm_input_shift(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Vmm vmm_input_shift(int idx) {" << std::endl; return Vmm(idx + 8); }
+    inline Vmm vmm_output_scale(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Vmm vmm_output_scale(int idx) {" << std::endl; return Vmm(idx + 10); }
+    inline Vmm vmm_output_shift(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Vmm vmm_output_shift(int idx) {" << std::endl; return Vmm(idx + 12); }
 
-    inline Ymm ymm_val(int idx) { return Ymm(idx + 0); }
-    inline Ymm ymm_crop_low(int idx) { return Ymm(idx + 2); }
-    inline Ymm ymm_crop_high(int idx) { return Ymm(idx + 4); }
-    inline Ymm ymm_input_scale(int idx) { return Ymm(idx + 6); }
-    inline Ymm ymm_input_shift(int idx) { return Ymm(idx + 8); }
-    inline Ymm ymm_output_scale(int idx) { return Ymm(idx + 10); }
-    inline Ymm ymm_output_shift(int idx) { return Ymm(idx + 12); }
+    inline Ymm ymm_val(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Ymm ymm_val(int idx) {" << std::endl; return Ymm(idx + 0); }
+    inline Ymm ymm_crop_low(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Ymm ymm_crop_low(int idx) {" << std::endl; return Ymm(idx + 2); }
+    inline Ymm ymm_crop_high(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Ymm ymm_crop_high(int idx) {" << std::endl; return Ymm(idx + 4); }
+    inline Ymm ymm_input_scale(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Ymm ymm_input_scale(int idx) {" << std::endl; return Ymm(idx + 6); }
+    inline Ymm ymm_input_shift(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Ymm ymm_input_shift(int idx) {" << std::endl; return Ymm(idx + 8); }
+    inline Ymm ymm_output_scale(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Ymm ymm_output_scale(int idx) {" << std::endl; return Ymm(idx + 10); }
+    inline Ymm ymm_output_shift(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Ymm ymm_output_shift(int idx) {" << std::endl; return Ymm(idx + 12); }
 
-    inline Xmm xmm_val(int idx) { return Xmm(idx + 0); }
-    inline Xmm xmm_crop_low(int idx) { return Xmm(idx + 2); }
-    inline Xmm xmm_crop_high(int idx) { return Xmm(idx + 4); }
-    inline Xmm xmm_input_scale(int idx) { return Xmm(idx + 6); }
-    inline Xmm xmm_input_shift(int idx) { return Xmm(idx + 8); }
-    inline Xmm xmm_output_scale(int idx) { return Xmm(idx + 10); }
-    inline Xmm xmm_output_shift(int idx) { return Xmm(idx + 12); }
+    inline Xmm xmm_val(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Xmm xmm_val(int idx) {" << std::endl; return Xmm(idx + 0); }
+    inline Xmm xmm_crop_low(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Xmm xmm_crop_low(int idx) {" << std::endl; return Xmm(idx + 2); }
+    inline Xmm xmm_crop_high(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Xmm xmm_crop_high(int idx) {" << std::endl; return Xmm(idx + 4); }
+    inline Xmm xmm_input_scale(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Xmm xmm_input_scale(int idx) {" << std::endl; return Xmm(idx + 6); }
+    inline Xmm xmm_input_shift(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Xmm xmm_input_shift(int idx) {" << std::endl; return Xmm(idx + 8); }
+    inline Xmm xmm_output_scale(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Xmm xmm_output_scale(int idx) {" << std::endl; return Xmm(idx + 10); }
+    inline Xmm xmm_output_shift(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline Xmm xmm_output_shift(int idx) {" << std::endl; return Xmm(idx + 12); }
 
     Vmm vmm_zero = Vmm(14);
 
@@ -319,6 +358,7 @@ private:
     bool do_dequantization;
 
     inline void compute_planar() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline void compute_planar() {" << std::endl;
         int src_type_size = types::data_type_size(src_data_type);
         int dst_type_size = types::data_type_size(dst_data_type);
 
@@ -353,6 +393,7 @@ private:
         uni_vbroadcastss(vmm_input_scale(0), ptr[reg_input_scale]);
         uni_vbroadcastss(vmm_input_shift(0), ptr[reg_input_shift]);
         if (do_dequantization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (do_dequantization) {" << std::endl;
             uni_vbroadcastss(vmm_output_scale(0), ptr[reg_output_scale]);
             uni_vbroadcastss(vmm_output_shift(0), ptr[reg_output_shift]);
         }
@@ -362,6 +403,7 @@ private:
             jl(tail_blk4_label, T_NEAR);
 
             for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:              for (int i = 0; i < repeats; i++) {" << std::endl;
                 load_vector(vmm_val(i), ptr[reg_from + i * (simd_w / 2) * src_type_size], src_data_type);
 
                 uni_vminps(vmm_val(i), vmm_val(i), vmm_crop_high(0));
@@ -429,6 +471,7 @@ private:
     }
 
     inline void compute_generic(const quantization_desc_t &desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline void compute_generic(const quantization_desc_t &desc) {" << std::endl;
         int src_type_size = types::data_type_size(src_data_type);
         int wei_type_size = types::data_type_size(wei_data_type);
         int dst_type_size = types::data_type_size(dst_data_type);
@@ -441,6 +484,7 @@ private:
         mov(reg_input_scale, ptr[param + GET_OFF(input_scale)]);
         mov(reg_input_shift, ptr[param + GET_OFF(input_shift)]);
         if (do_dequantization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (do_dequantization) {" << std::endl;
             mov(reg_output_scale, ptr[param + GET_OFF(output_scale)]);
             mov(reg_output_shift, ptr[param + GET_OFF(output_shift)]);
         }
@@ -473,11 +517,13 @@ private:
         jl(simd_w == 16 ? tail_blk8_label : tail_blk4_label, T_NEAR);
 
         for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          for (int i = 0; i < repeats; i++) {" << std::endl;
             uni_vmovups(vmm_crop_low(i), ptr[reg_crop_low + i * (simd_w / 2) * sizeof(float)]);
             uni_vmovups(vmm_crop_high(i), ptr[reg_crop_high + i * (simd_w / 2) * sizeof(float)]);
             uni_vmovups(vmm_input_scale(i), ptr[reg_input_scale + i * (simd_w / 2) * sizeof(float)]);
             uni_vmovups(vmm_input_shift(i), ptr[reg_input_shift + i * (simd_w / 2) * sizeof(float)]);
             if (do_dequantization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:              if (do_dequantization) {" << std::endl;
                 uni_vmovups(vmm_output_scale(i), ptr[reg_output_scale + i * (simd_w / 2) * sizeof(float)]);
                 uni_vmovups(vmm_output_shift(i), ptr[reg_output_shift + i * (simd_w / 2) * sizeof(float)]);
             }
@@ -488,6 +534,7 @@ private:
             jle(exit_label, T_NEAR);
 
             for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:              for (int i = 0; i < repeats; i++) {" << std::endl;
                 load_vector(vmm_val(i), ptr[reg_from + i * (simd_w / 2) * src_type_size], src_data_type);
 
                 uni_vminps(vmm_val(i), vmm_val(i), vmm_crop_high(i));
@@ -507,6 +554,7 @@ private:
         }
 
         if (simd_w == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (simd_w == 16) {" << std::endl;
             L(tail_blk8_label);
 
             cmp(reg_block_size, tail8_simd_w);
@@ -521,6 +569,7 @@ private:
             uni_vmovups(ymm_input_scale(0), ptr[reg_input_scale]);
             uni_vmovups(ymm_input_shift(0), ptr[reg_input_shift]);
             if (do_dequantization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:              if (do_dequantization) {" << std::endl;
                 uni_vmovups(ymm_output_scale(0), ptr[reg_output_scale]);
                 uni_vmovups(ymm_output_shift(0), ptr[reg_output_shift]);
             }
@@ -555,6 +604,7 @@ private:
             add(reg_input_scale, tail8_simd_w * wei_type_size);
             add(reg_input_shift, tail8_simd_w * wei_type_size);
             if (do_dequantization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:              if (do_dequantization) {" << std::endl;
                 add(reg_output_scale, tail8_simd_w * wei_type_size);
                 add(reg_output_shift, tail8_simd_w * wei_type_size);
             }
@@ -575,6 +625,7 @@ private:
         uni_vmovups(xmm_input_scale(0), ptr[reg_input_scale]);
         uni_vmovups(xmm_input_shift(0), ptr[reg_input_shift]);
         if (do_dequantization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (do_dequantization) {" << std::endl;
             uni_vmovups(xmm_output_scale(0), ptr[reg_output_scale]);
             uni_vmovups(xmm_output_shift(0), ptr[reg_output_shift]);
         }
@@ -609,6 +660,7 @@ private:
         add(reg_input_scale, tail4_simd_w * wei_type_size);
         add(reg_input_shift, tail4_simd_w * wei_type_size);
         if (do_dequantization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (do_dequantization) {" << std::endl;
             add(reg_output_scale, tail4_simd_w * wei_type_size);
             add(reg_output_shift, tail4_simd_w * wei_type_size);
         }
@@ -627,11 +679,13 @@ private:
             jle(exit_label, T_NEAR);
 
             for (int i = 0; i < desc.src_desc.dims[1] % tail4_simd_w; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:              for (int i = 0; i < desc.src_desc.dims[1] % tail4_simd_w; i++) {" << std::endl;
                 movss(xmm_crop_low(0), ptr[reg_crop_low + i * wei_type_size]);
                 movss(xmm_crop_high(0), ptr[reg_crop_high + i * wei_type_size]);
                 movss(xmm_input_scale(0), ptr[reg_input_scale + i * wei_type_size]);
                 movss(xmm_input_shift(0), ptr[reg_input_shift + i * wei_type_size]);
                 if (do_dequantization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:                  if (do_dequantization) {" << std::endl;
                     movss(xmm_output_scale(0), ptr[reg_output_scale + i * wei_type_size]);
                     movss(xmm_output_shift(0), ptr[reg_output_shift + i * wei_type_size]);
                 }
@@ -658,7 +712,9 @@ private:
     }
 
     inline void load_vector(Zmm zmm_src, const Xbyak::Address &op, data_type_t src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline void load_vector(Zmm zmm_src, const Xbyak::Address &op, data_type_t src_dt) {" << std::endl;
         switch (src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          switch (src_dt) {" << std::endl;
             case data_type::f32:
             case data_type::s32:
                 uni_vmovups(zmm_src, op);
@@ -674,12 +730,15 @@ private:
         }
 
         if (src_dt != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (src_dt != data_type::f32) {" << std::endl;
             uni_vcvtdq2ps(zmm_src, zmm_src);
         }
     }
 
     inline void load_vector(Ymm ymm_src, const Xbyak::Address &op, data_type_t src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline void load_vector(Ymm ymm_src, const Xbyak::Address &op, data_type_t src_dt) {" << std::endl;
         switch (src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          switch (src_dt) {" << std::endl;
             case data_type::f32:
             case data_type::s32:
                 uni_vmovups(ymm_src, op);
@@ -695,12 +754,15 @@ private:
         }
 
         if (src_dt != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (src_dt != data_type::f32) {" << std::endl;
             uni_vcvtdq2ps(ymm_src, ymm_src);
         }
     }
 
     inline void load_vector(Xmm xmm_src, const Xbyak::Address &op, data_type_t src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline void load_vector(Xmm xmm_src, const Xbyak::Address &op, data_type_t src_dt) {" << std::endl;
         switch (src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          switch (src_dt) {" << std::endl;
             case data_type::f32:
             case data_type::s32:
                 uni_vmovups(xmm_src, op);
@@ -716,12 +778,15 @@ private:
         }
 
         if (src_dt != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (src_dt != data_type::f32) {" << std::endl;
             uni_vcvtdq2ps(xmm_src, xmm_src);
         }
     }
 
     inline void load_scalar(Xmm xmm_src, const Xbyak::Address &op, data_type_t src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline void load_scalar(Xmm xmm_src, const Xbyak::Address &op, data_type_t src_dt) {" << std::endl;
         switch (src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          switch (src_dt) {" << std::endl;
             case data_type::f32:
             case data_type::s32:
                 movss(xmm_src, op);
@@ -739,16 +804,20 @@ private:
         }
 
         if (src_dt != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (src_dt != data_type::f32) {" << std::endl;
             uni_vcvtdq2ps(xmm_src, xmm_src);
         }
     }
 
     inline void store_vector(const Xbyak::Address &op, Zmm zmm_dst, data_type_t dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline void store_vector(const Xbyak::Address &op, Zmm zmm_dst, data_type_t dst_dt) {" << std::endl;
         if (dst_dt != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (dst_dt != data_type::f32) {" << std::endl;
             uni_vcvtps2dq(zmm_dst, zmm_dst);
         }
 
         switch (dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          switch (dst_dt) {" << std::endl;
             case data_type::f32:
             case data_type::s32:
                 uni_vmovups(op, zmm_dst);
@@ -766,13 +835,16 @@ private:
     }
 
     inline void store_vector(const Xbyak::Address &op, Ymm ymm_dst, data_type_t dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline void store_vector(const Xbyak::Address &op, Ymm ymm_dst, data_type_t dst_dt) {" << std::endl;
         Xmm xmm_dst = Xmm(ymm_dst.getIdx());
 
         if (dst_dt != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (dst_dt != data_type::f32) {" << std::endl;
             uni_vcvtps2dq(ymm_dst, ymm_dst);
         }
 
         switch (dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          switch (dst_dt) {" << std::endl;
             case data_type::f32:
             case data_type::s32:
                 uni_vmovups(op, ymm_dst);
@@ -801,11 +873,14 @@ private:
     }
 
     inline void store_vector(const Xbyak::Address &op, Xmm xmm_dst, data_type_t dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline void store_vector(const Xbyak::Address &op, Xmm xmm_dst, data_type_t dst_dt) {" << std::endl;
         if (dst_dt != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (dst_dt != data_type::f32) {" << std::endl;
             uni_vcvtps2dq(xmm_dst, xmm_dst);
         }
 
         switch (dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          switch (dst_dt) {" << std::endl;
             case data_type::f32:
             case data_type::s32:
                 uni_vmovups(op, xmm_dst);
@@ -826,11 +901,14 @@ private:
     }
 
     inline void store_scalar(const Xbyak::Address &op, Xmm xmm_dst, data_type_t dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      inline void store_scalar(const Xbyak::Address &op, Xmm xmm_dst, data_type_t dst_dt) {" << std::endl;
         if (dst_dt != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          if (dst_dt != data_type::f32) {" << std::endl;
             uni_vcvtps2dq(xmm_dst, xmm_dst);
         }
 
         switch (dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          switch (dst_dt) {" << std::endl;
             case data_type::f32:
             case data_type::s32:
                 movss(op, xmm_dst);
@@ -875,6 +953,7 @@ void jit_uni_quantization_fwd_t<isa>::execute_binarization_forward() const {
     int nbits = 8;
 
     parallel_nd(N, H, W, [&](int n, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      parallel_nd(N, H, W, [&](int n, int h, int w) {" << std::endl;
 	    auto arg = jit_args();
 
         arg.from    = &src[src_d.blk_off(n, 0, h, w) * sizeof(float)];
@@ -918,7 +997,9 @@ void jit_uni_quantization_fwd_t<isa>::execute_quantization_forward() const {
     const int W = src_d.ndims() > 3 ? src_d.dims()[src_d.ndims() - 1] : 1;
 
     if (src_d.format() == tnc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      if (src_d.format() == tnc) {" << std::endl;
         parallel_nd(N, CB, D, [&](int n, int cb, int d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          parallel_nd(N, CB, D, [&](int n, int cb, int d) {" << std::endl;
             auto arg = jit_args();
 
             int c = cb * blk_size;
@@ -944,6 +1025,7 @@ void jit_uni_quantization_fwd_t<isa>::execute_quantization_forward() const {
         });
     } else {
         parallel_nd(N, CB, D, H, [&](int n, int cb, int d, int h) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:          parallel_nd(N, CB, D, H, [&](int n, int cb, int d, int h) {" << std::endl;
             auto arg = jit_args();
 
             int c = cb * blk_size;
@@ -974,6 +1056,7 @@ void jit_uni_quantization_fwd_t<isa>::execute_quantization_forward() const {
 
 template <cpu_isa_t isa>
 status_t jit_uni_quantization_fwd_t<isa>::pd_t::init() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:  status_t jit_uni_quantization_fwd_t<isa>::pd_t::init() {" << std::endl;
     using namespace alg_kind;
 
     auto desired_blk_fmt = isa == avx512_common ? nChw16c : nChw8c;
@@ -1010,9 +1093,11 @@ template <cpu_isa_t isa>
 jit_uni_quantization_fwd_t<isa>::jit_uni_quantization_fwd_t(const pd_t *apd,
         const input_vector &inputs, const output_vector &outputs)
     : cpu_primitive_t(apd, inputs, outputs), kernel_(nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      : cpu_primitive_t(apd, inputs, outputs), kernel_(nullptr) {" << std::endl;
     const auto &desc = *pd()->desc();
 
     switch (desc.alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:      switch (desc.alg_kind) {" << std::endl;
         case alg_kind::binarization_depthwise:
             kernel_ = new jit_uni_bin_depthwise_kernel<isa>(desc); break;
         case alg_kind::quantization_quantize_dequantize:
@@ -1025,6 +1110,7 @@ jit_uni_quantization_fwd_t<isa>::jit_uni_quantization_fwd_t(const pd_t *apd,
 
 template <cpu_isa_t isa>
 jit_uni_quantization_fwd_t<isa>::~jit_uni_quantization_fwd_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_quantization.cpp:  jit_uni_quantization_fwd_t<isa>::~jit_uni_quantization_fwd_t() {" << std::endl;
     delete kernel_;
 }
 

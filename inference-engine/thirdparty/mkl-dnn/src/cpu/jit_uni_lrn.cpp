@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -31,6 +32,7 @@ jit_uni_lrn_fwd_t<isa>::jit_uni_lrn_fwd_t(
     : cpu_primitive_t(apd, inputs, outputs), ker_(nullptr)
     , ker_first_(nullptr), ker_last_(nullptr)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      , ker_first_(nullptr), ker_last_(nullptr) {" << std::endl;
     using namespace alg_kind;
 
     const int C = pd()->C();
@@ -45,6 +47,7 @@ jit_uni_lrn_fwd_t<isa>::jit_uni_lrn_fwd_t(
     auto dfmt = pd()->src_pd()->desc()->format;
 
     if (dfmt == nChw8c && ls == 5 && ak == lrn_across_channels) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      if (dfmt == nChw8c && ls == 5 && ak == lrn_across_channels) {" << std::endl;
         ker_ = new jit_uni_lrn_fwd_kernel_f32<isa>(
                 nchw8c_across(H, W, 0), A, K, pk);
         ker_first_ = new jit_uni_lrn_fwd_kernel_f32<isa>(
@@ -52,26 +55,31 @@ jit_uni_lrn_fwd_t<isa>::jit_uni_lrn_fwd_t(
         ker_last_ = new jit_uni_lrn_fwd_kernel_f32<isa>(
                 nchw8c_across(H, W, +1), A, K, pk);
     } else if (dfmt == nChw8c && ak == lrn_within_channel) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      } else if (dfmt == nChw8c && ak == lrn_within_channel) {" << std::endl;
         /* within channel, local_size (x) local_size */
         A /= ls; /* XXX: why? */
         ker_ = new jit_uni_lrn_fwd_kernel_f32<isa>(
                 nchw8c_within(H, W, ls), A, K, pk);
     } else if (dfmt == nchw && ls == 5 && ak == lrn_across_channels) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      } else if (dfmt == nchw && ls == 5 && ak == lrn_across_channels) {" << std::endl;
         ker_ = new jit_uni_lrn_fwd_kernel_f32<isa>(
                 nchw_across(C, H*W, 0), A, K, pk);
         int remind = (H*W) % VECTOR_LENGTH;
         if (remind != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:          if (remind != 0) {" << std::endl;
             ker_last_ = new jit_uni_lrn_fwd_kernel_f32<isa>(
                         nchw_across(C, H*W, remind), A, K, pk);
         }
     } else if (true /* XXX: why */) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      } else if (true /* XXX: why */) {" << std::endl;
         ker_ = new jit_uni_lrn_fwd_kernel_f32<isa>(nhwc_across(C), A, K, pk);
     }
 }
 
 template <cpu_isa_t isa>
 jit_uni_lrn_fwd_t<isa>::~jit_uni_lrn_fwd_t()
-{ delete ker_; delete ker_first_; delete ker_last_; }
+{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:  jit_uni_lrn_fwd_t<isa>::~jit_uni_lrn_fwd_t() {" << std::endl; delete ker_; delete ker_first_; delete ker_last_; }
 
 template <cpu_isa_t isa>
 void jit_uni_lrn_fwd_t<isa>::execute_forward() const {
@@ -90,7 +98,9 @@ void jit_uni_lrn_fwd_t<isa>::execute_forward() const {
     auto dfmt = pd()->src_pd()->desc()->format;
 
     if (dfmt == nChw8c && ls == 5 && ak == lrn_across_channels) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      if (dfmt == nChw8c && ls == 5 && ak == lrn_across_channels) {" << std::endl;
         parallel_nd(N, C / VECTOR_LENGTH, [&](int n, int c8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:          parallel_nd(N, C / VECTOR_LENGTH, [&](int n, int c8) {" << std::endl;
             jit_args_fwd_t args;
             args.src = &src[n*HW*C + c8 * HW * VECTOR_LENGTH];
             args.dst = &dst[n*HW*C + c8 * HW * VECTOR_LENGTH];
@@ -104,7 +114,9 @@ void jit_uni_lrn_fwd_t<isa>::execute_forward() const {
         });
     }
     else if (dfmt == nChw8c && ak == lrn_within_channel) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      else if (dfmt == nChw8c && ak == lrn_within_channel) {" << std::endl;
         parallel_nd(N, C / VECTOR_LENGTH, [&](int n, int c8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:          parallel_nd(N, C / VECTOR_LENGTH, [&](int n, int c8) {" << std::endl;
             jit_args_fwd_t args;
             args.src = &src[n*HW*C + c8 * HW * VECTOR_LENGTH];
             args.dst = &dst[n*HW*C + c8 * HW * VECTOR_LENGTH];
@@ -113,8 +125,10 @@ void jit_uni_lrn_fwd_t<isa>::execute_forward() const {
         });
     }
     else if (dfmt == nchw && ls == 5 && ak == lrn_across_channels) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      else if (dfmt == nchw && ls == 5 && ak == lrn_across_channels) {" << std::endl;
         parallel_nd(N, (HW + VECTOR_LENGTH - 1) / VECTOR_LENGTH,
             [&](int n, int hw8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:              [&](int n, int hw8) {" << std::endl;
             jit_args_fwd_t args;
             args.src = &src[n*HW*C + hw8 * VECTOR_LENGTH];
             args.dst = &dst[n*HW*C + hw8 * VECTOR_LENGTH];
@@ -127,6 +141,7 @@ void jit_uni_lrn_fwd_t<isa>::execute_forward() const {
     }
     else { // nhwc
         parallel_nd(N, HW, [&](int n, int hw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:          parallel_nd(N, HW, [&](int n, int hw) {" << std::endl;
             jit_args_fwd_t args;
             args.src = &src[n*HW*C + hw * C];
             args.dst = &dst[n*HW*C + hw * C];
@@ -138,6 +153,7 @@ void jit_uni_lrn_fwd_t<isa>::execute_forward() const {
 
 template <cpu_isa_t isa>
 status_t jit_uni_lrn_fwd_t<isa>::pd_t::init() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:  status_t jit_uni_lrn_fwd_t<isa>::pd_t::init() {" << std::endl;
     using namespace prop_kind;
     using namespace alg_kind;
 
@@ -157,7 +173,8 @@ status_t jit_uni_lrn_fwd_t<isa>::pd_t::init() {
         && attr()->has_default_values();
     if (!ok) return unimplemented;
 
-    if (desc_.prop_kind == forward_training) { ws_pd_ = data_pd_; }
+    if (desc_.prop_kind == forward_training) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      if (desc_.prop_kind == forward_training) {" << std::endl; ws_pd_ = data_pd_; }
 
     bool args_ok_across = true
         && desc()->alg_kind == lrn_across_channels
@@ -182,6 +199,7 @@ jit_uni_lrn_bwd_t<isa>::jit_uni_lrn_bwd_t(const pd_t *apd,
     : cpu_primitive_t(apd, inputs, outputs)
     , ker_(nullptr), ker_first_(nullptr), ker_last_(nullptr)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      , ker_(nullptr), ker_first_(nullptr), ker_last_(nullptr) {" << std::endl;
     using namespace alg_kind;
     const int C = pd()->C();
     const int H = pd()->H();
@@ -192,6 +210,7 @@ jit_uni_lrn_bwd_t<isa>::jit_uni_lrn_bwd_t(const pd_t *apd,
 
     int use_h_parallelizm = 0;// XXX
     if (C / VECTOR_LENGTH == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      if (C / VECTOR_LENGTH == 1) {" << std::endl;
         ker_ = new jit_uni_lrn_bwd_kernel_f32<isa>(
             nchw8c_across(H, W, 3), A, B, use_h_parallelizm);
     }
@@ -208,6 +227,7 @@ jit_uni_lrn_bwd_t<isa>::jit_uni_lrn_bwd_t(const pd_t *apd,
 template <cpu_isa_t isa>
 jit_uni_lrn_bwd_t<isa>::~jit_uni_lrn_bwd_t()
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:  jit_uni_lrn_bwd_t<isa>::~jit_uni_lrn_bwd_t() {" << std::endl;
     delete ker_; delete ker_first_; delete ker_last_;
 }
 
@@ -225,7 +245,9 @@ void jit_uni_lrn_bwd_t<isa>::execute_backward() const {
 
     int use_h_parallelizm = 0; // XXX
     if (use_h_parallelizm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:      if (use_h_parallelizm) {" << std::endl;
         parallel_nd(N, C / VECTOR_LENGTH, H, [&](int n, int c8, int h) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:          parallel_nd(N, C / VECTOR_LENGTH, H, [&](int n, int c8, int h) {" << std::endl;
             auto offset = n*C*H*W + c8*H*W*VECTOR_LENGTH
                 + h*W*VECTOR_LENGTH;
             jit_args_bwd_t args;
@@ -245,6 +267,7 @@ void jit_uni_lrn_bwd_t<isa>::execute_backward() const {
     }
     else {
         parallel_nd(N, C / VECTOR_LENGTH, [&](int n, int c8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:          parallel_nd(N, C / VECTOR_LENGTH, [&](int n, int c8) {" << std::endl;
             auto offset = n*C*H*W + c8*H*W*VECTOR_LENGTH;
             jit_args_bwd_t args;
             args.src = &src[offset];
@@ -265,6 +288,7 @@ void jit_uni_lrn_bwd_t<isa>::execute_backward() const {
 
 template <cpu_isa_t isa>
 status_t jit_uni_lrn_bwd_t<isa>::pd_t::init() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_lrn.cpp:  status_t jit_uni_lrn_bwd_t<isa>::pd_t::init() {" << std::endl;
     using namespace prop_kind;
     using namespace alg_kind;
 

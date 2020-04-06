@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,6 +18,7 @@ using namespace InferenceEngine;
 
 MKLDNNFullyConnectedNode::MKLDNNFullyConnectedNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket)
         : MKLDNNNode(layer, eng, socket), withBiases(false), baseInputsNumber(0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:          : MKLDNNNode(layer, eng, socket), withBiases(false), baseInputsNumber(0) {" << std::endl;
     internalBlobDesc.emplace_back([&](primitive_desc_iterator &primitive_desc_it, size_t idx) -> MKLDNNMemoryDesc {
         return MKLDNNMemoryDesc(primitive_desc_it.weights_primitive_desc(0).desc());
     });
@@ -28,26 +30,32 @@ MKLDNNFullyConnectedNode::MKLDNNFullyConnectedNode(const InferenceEngine::CNNLay
 
     auto ws = layer->blobs.find("w-scale");
     if (ws != layer->blobs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (ws != layer->blobs.end()) {" << std::endl;
         wScale = ws->second;
     }
 
     if (getCnnLayer()->type == "FullyConnected" || getCnnLayer()->type == "InnerProduct") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (getCnnLayer()->type == 'FullyConnected' || getCnnLayer()->type == 'InnerProduct') {" << std::endl;
         baseInputsNumber = getCnnLayer().get()->insData.size();
     }
 
     // Trying to find oi-scale
     if (getCnnLayer()->type == "FullyConnected" && getCnnLayer()->precision == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (getCnnLayer()->type == 'FullyConnected' && getCnnLayer()->precision == Precision::I8) {" << std::endl;
         if (baseInputsNumber != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:          if (baseInputsNumber != 1) {" << std::endl;
             THROW_IE_EXCEPTION << "Unsupported number of inputs for quantized FullyConnected " << getCnnLayer()->name;
         }
 
         auto ois = layer->blobs.find("oi-scale");
         if ((getCnnLayer()->outData[0]->getPrecision() == Precision::I8 || getCnnLayer()->outData[0]->getPrecision() == Precision::U8)
             && ois == layer->blobs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:              && ois == layer->blobs.end()) {" << std::endl;
             THROW_IE_EXCEPTION << "Internal error of graph quantization - mismatch of intermediate scales and next layer type for fully connected "
                 << getCnnLayer()->name;
         }
         if (ois != layer->blobs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:          if (ois != layer->blobs.end()) {" << std::endl;
             // If we can find an oi-scale, then the next layer has to be an INT8.
             oScale = ois->second;
         }
@@ -55,6 +63,7 @@ MKLDNNFullyConnectedNode::MKLDNNFullyConnectedNode(const InferenceEngine::CNNLay
 }
 
 void MKLDNNFullyConnectedNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:  void MKLDNNFullyConnectedNode::getSupportedDescriptors() {" << std::endl;
     if (!descs.empty())
         return;
 
@@ -64,13 +73,16 @@ void MKLDNNFullyConnectedNode::getSupportedDescriptors() {
     auto outputDataType = MKLDNNExtensionUtils::IEPrecisionToDataType(precision);
 
     if (inputDataType == memory::f32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (inputDataType == memory::f32) {" << std::endl;
         outputDataType = memory::f32;
     }
 
     if (baseInputsNumber > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (baseInputsNumber > 1) {" << std::endl;
         auto weightsDataType = MKLDNNExtensionUtils::IEPrecisionToDataType(getCnnLayer()->insData[1].lock()->getPrecision());
 
         if (weightsDataType != memory::s8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:          if (weightsDataType != memory::s8) {" << std::endl;
             inputDataType = memory::f32;
             outputDataType = memory::f32;
         }
@@ -80,6 +92,7 @@ void MKLDNNFullyConnectedNode::getSupportedDescriptors() {
     if (fcLayer == nullptr)
         THROW_IE_EXCEPTION << "Cannot convert fully connected layer.";
     if (fcLayer->_weights == nullptr && baseInputsNumber == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (fcLayer->_weights == nullptr && baseInputsNumber == 1) {" << std::endl;
         THROW_IE_EXCEPTION << "Weights are empty for layer: " << fcLayer->name
                            << " used in MKLDNN node: " << getName() << "\n"
                            << "Use ReadWeights and SetWeights methods of InferenceEngine::CNNNetReader"
@@ -94,11 +107,14 @@ void MKLDNNFullyConnectedNode::getSupportedDescriptors() {
     MKLDNNDims inDims(fcLayer->input()->getDims());
 
     if (inDims.ndims() == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (inDims.ndims() == 2) {" << std::endl;
         weightsDims = {fcLayer->_out_num, static_cast<size_t>(inDims.size(1))};
     } else if (inDims.ndims() == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      } else if (inDims.ndims() == 4) {" << std::endl;
         weightsDims = {fcLayer->_out_num, static_cast<size_t>(inDims[1]), static_cast<size_t>(inDims[2]),
                        static_cast<size_t>(inDims[3])};
     } else if (inDims.ndims() == 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      } else if (inDims.ndims() == 5) {" << std::endl;
         weightsDims = {fcLayer->_out_num, static_cast<size_t>(inDims[1]), static_cast<size_t>(inDims[2]),
                        static_cast<size_t>(inDims[3]), static_cast<size_t>(inDims[4])};
     } else {
@@ -107,18 +123,22 @@ void MKLDNNFullyConnectedNode::getSupportedDescriptors() {
     }
 
     if (baseInputsNumber == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (baseInputsNumber == 1) {" << std::endl;
         internalBlobs.push_back(createInternalBlob(weightsDims, true));
     }
 
     withBiases = (fcLayer->_biases != nullptr && fcLayer->_biases->size() != 0) || baseInputsNumber == 3;
     biasesDims.push_back(static_cast<int>(fcLayer->_out_num));
     if (withBiases && baseInputsNumber == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (withBiases && baseInputsNumber == 1) {" << std::endl;
         internalBlobs.push_back(createInternalBlob(biasesDims, false));
     }
 
     if (this->getCnnLayer()->blobs.find("weights") != this->getCnnLayer()->blobs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (this->getCnnLayer()->blobs.find('weights') != this->getCnnLayer()->blobs.end()) {" << std::endl;
         Blob::Ptr weights = this->getCnnLayer()->blobs.find("weights")->second;
         if (weights->getTensorDesc().getPrecision() == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:          if (weights->getTensorDesc().getPrecision() == Precision::I8) {" << std::endl;
             // The weights blob has incorrect dims, so we have to fix it
             TensorDesc wdesc = internalBlobs[0]->getTensorDesc();
             wdesc.setPrecision(Precision::I8);
@@ -129,6 +149,7 @@ void MKLDNNFullyConnectedNode::getSupportedDescriptors() {
 
             internalBlobs[0] = reshapedInt8Weights;
             if (withBiases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:              if (withBiases) {" << std::endl;
                 Blob::Ptr biases = this->getCnnLayer()->blobs.find("biases")->second;
                 TensorDesc bdesc = internalBlobs[1]->getTensorDesc();
                 bdesc.setPrecision(Precision::I32);
@@ -142,6 +163,7 @@ void MKLDNNFullyConnectedNode::getSupportedDescriptors() {
     }
 
     for (auto format : getAvailableFormatsForDims(getParentEdgeAt(0)->getDims())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      for (auto format : getAvailableFormatsForDims(getParentEdgeAt(0)->getDims())) {" << std::endl;
         MKLDNNMemoryDesc in_candidate(inDims, inputDataType, format);
         MKLDNNMemoryDesc out_candidate(getChildEdgeAt(0)->getDims(), outputDataType, memory::any);
 
@@ -150,6 +172,7 @@ void MKLDNNFullyConnectedNode::getSupportedDescriptors() {
 }
 
 void MKLDNNFullyConnectedNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:  void MKLDNNFullyConnectedNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
@@ -159,6 +182,7 @@ void MKLDNNFullyConnectedNode::createPrimitive() {
             createPrimitiveDescriptor<inner_product_forward::primitive_desc, inner_product_forward::desc>(*attr));
 
     if (withBiases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (withBiases) {" << std::endl;
         prim.reset(new inner_product_forward(*prim_desc,
                                              getParentEdgeAt(0)->getMemory().GetPrimitive(),
                                              getWeights(),
@@ -177,7 +201,9 @@ bool MKLDNNFullyConnectedNode::created() const {
 }
 
 memory::format MKLDNNFullyConnectedNode::weightsFormatForSrcFormat(memory::format sourceFormat) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:  memory::format MKLDNNFullyConnectedNode::weightsFormatForSrcFormat(memory::format sourceFormat) {" << std::endl;
     switch (sourceFormat) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      switch (sourceFormat) {" << std::endl;
         case memory::format::x:
             return memory::format::x;
         case memory::format::nc:
@@ -200,6 +226,7 @@ memory::format MKLDNNFullyConnectedNode::weightsFormatForSrcFormat(memory::forma
 }
 
 const std::vector<impl_desc_type>& MKLDNNFullyConnectedNode::getPrimitivesPriority() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:  const std::vector<impl_desc_type>& MKLDNNFullyConnectedNode::getPrimitivesPriority() {" << std::endl;
     std::vector<impl_desc_type> priorities = {
             impl_desc_type::unknown,
             impl_desc_type::gemm_blas,
@@ -227,6 +254,7 @@ const std::vector<impl_desc_type>& MKLDNNFullyConnectedNode::getPrimitivesPriori
             impl_desc_type::ref,
     };
     for (const auto& impl : priorities) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      for (const auto& impl : priorities) {" << std::endl;
         if (std::find(implPriorities.begin(), implPriorities.end(), impl) == implPriorities.end())
             implPriorities.push_back(impl);
     }
@@ -237,17 +265,21 @@ std::shared_ptr<mkldnn::primitive_attr> MKLDNNFullyConnectedNode::initPrimitiveA
     auto attr = std::make_shared<mkldnn::primitive_attr>(mkldnn::primitive_attr());
     bool scaled = false;
     if (wScale != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (wScale != nullptr) {" << std::endl;
        float* wScaleData = static_cast<float*>(wScale->buffer());
 
        std::vector<float> oScaleDataVector;
        if (getCnnLayer()->precision == Precision::I8 && getCnnLayer()->outData[0]->getPrecision() != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:         if (getCnnLayer()->precision == Precision::I8 && getCnnLayer()->outData[0]->getPrecision() != Precision::FP32) {" << std::endl;
            float *oScaleData = static_cast<float *>(oScale->buffer());
 
            for (size_t c = 0; c < wScale->size(); c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:             for (size_t c = 0; c < wScale->size(); c++) {" << std::endl;
                oScaleDataVector.push_back(wScaleData[c] / oScaleData[c]);
            }
        } else {
            for (size_t c = 0; c < wScale->size(); c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:             for (size_t c = 0; c < wScale->size(); c++) {" << std::endl;
                oScaleDataVector.push_back(wScaleData[c]);
            }
        }
@@ -259,8 +291,10 @@ std::shared_ptr<mkldnn::primitive_attr> MKLDNNFullyConnectedNode::initPrimitiveA
 #if defined(COMPILED_CPU_MKLDNN_ACTIVATION_NODE)
     mkldnn::post_ops ops;
     for (auto &node : fusedWith) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      for (auto &node : fusedWith) {" << std::endl;
         auto* activationNode = dynamic_cast<MKLDNNActivationNode *>(node.get());
         if (activationNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:          if (activationNode) {" << std::endl;
             ops.append_eltwise(1.0, activationNode->getAlgorithm(), activationNode->getAlpha(),
                                activationNode->getBeta());
         }
@@ -272,24 +306,29 @@ std::shared_ptr<mkldnn::primitive_attr> MKLDNNFullyConnectedNode::initPrimitiveA
 
 void MKLDNNFullyConnectedNode::createDescriptor(const std::vector<InferenceEngine::TensorDesc> &inputDesc,
                                                 const std::vector<InferenceEngine::TensorDesc> &outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:                                                  const std::vector<InferenceEngine::TensorDesc> &outputDesc) {" << std::endl;
     TensorDesc inDesc = inputDesc[0], outDesc = outputDesc[0];
     mkldnn::memory::data_type wdt = MKLDNNExtensionUtils::IEPrecisionToDataType(inDesc.getPrecision());
     mkldnn::memory::data_type bdt = MKLDNNExtensionUtils::IEPrecisionToDataType(inDesc.getPrecision());
 
     if (inDesc.getPrecision() == Precision::U8 || inDesc.getPrecision() == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (inDesc.getPrecision() == Precision::U8 || inDesc.getPrecision() == Precision::I8) {" << std::endl;
         wdt = memory::s8;
         bdt = baseInputsNumber == 3 ? MKLDNNExtensionUtils::IEPrecisionToDataType(getCnnLayer()->insData[2].lock()->getPrecision()) : memory::f32;
     }
 
     if (this->getCnnLayer()->blobs.find("weights") != this->getCnnLayer()->blobs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (this->getCnnLayer()->blobs.find('weights') != this->getCnnLayer()->blobs.end()) {" << std::endl;
         Blob::Ptr weights = this->getCnnLayer()->blobs.find("weights")->second;
 
         if (weights->getTensorDesc().getPrecision() == Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:          if (weights->getTensorDesc().getPrecision() == Precision::I8) {" << std::endl;
             wdt = memory::s8;
             bdt = memory::s32;
 
             Precision outPrec;
             if (getCnnLayer()->outData[0]->getPrecision() == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:              if (getCnnLayer()->outData[0]->getPrecision() == Precision::FP32) {" << std::endl;
                 outPrec = Precision::FP32;
             } else {
                 // define precision accordninly normalizer
@@ -310,6 +349,7 @@ void MKLDNNFullyConnectedNode::createDescriptor(const std::vector<InferenceEngin
     MKLDNNMemoryDesc wgh_candidate(MKLDNNDims(weightsDims), wdt, weights_fmt);
 
     if (withBiases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:      if (withBiases) {" << std::endl;
         MKLDNNMemoryDesc bias_candidate(MKLDNNDims(biasesDims), bdt, memory::any);
         MKLDNNDescriptor desc(std::shared_ptr<inner_product_forward::desc>(
                 new inner_product_forward::desc(prop_kind::forward_scoring, in_candidate, wgh_candidate,
@@ -324,6 +364,7 @@ void MKLDNNFullyConnectedNode::createDescriptor(const std::vector<InferenceEngin
 }
 
 MKLDNNMemoryDesc MKLDNNFullyConnectedNode::getSrcMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_fullyconnected_node.cpp:  MKLDNNMemoryDesc MKLDNNFullyConnectedNode::getSrcMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {" << std::endl;
     InferenceEngine::TensorDesc desc = idx > 0 ? MKLDNNMemoryDesc(primitive_desc_it.weights_primitive_desc(idx - 1).desc())
                                                : MKLDNNMemoryDesc(primitive_desc_it.src_primitive_desc(idx).desc());
 

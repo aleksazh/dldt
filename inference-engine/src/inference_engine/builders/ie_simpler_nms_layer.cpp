@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -10,18 +11,22 @@
 using namespace InferenceEngine;
 
 Builder::SimplerNMSLayer::SimplerNMSLayer(const std::string& name): LayerDecorator("SimplerNMS", name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer::SimplerNMSLayer(const std::string& name): LayerDecorator('SimplerNMS', name) {" << std::endl;
     getLayer()->getOutputPorts().resize(1);
 }
 
 Builder::SimplerNMSLayer::SimplerNMSLayer(const Layer::Ptr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer::SimplerNMSLayer(const Layer::Ptr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("SimplerNMS");
 }
 
 Builder::SimplerNMSLayer::SimplerNMSLayer(const Layer::CPtr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer::SimplerNMSLayer(const Layer::CPtr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("SimplerNMS");
 }
 
 Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setName(const std::string& name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setName(const std::string& name) {" << std::endl;
     getLayer()->setName(name);
     return *this;
 }
@@ -29,6 +34,7 @@ const std::vector<Port>& Builder::SimplerNMSLayer::getInputPorts() const {
     return getLayer()->getInputPorts();
 }
 Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setInputPorts(const std::vector<Port>& ports) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setInputPorts(const std::vector<Port>& ports) {" << std::endl;
     getLayer()->getInputPorts() = ports;
     return *this;
 }
@@ -36,6 +42,7 @@ const Port& Builder::SimplerNMSLayer::getOutputPort() const {
     return getLayer()->getOutputPorts()[0];
 }
 Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setOutputPort(const Port& port) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setOutputPort(const Port& port) {" << std::endl;
     getLayer()->getOutputPorts()[0] = port;
     return *this;
 }
@@ -44,6 +51,7 @@ size_t Builder::SimplerNMSLayer::getPreNMSTopN() const {
     return getLayer()->getParameters().at("pre_nms_topn");
 }
 Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setPreNMSTopN(size_t topN) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setPreNMSTopN(size_t topN) {" << std::endl;
     getLayer()->getParameters()["pre_nms_topn"] = topN;
     return *this;
 }
@@ -51,6 +59,7 @@ size_t Builder::SimplerNMSLayer::getPostNMSTopN() const {
     return getLayer()->getParameters().at("post_nms_topn");
 }
 Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setPostNMSTopN(size_t topN) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setPostNMSTopN(size_t topN) {" << std::endl;
     getLayer()->getParameters()["post_nms_topn"] = topN;
     return *this;
 }
@@ -58,6 +67,7 @@ size_t Builder::SimplerNMSLayer::getFeatStride() const {
     return getLayer()->getParameters().at("feat_stride");
 }
 Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setFeatStride(size_t featStride) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setFeatStride(size_t featStride) {" << std::endl;
     getLayer()->getParameters()["feat_stride"] = featStride;
     return *this;
 }
@@ -65,6 +75,7 @@ size_t Builder::SimplerNMSLayer::getMinBoxSize() const {
     return getLayer()->getParameters().at("min_bbox_size");
 }
 Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setMinBoxSize(size_t minSize) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setMinBoxSize(size_t minSize) {" << std::endl;
     getLayer()->getParameters()["min_bbox_size"] = minSize;
     return *this;
 }
@@ -72,6 +83,7 @@ size_t Builder::SimplerNMSLayer::getScale() const {
     return getLayer()->getParameters().at("scale");
 }
 Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setScale(size_t scale) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setScale(size_t scale) {" << std::endl;
     getLayer()->getParameters()["scale"] = scale;
     return *this;
 }
@@ -80,6 +92,7 @@ float Builder::SimplerNMSLayer::getCLSThreshold() const {
     return getLayer()->getParameters().at("cls_threshold");
 }
 Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setCLSThreshold(float threshold) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setCLSThreshold(float threshold) {" << std::endl;
     getLayer()->getParameters()["cls_threshold"] = threshold;
     return *this;
 }
@@ -87,11 +100,13 @@ float Builder::SimplerNMSLayer::getIOUThreshold() const {
     return getLayer()->getParameters().at("iou_threshold");
 }
 Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setIOUThreshold(float threshold) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  Builder::SimplerNMSLayer& Builder::SimplerNMSLayer::setIOUThreshold(float threshold) {" << std::endl;
     getLayer()->getParameters()["iou_threshold"] = threshold;
     return *this;
 }
 
 REG_CONVERTER_FOR(SimplerNMS, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_simpler_nms_layer.cpp:  REG_CONVERTER_FOR(SimplerNMS, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {" << std::endl;
     layer.getParameters()["iou_threshold"] = cnnLayer->GetParamAsFloat("iou_threshold");
     layer.getParameters()["cls_threshold"] = cnnLayer->GetParamAsFloat("cls_threshold");
     layer.getParameters()["scale"] = static_cast<size_t>(cnnLayer->GetParamAsUInt("scale"));

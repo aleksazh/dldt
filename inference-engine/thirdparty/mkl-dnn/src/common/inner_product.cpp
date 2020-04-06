@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -31,6 +32,7 @@ namespace {
 status_t ip_desc_init(inner_product_desc_t *ip_desc, prop_kind_t prop_kind,
         const memory_desc_t *src_desc, const memory_desc_t *weights_desc,
         const memory_desc_t *bias_desc, const memory_desc_t *dst_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/inner_product.cpp:          const memory_desc_t *bias_desc, const memory_desc_t *dst_desc) {" << std::endl;
     bool args_ok = !any_null(ip_desc, src_desc, weights_desc, dst_desc);
     if (!args_ok) return invalid_arguments;
 
@@ -79,6 +81,7 @@ status_t mkldnn_inner_product_forward_desc_init(inner_product_desc_t *ip_desc,
         prop_kind_t prop_kind, const memory_desc_t *src_desc,
         const memory_desc_t *weights_desc, const memory_desc_t *bias_desc,
         const memory_desc_t *dst_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/inner_product.cpp:          const memory_desc_t *dst_desc) {" << std::endl;
     if (!one_of(prop_kind, forward_training, forward_inference))
         return invalid_arguments;
     return ip_desc_init(ip_desc, prop_kind, src_desc, weights_desc, bias_desc,
@@ -89,6 +92,7 @@ status_t mkldnn_inner_product_backward_data_desc_init(
         inner_product_desc_t *ip_desc, const memory_desc_t *diff_src_desc,
         const memory_desc_t *weights_desc, const memory_desc_t *diff_dst_desc)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/inner_product.cpp:          const memory_desc_t *weights_desc, const memory_desc_t *diff_dst_desc) {" << std::endl;
     return ip_desc_init(ip_desc, backward_data, diff_src_desc, weights_desc,
             nullptr, diff_dst_desc);
 }
@@ -98,6 +102,7 @@ status_t mkldnn_inner_product_backward_weights_desc_init(
         const memory_desc_t *diff_weights_desc,
         const memory_desc_t *diff_bias_desc,
         const memory_desc_t *diff_dst_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/inner_product.cpp:          const memory_desc_t *diff_dst_desc) {" << std::endl;
     return ip_desc_init(ip_desc, backward_weights, src_desc, diff_weights_desc,
             diff_bias_desc, diff_dst_desc);
 }

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -34,6 +35,7 @@ using namespace rnn_utils;
 
 template <>
 rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::gru_lbr_postgemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_gru_lbr.cpp:  rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::gru_lbr_postgemm) {" << std::endl;
     ws_gates_aoc_t ws_gates(rnn, ws_gates_);
     bias_aoc_t bias(rnn, bias_);
     ws_states_aoc_t states_t_l(rnn, states_t_l_);
@@ -42,8 +44,10 @@ rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::gru_lbr_postgemm) {
     AOC<float, 2> ws_Wh_b(ws_grid_, rnn.mb, rnn.dic);
 
     parallel_nd(rnn.mb, [&](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_gru_lbr.cpp:      parallel_nd(rnn.mb, [&](int i) {" << std::endl;
         PRAGMA_OMP_SIMD()
         for (int j = 0; j < rnn.dic; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_gru_lbr.cpp:          for (int j = 0; j < rnn.dic; j++) {" << std::endl;
             float Wh_b = ws_gemm_state(i, 2, j) + bias(3, j);
             ws_gates(i, 0, j) = logistic_fwd(
                     ws_gates(i, 0, j) + ws_gemm_state(i, 0, j) + bias(0, j));
@@ -61,11 +65,13 @@ rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::gru_lbr_postgemm) {
 
 template <>
 rnn_postgemm_sig(rnn_postgemm_fwd_u8_t::gru_lbr_postgemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_gru_lbr.cpp:  rnn_postgemm_sig(rnn_postgemm_fwd_u8_t::gru_lbr_postgemm) {" << std::endl;
     assert(!"GRU LBR int8 is not supported");
 }
 
 template <>
 rnn_postgemm_sig(rnn_postgemm_bwd_f32_t::gru_lbr_postgemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_gru_lbr.cpp:  rnn_postgemm_sig(rnn_postgemm_bwd_f32_t::gru_lbr_postgemm) {" << std::endl;
     ws_gates_aoc_t ws_gates(rnn, ws_gates_);
     ws_states_aoc_t states_tm1_l(rnn, states_tm1_l_);
     ws_diff_states_aoc_t diff_states_t_l(rnn, diff_states_t_l_);
@@ -79,8 +85,10 @@ rnn_postgemm_sig(rnn_postgemm_bwd_f32_t::gru_lbr_postgemm) {
     // dG1 = (W*h + b) * dG2 * (1 - G1) * G1
     // dG2 = (1 - G0) * dht * (1 - G2*G2)
     parallel_nd(rnn.mb, [&](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_gru_lbr.cpp:      parallel_nd(rnn.mb, [&](int i) {" << std::endl;
         PRAGMA_OMP_SIMD()
         for (int j = 0; j < rnn.dic; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_gru_lbr.cpp:          for (int j = 0; j < rnn.dic; j++) {" << std::endl;
             float h = states_tm1_l(i, j);
             float dHt = diff_states_tp1_l(0, i, j)
                     + diff_states_t_lp1(rnn.n_states, i, j);

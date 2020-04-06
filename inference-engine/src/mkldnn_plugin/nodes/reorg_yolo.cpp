@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -13,6 +14,7 @@ namespace Cpu {
 class ReorgYoloImpl: public ExtLayerBase {
 public:
     explicit ReorgYoloImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reorg_yolo.cpp:      explicit ReorgYoloImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 1 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -21,6 +23,7 @@ public:
 
             addConfig(layer, {DataConfigurator(ConfLayout::PLN)}, {DataConfigurator(ConfLayout::PLN)});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reorg_yolo.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -39,9 +42,13 @@ public:
         int ih_off = IH * stride;
         int iw_off = IW * stride;
         for (int b = 0; b < B; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reorg_yolo.cpp:          for (int b = 0; b < B; b++) {" << std::endl;
             for (int ic = 0; ic < IC; ic++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reorg_yolo.cpp:              for (int ic = 0; ic < IC; ic++) {" << std::endl;
                 for (int ih = 0; ih < IH; ih++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reorg_yolo.cpp:                  for (int ih = 0; ih < IH; ih++) {" << std::endl;
                     for (int iw = 0; iw < IW; iw++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reorg_yolo.cpp:                      for (int iw = 0; iw < IW; iw++) {" << std::endl;
                         int dstIndex = b * IC * IH * IW + ic * IH * IW + ih * IW + iw;
 
                         int oc = ic % ic_off;

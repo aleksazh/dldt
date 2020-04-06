@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -7,6 +8,7 @@
 using namespace MKLDNNPlugin;
 
 impl_desc_type MKLDNNPlugin::parse_impl_name(std::string impl_desc_name) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn/iml_type_mapper.cpp:  impl_desc_type MKLDNNPlugin::parse_impl_name(std::string impl_desc_name) {" << std::endl;
     impl_desc_type res = impl_desc_type::unknown;
 
 #define REPLACE_WORD(_wrd, _sub) int pos = impl_desc_name.find(#_wrd); \

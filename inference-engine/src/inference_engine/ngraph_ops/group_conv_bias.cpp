@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,6 +18,7 @@ constexpr NodeTypeInfo op::GroupConvolutionBias::type_info;
 
 static void validate_groupconvbias_shapes(const Shape& input_shape, const Shape& filters_shape, const Shape& bias_shape,
                                           const Shape& output_shape, size_t groups) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:                                            const Shape& output_shape, size_t groups) {" << std::endl;
     //  Input - N, C, H, W
     //  Filter - O, I, H, W
     //  Output - N, C, H, W
@@ -26,17 +28,20 @@ static void validate_groupconvbias_shapes(const Shape& input_shape, const Shape&
     const size_t OUTPUT_C = 1;
 
     if (bias_shape.size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:      if (bias_shape.size() != 1) {" << std::endl;
         throw ngraph_error("GroupConvolutionBias bias is expected to be 1D, but has shape: " +
                            vector_to_string(bias_shape));
     }
 
     if (bias_shape[0] != filters_shape[FILTER_OC]) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:      if (bias_shape[0] != filters_shape[FILTER_OC]) {" << std::endl;
         throw ngraph_error("GroupConvolutionBias bias element size does not match number of filters. bias_size "
                            "= " +
                            std::to_string(bias_shape[0]) + ", num_filters = " + std::to_string(filters_shape[0]));
     }
 
     if (input_shape[INPUT_C] != groups * filters_shape[FILTER_IC]) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:      if (input_shape[INPUT_C] != groups * filters_shape[FILTER_IC]) {" << std::endl;
         throw ngraph_error("Mismatch between GroupConvolutionBias input and filter channels: "
                            " data channels=" +
                            std::to_string(input_shape[INPUT_C]) + ", filter channels= " +
@@ -44,6 +49,7 @@ static void validate_groupconvbias_shapes(const Shape& input_shape, const Shape&
     }
 
     if (output_shape[OUTPUT_C] != filters_shape[FILTER_OC]) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:      if (output_shape[OUTPUT_C] != filters_shape[FILTER_OC]) {" << std::endl;
         throw ngraph_error("Mismatch between GroupConvolutionBias output and filter channels: "
                            " data channels=" +
                            std::to_string(output_shape[OUTPUT_C]) +
@@ -51,12 +57,14 @@ static void validate_groupconvbias_shapes(const Shape& input_shape, const Shape&
     }
 
     if (output_shape[OUTPUT_C] % groups != 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:      if (output_shape[OUTPUT_C] % groups != 0) {" << std::endl;
         throw ngraph_error("Output channels for GroupConvolutionBias not divisible by groups: channels=" +
                            std::to_string(output_shape[OUTPUT_C]) + ", groups= " + std::to_string(groups));
     }
 }
 
 Shape op::GroupConvolutionBias::get_weights_dimensions() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:  Shape op::GroupConvolutionBias::get_weights_dimensions() {" << std::endl;
     // reshape weights into 5d tensors that includes groups
     const size_t OC = 0;
     const size_t OC_IN_OUTPUT = 1;
@@ -83,9 +91,11 @@ op::GroupConvolutionBias::GroupConvolutionBias(const shared_ptr<op::GroupConvolu
       m_with_relu(with_relu),
       m_groups(conv->get_groups()),
       m_alpha(1.0) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:        m_alpha(1.0) {" << std::endl;
     constructor_validate_and_infer_types();
 
     if (conv->get_element_type() != bias->get_element_type()) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:      if (conv->get_element_type() != bias->get_element_type()) {" << std::endl;
         throw ngraph_error("GroupConvolution's element type isn't equal to bias!");
     }
 
@@ -110,6 +120,7 @@ op::GroupConvolutionBias::GroupConvolutionBias(const shared_ptr<Node>& data_batc
       m_with_relu(with_relu),
       m_groups(groups),
       m_alpha(alpha) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:        m_alpha(alpha) {" << std::endl;
     constructor_validate_and_infer_types();
 
     auto& data_batch_shape = data_batch->get_shape();
@@ -121,6 +132,7 @@ op::GroupConvolutionBias::GroupConvolutionBias(const shared_ptr<Node>& data_batc
     //  Make sure data batch and filter element types match.
     //
     if (data_batch_et != filters_et) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:      if (data_batch_et != filters_et) {" << std::endl;
         throw ngraph_error("GroupConvolutionBias data batch and filter element types do not match");
     }
 
@@ -131,6 +143,7 @@ op::GroupConvolutionBias::GroupConvolutionBias(const shared_ptr<Node>& data_batc
 
 shared_ptr<Node> op::GroupConvolutionBias::copy_with_new_args(const NodeVector& new_args) const {
     if (new_args.size() != 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:      if (new_args.size() != 3) {" << std::endl;
         throw ngraph_error("Incorrect number of new arguments");
     }
 
@@ -141,5 +154,6 @@ shared_ptr<Node> op::GroupConvolutionBias::copy_with_new_args(const NodeVector& 
 }
 
 void op::GroupConvolutionBias::generate_adjoints(autodiff::Adjoints& adjoints, const NodeVector& deltas) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/group_conv_bias.cpp:  void op::GroupConvolutionBias::generate_adjoints(autodiff::Adjoints& adjoints, const NodeVector& deltas) {" << std::endl;
     throw ngraph_error("GroupConvolutionBias generate_adjoints not supported implemented");
 }

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
  * Copyright 2019 Intel Corporation
  *
@@ -32,6 +33,7 @@ int gemm_s8u8s32_jump_to_gemv_s8u8s32(T *arg);
 template <>
 int gemm_s8u8s32_jump_to_gemv_s8u8s32(
         gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          gemm_info_t<int8_t, uint8_t, int32_t> *arg) {" << std::endl;
 
     gemm_info_t<int8_t, uint8_t, int32_t> arg_gemv = *arg;
 
@@ -41,14 +43,18 @@ int gemm_s8u8s32_jump_to_gemv_s8u8s32(
         (arg->co[0] == 0) &&
         (*(arg->alpha) == 1.0f) &&
         ((*(arg->beta) == 1.0f) || *(arg->beta) == 0.0f)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          ((*(arg->beta) == 1.0f) || *(arg->beta) == 0.0f)) {" << std::endl;
 
         if (arg->n == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          if (arg->n == 1) {" << std::endl;
 
             if (arg->transa == do_trans) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:              if (arg->transa == do_trans) {" << std::endl;
                 arg_gemv.n = arg->k;
                 arg_gemv.ldc = 1;
                 arg_gemv.swap = 0;
                 if (arg->transb == no_trans) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:                  if (arg->transb == no_trans) {" << std::endl;
                     arg_gemv.ldb = 1;
                 }
                 // B transpose arg_gemv.ldb = arg->ldb
@@ -58,8 +64,10 @@ int gemm_s8u8s32_jump_to_gemv_s8u8s32(
         }
 
         if (arg->m == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          if (arg->m == 1) {" << std::endl;
 
             if (arg->transb == no_trans) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:              if (arg->transb == no_trans) {" << std::endl;
                 arg_gemv.transa = do_trans;
                 arg_gemv.m = arg->n;
                 arg_gemv.n = arg->k;
@@ -68,6 +76,7 @@ int gemm_s8u8s32_jump_to_gemv_s8u8s32(
                 arg_gemv.b = (uint8_t *) arg->a;
                 arg_gemv.swap = 1;
                 if (arg->transa == no_trans) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:                  if (arg->transa == no_trans) {" << std::endl;
                     arg_gemv.ldb = arg->lda;
                 }
                 else { // A transpose
@@ -84,6 +93,7 @@ int gemm_s8u8s32_jump_to_gemv_s8u8s32(
 
 
 int gemv_kernel_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:  int gemv_kernel_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {" << std::endl;
 
     dim_t m = arg->m;
     dim_t n = arg->n;
@@ -93,6 +103,7 @@ int gemv_kernel_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
     float beta = *(arg->beta);
 
     if (arg->swap) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:      if (arg->swap) {" << std::endl;
         arg->gemv_u8s8s32_kernel(m, n, 1.0f, a, lda, b, beta, arg->c);
     }
     else {
@@ -104,6 +115,7 @@ int gemv_kernel_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
 }
 
 int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:  int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {" << std::endl;
 
     dim_t nthr_m, nthr_n = 1;
     dim_t MB, NB, UM = 16, UN = 64;
@@ -128,6 +140,7 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
     nthr_m = nstl::min(nstl::max(nthr_m, (dim_t) 1), nthr);
 
     while ((nthr_m * (nthr_n + 1) <= nthr) && ((n / (nthr_n + 1)) >= BLOCKN)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:      while ((nthr_m * (nthr_n + 1) <= nthr) && ((n / (nthr_n + 1)) >= BLOCKN)) {" << std::endl;
         nthr_n++;
     }
 
@@ -139,10 +152,12 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
     nthr = nthr_m * nthr_n;
 
     if (arg->ldb != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:      if (arg->ldb != 1) {" << std::endl;
         new_x = (uint8_t *)malloc(n, 64);
         if (new_x == NULL)
             return 1;
         for (i = 0; i < n; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          for (i = 0; i < n; i++) {" << std::endl;
             new_x[i] = (arg->b)[i * arg->ldb];
         }
         arg_seq.b = new_x;
@@ -151,10 +166,13 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
     else new_x = (uint8_t *) arg->b;
 
     if (arg->ldc != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:      if (arg->ldc != 1) {" << std::endl;
         new_y = (int32_t *)
             malloc(nthr_m * PADD_BYTESIZE_ONPAGE(MB, sizeof(int32_t)), 64);
         if (new_y == NULL) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          if (new_y == NULL) {" << std::endl;
             if (arg->ldb != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:              if (arg->ldb != 1) {" << std::endl;
                 free(new_x);
             }
             return 1;
@@ -163,10 +181,14 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
 
     // GEMV computation
     if (nthr == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:      if (nthr == 1) {" << std::endl;
 
         if (arg->ldc != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          if (arg->ldc != 1) {" << std::endl;
             if (*(arg->beta) != 0.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:              if (*(arg->beta) != 0.0f) {" << std::endl;
                 for (i = 0; i < m; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:                  for (i = 0; i < m; i++) {" << std::endl;
                     new_y[i] = arg->c[i * arg->ldc];
                 }
             }
@@ -175,26 +197,33 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
         status = gemv_kernel_driver(&arg_seq);
 
         if (arg->ldc != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          if (arg->ldc != 1) {" << std::endl;
             for (i = 0; i < m; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:              for (i = 0; i < m; i++) {" << std::endl;
                 arg->c[i * arg->ldc] = new_y[i];
             }
         }
 
         if (arg->ldb != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          if (arg->ldb != 1) {" << std::endl;
             free(new_x);
         }
         if (arg->ldc != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          if (arg->ldc != 1) {" << std::endl;
             free(new_y);
         }
         return status;
     }
 
     if (nthr_n > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:      if (nthr_n > 1) {" << std::endl;
         tmp_y = (int32_t *)
             malloc((nthr_n - 1) * PADD_BYTESIZE_ONPAGE(m, sizeof(int32_t)),
                     PAGE_4K);
         if (tmp_y == NULL) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          if (tmp_y == NULL) {" << std::endl;
             if (arg->ldb != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:              if (arg->ldb != 1) {" << std::endl;
                 free(new_x);
             }
             return 1;
@@ -202,6 +231,7 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
     }
 
     parallel_nd((int) nthr, [&](const dim_t ithr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:      parallel_nd((int) nthr, [&](const dim_t ithr) {" << std::endl;
 
             dim_t m_from, m_to, myM;
             dim_t n_from, n_to, myN;
@@ -231,19 +261,23 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
             myN = n_to - n_from;
 
             if (n_id != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:              if (n_id != 0) {" << std::endl;
                 arg_loc.beta = &zero;
                 loc_y = tmp_y + (NEXT_THR_STRIDE(m, sizeof(int32_t)))
                     * (n_id - 1) + m_from;
             }
             else {
                 if (arg->ldc == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:                  if (arg->ldc == 1) {" << std::endl;
                     loc_y = arg_seq.c + m_from;
                 }
                 else {
                     // need to copy the block of c in new_y
                     loc_y = new_y + m_id * NEXT_THR_STRIDE(MB, sizeof(int32_t));
                     if (*(arg->beta) != 0.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:                      if (*(arg->beta) != 0.0f) {" << std::endl;
                         for (j = 0; j < myM; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:                          for (j = 0; j < myM; j++) {" << std::endl;
                             loc_y[j] = arg->c[(m_from + j) * arg->ldc];
                         }
                     }
@@ -260,7 +294,9 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
             gemv_kernel_driver(&arg_loc);
 
             if ((n_id == 0) && (arg->ldc != 1)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:              if ((n_id == 0) && (arg->ldc != 1)) {" << std::endl;
                 for (j = 0; j < myM; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:                  for (j = 0; j < myM; j++) {" << std::endl;
                     arg->c[(m_from + j) * arg->ldc] = loc_y[j];
                 }
             }
@@ -268,7 +304,9 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
         });
 
     if (nthr_n > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:      if (nthr_n > 1) {" << std::endl;
         parallel_nd((int) nthr_m, [&](const dim_t ithr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:          parallel_nd((int) nthr_m, [&](const dim_t ithr) {" << std::endl;
 
                 dim_t j, j_from, j_to, ii;
                 int32_t acc;
@@ -279,8 +317,10 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
                     j_to = m;
 
                 for (j = j_from; j < j_to; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:                  for (j = j_from; j < j_to; j++) {" << std::endl;
                     acc = 0;
                     for (ii = 0; ii < nthr_n - 1; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:                      for (ii = 0; ii < nthr_n - 1; ii++) {" << std::endl;
                         acc += tmp_y[ii
                         * NEXT_THR_STRIDE(m, sizeof(int32_t)) + j];
                     }
@@ -291,10 +331,12 @@ int gemv_threading_driver(gemm_info_t<int8_t, uint8_t, int32_t> *arg) {
     }
 
     if (arg->ldb != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:      if (arg->ldb != 1) {" << std::endl;
         free(new_x);
     }
 
     if (arg->ldc != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_gemv_s8u8s32.cpp:      if (arg->ldc != 1) {" << std::endl;
         free(new_y);
     }
 

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -75,14 +76,17 @@ namespace InferenceEngine {
 namespace ShapeInfer {
 
 BuiltInShapeInferHolder::ImplsHolder::Ptr BuiltInShapeInferHolder::GetImplsHolder() {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/built-in/ie_built_in_holder.cpp:  BuiltInShapeInferHolder::ImplsHolder::Ptr BuiltInShapeInferHolder::GetImplsHolder() {" << std::endl;
     static ImplsHolder::Ptr localHolder;
     if (localHolder == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/built-in/ie_built_in_holder.cpp:      if (localHolder == nullptr) {" << std::endl;
         localHolder = std::make_shared<ImplsHolder>();
     }
     return localHolder;
 }
 
 void BuiltInShapeInferHolder::AddImpl(const std::string& name, const IShapeInferImpl::Ptr& impl) {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/built-in/ie_built_in_holder.cpp:  void BuiltInShapeInferHolder::AddImpl(const std::string& name, const IShapeInferImpl::Ptr& impl) {" << std::endl;
     GetImplsHolder()->list[name] = impl;
 }
 
@@ -91,6 +95,7 @@ StatusCode BuiltInShapeInferHolder::getShapeInferTypes(char**& types, unsigned i
     types = new char*[factories.size()];
     size = 0;
     for (auto it = factories.begin(); it != factories.end(); it++, size++) {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/built-in/ie_built_in_holder.cpp:      for (auto it = factories.begin(); it != factories.end(); it++, size++) {" << std::endl;
         types[size] = new char[it->first.size() + 1];
         std::copy(it->first.begin(), it->first.end(), types[size]);
         types[size][it->first.size()] = '\0';
@@ -102,6 +107,7 @@ StatusCode BuiltInShapeInferHolder::getShapeInferImpl(IShapeInferImpl::Ptr& impl
                                                       ResponseDesc* resp) noexcept {
     auto& impls = BuiltInShapeInferHolder::GetImplsHolder()->list;
     if (impls.find(type) != impls.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/built-in/ie_built_in_holder.cpp:      if (impls.find(type) != impls.end()) {" << std::endl;
         impl = impls[type];
         return OK;
     }

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -38,6 +39,7 @@ status_t quantization_desc_init(quantization_desc_t *quantization_desc, prop_kin
         const memory_desc_t *input_scale_desc, const memory_desc_t *input_shift_desc,
         const memory_desc_t *output_scale_desc, const memory_desc_t *output_shift_desc,
         const memory_desc_t *dst_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/quantization.cpp:          const memory_desc_t *dst_desc) {" << std::endl;
     bool args_ok = true
         && !any_null(quantization_desc, src_desc, dst_desc)
         && one_of(prop_kind, forward_training, forward_inference)
@@ -49,6 +51,7 @@ status_t quantization_desc_init(quantization_desc_t *quantization_desc, prop_kin
     bd.axis = axis;
 
     if (alg_kind == binarization_depthwise) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/quantization.cpp:      if (alg_kind == binarization_depthwise) {" << std::endl;
         if (any_null(quantization_desc, thresholds_desc, output_mask_desc))
             return invalid_arguments;
 
@@ -96,6 +99,7 @@ status_t quantization_desc_init(quantization_desc_t *quantization_desc, prop_kin
 status_t mkldnn_binarization_forward_desc_init(quantization_desc_t *quantization_desc,
         prop_kind_t prop_kind, alg_kind_t alg_kind, int axis,
         const memory_desc_t *src_desc, const memory_desc_t *thresholds_desc, const memory_desc_t *output_mask_desc, const memory_desc_t *dst_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/quantization.cpp:          const memory_desc_t *src_desc, const memory_desc_t *thresholds_desc, const memory_desc_t *output_mask_desc, const memory_desc_t *dst_desc) {" << std::endl;
     if (!one_of(prop_kind, forward_training, forward_inference))
         return invalid_arguments;
     return quantization_desc_init(quantization_desc, prop_kind, alg_kind, axis, src_desc, thresholds_desc, output_mask_desc,
@@ -108,6 +112,7 @@ status_t mkldnn_quantization_forward_desc_init(quantization_desc_t *quantization
         const memory_desc_t *crop_low_desc, const memory_desc_t *crop_high_desc, const memory_desc_t *input_scale_desc,
         const memory_desc_t *input_shift_desc, const memory_desc_t *output_scale_desc, const memory_desc_t *output_shift_desc,
         const memory_desc_t *dst_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/quantization.cpp:          const memory_desc_t *dst_desc) {" << std::endl;
     if (!one_of(prop_kind, forward_training, forward_inference))
         return invalid_arguments;
     return quantization_desc_init(quantization_desc, prop_kind, alg_kind, axis, src_desc, nullptr, nullptr, crop_low_desc, crop_high_desc,

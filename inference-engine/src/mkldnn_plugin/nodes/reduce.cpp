@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -21,6 +22,7 @@ namespace Cpu {
 class ReduceImpl: public ExtLayerBase {
 public:
     explicit ReduceImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:      explicit ReduceImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -45,6 +47,7 @@ public:
 
             keep_dims = layer->GetParamAsBool("keep_dims", true);
             if (keep_dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              if (keep_dims) {" << std::endl;
                 if (data_dims.size() != dst_dims.size())
                     THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output dimensions!";
             } else {
@@ -73,6 +76,7 @@ public:
 
             addConfig(layer, { { ConfLayout::PLN, false }, { ConfLayout::PLN, false } }, { { ConfLayout::PLN, false } });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -82,12 +86,15 @@ public:
                             inputs[REDUCE_INDEXES]->getTensorDesc().getBlockingDesc().getOffsetPadding();
         SizeVector axes;
         for (size_t i = 0; i < idx_dims[0]; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:          for (size_t i = 0; i < idx_dims[0]; i++) {" << std::endl;
             int32_t axis = idx_data[i];
             if (axis < 0)
                 axis += data_dims.size();
 
             if (static_cast<size_t>(axis) > data_dims.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              if (static_cast<size_t>(axis) > data_dims.size()) {" << std::endl;
                 if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                  if (resp) {" << std::endl;
                     std::string errorMsg = "Index to reduce exceeds data tensor dimension";
                     errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
                 }
@@ -99,11 +106,13 @@ public:
         size_t reduced_dims_work_amount = 1;
         InferenceEngine::SizeVector our_dims, out_dims, axes_for_reduction;
         for (size_t i = 0; i < src_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:          for (size_t i = 0; i < src_dims.size(); i++) {" << std::endl;
             bool found = false;
             for (size_t axis : axes)
                 if (i == axis) found = true;
 
             if (found) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              if (found) {" << std::endl;
                 axes_for_reduction.push_back(i);
                 reduced_dims_work_amount *= src_dims[i];
                 if (keep_dims) out_dims.push_back(1);
@@ -119,8 +128,11 @@ public:
 
         InferenceEngine::SizeVector dst_dims = outputs[0]->getTensorDesc().getDims();
         for (size_t i = 0; i < (std::min)(out_dims.size(), dst_dims.size()); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:          for (size_t i = 0; i < (std::min)(out_dims.size(), dst_dims.size()); i++) {" << std::endl;
             if (out_dims[i] != dst_dims[i]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              if (out_dims[i] != dst_dims[i]) {" << std::endl;
                 if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                  if (resp) {" << std::endl;
                     std::string errorMsg = "Incorrect number of output dimensions!";
                     errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
                 }
@@ -130,6 +142,7 @@ public:
 
         size_t work_amount_dst;
         if (!dst_dims.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:          if (!dst_dims.size()) {" << std::endl;
             work_amount_dst = 1;
         } else {
             size_t stride = !outputs[0]->getTensorDesc().getBlockingDesc().getStrides().empty()
@@ -140,6 +153,7 @@ public:
 
         auto compare = getPrecisionMask(inputs[REDUCE_DATA]->getTensorDesc().getPrecision(), outputs[0]->getTensorDesc().getPrecision());
         switch (compare) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:          switch (compare) {" << std::endl;
             case getPrecisionMask(Precision::FP32, Precision::FP32):
                 return reduce_type<float , float>(inputs, outputs, work_amount_dst, reduced_dims_work_amount, axes_for_reduction, our_dims);
             case getPrecisionMask(Precision::I32, Precision::I64):
@@ -154,6 +168,7 @@ public:
                 return reduce_type<float , uint8_t>(inputs, outputs, work_amount_dst, reduced_dims_work_amount, axes_for_reduction, our_dims);
             default:
                 if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                  if (resp) {" << std::endl;
                     std::string errorMsg = "Incorrect Reduce layer type";
                     errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
                 }
@@ -189,12 +204,14 @@ StatusCode ReduceImpl::reduce_type(
         SizeVector   axes_for_reduction,
         SizeVector   our_dims
 ) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:  ) {" << std::endl;
     const src_d *src_data = inputs[REDUCE_DATA]->cbuffer().as<src_d *>() +
                             inputs[REDUCE_DATA]->getTensorDesc().getBlockingDesc().getOffsetPadding();
     dst_t* dst_data = outputs[0]->cbuffer().as<dst_t *>() +
                       outputs[0]->getTensorDesc().getBlockingDesc().getOffsetPadding();
 
     switch (reduceMode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:      switch (reduceMode) {" << std::endl;
         case Reduce::And:
             reduce<src_d, dst_t>(src_data, dst_data, work_amount_dst, reduced_dims_work_amount, axes_for_reduction, our_dims, static_cast<dst_t>(1),
                    [](dst_t x, src_d y)->dst_t { return x && y; },
@@ -211,6 +228,7 @@ StatusCode ReduceImpl::reduce_type(
                    [](dst_t x, src_d y)->dst_t { return x + y; });
 
             parallel_for(work_amount_dst, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              parallel_for(work_amount_dst, [&](size_t i) {" << std::endl;
                 dst_data[i] = sqrt(dst_data[i]);
             });
             break;
@@ -220,6 +238,7 @@ StatusCode ReduceImpl::reduce_type(
                    [](dst_t x, src_d y)->dst_t { return x + y; });
 
             parallel_for(work_amount_dst, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              parallel_for(work_amount_dst, [&](size_t i) {" << std::endl;
                 dst_data[i] = logf(dst_data[i]);
             });
             break;
@@ -229,6 +248,7 @@ StatusCode ReduceImpl::reduce_type(
                    [](dst_t x, src_d y)->dst_t { return x + y; });
 
             parallel_for(work_amount_dst, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              parallel_for(work_amount_dst, [&](size_t i) {" << std::endl;
                 dst_data[i] = logf(dst_data[i]);
             });
             break;
@@ -244,6 +264,7 @@ StatusCode ReduceImpl::reduce_type(
                    [](dst_t x, src_d y)->dst_t { return x + y; });
 
             parallel_for(work_amount_dst, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              parallel_for(work_amount_dst, [&](size_t i) {" << std::endl;
                 dst_data[i] /= static_cast<dst_t>(reduced_dims_work_amount);
             });
             break;
@@ -291,23 +312,30 @@ void ReduceImpl::reduce(
     F1           func1,
     F2           func2
 ) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:  ) {" << std::endl;
     unsigned int nthr = parallel_get_max_threads();
     if ((work_amount_dst + 1) >= nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:      if ((work_amount_dst + 1) >= nthr) {" << std::endl;
         parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:          parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
             int j;
             size_t i, start = 0, end = 0;
             SizeVector dst_counters(dst_dims.size(), 0);
             splitter(work_amount_dst, nthr, ithr, start, end);
             for (j = dst_dims.size() - 1, i = start; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              for (j = dst_dims.size() - 1, i = start; j >= 0; j--) {" << std::endl;
                 dst_counters[j] = i % dst_dims[j];
                 i /= dst_dims[j];
             }
             for (size_t src_idx = 0, dst_idx = start; dst_idx < end; ++dst_idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              for (size_t src_idx = 0, dst_idx = start; dst_idx < end; ++dst_idx) {" << std::endl;
                 dst_t reduce_prod = init_value;
                 bool update_idx = true;
                 SizeVector src_counters = dst_counters;
                 for (i = 0; i < reduced_dims_work_amount; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                  for (i = 0; i < reduced_dims_work_amount; ++i) {" << std::endl;
                     if (update_idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                      if (update_idx) {" << std::endl;
                         src_idx = 0;
                         for (j = 0; j < static_cast<int>(src_dims.size()); ++j)
                             src_idx += (src_counters[j] % src_dims[j]) * srcStrides[j];
@@ -315,8 +343,10 @@ void ReduceImpl::reduce(
                     }
                     reduce_prod = func1(reduce_prod, src_data[src_idx]);
                     for (j = axes_for_reduction.size() - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                      for (j = axes_for_reduction.size() - 1; j >= 0; j--) {" << std::endl;
                         src_counters[axes_for_reduction[j]]++;
                         if (src_counters[axes_for_reduction[j]] < src_dims[axes_for_reduction[j]]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                          if (src_counters[axes_for_reduction[j]] < src_dims[axes_for_reduction[j]]) {" << std::endl;
                             src_idx += srcStrides[axes_for_reduction[j]];
                             break;
                         } else {
@@ -327,6 +357,7 @@ void ReduceImpl::reduce(
                 }
                 dst_data[dst_idx] = reduce_prod;
                 for (j = dst_dims.size() - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                  for (j = dst_dims.size() - 1; j >= 0; j--) {" << std::endl;
                     dst_counters[j]++;
                     if (dst_counters[j] < dst_dims[j])
                         break;
@@ -338,7 +369,9 @@ void ReduceImpl::reduce(
     } else {
         std::vector<dst_t> reduce_prod((nthr * work_amount_dst), init_value);
         if (work_amount_dst == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:          if (work_amount_dst == 1) {" << std::endl;
             parallel_nt(nthr, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              parallel_nt(nthr, [&](const int ithr, const int nthr) {" << std::endl;
                 size_t i, start = 0, end = 0;
                 splitter((srcStrides[0] * src_dims[0]), nthr, ithr, start, end);
                 for (i = start; i < end; ++i)
@@ -349,25 +382,31 @@ void ReduceImpl::reduce(
             for (int j = dst_dims.size() - 1; j >= 1; --j)
                 dstStrides[j - 1] = dstStrides[j] * dst_dims[j];
             parallel_nt(nthr, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:              parallel_nt(nthr, [&](const int ithr, const int nthr) {" << std::endl;
                 int j;
                 bool update_idx = true;
                 size_t i, src_idx, dst_idx = 0, start = 0, end = 0;
                 splitter((srcStrides[0] * src_dims[0]), nthr, ithr, start, end);
                 SizeVector src_counters(src_dims.size(), 0);
                 for (j = src_dims.size() - 1, src_idx = start; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                  for (j = src_dims.size() - 1, src_idx = start; j >= 0; j--) {" << std::endl;
                     src_counters[j] = src_idx % src_dims[j];
                     src_idx /= src_dims[j];
                 }
                 for (src_idx = start; src_idx < end; ++src_idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                  for (src_idx = start; src_idx < end; ++src_idx) {" << std::endl;
                     if (update_idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                      if (update_idx) {" << std::endl;
                         for (i = 0, dst_idx = 0; i < dst_dims.size(); ++i)
                             dst_idx += (src_counters[i] % dst_dims[i]) * dstStrides[i];
                         update_idx = false;
                     }
                     reduce_prod[ithr * work_amount_dst + dst_idx] = func1(reduce_prod[ithr * work_amount_dst + dst_idx], src_data[src_idx]);
                     for (j = src_dims.size() - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                      for (j = src_dims.size() - 1; j >= 0; j--) {" << std::endl;
                         src_counters[j]++;
                         if (src_counters[j] < src_dims[j]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:                          if (src_counters[j] < src_dims[j]) {" << std::endl;
                             if (dst_dims[j] > 1) dst_idx += dstStrides[j];
                             break;
                         } else {
@@ -379,6 +418,7 @@ void ReduceImpl::reduce(
             });
         }
         for (size_t dst_idx = 0; dst_idx < work_amount_dst; dst_idx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reduce.cpp:          for (size_t dst_idx = 0; dst_idx < work_amount_dst; dst_idx++) {" << std::endl;
             for (size_t ithr = work_amount_dst; ithr < (nthr * work_amount_dst); ithr += work_amount_dst)
                 reduce_prod[dst_idx] = func2(reduce_prod[dst_idx], reduce_prod[dst_idx + ithr]);
             dst_data[dst_idx] = reduce_prod[dst_idx];

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -13,18 +14,23 @@ using namespace InferenceEngine;
 
 MKLDNNMemoryOutputNode::MKLDNNMemoryOutputNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket)
         : MKLDNNNode(layer, eng, socket) , MKLDNNMemoryNode(layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:          : MKLDNNNode(layer, eng, socket) , MKLDNNMemoryNode(layer) {" << std::endl;
     if (created()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:      if (created()) {" << std::endl;
         MKLDNNMemoryNodeVirtualEdge::registerOutput(this);
     }
 }
 
 MKLDNNMemoryOutputNode::~MKLDNNMemoryOutputNode() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:  MKLDNNMemoryOutputNode::~MKLDNNMemoryOutputNode() {" << std::endl;
     MKLDNNMemoryNodeVirtualEdge::remove(this);
 }
 
-void MKLDNNMemoryOutputNode::getSupportedDescriptors() {}
+void MKLDNNMemoryOutputNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:  void MKLDNNMemoryOutputNode::getSupportedDescriptors() {" << std::endl;}
 
 void MKLDNNMemoryOutputNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:  void MKLDNNMemoryOutputNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -43,12 +49,14 @@ void MKLDNNMemoryOutputNode::initSupportedPrimitiveDescriptors() {
 
 const MKLDNNEdgePtr MKLDNNMemoryOutputNode::getChildEdgeAt(size_t idx) const {
     if (inputNode != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:      if (inputNode != nullptr) {" << std::endl;
         return inputNode->getChildEdgeAt(idx);
     }
     return MKLDNNNode::getChildEdgeAt(idx);
 }
 
 void MKLDNNMemoryOutputNode::execute(mkldnn::stream strm)  {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:  void MKLDNNMemoryOutputNode::execute(mkldnn::stream strm)  {" << std::endl;
     auto& srcMemory = getParentEdgeAt(0)->getMemory();
 
     const float *src_ptr = reinterpret_cast<const float*>(srcMemory.GetData()) +
@@ -63,19 +71,24 @@ void MKLDNNMemoryOutputNode::execute(mkldnn::stream strm)  {
 #if defined (COMPILED_CPU_MKLDNN_INPUT_NODE)
 MKLDNNMemoryInputNode::MKLDNNMemoryInputNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket)
         : MKLDNNInputNode(layer, eng, socket), MKLDNNMemoryNode(layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:          : MKLDNNInputNode(layer, eng, socket), MKLDNNMemoryNode(layer) {" << std::endl;
     if (created()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:      if (created()) {" << std::endl;
         MKLDNNMemoryNodeVirtualEdge::registerInput(this);
     }
 }
 
 MKLDNNMemoryInputNode::~MKLDNNMemoryInputNode() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:  MKLDNNMemoryInputNode::~MKLDNNMemoryInputNode() {" << std::endl;
     MKLDNNMemoryNodeVirtualEdge::remove(this);
 }
 
 void MKLDNNMemoryNodeVirtualEdge::registerInput(MKLDNNMemoryInputNode * node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:  void MKLDNNMemoryNodeVirtualEdge::registerInput(MKLDNNMemoryInputNode * node) {" << std::endl;
     // in case of output already registered
     auto sibling = MKLDNNMemoryNodeVirtualEdge::getByName(node->getId());
     if (sibling != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:      if (sibling != nullptr) {" << std::endl;
         auto outputNode = dynamic_cast<MKLDNNMemoryOutputNode*>(sibling);
         IE_ASSERT(outputNode != nullptr);
         outputNode->setInputNode(node);
@@ -86,9 +99,11 @@ void MKLDNNMemoryNodeVirtualEdge::registerInput(MKLDNNMemoryInputNode * node) {
 #endif
 
 void MKLDNNMemoryNodeVirtualEdge::registerOutput(MKLDNNMemoryOutputNode * node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:  void MKLDNNMemoryNodeVirtualEdge::registerOutput(MKLDNNMemoryOutputNode * node) {" << std::endl;
     // in case of output layer
     auto sibling = MKLDNNMemoryNodeVirtualEdge::getByName(node->getId());
     if (sibling != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_memory_node.cpp:      if (sibling != nullptr) {" << std::endl;
 #if defined (COMPILED_CPU_MKLDNN_INPUT_NODE)
         auto inputNode = dynamic_cast<MKLDNNMemoryInputNode*>(sibling);
         IE_ASSERT(inputNode != nullptr);

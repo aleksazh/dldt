@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -22,34 +23,42 @@ namespace Cpu {
 class SparseFillEmptyRowsImpl : public ExtLayerBase {
 public:
     explicit SparseFillEmptyRowsImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:      explicit SparseFillEmptyRowsImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 4 || layer->outData.size() != 3) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (layer->insData.size() != 4 || layer->outData.size() != 3) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
             }
 
             Precision input_indices_precision = layer->insData[INPUT_INDICES_PORT].lock()->getTensorDesc().getPrecision();
             if (input_indices_precision != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (input_indices_precision != Precision::FP32) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect input precision. Only FP32 is supported!";
             }
 
             // check dimensions of input tensors
             SizeVector input_indices_dims = layer->insData[INPUT_INDICES_PORT].lock()->getTensorDesc().getDims();
             if (input_indices_dims.size() != 2 || input_indices_dims[1] != 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (input_indices_dims.size() != 2 || input_indices_dims[1] != 2) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for input indices. It must be Nx2 dimension tensor.";
             }
             SizeVector input_values_dims = layer->insData[INPUT_VALUES_PORT].lock()->getTensorDesc().getDims();
             if (input_values_dims.size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (input_values_dims.size() != 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for input values. It must be N dimension tensor.";
             }
             if (input_indices_dims[0] != input_values_dims[0]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (input_indices_dims[0] != input_values_dims[0]) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Mismatch of the first dimensions of input indices and values.";
             }
             SizeVector input_dense_shape_dims = layer->insData[INPUT_DENSE_SHAPE_PORT].lock()->getTensorDesc().getDims();
             if (input_dense_shape_dims.size() != 1 || input_dense_shape_dims[0] != 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (input_dense_shape_dims.size() != 1 || input_dense_shape_dims[0] != 2) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for input dense shape.";
             }
             SizeVector input_default_value_dims = layer->insData[INPUT_DEFAULT_VALUE_PORT].lock()->getTensorDesc().getDims();
             if (input_default_value_dims[0] != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (input_default_value_dims[0] != 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for input dense shape.";
             }
             inMaxNumValues = input_indices_dims[0];
@@ -57,21 +66,26 @@ public:
             // check dimensions of output tensors
             SizeVector output_indices_dims = layer->outData[OUTPUT_INDICES_PORT]->getTensorDesc().getDims();
             if (output_indices_dims.size() != 2 || output_indices_dims[1] != 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (output_indices_dims.size() != 2 || output_indices_dims[1] != 2) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for output indices. It must be Nx2 dimension tensor.";
             }
             SizeVector output_values_dims = layer->outData[OUTPUT_VALUES_PORT]->getTensorDesc().getDims();
             if (output_values_dims.size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (output_values_dims.size() != 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for output values. It must be N dimension tensor.";
             }
             if (output_indices_dims[0] != output_values_dims[0]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (output_indices_dims[0] != output_values_dims[0]) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Mismatch of the first dimensions of output indices and values.";
             }
             SizeVector output_empty_rows_indicator_dims = layer->outData[OUTPUT_EMPTY_ROWS_INDICATOR_PORT]->getTensorDesc().getDims();
             if (output_empty_rows_indicator_dims.size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (output_empty_rows_indicator_dims.size() != 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for output empty rows indicator. It must be 1-D tensor.";
             }
             outMaxNumValues = output_indices_dims[0];
             if (outMaxNumValues < inMaxNumValues) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (outMaxNumValues < inMaxNumValues) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " The first dimension size of input indices can not be greater the first dimension of output indices.";
             }
 
@@ -81,6 +95,7 @@ public:
                 {DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN)});
         }
         catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:          catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -102,6 +117,7 @@ public:
         // compute actual number of values by searching out of range indice that serves as a marker
         size_t in_actual_num_values = 0;
         for (in_actual_num_values = 0; in_actual_num_values < inMaxNumValues; in_actual_num_values++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:          for (in_actual_num_values = 0; in_actual_num_values < inMaxNumValues; in_actual_num_values++) {" << std::endl;
             float indice_x = input_indices_ptr[2 * in_actual_num_values];
             float indice_y = input_indices_ptr[2 * in_actual_num_values + 1];
             if (indice_x < 0 || indice_y < 0 || indice_x >= num_rows || indice_y >= num_cols) break;
@@ -110,6 +126,7 @@ public:
         // create auxiliary container for sorting
         std::vector<std::array<float, 3>> indices_values(in_actual_num_values);
         parallel_for(in_actual_num_values, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:          parallel_for(in_actual_num_values, [&](size_t i) {" << std::endl;
             float row = input_indices_ptr[2 * i];
             float col = input_indices_ptr[2 * i + 1];
             float value = input_values_ptr[i];
@@ -120,6 +137,7 @@ public:
         // sort values by row
         parallel_sort(indices_values.begin(), indices_values.end(),
             [](const std::array<float, 3>& first, const std::array<float, 3>& second) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              [](const std::array<float, 3>& first, const std::array<float, 3>& second) {" << std::endl;
             return first[0] < second[0];
         });
 
@@ -127,6 +145,7 @@ public:
         std::vector<float> indices_with_sorted_rows(in_actual_num_values * 2);
         std::vector<float> values_for_sorted_rows(in_actual_num_values);
         parallel_for(in_actual_num_values, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:          parallel_for(in_actual_num_values, [&](size_t i) {" << std::endl;
             auto elem = indices_values[i];
             indices_with_sorted_rows[i * 2] = elem[0];
             indices_with_sorted_rows[i * 2 + 1] = elem[1];
@@ -140,10 +159,14 @@ public:
         unsigned int total_num_values = 0;
         std::vector<std::array<float, 3>>::iterator curr_it, prev_it;
         for (float row_ind = 0.0; row_ind < num_rows; row_ind = row_ind + 1.0f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:          for (float row_ind = 0.0; row_ind < num_rows; row_ind = row_ind + 1.0f) {" << std::endl;
             curr_it = std::find_if(indices_values.begin(), indices_values.end(),
-                [row_ind](std::array<float, 3> elem) { return elem[0] == row_ind; });
+                [row_ind](std::array<float, 3> elem) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:                  [row_ind](std::array<float, 3> elem) {" << std::endl; return elem[0] == row_ind; });
             if (curr_it != indices_values.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (curr_it != indices_values.end()) {" << std::endl;
                 if (prev_row_with_value != -1.0f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:                  if (prev_row_with_value != -1.0f) {" << std::endl;
                     unsigned int num_values_at_prev_row = static_cast<unsigned int>(std::distance(prev_it, curr_it));
                     values_at_row[static_cast<int>(prev_row_with_value)] = num_values_at_prev_row;
                     total_num_values += num_values_at_prev_row;
@@ -155,6 +178,7 @@ public:
             }
         }
         if (prev_row_with_value != -1.0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:          if (prev_row_with_value != -1.0) {" << std::endl;
             unsigned int num_values_at_prev_row = static_cast<unsigned int>(std::distance(prev_it, indices_values.end()));
             values_at_row[static_cast<int>(prev_row_with_value)] = num_values_at_prev_row;
             total_num_values += num_values_at_prev_row;
@@ -184,8 +208,10 @@ public:
         unsigned int curr_pos_from_copy = 0;
         unsigned int curr_pos_to_copy = 0;
         for (int row_ind = 0; row_ind < static_cast<int>(num_rows); row_ind++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:          for (int row_ind = 0; row_ind < static_cast<int>(num_rows); row_ind++) {" << std::endl;
             unsigned int num_values_at_row = values_at_row[row_ind];
             if (num_values_at_row == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:              if (num_values_at_row == 0) {" << std::endl;
                 output_empty_rows_indicator_ptr[row_ind] = 1.0;
                 output_values_ptr[curr_pos_to_copy] = default_value;
                 output_indices_ptr[curr_pos_to_copy * 2] = static_cast<float>(row_ind);
@@ -205,6 +231,7 @@ public:
 
         // mark the end of output using (-1, -1) indice
         if (total_num_values < outMaxNumValues) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_fill_empty_rows.cpp:          if (total_num_values < outMaxNumValues) {" << std::endl;
             output_indices_ptr[total_num_values * 2] = -1.0;
             output_indices_ptr[total_num_values * 2 + 1] = -1.0;
         }

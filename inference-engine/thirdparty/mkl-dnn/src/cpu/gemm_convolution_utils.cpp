@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2019 Intel Corporation
 *
@@ -41,30 +42,40 @@ template <typename data_type_t>
 void im2col_3d(const jit_gemm_conv_conf_t &jcp, const data_type_t *im,
         data_type_t *col, int od)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          data_type_t *col, int od) {" << std::endl;
     const size_t OHW = jcp.oh * jcp.ow;
     const size_t im_step = jcp.ih * jcp.iw * jcp.id;
     const size_t col_step = jcp.ks * OHW;
 
     parallel_nd(jcp.ic, [&](int ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      parallel_nd(jcp.ic, [&](int ic) {" << std::endl;
         const data_type_t *__restrict im_loc = im + ic * im_step;
         data_type_t *__restrict col_loc = col + ic * col_step;
         int id = od * jcp.stride_d - jcp.f_pad;
         for (int kd = 0; kd < jcp.kd; ++kd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          for (int kd = 0; kd < jcp.kd; ++kd) {" << std::endl;
             data_type_t *__restrict col_ = col_loc + kd * jcp.kh * jcp.kw * OHW;
             if (id < 0 || id >= jcp.id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              if (id < 0 || id >= jcp.id) {" << std::endl;
                 int ih_ = -jcp.t_pad;
                 for (int kh = 0; kh < jcp.kh; ++kh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int kh = 0; kh < jcp.kh; ++kh) {" << std::endl;
                     int ih = ih_;
                     for (int oh = 0; oh < jcp.oh; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int oh = 0; oh < jcp.oh; ++oh) {" << std::endl;
                         if (ih < 0 || ih >= jcp.ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          if (ih < 0 || ih >= jcp.ih) {" << std::endl;
                             ih += jcp.stride_h;
                             continue;
                         }
                         int iw_ = -jcp.l_pad;
                         for (int kw = 0; kw < jcp.kw; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int kw = 0; kw < jcp.kw; ++kw) {" << std::endl;
                             int iw = iw_;
                             for (int ow = 0; ow < jcp.ow; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              for (int ow = 0; ow < jcp.ow; ++ow) {" << std::endl;
                                 if (iw < 0 || iw >= jcp.iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                                  if (iw < 0 || iw >= jcp.iw) {" << std::endl;
                                     iw += jcp.stride_w;
                                     continue;
                                 }
@@ -87,17 +98,23 @@ void im2col_3d(const jit_gemm_conv_conf_t &jcp, const data_type_t *im,
                     im_loc + id * jcp.ih * jcp.iw;
                 int ih_ = -jcp.t_pad;
                 for (int kh = 0; kh < jcp.kh; ++kh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int kh = 0; kh < jcp.kh; ++kh) {" << std::endl;
                     int ih = ih_;
                     for (int oh = 0; oh < jcp.oh; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int oh = 0; oh < jcp.oh; ++oh) {" << std::endl;
                         if (ih < 0 || ih >= jcp.ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          if (ih < 0 || ih >= jcp.ih) {" << std::endl;
                             ih += jcp.stride_h;
                             continue;
                         }
                         int iw_ = -jcp.l_pad;
                         for (int kw = 0; kw < jcp.kw; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int kw = 0; kw < jcp.kw; ++kw) {" << std::endl;
                             int iw = iw_;
                             for (int ow = 0; ow < jcp.ow; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              for (int ow = 0; ow < jcp.ow; ++ow) {" << std::endl;
                                 if (iw < 0 || iw >= jcp.iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                                  if (iw < 0 || iw >= jcp.iw) {" << std::endl;
                                     iw += jcp.stride_w;
                                     continue;
                                 }
@@ -134,12 +151,15 @@ void im2col_3d(const jit_gemm_conv_conf_t &jcp, const mkldnn_bfloat16_t *im,
 template <typename data_type_t>
 void im2col(const jit_gemm_conv_conf_t &jcp, const data_type_t *__restrict im,
        data_type_t *__restrict col, int hs, int hb, int ws, int wb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:         data_type_t *__restrict col, int hs, int hb, int ws, int wb) {" << std::endl;
     const size_t im_step = jcp.is;
     const size_t col_step = jcp.ks * hb * wb;
     if (jcp.stride_w == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      if (jcp.stride_w == 1) {" << std::endl;
         // Generated code is more optimized for stride_w == 1
         // because innermost loop is by width
         auto ker = [&](int ic, int kh, int kw, int oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          auto ker = [&](int ic, int kh, int kw, int oh) {" << std::endl;
             const data_type_t *__restrict im_ = im + ic * im_step;
             data_type_t *__restrict col_
                 = col + ic * col_step + ((kh * jcp.kw + kw) * hb + oh) * wb;
@@ -147,10 +167,12 @@ void im2col(const jit_gemm_conv_conf_t &jcp, const data_type_t *__restrict im,
             const int ih = (oh + hs) * jcp.stride_h - jcp.t_pad
                 + kh * (1 + jcp.dilate_h);
             if (ih < 0 || ih >= jcp.ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              if (ih < 0 || ih >= jcp.ih) {" << std::endl;
                 for (int ow = 0; ow < wb; ++ow)
                     col_[ow] = (data_type_t)0;
             } else {
                 for (int ow = 0; ow < wb; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int ow = 0; ow < wb; ++ow) {" << std::endl;
                     const int iw = ow + ws - jcp.l_pad
                         + kw * (1 + jcp.dilate_w);
                     if (iw < 0 || iw >= jcp.iw)
@@ -164,6 +186,7 @@ void im2col(const jit_gemm_conv_conf_t &jcp, const data_type_t *__restrict im,
         };
 
         if (jcp.outer_threading) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (jcp.outer_threading) {" << std::endl;
             for (int ic = 0; ic < jcp.ic; ic++)
                 for (int kh = 0; kh < jcp.kh; kh++)
                     for (int kw = 0; kw < jcp.kw; kw++)
@@ -174,12 +197,16 @@ void im2col(const jit_gemm_conv_conf_t &jcp, const data_type_t *__restrict im,
             parallel_nd(jcp.ic, jcp.kh, jcp.kw, hb, ker);
         }
     } else if (jcp.ic == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      } else if (jcp.ic == 1) {" << std::endl;
         parallel_nd(jcp.kh, hb, [&](int kh, int oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          parallel_nd(jcp.kh, hb, [&](int kh, int oh) {" << std::endl;
             const int ih = (oh + hs) * jcp.stride_h - jcp.t_pad
                     + kh * (1 + jcp.dilate_h);
             if (ih < 0 || ih >= jcp.ih)
                 for (int kw = 0; kw < jcp.kw; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int kw = 0; kw < jcp.kw; ++kw) {" << std::endl;
                     for (int ow = 0; ow < wb; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int ow = 0; ow < wb; ++ow) {" << std::endl;
                         const size_t col_idx
                                 = ((kh * jcp.kw + kw) * hb + oh) * wb + ow;
                         col[col_idx] = (data_type_t)0;
@@ -187,7 +214,9 @@ void im2col(const jit_gemm_conv_conf_t &jcp, const data_type_t *__restrict im,
                 }
             else
                 for (int kw = 0; kw < jcp.kw; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int kw = 0; kw < jcp.kw; ++kw) {" << std::endl;
                     for (int ow = 0; ow < wb; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int ow = 0; ow < wb; ++ow) {" << std::endl;
                         const int iw = (ow + ws) * jcp.stride_w - jcp.l_pad
                                 + kw * (1 + jcp.dilate_w);
                         const size_t col_idx
@@ -204,6 +233,7 @@ void im2col(const jit_gemm_conv_conf_t &jcp, const data_type_t *__restrict im,
 
         parallel_nd(jcp.ic, jcp.kh, jcp.kw, hb,
             [&](int ic, int kh, int kw, int oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              [&](int ic, int kh, int kw, int oh) {" << std::endl;
             const data_type_t *__restrict im_ = im + ic * im_step;
             data_type_t *__restrict col_ = col + ic * col_step
                 + ((kh * jcp.kw + kw) * hb + oh) * wb;
@@ -211,10 +241,12 @@ void im2col(const jit_gemm_conv_conf_t &jcp, const data_type_t *__restrict im,
             const int ih = (oh + hs) * jcp.stride_h - jcp.t_pad
                 + kh * (1 + jcp.dilate_h);
             if (ih < 0 || ih >= jcp.ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              if (ih < 0 || ih >= jcp.ih) {" << std::endl;
                 for (int ow = 0; ow < wb; ++ow)
                     col_[ow] = (data_type_t)0;
             } else {
                 for (int ow = 0; ow < wb; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int ow = 0; ow < wb; ++ow) {" << std::endl;
                     const int iw = (ow + ws) * jcp.stride_w - jcp.l_pad
                         + kw * (1 + jcp.dilate_w);
                     const size_t im_idx = ih * jcp.iw + iw;
@@ -238,6 +270,7 @@ void im2col(const jit_gemm_conv_conf_t &jcp,
        mkldnn_bfloat16_t *__restrict col, int hs, int hb, int ws, int wb);
 
 inline int limit(int low, int upper, int value) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:  inline int limit(int low, int upper, int value) {" << std::endl;
     return nstl::max(low, nstl::min(upper, value));
 }
 
@@ -245,6 +278,7 @@ template <typename T, bool with_input_zp, bool with_weights_zp>
 void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
         T *__restrict imtr, uint8_t *__restrict col, int hs, int hb, int ws,
         int wb, const uint8_t *__restrict input_zp, int32_t *__restrict weights_zp_compensation) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          int wb, const uint8_t *__restrict input_zp, int32_t *__restrict weights_zp_compensation) {" << std::endl;
    uint8_t shift = jcp.signed_input ? 128 : 0;
 
     const int dh = 1 + jcp.dilate_h;
@@ -257,13 +291,17 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
     const int lp = jcp.l_pad;
 
     if (with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      if (with_weights_zp) {" << std::endl;
         for (int oh = 0; oh < hb; oh++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          for (int oh = 0; oh < hb; oh++) {" << std::endl;
             utils::array_set(weights_zp_compensation + oh * wb, 0, wb);
         }
     }
 
     if (jcp.im2col_sz) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      if (jcp.im2col_sz) {" << std::endl;
         if (jcp.outer_threading && sh == 1 && sw == 1 && dh == 1 && dw == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (jcp.outer_threading && sh == 1 && sw == 1 && dh == 1 && dw == 1) {" << std::endl;
             /* im[ih][iw][ic] --> imtr[ic][ih][iw] --> col[kh][kw][ic][oh][ow] */
             const int hp = hs - tp;
             const int wp = ws - lp;
@@ -278,8 +316,10 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
             const int imtr_ic_stride = ihb * iwb;
             const ptrdiff_t imtr_idx_shift = ih_start * iwb + iw_start;
             for (int ic = 0; ic < jcp.ic; ic++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              for (int ic = 0; ic < jcp.ic; ic++) {" << std::endl;
                 const ptrdiff_t imtr_idx_ic = ic * imtr_ic_stride - imtr_idx_shift;
                 for (int ih = ih_start; ih < ih_end; ih++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int ih = ih_start; ih < ih_end; ih++) {" << std::endl;
                     const ptrdiff_t im_idx_ih = ic + ih * im_ih_stride;
                     const ptrdiff_t imtr_idx_ih = imtr_idx_ic + ih * iwb;
                     for (int iw = iw_start; iw < iw_end; iw++)
@@ -295,11 +335,13 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
             const int ow_init = iw_start - wp;
 
             for (int kh = 0; kh < jcp.kh; kh++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              for (int kh = 0; kh < jcp.kh; kh++) {" << std::endl;
                 const ptrdiff_t col_idx_kh = kh * col_kh_stride;
                 const int oh_kh = oh_init - kh;
                 const int oh_start = limit(0, hb, oh_kh);
                 const int oh_end = limit(0, hb, oh_kh + ihb);
                 for (int kw = 0; kw < jcp.kw; kw++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int kw = 0; kw < jcp.kw; kw++) {" << std::endl;
                     const ptrdiff_t col_idx_kw
                             = col_idx_kh + kw * jcp.ic * col_ic_str;
                     const int ow_kw = ow_init - kw;
@@ -307,12 +349,15 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                     const int ow_start = limit(0, wb, ow_kw);
                     const int ow_end = limit(0, wb, ow_kw + iwb);
                     for (int ic = 0; ic < jcp.ic; ic++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int ic = 0; ic < jcp.ic; ic++) {" << std::endl;
                         uint8_t izp = with_input_zp ? input_zp[ic] : (uint8_t) 0;
                         const ptrdiff_t col_idx_ic = col_idx_kw + ic * col_ic_str;
                         const int imtr_idx_ic = ic * imtr_ic_stride - imtr_shift;
                         for (int oh = 0; oh < oh_start; oh++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int oh = 0; oh < oh_start; oh++) {" << std::endl;
                             const ptrdiff_t col_idx_oh = col_idx_ic + oh * wb;
                             for (int ow = 0; ow < wb; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              for (int ow = 0; ow < wb; ++ow) {" << std::endl;
                                 if (with_input_zp)
                                     col[col_idx_oh + ow] = izp;
                                 else
@@ -323,9 +368,11 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                             }
                         }
                         for (int oh = oh_start; oh < oh_end; oh++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int oh = oh_start; oh < oh_end; oh++) {" << std::endl;
                             const ptrdiff_t col_idx_oh = col_idx_ic + oh * wb;
                             const ptrdiff_t imtr_idx_oh = imtr_idx_ic + oh * iwb;
                             for (int ow = 0; ow < ow_start; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              for (int ow = 0; ow < ow_start; ++ow) {" << std::endl;
                                 if (with_input_zp)
                                     col[col_idx_oh + ow] = izp;
                                 else
@@ -335,6 +382,7 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                                     weights_zp_compensation[oh * wb + ow] += izp;
                             }
                             for (int ow = ow_start; ow < ow_end; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              for (int ow = ow_start; ow < ow_end; ++ow) {" << std::endl;
                                 if (with_input_zp)
                                     col[col_idx_oh + ow] = imtr[imtr_idx_oh + ow];
                                 else
@@ -344,6 +392,7 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                                     weights_zp_compensation[oh * wb + ow] += imtr[imtr_idx_oh + ow];
                             }
                             for (int ow = ow_end; ow < wb; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              for (int ow = ow_end; ow < wb; ++ow) {" << std::endl;
                                 if (with_input_zp)
                                     col[col_idx_oh + ow] = izp;
                                 else
@@ -354,8 +403,10 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                             }
                         }
                         for (int oh = oh_end; oh < hb; oh++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int oh = oh_end; oh < hb; oh++) {" << std::endl;
                             const ptrdiff_t col_idx_oh = col_idx_ic + oh * wb;
                             for (int ow = 0; ow < wb; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              for (int ow = 0; ow < wb; ++ow) {" << std::endl;
                                 if (with_input_zp)
                                     col[col_idx_oh + ow] = izp;
                                 else
@@ -370,16 +421,23 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
             }
         } else {
             if (with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              if (with_weights_zp) {" << std::endl;
                 parallel_nd(hb, [&](int oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  parallel_nd(hb, [&](int oh) {" << std::endl;
                     for (int kh = 0; kh < jcp.kh; kh++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int kh = 0; kh < jcp.kh; kh++) {" << std::endl;
                         for (int kw = 0; kw < jcp.kw; kw++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int kw = 0; kw < jcp.kw; kw++) {" << std::endl;
                             for (int ic = 0; ic < jcp.ic; ic++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              for (int ic = 0; ic < jcp.ic; ic++) {" << std::endl;
                                 uint8_t izp = with_input_zp ? input_zp[ic] : (uint8_t) 0;
                                 const int hp = tp - kh * dh;
                                 const int ih = (oh + hs) * sh - hp;
                                 const ptrdiff_t col_idx_base = (((kh * jcp.kw + kw) * jcp.ic + ic) * hb + oh) * wb;
                                 if (ih < 0 || ih >= jcp.ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                                  if (ih < 0 || ih >= jcp.ih) {" << std::endl;
                                     for (int ow = 0; ow < wb; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                                      for (int ow = 0; ow < wb; ow++) {" << std::endl;
                                         if (jcp.with_input_zp)
                                             col[col_idx_base + ow] = izp;
                                         else
@@ -392,6 +450,7 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                                     const int ow_start = limit(0, wb, div_up(wp, sw) - ws);
                                     const int ow_end = limit(0, wb, div_up(jcp.iw + wp, sw) - ws);
                                     for (int ow = 0; ow < ow_start; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                                      for (int ow = 0; ow < ow_start; ow++) {" << std::endl;
                                         if (jcp.with_input_zp)
                                             col[col_idx_base + ow] = izp;
                                         else
@@ -403,6 +462,7 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                                     const int iw_base = ws * sw - wp;
                                     const ptrdiff_t im_idx_base = ih * im_ih_stride + ic;
                                     for (int ow = ow_start; ow < ow_end; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                                      for (int ow = ow_start; ow < ow_end; ow++) {" << std::endl;
                                         const int iw = iw_base + ow * sw;
                                         const ptrdiff_t im_idx = im_idx_base + iw * im_iw_stride;
                                         if (jcp.with_input_zp)
@@ -413,6 +473,7 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                                         weights_zp_compensation[oh * wb + ow] += im[im_idx];
                                     }
                                     for (int ow = ow_end; ow < wb; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                                      for (int ow = ow_end; ow < wb; ow++) {" << std::endl;
                                         if (jcp.with_input_zp)
                                             col[col_idx_base + ow] = izp;
                                         else
@@ -428,12 +489,15 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
             } else {
                 parallel_nd(jcp.kh, jcp.kw, jcp.ic, hb,
                 [&](int kh, int kw, int ic, int oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  [&](int kh, int kw, int ic, int oh) {" << std::endl;
                     uint8_t izp = with_input_zp ? input_zp[ic] : (uint8_t) 0;
                     const int hp = tp - kh * dh;
                     const int ih = (oh + hs) * sh - hp;
                     const ptrdiff_t col_idx_base = (((kh * jcp.kw + kw) * jcp.ic + ic) * hb + oh) * wb;
                     if (ih < 0 || ih >= jcp.ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      if (ih < 0 || ih >= jcp.ih) {" << std::endl;
                         for (int ow = 0; ow < wb; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int ow = 0; ow < wb; ow++) {" << std::endl;
                             if (jcp.with_input_zp)
                                 col[col_idx_base + ow] = izp;
                             else
@@ -444,6 +508,7 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                         const int ow_start = limit(0, wb, div_up(wp, sw) - ws);
                         const int ow_end = limit(0, wb, div_up(jcp.iw + wp, sw) - ws);
                         for (int ow = 0; ow < ow_start; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int ow = 0; ow < ow_start; ow++) {" << std::endl;
                             if (jcp.with_input_zp)
                                 col[col_idx_base + ow] = izp;
                             else
@@ -453,6 +518,7 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                         const int iw_base = ws * sw - wp;
                         const ptrdiff_t im_idx_base = ih * im_ih_stride + ic;
                         for (int ow = ow_start; ow < ow_end; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int ow = ow_start; ow < ow_end; ow++) {" << std::endl;
                             const int iw = iw_base + ow * sw;
                             const ptrdiff_t im_idx = im_idx_base + iw * im_iw_stride;
                             if (jcp.with_input_zp)
@@ -461,6 +527,7 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                                 col[col_idx_base + ow] = im[im_idx] + shift;
                         }
                         for (int ow = ow_end; ow < wb; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int ow = ow_end; ow < wb; ow++) {" << std::endl;
                             if (jcp.with_input_zp)
                                 col[col_idx_base + ow] = izp;
                             else
@@ -471,13 +538,18 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
             }
         }
     } else if (with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      } else if (with_weights_zp) {" << std::endl;
         parallel_nd(hb, [&](int oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          parallel_nd(hb, [&](int oh) {" << std::endl;
             for (int ic = 0; ic < jcp.ic; ic++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              for (int ic = 0; ic < jcp.ic; ic++) {" << std::endl;
                 uint8_t izp = with_input_zp ? input_zp[ic] : (uint8_t) 0;
                 const int hp = tp;
                 const int ih = (oh + hs) * sh - hp;
                 if (ih < 0 || ih >= jcp.ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  if (ih < 0 || ih >= jcp.ih) {" << std::endl;
                     for (int ow = 0; ow < wb; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int ow = 0; ow < wb; ow++) {" << std::endl;
                         weights_zp_compensation[oh * wb + ow] += izp;
                     }
                 } else {
@@ -485,17 +557,20 @@ void im2col_u8_compute(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                     const int ow_start = limit(0, wb, div_up(wp, sw) - ws);
                     const int ow_end = limit(0, wb, div_up(jcp.iw + wp, sw) - ws);
                     for (int ow = 0; ow < ow_start; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int ow = 0; ow < ow_start; ow++) {" << std::endl;
                         weights_zp_compensation[oh * wb + ow] += izp;
                     }
 
                     const int iw_base = ws * sw - wp;
                     const ptrdiff_t im_idx_base = ih * im_ih_stride + ic;
                     for (int ow = ow_start; ow < ow_end; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int ow = ow_start; ow < ow_end; ow++) {" << std::endl;
                         const int iw = iw_base + ow * sw;
                         const ptrdiff_t im_idx = im_idx_base + iw * im_iw_stride;
                         weights_zp_compensation[oh * wb + ow] += im[im_idx];
                     }
                     for (int ow = ow_end; ow < wb; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int ow = ow_end; ow < wb; ow++) {" << std::endl;
                         weights_zp_compensation[oh * wb + ow] += izp;
                     }
                 }
@@ -535,6 +610,7 @@ template <typename T>
 void im2col_u8(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
         T *__restrict imtr, uint8_t *__restrict col, int hs, int hb, int ws,
         int wb, const uint8_t *__restrict input_zp, int32_t *__restrict weights_zp_compensation) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          int wb, const uint8_t *__restrict input_zp, int32_t *__restrict weights_zp_compensation) {" << std::endl;
 
     if (!jcp.with_input_zp && !jcp.with_weights_zp)
         im2col_u8_compute<T, false, false>(jcp, im, imtr, col, hs, hb, ws, wb, input_zp, weights_zp_compensation);
@@ -556,6 +632,7 @@ template void im2col_u8<uint8_t>(const jit_gemm_conv_conf_t &jcp,
 template <typename T>
 void im2col_u8_3d(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                   uint8_t *__restrict col, int od, const uint8_t *__restrict input_zp, int32_t *__restrict weights_zp_compensation) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                    uint8_t *__restrict col, int od, const uint8_t *__restrict input_zp, int32_t *__restrict weights_zp_compensation) {" << std::endl;
     uint8_t shift = jcp.signed_input ? 128 : 0;
     const int dh = 1 + jcp.dilate_h;
     const int dw = 1 + jcp.dilate_w;
@@ -571,7 +648,9 @@ void im2col_u8_3d(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
     const int fp = jcp.f_pad;
 
     if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      if (jcp.with_weights_zp) {" << std::endl;
         for (int oh = 0; oh < jcp.oh; oh++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          for (int oh = 0; oh < jcp.oh; oh++) {" << std::endl;
             utils::array_set(weights_zp_compensation + oh * jcp.ow, 0, jcp.ow);
         }
     }
@@ -579,10 +658,15 @@ void im2col_u8_3d(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
     const T* im_loc = im + od * sd * im_id_stride;
 
     parallel_nd(jcp.oh, jcp.ow, [&](int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      parallel_nd(jcp.oh, jcp.ow, [&](int oh, int ow) {" << std::endl;
         for (int kd = 0; kd < jcp.kd; kd++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          for (int kd = 0; kd < jcp.kd; kd++) {" << std::endl;
             for (int kh = 0; kh < jcp.kh; kh++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              for (int kh = 0; kh < jcp.kh; kh++) {" << std::endl;
                 for (int kw = 0; kw < jcp.kw; kw++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int kw = 0; kw < jcp.kw; kw++) {" << std::endl;
                     for (int ic = 0; ic < jcp.ic; ic++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int ic = 0; ic < jcp.ic; ic++) {" << std::endl;
                         int im_idx = (kd * dd - fp) * im_id_stride
                                      + (kh * dh - tp + oh * sh) * im_ih_stride
                                      + (kw * dw - lp + ow * sw) * im_iw_stride
@@ -600,16 +684,20 @@ void im2col_u8_3d(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                         int iw = ow * sw + kw * dw - lp;
 
                         if (!jcp.im2col_sz) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          if (!jcp.im2col_sz) {" << std::endl;
                             uint8_t izp = jcp.with_input_zp ? input_zp[ic] : (uint8_t)0;
                             if (id < 0 || id >= jcp.id || ih < 0 || ih >= jcp.ih || iw < 0 || iw >= jcp.iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              if (id < 0 || id >= jcp.id || ih < 0 || ih >= jcp.ih || iw < 0 || iw >= jcp.iw) {" << std::endl;
                                 weights_zp_compensation[oh * jcp.ow + ow] += izp;
                             } else {
                                 weights_zp_compensation[oh * jcp.ow + ow] += im_loc[im_idx];
                             }
                         } else {
                             if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              if (jcp.with_weights_zp) {" << std::endl;
                                 uint8_t izp = jcp.with_input_zp ? input_zp[ic] : (uint8_t)0;
                                 if (id < 0 || id >= jcp.id || ih < 0 || ih >= jcp.ih || iw < 0 || iw >= jcp.iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                                  if (id < 0 || id >= jcp.id || ih < 0 || ih >= jcp.ih || iw < 0 || iw >= jcp.iw) {" << std::endl;
                                     col[col_idx] = izp;
                                     weights_zp_compensation[oh * jcp.ow + ow] += izp;
                                 } else {
@@ -617,6 +705,7 @@ void im2col_u8_3d(const jit_gemm_conv_conf_t &jcp, const T *__restrict im,
                                     weights_zp_compensation[oh * jcp.ow + ow] += im_loc[im_idx];
                                 }
                             } else if (jcp.with_input_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                              } else if (jcp.with_input_zp) {" << std::endl;
                                 if (id < 0 || id >= jcp.id || ih < 0 || ih >= jcp.ih || iw < 0 || iw >= jcp.iw)
                                     col[col_idx] = input_zp[ic];
                                 else
@@ -645,11 +734,14 @@ template void im2col_u8_3d<uint8_t>(const jit_gemm_conv_conf_t &jcp, const uint8
 void col2im_s32(const jit_gemm_conv_conf_t &jcp, const int32_t *__restrict col,
         int32_t *__restrict im)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          int32_t *__restrict im) {" << std::endl;
     parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {" << std::endl;
         int h_nthr = nstl::min(jcp.ih, nthr);
         int w_nthr = nstl::min(jcp.iw, nthr / h_nthr);
         int h_ithr = 1, h_s = 0, h_e = 0, w_ithr = 1, w_s = 0, w_e = 0;
         if (ithr < h_nthr * w_nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (ithr < h_nthr * w_nthr) {" << std::endl;
             h_ithr = ithr / w_nthr;
             w_ithr = ithr % w_nthr;
             balance211(jcp.ih, h_nthr, h_ithr, h_s, h_e);
@@ -660,9 +752,12 @@ void col2im_s32(const jit_gemm_conv_conf_t &jcp, const int32_t *__restrict col,
         }
 
         for (int ih = h_s; ih < h_e; ++ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          for (int ih = h_s; ih < h_e; ++ih) {" << std::endl;
             for (int iw = w_s; iw < w_e; ++iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              for (int iw = w_s; iw < w_e; ++iw) {" << std::endl;
                 PRAGMA_OMP_SIMD()
                 for (int ic = 0; ic < jcp.ic; ++ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int ic = 0; ic < jcp.ic; ++ic) {" << std::endl;
                     im[(ih * jcp.iw + iw) * jcp.ic + ic] = 0;
                 }
             }
@@ -670,13 +765,17 @@ void col2im_s32(const jit_gemm_conv_conf_t &jcp, const int32_t *__restrict col,
 
         // TODO: reduce region: [0.. oh] --> [h_s * sh .. h_e * sh]
         for (int oh = 0; oh < jcp.oh; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          for (int oh = 0; oh < jcp.oh; ++oh) {" << std::endl;
             for (int ow = 0; ow < jcp.ow; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              for (int ow = 0; ow < jcp.ow; ++ow) {" << std::endl;
                 for (int kh = 0; kh < jcp.kh; ++kh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int kh = 0; kh < jcp.kh; ++kh) {" << std::endl;
                     const int ih = oh * jcp.stride_h
                         - jcp.t_pad + kh * (1 + jcp.dilate_h);
                     if (ih < h_s || ih >= h_e) continue;
 
                     for (int kw = 0; kw < jcp.kw; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                      for (int kw = 0; kw < jcp.kw; ++kw) {" << std::endl;
                         const int iw = ow * jcp.stride_w
                             - jcp.l_pad + kw * (1 + jcp.dilate_w);
                         if (iw < w_s || iw >= w_e) continue;
@@ -687,6 +786,7 @@ void col2im_s32(const jit_gemm_conv_conf_t &jcp, const int32_t *__restrict col,
                             = (ih * jcp.iw + iw) * jcp.ic;
                         PRAGMA_OMP_SIMD()
                         for (int ic = 0; ic < jcp.ic; ++ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                          for (int ic = 0; ic < jcp.ic; ++ic) {" << std::endl;
                             im[im_idx + ic] += col[col_idx + ic];
                         }
                     }
@@ -699,13 +799,17 @@ void col2im_s32(const jit_gemm_conv_conf_t &jcp, const int32_t *__restrict col,
 void col2im_3d(const jit_gemm_conv_conf_t &jcp, const float *col, float *im,
         int od)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          int od) {" << std::endl;
     parallel_nd(jcp.ic, [&](int ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      parallel_nd(jcp.ic, [&](int ic) {" << std::endl;
         const float *__restrict col_ = col + (size_t)ic * jcp.ks * jcp.os;
         float *__restrict im_ic = im + (size_t)ic * jcp.ih * jcp.iw * jcp.id;
 
         int id = od * jcp.stride_d - jcp.f_pad;
         for (int kd = 0; kd < jcp.kd; ++kd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          for (int kd = 0; kd < jcp.kd; ++kd) {" << std::endl;
             if (id < 0 || id >= jcp.id) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              if (id < 0 || id >= jcp.id) {" << std::endl;
                 col_ += jcp.kh * jcp.kw * jcp.os;
                 id += (1 + jcp.dilate_d);
                 continue;
@@ -714,13 +818,17 @@ void col2im_3d(const jit_gemm_conv_conf_t &jcp, const float *col, float *im,
             float *__restrict im_ = im_ic + id * jcp.ih * jcp.iw;
 
             for (int oh = 0; oh < jcp.oh; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              for (int oh = 0; oh < jcp.oh; ++oh) {" << std::endl;
             for (int kh = 0; kh < jcp.kh; ++kh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              for (int kh = 0; kh < jcp.kh; ++kh) {" << std::endl;
                 const int ih = oh * jcp.stride_h - jcp.t_pad
                     + kh * (1 + jcp.dilate_h);
                 if (ih < 0 || ih >= jcp.ih) continue;
 
                 for (int ow = 0; ow < jcp.ow; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int ow = 0; ow < jcp.ow; ++ow) {" << std::endl;
                 for (int kw = 0; kw < jcp.kw; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:                  for (int kw = 0; kw < jcp.kw; ++kw) {" << std::endl;
                     const int iw = ow * jcp.stride_w - jcp.l_pad
                         + kw * (1 + jcp.dilate_w);
                     if (iw < 0 || iw >= jcp.iw) continue;
@@ -739,24 +847,30 @@ void col2im_3d(const jit_gemm_conv_conf_t &jcp, const float *col, float *im,
 }
 
 void col2im(const jit_gemm_conv_conf_t &jcp, const float *col, float *im) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:  void col2im(const jit_gemm_conv_conf_t &jcp, const float *col, float *im) {" << std::endl;
     const size_t col_step = jcp.ks * jcp.os;
     const size_t im_step = jcp.ih * jcp.iw;
     const int iS = jcp.ih * jcp.iw;
 
     parallel_nd(jcp.ic, [&](int ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      parallel_nd(jcp.ic, [&](int ic) {" << std::endl;
         float *__restrict im_ = im + ic * im_step;
         const float *__restrict col_ = col + ic * col_step;
         PRAGMA_OMP_SIMD()
         for (int is = 0; is < iS; ++is) im_[is] = 0.;
 
         for (int kh = 0; kh < jcp.kh; ++kh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          for (int kh = 0; kh < jcp.kh; ++kh) {" << std::endl;
         for (int oh = 0; oh < jcp.oh; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          for (int oh = 0; oh < jcp.oh; ++oh) {" << std::endl;
             const int ih =
                     oh * jcp.stride_h - jcp.t_pad + kh * (1 + jcp.dilate_h);
             if (ih < 0 || ih >= jcp.ih) continue;
 
             for (int kw = 0; kw < jcp.kw; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              for (int kw = 0; kw < jcp.kw; ++kw) {" << std::endl;
             for (int ow = 0; ow < jcp.ow; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              for (int ow = 0; ow < jcp.ow; ++ow) {" << std::endl;
                 const int iw =
                         ow * jcp.stride_w - jcp.l_pad + kw * (1 + jcp.dilate_w);
                 if (iw < 0 || iw >= jcp.iw) continue;
@@ -775,6 +889,7 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
         memory_tracking::registrar_t &scratchpad, const convolution_desc_t &cd,
         const memory_desc_wrapper &src_d, const memory_desc_wrapper &weights_d,
         const memory_desc_wrapper &dst_d, const primitive_attr_t &attr, int max_threads) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          const memory_desc_wrapper &dst_d, const primitive_attr_t &attr, int max_threads) {" << std::endl;
     const bool with_groups = weights_d.ndims() == src_d.ndims() + 1;
     const int ndims = src_d.ndims();
     const int is_1d = ndims == 3;
@@ -832,6 +947,7 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
 
     jcp.with_input_zp = !attr.input_zero_points_.has_default_values();
     if (jcp.with_input_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      if (jcp.with_input_zp) {" << std::endl;
         if (attr.input_zero_points_.count_ != 1 && attr.input_zero_points_.count_ != jcp.ic * jcp.ngroups)
             return status::unimplemented;
 
@@ -841,6 +957,7 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
 
     jcp.with_weights_zp = !attr.weights_zero_points_.has_default_values();
     if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      if (jcp.with_weights_zp) {" << std::endl;
         if (attr.weights_zero_points_.count_ != 1 && attr.weights_zero_points_.count_ != jcp.oc * jcp.ngroups)
             return status::unimplemented;
     }
@@ -893,6 +1010,7 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
             && !is_depthwise
             && wei_size < L2/2;
     if (is_blocking_applicable) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      if (is_blocking_applicable) {" << std::endl;
         // looking for oh and ow blocking
         int h_block{ jcp.oh_block }, w_block{ jcp.ow_block };
         const int ic = jcp.ic;
@@ -905,6 +1023,7 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
         // 1. cache requirement
         int row_size = ic * ow * jcp.ks + 2 * (ic * iw + oc * ow);
         if (is_int8_conv) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (is_int8_conv) {" << std::endl;
             // Heuristic rule: gemm needed a lot of memory for internal usage
             row_size *= 5;
             // memory for accumulators
@@ -915,8 +1034,10 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
 
         h_block = nstl::max(1, nstl::min(oh, div_up(L2 - wei_size, row_size)));
         if (h_block == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (h_block == 1) {" << std::endl;
             int col_size = ic * jcp.ks + 2 * (ic + oc);
             if (is_int8_conv) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              if (is_int8_conv) {" << std::endl;
                 col_size *= 5;
                 col_size += oc * sizeof(uint32_t);
                 col_size += ic;
@@ -933,6 +1054,7 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
         float thr_eff = 0.f;
         float thr_eff_treshold = 0.9f;
         if (w_block == ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (w_block == ow) {" << std::endl;
             do {
                 int nb_h = div_up(oh, h_block);
                 size_t work = jcp.ngroups * jcp.mb * jcp.od * nb_h;
@@ -965,6 +1087,7 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
         const float inner_thr_eff
                 = (float)inner_work / rnd_up(inner_work, max_threads);
         if (thr_eff >= inner_thr_eff / 2 && h_block > 0 && w_block > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (thr_eff >= inner_thr_eff / 2 && h_block > 0 && w_block > 0) {" << std::endl;
             jcp.oh_block = h_block;
             jcp.ow_block = w_block;
             jcp.outer_threading = true;
@@ -982,8 +1105,11 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
     const int gemm_thrld = 64 * 1024;
 
     if (is_int8_conv) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      if (is_int8_conv) {" << std::endl;
         if (is_fwd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (is_fwd) {" << std::endl;
             if (!jcp.outer_threading) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              if (!jcp.outer_threading) {" << std::endl;
                 bool is_depthwise = jcp.ic == 1 && jcp.oc == 1
                    && jcp.ngroups != 1;
                 const size_t outer_work = jcp.ngroups * jcp.mb;
@@ -1012,6 +1138,7 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
             if (jcp.with_weights_zp)
                 scratchpad.book(key_weights_zp_compensation, sizeof(int32_t) * jcp.nthr * jcp.oh * jcp.ow);
         } else if (is_bwd_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          } else if (is_bwd_d) {" << std::endl;
             bool is_depthwise = jcp.ic == 1 && jcp.oc == 1 && jcp.ngroups != 1;
             const size_t outer_work = jcp.ngroups * jcp.mb;
             const float outer_thr_eff
@@ -1031,12 +1158,15 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
             scratchpad.book(key_conv_int_dat_in_acc_dt,
                 sizeof(int32_t) * jcp.nthr * jcp.is * jcp.ic);
         } else if (is_bwd_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          } else if (is_bwd_w) {" << std::endl;
             assert(!"unimplemented prop_kind");
             return status::unimplemented;
         }
     } else {
         if (is_fwd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (is_fwd) {" << std::endl;
             if (!jcp.outer_threading) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              if (!jcp.outer_threading) {" << std::endl;
                 const size_t outer_work_amount = jcp.ngroups * jcp.mb * jcp.od;
                 const float outer_thr_eff = (float)outer_work_amount
                         / rnd_up(outer_work_amount, max_threads);
@@ -1050,6 +1180,7 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
                       || (jcp.os * jcp.ic * jcp.oc) / max_threads < gemm_thrld);
             }
         } else if (is_bwd_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          } else if (is_bwd_d) {" << std::endl;
             const size_t outer_work_amount = jcp.ngroups * jcp.mb;
             const float outer_thr_eff = (float)outer_work_amount
                 / rnd_up(outer_work_amount, max_threads);
@@ -1074,12 +1205,14 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
 
         const int sizeof_cacheline_float = 16;
         if (is_bwd_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (is_bwd_w) {" << std::endl;
             jcp.need_wei_reduction = mkldnn_thr_syncable()
                 ? jcp.mb != 1 && jcp.nthr != 1 : false;
             scratchpad.book(key_conv_wei_reduction,
                     sizeof(float) * jcp.nthr * jcp.ngroups * weights_d.size());
 
             if (is_bf16_conv && jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:              if (is_bf16_conv && jcp.with_bias) {" << std::endl;
                 const size_t ws_size = sizeof(float)
                     * max_threads * rnd_up(jcp.ow, sizeof_cacheline_float);
                 scratchpad.book(key_conv_dst_bf16_convert_wsp, ws_size);
@@ -1087,6 +1220,7 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
         }
 
         if (is_bf16_to_bf16_conv) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          if (is_bf16_to_bf16_conv) {" << std::endl;
             size_t conv_acc_buffer_size = 0;
             if (is_fwd)
                 conv_acc_buffer_size = sizeof(float) * jcp.nthr
@@ -1107,9 +1241,11 @@ status_t init_conf(jit_gemm_conv_conf_t &jcp,
 
 void bwd_weights_balance(int ithr, int nthr, int ngroups, int mb, int &ithr_g,
         int &nthr_g, int &ithr_mb, int &nthr_mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          int &nthr_g, int &ithr_mb, int &nthr_mb) {" << std::endl;
     nthr_g = nstl::min(ngroups, nthr);
     nthr_mb = nstl::min(mb, nthr / nthr_g);
     if (ithr / nthr_mb >= ngroups) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      if (ithr / nthr_mb >= ngroups) {" << std::endl;
         ithr_g = ithr_mb = -1;
     } else {
         ithr_g = ithr / nthr_mb;
@@ -1120,12 +1256,14 @@ void bwd_weights_balance(int ithr, int nthr, int ngroups, int mb, int &ithr_g,
 void bwd_weights_reduction_par(int ithr, int nthr,
         const jit_gemm_conv_conf_t &jcp, const float *weights_reduce_ws,
         float *weights) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:          float *weights) {" << std::endl;
     const size_t weights_g_size = jcp.ic * jcp.oc * jcp.ks;
 
     size_t weights_start{0}, weights_end{0};
     balance211(weights_g_size, nthr, ithr, weights_start, weights_end);
 
     for (int i = 0; i < nthr; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution_utils.cpp:      for (int i = 0; i < nthr; ++i) {" << std::endl;
         const float *ws_i = weights_reduce_ws + i * weights_g_size;
         for (size_t s = weights_start; s < weights_end; ++s)
             weights[s] = (i == 0 ? 0 : weights[s]) + ws_i[s];

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018-2019 Intel Corporation
 *
@@ -43,8 +44,10 @@ void ref_deconvolution_fwd_t::compute_fwd_bias() const {
 
     parallel_nd(MB, G, OC, OD, OH, OW,
         [&](int mb, int g, int oc, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:          [&](int mb, int g, int oc, int od, int oh, int ow) {" << std::endl;
             auto b = bias[g * OC + oc];
             switch (ndims) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:              switch (ndims) {" << std::endl;
             case 5: dst[dst_d.off(mb, g * OC + oc, od, oh, ow)] += b; break;
             case 4: dst[dst_d.off(mb, g * OC + oc, oh, ow)] += b; break;
             case 3: dst[dst_d.off(mb, g * OC + oc, ow)] += b; break;
@@ -64,8 +67,10 @@ void ref_deconvolution_fwd_t::compute_fwd_bias_ncdhw() const {
     const int SP = pd()->OW()*pd()->OH()*pd()->OD();
 
     parallel_nd(MB, OC, [&](int mb, int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:      parallel_nd(MB, OC, [&](int mb, int oc) {" << std::endl;
         PRAGMA_OMP_SIMD()
         for (int sp = 0; sp < SP; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:          for (int sp = 0; sp < SP; ++sp) {" << std::endl;
             auto offset = (size_t)(mb * OC + oc) * SP + sp;
             dst[offset] += bias[oc];
         }
@@ -87,6 +92,7 @@ void ref_deconvolution_fwd_t::compute_fwd_bias_nCdhwXc() const {
 
     parallel_nd(MB, utils::div_up(OC, blksize), SP,
         [&](int mb, int oc_blk, int sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:          [&](int mb, int oc_blk, int sp) {" << std::endl;
         int oc = oc_blk * blksize;
         auto offset = mb * stride_mb + oc * SP + sp * blksize;
         const int blk = nstl::min(blksize, OC - oc);
@@ -111,6 +117,7 @@ void ref_deconvolution_fwd_t::compute_fwd_bias_nCdhwXc_bf16() const {
     const ptrdiff_t stride_mb = dst_d.blocking_desc().strides[0][0];
     parallel_nd(MB, utils::div_up(OC, blksize), SP,
         [&](int mb, int oc_blk, int sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:          [&](int mb, int oc_blk, int sp) {" << std::endl;
         int oc = oc_blk * blksize;
         auto offset = mb * stride_mb + oc * SP + sp * blksize;
         const int blk = nstl::min(blksize, OC - oc);
@@ -120,6 +127,7 @@ void ref_deconvolution_fwd_t::compute_fwd_bias_nCdhwXc_bf16() const {
 
         PRAGMA_OMP_SIMD()
         for (int i = 0; i < blk; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:          for (int i = 0; i < blk; ++i) {" << std::endl;
             dst_f32[i] += bias[oc + i];
         }
 
@@ -141,12 +149,18 @@ void ref_deconvolution_bwd_weights_t::compute_bwd_bias() const {
     const int ndims = pd()->desc()->src_desc.ndims;
 
     parallel_nd(G, OC, [&](int g, int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:      parallel_nd(G, OC, [&](int g, int oc) {" << std::endl;
         f32_data_t db = 0;
         for (int mb = 0; mb < MB; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:          for (int mb = 0; mb < MB; ++mb) {" << std::endl;
             for (int od = 0; od < OD; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:              for (int od = 0; od < OD; ++od) {" << std::endl;
                 for (int oh = 0; oh < OH; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:                  for (int oh = 0; oh < OH; ++oh) {" << std::endl;
                     for (int ow = 0; ow < OW; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:                      for (int ow = 0; ow < OW; ++ow) {" << std::endl;
                         switch (ndims) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:                          switch (ndims) {" << std::endl;
                         case 5:
                             db += diff_dst[diff_dst_d.off(
                                     mb, g * OC + oc, od, oh, ow)];
@@ -179,10 +193,13 @@ void ref_deconvolution_bwd_weights_t::compute_bwd_bias_ncdhw() const {
     const int SP = pd()->OH()*pd()->OW()*pd()->OD();
 
     parallel_nd(OC, [&](int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:      parallel_nd(OC, [&](int oc) {" << std::endl;
         f32_data_t db = 0;
         for (int mb = 0; mb < MB; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:          for (int mb = 0; mb < MB; ++mb) {" << std::endl;
             PRAGMA_OMP_SIMD()
             for (int sp = 0; sp < SP; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:              for (int sp = 0; sp < SP; ++sp) {" << std::endl;
                 auto offset = (size_t)(mb * OC + oc) * SP + sp;
                 db += diff_dst[offset];
             }
@@ -205,10 +222,13 @@ void ref_deconvolution_bwd_weights_t::compute_bwd_bias_nCdhwXc() const {
     const ptrdiff_t stride_mb = diff_dst_d.blocking_desc().strides[0][0];
 
     parallel_nd(utils::div_up(OC, blksize), [&](int ocb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:      parallel_nd(utils::div_up(OC, blksize), [&](int ocb) {" << std::endl;
         f32_data_t db[blksize] = {0};
 
         for (int mb = 0; mb < MB; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:          for (int mb = 0; mb < MB; ++mb) {" << std::endl;
             for (int sp = 0; sp < SP; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:              for (int sp = 0; sp < SP; ++sp) {" << std::endl;
                 auto offset = mb * stride_mb + (ocb * SP + sp) * blksize;
 
                 PRAGMA_OMP_SIMD()
@@ -239,11 +259,14 @@ void ref_deconvolution_bwd_weights_t::compute_bwd_bias_nCdhwXc_bf16() const {
     const ptrdiff_t stride_mb = diff_dst_d.blocking_desc().strides[0][0];
 
     parallel_nd(utils::div_up(OC, blksize), [&](int ocb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:      parallel_nd(utils::div_up(OC, blksize), [&](int ocb) {" << std::endl;
         f32_data_t db[blksize] = {0};
         f32_data_t ddst_f32[blksize] = {0};
 
         for (int mb = 0; mb < MB; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:          for (int mb = 0; mb < MB; ++mb) {" << std::endl;
             for (int sp = 0; sp < SP; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_deconvolution.cpp:              for (int sp = 0; sp < SP; ++sp) {" << std::endl;
                 auto offset = mb * stride_mb + (ocb * SP + sp) * blksize;
 
                 bf16_cvt_utils::cvt_bfloat16_to_float(ddst_f32, &diff_dst[offset], blksize);

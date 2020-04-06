@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,6 +21,7 @@ namespace Cpu {
 class NonMaxSuppressionImpl: public ExtLayerBase {
 public:
     explicit NonMaxSuppressionImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:      explicit NonMaxSuppressionImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() < 2 || layer->insData.size() > 5)
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input edges!";
@@ -45,6 +47,7 @@ public:
                 THROW_IE_EXCEPTION << layer->name << " spatial_dimension is different in 'boxes' and 'scores' tensors";
 
             if (layer->insData.size() > 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:              if (layer->insData.size() > 2) {" << std::endl;
                 if (layer->insData[NMS_MAXOUTPUTBOXESPERCLASS].lock()->getTensorDesc().getPrecision() != Precision::I32)
                     THROW_IE_EXCEPTION << layer->name << " Incorrect 'max_output_boxes_per_class' input precision. Only I32 is supported!";
                 SizeVector max_output_boxes_per_class_dims = layer->insData[NMS_MAXOUTPUTBOXESPERCLASS].lock()->getTensorDesc().getDims();
@@ -53,6 +56,7 @@ public:
             }
 
             if (layer->insData.size() > 3) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:              if (layer->insData.size() > 3) {" << std::endl;
                 if (layer->insData[NMS_IOUTHRESHOLD].lock()->getTensorDesc().getPrecision() != Precision::FP32)
                     THROW_IE_EXCEPTION << layer->name << " Incorrect 'iou_threshold' input precision. Only FP32 is supported!";
                 SizeVector iou_threshold_dims = layer->insData[NMS_IOUTHRESHOLD].lock()->getTensorDesc().getDims();
@@ -61,6 +65,7 @@ public:
             }
 
             if (layer->insData.size() > 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:              if (layer->insData.size() > 4) {" << std::endl;
                 if (layer->insData[NMS_SCORETHRESHOLD].lock()->getTensorDesc().getPrecision() != Precision::FP32)
                     THROW_IE_EXCEPTION << layer->name << " Incorrect 'score_threshold' input precision. Only FP32 is supported!";
                 SizeVector score_threshold_dims = layer->insData[NMS_SCORETHRESHOLD].lock()->getTensorDesc().getDims();
@@ -78,11 +83,14 @@ public:
             sort_result_descending = layer->GetParamAsBool("sort_result_descending", true);
 
             if (layer->insData.size() == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:              if (layer->insData.size() == 2) {" << std::endl;
                 addConfig(layer, { DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN) }, { DataConfigurator(ConfLayout::PLN) });
             } else if (layer->insData.size() == 3) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:              } else if (layer->insData.size() == 3) {" << std::endl;
                 addConfig(layer, { DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN) },
                     { DataConfigurator(ConfLayout::PLN) });
             } else if (layer->insData.size() == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:              } else if (layer->insData.size() == 4) {" << std::endl;
                 addConfig(layer, { DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN),
                     DataConfigurator(ConfLayout::PLN) }, { DataConfigurator(ConfLayout::PLN) });
             } else {
@@ -90,13 +98,16 @@ public:
                     DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN) }, { DataConfigurator(ConfLayout::PLN) });
             }
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
 
     static float intersectionOverUnion(float* boxesI, float* boxesJ, bool center_point_box) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:      static float intersectionOverUnion(float* boxesI, float* boxesJ, bool center_point_box) {" << std::endl;
         float yminI, xminI, ymaxI, xmaxI, yminJ, xminJ, ymaxJ, xmaxJ;
         if (center_point_box) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:          if (center_point_box) {" << std::endl;
             //  box format: x_center, y_center, width, height
             yminI = boxesI[1] - boxesI[3] / 2.f;
             xminI = boxesI[0] - boxesI[2] / 2.f;
@@ -173,33 +184,42 @@ public:
         std::vector<filteredBoxes> fb;
 
         for (int batch = 0; batch < num_batches; batch++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:          for (int batch = 0; batch < num_batches; batch++) {" << std::endl;
             float *boxesPtr = boxes + batch * boxesStrides[0];
             for (int class_idx = 0; class_idx < num_classes; class_idx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:              for (int class_idx = 0; class_idx < num_classes; class_idx++) {" << std::endl;
                 float *scoresPtr = scores + batch * scoresStrides[0] + class_idx * scoresStrides[1];
                 std::vector<std::pair<float, int> > scores_vector;
                 for (int box_idx = 0; box_idx < num_boxes; box_idx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:                  for (int box_idx = 0; box_idx < num_boxes; box_idx++) {" << std::endl;
                     if (scoresPtr[box_idx] > score_threshold)
                         scores_vector.push_back(std::make_pair(scoresPtr[box_idx], box_idx));
                 }
 
                 if (scores_vector.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:                  if (scores_vector.size()) {" << std::endl;
                     parallel_sort(scores_vector.begin(), scores_vector.end(),
-                        [](const std::pair<float, int>& l, const std::pair<float, int>& r) { return l.first > r.first; });
+                        [](const std::pair<float, int>& l, const std::pair<float, int>& r) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:                          [](const std::pair<float, int>& l, const std::pair<float, int>& r) {" << std::endl; return l.first > r.first; });
 
                     int io_selection_size = 1;
                     fb.push_back({ scores_vector[0].first, batch, class_idx, scores_vector[0].second });
                     for (int box_idx = 1; (box_idx < static_cast<int>(scores_vector.size()) && io_selection_size < max_output_boxes_per_class); box_idx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:                      for (int box_idx = 1; (box_idx < static_cast<int>(scores_vector.size()) && io_selection_size < max_output_boxes_per_class); box_idx++) {" << std::endl;
                         bool box_is_selected = true;
                         for (int idx = io_selection_size - 1; idx >= 0; idx--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:                          for (int idx = io_selection_size - 1; idx >= 0; idx--) {" << std::endl;
                             float iou = intersectionOverUnion(&boxesPtr[scores_vector[box_idx].second * 4],
                                              &boxesPtr[scores_vector[idx].second * 4], center_point_box);
                             if (iou > iou_threshold) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:                              if (iou > iou_threshold) {" << std::endl;
                                 box_is_selected = false;
                                 break;
                             }
                         }
 
                         if (box_is_selected) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:                          if (box_is_selected) {" << std::endl;
                             scores_vector[io_selection_size] = scores_vector[box_idx];
                             io_selection_size++;
                             fb.push_back({ scores_vector[box_idx].first, batch, class_idx, scores_vector[box_idx].second });
@@ -210,19 +230,23 @@ public:
         }
 
         if (sort_result_descending) {
-            parallel_sort(fb.begin(), fb.end(), [](const filteredBoxes& l, const filteredBoxes& r) { return l.score > r.score; });
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:          if (sort_result_descending) {" << std::endl;
+            parallel_sort(fb.begin(), fb.end(), [](const filteredBoxes& l, const filteredBoxes& r) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:              parallel_sort(fb.begin(), fb.end(), [](const filteredBoxes& l, const filteredBoxes& r) {" << std::endl; return l.score > r.score; });
         }
 
         int selected_indicesStride = outputs[0]->getTensorDesc().getBlockingDesc().getStrides()[0];
         int* selected_indicesPtr = selected_indices;
         size_t idx;
         for (idx = 0; idx < (std::min)(selected_indices_dims[0], fb.size()); idx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:          for (idx = 0; idx < (std::min)(selected_indices_dims[0], fb.size()); idx++) {" << std::endl;
             selected_indicesPtr[0] = fb[idx].batch_index;
             selected_indicesPtr[1] = fb[idx].class_index;
             selected_indicesPtr[2] = fb[idx].box_index;
             selected_indicesPtr += selected_indicesStride;
         }
         for (; idx < selected_indices_dims[0]; idx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/non_max_suppression.cpp:          for (; idx < selected_indices_dims[0]; idx++) {" << std::endl;
             selected_indicesPtr[0] = -1;
             selected_indicesPtr[1] = -1;
             selected_indicesPtr[2] = -1;

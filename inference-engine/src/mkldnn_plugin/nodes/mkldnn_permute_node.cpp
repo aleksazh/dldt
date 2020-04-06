@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -25,6 +26,7 @@ struct jit_uni_permute_kernel_f32 : public jit_uni_permute_kernel, public jit_ge
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_uni_permute_kernel_f32)
 
     explicit jit_uni_permute_kernel_f32(jit_permute_conf_t jpp) : jit_uni_permute_kernel(jpp), jit_generator() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      explicit jit_uni_permute_kernel_f32(jit_permute_conf_t jpp) : jit_uni_permute_kernel(jpp), jit_generator() {" << std::endl;
         this->preamble();
 
         mov(reg_src, ptr[reg_params + GET_OFF(src)]);
@@ -38,7 +40,9 @@ struct jit_uni_permute_kernel_f32 : public jit_uni_permute_kernel, public jit_ge
     }
 
     void load(const Xbyak::Xmm &xmm, const Xbyak::Address &addr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      void load(const Xbyak::Xmm &xmm, const Xbyak::Address &addr) {" << std::endl;
         switch (jpp.data_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          switch (jpp.data_size) {" << std::endl;
             case 16: movups(xmm, addr); break;
             case 8: movsd(xmm, addr); break;
             case 4: movss(xmm, addr); break;
@@ -48,7 +52,9 @@ struct jit_uni_permute_kernel_f32 : public jit_uni_permute_kernel, public jit_ge
     }
 
     void store(const Xbyak::Address &addr, const Xbyak::Xmm &xmm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      void store(const Xbyak::Address &addr, const Xbyak::Xmm &xmm) {" << std::endl;
         switch (jpp.data_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          switch (jpp.data_size) {" << std::endl;
             case 16: movups(addr, xmm); break;
             case 8: movsd(addr, xmm); break;
             case 4: movss(addr, xmm); break;
@@ -58,6 +64,7 @@ struct jit_uni_permute_kernel_f32 : public jit_uni_permute_kernel, public jit_ge
     }
 
     void loop(int n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      void loop(int n) {" << std::endl;
         mov(reg_work_amount, jpp.dst_block_dims[n]);
 
         Xbyak::Label main_loop_label;
@@ -65,7 +72,9 @@ struct jit_uni_permute_kernel_f32 : public jit_uni_permute_kernel, public jit_ge
         Xbyak::Label exit_label;
 
         if (n + 1 == jpp.ndims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (n + 1 == jpp.ndims) {" << std::endl;
             if (jpp.src_strides[n] == jpp.dst_strides[n] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              if (jpp.src_strides[n] == jpp.dst_strides[n] == 1) {" << std::endl;
                 uint32_t step = vlen / jpp.data_size;
 
                 L(main_loop_label);
@@ -90,6 +99,7 @@ struct jit_uni_permute_kernel_f32 : public jit_uni_permute_kernel, public jit_ge
             je(exit_label, T_NEAR);
 
             if (n + 1 == jpp.ndims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              if (n + 1 == jpp.ndims) {" << std::endl;
                 load(xmm, ptr[reg_src]);
                 store(ptr[reg_dst], xmm);
             } else {
@@ -131,9 +141,11 @@ private:
 };
 
 MKLDNNPermuteNode::MKLDNNPermuteNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket)
-        : MKLDNNNode(layer, eng, socket) {}
+        : MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          : MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNPermuteNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  void MKLDNNPermuteNode::getSupportedDescriptors() {" << std::endl;
     if (getParentEdges().size() != 1)
         THROW_IE_EXCEPTION << "Incorrect number of input edges for layer " << getName();
     if (!getChildEdges().size())
@@ -141,6 +153,7 @@ void MKLDNNPermuteNode::getSupportedDescriptors() {
 
     auto& layer = getCnnLayer();
     if (!layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      if (!layer) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot get CNNLayer.";
     }
 
@@ -151,6 +164,7 @@ void MKLDNNPermuteNode::getSupportedDescriptors() {
 }
 
 void MKLDNNPermuteNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  void MKLDNNPermuteNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -167,43 +181,51 @@ void MKLDNNPermuteNode::initSupportedPrimitiveDescriptors() {
     config.outConfs[0].inPlace = -1;
     config.outConfs[0].constant = false;
     if (getParentEdgeAt(0)->getDims().ndims() == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      if (getParentEdgeAt(0)->getDims().ndims() == 4) {" << std::endl;
         config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, memory::nchw);
         config.outConfs[0].desc = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, memory::nchw);
         supportedPrimitiveDescriptors.push_back({config, impl_desc_type::unknown, memory::nchw});
 
         auto srcDims = getParentEdgeAt(0)->getDims();
         if (srcDims[1] % 8 == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (srcDims[1] % 8 == 0) {" << std::endl;
             config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, memory::nChw8c);
             supportedPrimitiveDescriptors.push_back({config, impl_desc_type::unknown, memory::nChw8c});
         }
 
         if (srcDims[1] % 16 == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (srcDims[1] % 16 == 0) {" << std::endl;
             config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, memory::nChw16c);
             supportedPrimitiveDescriptors.push_back({config, impl_desc_type::unknown, memory::nChw16c});
         }
 
         if (prec == Precision::I8 || prec == Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (prec == Precision::I8 || prec == Precision::U8) {" << std::endl;
             config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, memory::nhwc);
             config.outConfs[0].desc = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, memory::nhwc);
             supportedPrimitiveDescriptors.push_back({config, impl_desc_type::unknown, memory::nhwc});
         }
     } else if (getParentEdgeAt(0)->getDims().ndims() == 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      } else if (getParentEdgeAt(0)->getDims().ndims() == 5) {" << std::endl;
         config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, memory::ncdhw);
         config.outConfs[0].desc = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, memory::ncdhw);
         supportedPrimitiveDescriptors.push_back({config, impl_desc_type::unknown, memory::ncdhw});
 
         auto srcDims = getParentEdgeAt(0)->getDims();
         if (srcDims[1] % 8 == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (srcDims[1] % 8 == 0) {" << std::endl;
             config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, memory::nCdhw8c);
             supportedPrimitiveDescriptors.push_back({config, impl_desc_type::unknown, memory::nCdhw8c});
         }
 
         if (srcDims[1] % 16 == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (srcDims[1] % 16 == 0) {" << std::endl;
             config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, memory::nCdhw16c);
             supportedPrimitiveDescriptors.push_back({config, impl_desc_type::unknown, memory::nCdhw16c});
         }
 
         if (prec == Precision::I8 || prec == Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (prec == Precision::I8 || prec == Precision::U8) {" << std::endl;
             config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, memory::ndhwc);
             config.outConfs[0].desc = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, memory::ndhwc);
             supportedPrimitiveDescriptors.push_back({config, impl_desc_type::unknown, memory::ndhwc});
@@ -217,6 +239,7 @@ void MKLDNNPermuteNode::initSupportedPrimitiveDescriptors() {
 }
 
 void MKLDNNPermuteNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  void MKLDNNPermuteNode::createPrimitive() {" << std::endl;
     auto& dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
     auto& srcMemPtr = getParentEdgeAt(0)->getMemoryPtr();
     if (!dstMemPtr || !dstMemPtr->GetPrimitivePtr())
@@ -245,6 +268,7 @@ void MKLDNNPermuteNode::createPrimitive() {
 
     SizeVector tmp_order;
     for (int i = 0; i < dst_block_order.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      for (int i = 0; i < dst_block_order.size(); i++) {" << std::endl;
         tmp_order.push_back(order[dst_block_order[i]]);
     }
 
@@ -255,8 +279,10 @@ void MKLDNNPermuteNode::createPrimitive() {
     SizeVector mask(dst_block_strides.size());
 
     for (int i = tmp_order.size() - 1; i >= 0; i--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      for (int i = tmp_order.size() - 1; i >= 0; i--) {" << std::endl;
         int pos = std::distance(std::find(src_block_order.rbegin(), src_block_order.rend(), tmp_order[i]), src_block_order.rend() - 1);
         if (pos != -1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (pos != -1) {" << std::endl;
             new_src_block_strides[i] = src_block_strides[pos];
             src_block_order.erase(src_block_order.begin() + pos);
             src_block_strides.erase(src_block_strides.begin() + pos);
@@ -268,6 +294,7 @@ void MKLDNNPermuteNode::createPrimitive() {
         }
     }
     if (!src_block_order.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      if (!src_block_order.empty()) {" << std::endl;
         int pos = std::distance(tmp_order.begin(), std::find(tmp_order.begin(), tmp_order.end(), src_block_order[0]));
         new_src_block_strides.insert(new_src_block_strides.begin() + pos, src_block_strides[0]);
         new_dst_block_strides.insert(new_dst_block_strides.begin() + pos, new_dst_block_strides[pos] * src_block_dims[src_block_dims.size() - 1]);
@@ -290,12 +317,15 @@ void MKLDNNPermuteNode::createPrimitive() {
     int batch_count = 0;
     int batch_pos = 0;
     for (int i = 0; i < new_dst_block_order.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      for (int i = 0; i < new_dst_block_order.size(); i++) {" << std::endl;
         if (new_dst_block_order[i] == batch_ord) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (new_dst_block_order[i] == batch_ord) {" << std::endl;
             batch_count++;
             batch_pos = i;
         }
     }
     if (batch_count == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      if (batch_count == 1) {" << std::endl;
         sorted_src_strides.push_back(new_src_block_strides[batch_pos]);
         sorted_dst_strides.push_back(new_dst_block_strides[batch_pos]);
         sorted_order.push_back(new_dst_block_order[batch_pos]);
@@ -305,9 +335,12 @@ void MKLDNNPermuteNode::createPrimitive() {
 
     int n2 = 0;
     for (int i = 0; i < mask.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      for (int i = 0; i < mask.size(); i++) {" << std::endl;
         if (mask[i] == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (mask[i] == 0) {" << std::endl;
             n2++;
             if (batch_count == 1 && new_dst_block_order[i] == batch_ord) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              if (batch_count == 1 && new_dst_block_order[i] == batch_ord) {" << std::endl;
                 continue;
             }
             sorted_src_strides.push_back(new_src_block_strides[i]);
@@ -317,7 +350,9 @@ void MKLDNNPermuteNode::createPrimitive() {
         }
     }
     for (int i = 0; i < mask.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      for (int i = 0; i < mask.size(); i++) {" << std::endl;
         if (mask[i] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (mask[i] == 1) {" << std::endl;
             sorted_src_strides.push_back(new_src_block_strides[i]);
             sorted_dst_strides.push_back(new_dst_block_strides[i]);
             sorted_order.push_back(new_dst_block_order[i]);
@@ -330,8 +365,10 @@ void MKLDNNPermuteNode::createPrimitive() {
     int n = 0;
     int work_amount = sorted_dst_dims[0];
     for (int i = 1; i < sorted_dst_dims.size() && n < n_max; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      for (int i = 1; i < sorted_dst_dims.size() && n < n_max; i++) {" << std::endl;
         n++;
-        if (work_amount >= 4 * max_threads) {   //  4 * max_threads is a specially selected value for best performance
+        if (work_amount >= 4 * max_threads) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (work_amount >= 4 * max_threads) {" << std::endl;   //  4 * max_threads is a specially selected value for best performance
             break;
         }
         work_amount *= sorted_dst_dims[i];
@@ -345,15 +382,19 @@ void MKLDNNPermuteNode::createPrimitive() {
     jpp.data_size = MKLDNNExtensionUtils::sizeOfDataType(data_type);
 
     if (mayiuse(cpu::avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      if (mayiuse(cpu::avx512_common)) {" << std::endl;
         permute_kernel.reset(new jit_uni_permute_kernel_f32<cpu::avx512_common>(jpp));
     } else if (mayiuse(cpu::avx2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      } else if (mayiuse(cpu::avx2)) {" << std::endl;
         permute_kernel.reset(new jit_uni_permute_kernel_f32<cpu::avx2>(jpp));
     } else if (mayiuse(cpu::sse42)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      } else if (mayiuse(cpu::sse42)) {" << std::endl;
         permute_kernel.reset(new jit_uni_permute_kernel_f32<cpu::sse42>(jpp));
     }
 }
 
 static void permute_to_0231(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_0231(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -361,6 +402,7 @@ static void permute_to_0231(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
     // Supports only NCHW to NHWC
     int block_size = 1;
     if (!MKLDNNMemory::IsPlainFormat(srcMemPtr->GetFormat())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      if (!MKLDNNMemory::IsPlainFormat(srcMemPtr->GetFormat())) {" << std::endl;
         block_size = srcMemPtr->GetDescriptor().data.layout_desc.blocking.block_dims[1];
     }
 
@@ -372,11 +414,14 @@ static void permute_to_0231(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
     const int src_stride = H * W * block_size;
 
     parallel_for3d(MB, H, W, [&](int n, int h, int w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for3d(MB, H, W, [&](int n, int h, int w) {" << std::endl;
         int src_off = n * C * H * W + (h * W + w) * block_size;
         int dst_off = n * H * W * C + h * W * C + w * C;
 
         for (int c = 0; c < C; c += block_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int c = 0; c < C; c += block_size) {" << std::endl;
             for (int b = 0; b < block_size; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              for (int b = 0; b < block_size; b++) {" << std::endl;
                 dst_data[dst_off] = src_data[src_off + b];
                 dst_off++;
             }
@@ -387,12 +432,14 @@ static void permute_to_0231(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
 }
 
 static void permute_to_0213(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_0213(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
     dst_data += dstMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
     int block_size = 1;
     if (!MKLDNNMemory::IsPlainFormat(srcMemPtr->GetFormat())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      if (!MKLDNNMemory::IsPlainFormat(srcMemPtr->GetFormat())) {" << std::endl;
         block_size = srcMemPtr->GetDescriptor().data.layout_desc.blocking.block_dims[1];
     }
 
@@ -401,10 +448,13 @@ static void permute_to_0213(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
     const int W = srcMemPtr->GetDims()[3];
 
     parallel_for3d(MB, C/block_size, H, [&](int n, int c, int h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for3d(MB, C/block_size, H, [&](int n, int c, int h) {" << std::endl;
         for (int w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int w = 0; w < W; w++) {" << std::endl;
             int src_off = n*C*H*W + (c*H*W + h*W + w)*block_size;
             int dst_off = n*C*H*W + (h*C*W + w + c*W)*block_size;
             for (int b = 0; b < block_size; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              for (int b = 0; b < block_size; b++) {" << std::endl;
                 dst_data[dst_off + b] = src_data[src_off + b];
             }
         }
@@ -412,6 +462,7 @@ static void permute_to_0213(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
 }
 
 static void permute_to_0312(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_0312(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -422,7 +473,9 @@ static void permute_to_0312(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
     const int W = srcMemPtr->GetDims()[3];
 
     parallel_for3d(MB, C, H, [&](int n, int c, int h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for3d(MB, C, H, [&](int n, int c, int h) {" << std::endl;
         for (int w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int w = 0; w < W; w++) {" << std::endl;
             int src_off = n*C*H*W + c*H*W + h*W + w;
             int dst_off = n*W*C*H + w*C*H + c*H + h;
             dst_data[dst_off] = src_data[src_off];
@@ -432,6 +485,7 @@ static void permute_to_0312(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
 
 template <size_t scale_H = 0, size_t scale_W = 0>
 static void permute_to_014253(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_014253(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -447,11 +501,17 @@ static void permute_to_014253(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPt
     int dst_off = 0;
 
     for (int n = 0; n < MB; n++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      for (int n = 0; n < MB; n++) {" << std::endl;
         for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int c = 0; c < C; c++) {" << std::endl;
             for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              for (int h = 0; h < H; h++) {" << std::endl;
                 for (int ch = 0; ch < CH; ch++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                  for (int ch = 0; ch < CH; ch++) {" << std::endl;
                     for (int w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                      for (int w = 0; w < W; w++) {" << std::endl;
                         for (int cw = 0; cw < CW; cw++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                          for (int cw = 0; cw < CW; cw++) {" << std::endl;
                             src_off = n * C * CH * CW * H * W +
                                       c * CH * CW * H * W +
                                       ch * CW * H * W +
@@ -470,6 +530,7 @@ static void permute_to_014253(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPt
 }
 
 static void permute_to_3012(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_3012(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -483,9 +544,13 @@ static void permute_to_3012(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
     int dst_off = 0;
 
     for (int w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      for (int w = 0; w < W; w++) {" << std::endl;
         for (int n = 0; n < MB; n++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int n = 0; n < MB; n++) {" << std::endl;
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                  for (int h = 0; h < H; h++) {" << std::endl;
                      src_off = n * C * H * W +
                                c * H * W +
                                h * W +
@@ -500,6 +565,7 @@ static void permute_to_3012(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
 }
 
 static void permute_to_021(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_021(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -509,10 +575,12 @@ static void permute_to_021(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& 
     const int S  = srcMemPtr->GetDims()[2];
 
     parallel_for2d(MB, S, [&](int n, int s) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for2d(MB, S, [&](int n, int s) {" << std::endl;
         int src_off = 0;
         int dst_off = 0;
 
         for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int c = 0; c < C; c++) {" << std::endl;
             src_off = n * C * S +
                       c * S +
                       s;
@@ -526,6 +594,7 @@ static void permute_to_021(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& 
 }
 
 static void permute_to_034152(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_034152(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -541,11 +610,17 @@ static void permute_to_034152(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPt
     int dst_off = 0;
 
     for (int n = 0; n < MB; n++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      for (int n = 0; n < MB; n++) {" << std::endl;
         for (int dim3 = 0; dim3 < DIM3; dim3++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int dim3 = 0; dim3 < DIM3; dim3++) {" << std::endl;
             for (int dim4 = 0; dim4 < DIM4; dim4++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              for (int dim4 = 0; dim4 < DIM4; dim4++) {" << std::endl;
                 for (int dim1 = 0; dim1 < DIM1; dim1++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                  for (int dim1 = 0; dim1 < DIM1; dim1++) {" << std::endl;
                     for (int dim5 = 0; dim5 < DIM5; dim5++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                      for (int dim5 = 0; dim5 < DIM5; dim5++) {" << std::endl;
                         for (int dim2 = 0; dim2 < DIM2; dim2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                          for (int dim2 = 0; dim2 < DIM2; dim2++) {" << std::endl;
                             src_off = n * DIM1 * DIM2 * DIM3 * DIM4 * DIM5 +
                                       dim1 * DIM2 * DIM3 * DIM4 * DIM5 +
                                       dim2 * DIM3 * DIM4 * DIM5 +
@@ -564,12 +639,14 @@ static void permute_to_034152(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPt
 }
 
 static void permute_to_0132(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_0132(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
     dst_data += dstMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
     int src_block_size = 1;
     if (!MKLDNNMemory::IsPlainFormat(srcMemPtr->GetFormat())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      if (!MKLDNNMemory::IsPlainFormat(srcMemPtr->GetFormat())) {" << std::endl;
         src_block_size = srcMemPtr->GetDescriptor().data.layout_desc.blocking.block_dims[1];
     }
 
@@ -578,10 +655,13 @@ static void permute_to_0132(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
     const int W = srcMemPtr->GetDims()[3];
 
     parallel_for3d(MB, C/src_block_size, H, [&](int n, int c, int h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for3d(MB, C/src_block_size, H, [&](int n, int c, int h) {" << std::endl;
         for (int w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int w = 0; w < W; w++) {" << std::endl;
             int src_off = n*C*H*W + (c*H*W + h*W + w)*src_block_size;
             int dst_off = n*C*H*W + c*H*W*src_block_size + w*H + h;
             for (int b = 0; b < src_block_size; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              for (int b = 0; b < src_block_size; b++) {" << std::endl;
                 dst_data[dst_off + b*H*W] = src_data[src_off + b];
             }
         }
@@ -589,6 +669,7 @@ static void permute_to_0132(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
 }
 
 static void permute_to_03142(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_03142(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -603,10 +684,15 @@ static void permute_to_03142(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
     int dst_off = 0;
 
     for (int n = 0; n < MB; n++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      for (int n = 0; n < MB; n++) {" << std::endl;
         for (int dim3 = 0; dim3 < DIM3; dim3++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int dim3 = 0; dim3 < DIM3; dim3++) {" << std::endl;
             for (int dim1 = 0; dim1 < DIM1; dim1++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              for (int dim1 = 0; dim1 < DIM1; dim1++) {" << std::endl;
                 for (int dim4 = 0; dim4 < DIM4; dim4++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                  for (int dim4 = 0; dim4 < DIM4; dim4++) {" << std::endl;
                     for (int dim2 = 0; dim2 < DIM2; dim2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                      for (int dim2 = 0; dim2 < DIM2; dim2++) {" << std::endl;
                         src_off = n * DIM1 * DIM2 * DIM3 * DIM4 +
                                   dim1 * DIM2 * DIM3 * DIM4 +
                                   dim2 * DIM3 * DIM4 +
@@ -623,6 +709,7 @@ static void permute_to_03142(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
 }
 
 static void permute_to_1203(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_1203(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -633,7 +720,9 @@ static void permute_to_1203(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
     const int W = srcMemPtr->GetDims()[3];
 
     parallel_for3d(MB, C, H, [&](int n, int c, int h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for3d(MB, C, H, [&](int n, int c, int h) {" << std::endl;
         for (int w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int w = 0; w < W; w++) {" << std::endl;
             int src_off = n * C * H * W + c * H * W + h * W + w;
             int dst_off = c * H * MB * W + h * MB * W + n * W + w;
             dst_data[dst_off] = src_data[src_off];
@@ -642,6 +731,7 @@ static void permute_to_1203(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr&
 }
 
 static void permute_to_02134(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_02134(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -653,7 +743,9 @@ static void permute_to_02134(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
     const int DIM4 = srcMemPtr->GetDims()[4];
 
     parallel_for4d(MB, DIM2, DIM1, DIM3, [&](int n, int dim2, int dim1, int dim3) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for4d(MB, DIM2, DIM1, DIM3, [&](int n, int dim2, int dim1, int dim3) {" << std::endl;
         for (int dim4 = 0; dim4 < DIM4; dim4++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int dim4 = 0; dim4 < DIM4; dim4++) {" << std::endl;
             int src_off = n * DIM1 * DIM2 * DIM3 * DIM4 +
                           dim1 * DIM2 * DIM3 * DIM4 +
                           dim2 * DIM3 * DIM4 +
@@ -671,6 +763,7 @@ static void permute_to_02134(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
 }
 
 static void permute_to_02431(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_02431(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -682,7 +775,9 @@ static void permute_to_02431(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
     const int DIM4 = srcMemPtr->GetDims()[4];
 
     parallel_for4d(MB, DIM2, DIM4, DIM3, [&](int n, int dim2, int dim4, int dim3) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for4d(MB, DIM2, DIM4, DIM3, [&](int n, int dim2, int dim4, int dim3) {" << std::endl;
         for (int dim1 = 0; dim1 < DIM1; dim1++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int dim1 = 0; dim1 < DIM1; dim1++) {" << std::endl;
             int src_off = n * DIM1 * DIM2 * DIM3 * DIM4 +
                           dim1 * DIM2 * DIM3 * DIM4 +
                           dim2 * DIM3 * DIM4 +
@@ -700,6 +795,7 @@ static void permute_to_02431(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
 }
 
 static void permute_to_04231(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_04231(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -711,7 +807,9 @@ static void permute_to_04231(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
     const int DIM4 = srcMemPtr->GetDims()[4];
 
     parallel_for4d(MB, DIM4, DIM2, DIM3, [&](int n, int dim4, int dim2, int dim3) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for4d(MB, DIM4, DIM2, DIM3, [&](int n, int dim4, int dim2, int dim3) {" << std::endl;
         for (int dim1 = 0; dim1 < DIM1; dim1++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int dim1 = 0; dim1 < DIM1; dim1++) {" << std::endl;
             int src_off = n * DIM1 * DIM2 * DIM3 * DIM4 +
                           dim1 * DIM2 * DIM3 * DIM4 +
                           dim2 * DIM3 * DIM4 +
@@ -729,6 +827,7 @@ static void permute_to_04231(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
 }
 
 static void permute_to_102(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_102(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -738,10 +837,12 @@ static void permute_to_102(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& 
     const int S  = srcMemPtr->GetDims()[2];
 
     parallel_for2d(MB, S, [&](int n, int s) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for2d(MB, S, [&](int n, int s) {" << std::endl;
         int src_off = 0;
         int dst_off = 0;
 
         for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int c = 0; c < C; c++) {" << std::endl;
             src_off = n * C * S +
                       c * S +
                       s;
@@ -755,6 +856,7 @@ static void permute_to_102(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& 
 }
 
 static void permute_to_02341(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_02341(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -766,7 +868,9 @@ static void permute_to_02341(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
     const int DIM4 = srcMemPtr->GetDims()[4];
 
     parallel_for4d(MB, DIM2, DIM3, DIM4, [&](int n, int dim2, int dim3, int dim4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for4d(MB, DIM2, DIM3, DIM4, [&](int n, int dim2, int dim3, int dim4) {" << std::endl;
         for (int dim1 = 0; dim1 < DIM1; dim1++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int dim1 = 0; dim1 < DIM1; dim1++) {" << std::endl;
             int src_off = n * DIM1 * DIM2 * DIM3 * DIM4 +
                           dim1 * DIM2 * DIM3 * DIM4 +
                           dim2 * DIM3 * DIM4 +
@@ -784,6 +888,7 @@ static void permute_to_02341(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
 }
 
 static void permute_to_04123(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  static void permute_to_04123(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr& dstMemPtr) {" << std::endl;
     auto src_data = reinterpret_cast<const float *>(srcMemPtr->GetData());
     auto dst_data = reinterpret_cast<float *>(dstMemPtr->GetData());
     src_data += srcMemPtr->GetDescriptor().data.layout_desc.blocking.offset_padding;
@@ -795,7 +900,9 @@ static void permute_to_04123(int MB, MKLDNNMemoryPtr& srcMemPtr, MKLDNNMemoryPtr
     const int DIM4 = srcMemPtr->GetDims()[4];
 
     parallel_for4d(MB, DIM4, DIM1, DIM2, [&](int n, int dim4, int dim1, int dim2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      parallel_for4d(MB, DIM4, DIM1, DIM2, [&](int n, int dim4, int dim1, int dim2) {" << std::endl;
         for (int dim3 = 0; dim3 < DIM3; dim3++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (int dim3 = 0; dim3 < DIM3; dim3++) {" << std::endl;
             int src_off = n * DIM1 * DIM2 * DIM3 * DIM4 +
                           dim1 * DIM2 * DIM3 * DIM4 +
                           dim2 * DIM3 * DIM4 +
@@ -867,12 +974,16 @@ std::multimap<InferenceEngine::SizeVector, MKLDNNPermuteNode::PermuteImpl> MKLDN
 };
 
 void MKLDNNPermuteNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:  void MKLDNNPermuteNode::execute(mkldnn::stream strm) {" << std::endl;
     auto &dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
     auto &srcMemPtr = getParentEdgeAt(0)->getMemoryPtr();
 
     if (prec == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      if (prec == Precision::FP32) {" << std::endl;
         for (const auto &impl : OptimizedCases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          for (const auto &impl : OptimizedCases) {" << std::endl;
             if (impl.first == order && impl.second.isValidParams(batchToProcess(), srcMemPtr, dstMemPtr)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:              if (impl.first == order && impl.second.isValidParams(batchToProcess(), srcMemPtr, dstMemPtr)) {" << std::endl;
                 impl.second.execute(batchToProcess(), srcMemPtr, dstMemPtr);
                 return;
             }
@@ -880,6 +991,7 @@ void MKLDNNPermuteNode::execute(mkldnn::stream strm) {
     }
 
     if (permute_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:      if (permute_kernel) {" << std::endl;
         auto src_data = reinterpret_cast<const char *>(srcMemPtr->GetData());
         auto dst_data = reinterpret_cast<char *>(dstMemPtr->GetData());
 
@@ -893,12 +1005,15 @@ void MKLDNNPermuteNode::execute(mkldnn::stream strm) {
         SizeVector src_strides = jpp.src_strides;
 
         if (jpp.supported_dynamic_batch) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          if (jpp.supported_dynamic_batch) {" << std::endl;
             dst_dims[0] = batchToProcess();
         }
 
         switch (jpp.n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:          switch (jpp.n) {" << std::endl;
             case 1:
                 parallel_for(dst_dims[0], [&](int i0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                  parallel_for(dst_dims[0], [&](int i0) {" << std::endl;
                     auto arg = jit_args_permute();
 
                     size_t dst_off = i0 * dst_strides[0];
@@ -911,6 +1026,7 @@ void MKLDNNPermuteNode::execute(mkldnn::stream strm) {
                 break;
             case 2:
                 parallel_for2d(dst_dims[0], dst_dims[1], [&](int i0, int i1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                  parallel_for2d(dst_dims[0], dst_dims[1], [&](int i0, int i1) {" << std::endl;
                     auto arg = jit_args_permute();
 
                     size_t dst_off = i0 * dst_strides[0] + i1 * dst_strides[1];
@@ -923,6 +1039,7 @@ void MKLDNNPermuteNode::execute(mkldnn::stream strm) {
                 break;
             case 3:
                 parallel_for3d(dst_dims[0], dst_dims[1], dst_dims[2], [&](int i0, int i1, int i2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_permute_node.cpp:                  parallel_for3d(dst_dims[0], dst_dims[1], dst_dims[2], [&](int i0, int i1, int i2) {" << std::endl;
                     auto arg = jit_args_permute();
 
                     size_t dst_off = i0 * dst_strides[0] + i1 * dst_strides[1] + i2 * dst_strides[2];

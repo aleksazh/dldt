@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,15 +18,18 @@ namespace Cpu {
 
 class PriorBoxImpl: public ExtLayerBase {
     static inline float clip_great(float x, float threshold) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:      static inline float clip_great(float x, float threshold) {" << std::endl;
         return x < threshold ? x : threshold;
     }
 
     static inline float clip_less(float x, float threshold) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:      static inline float clip_less(float x, float threshold) {" << std::endl;
         return x > threshold ? x : threshold;
     }
 
 public:
     explicit PriorBoxImpl(const CNNLayer *layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:      explicit PriorBoxImpl(const CNNLayer *layer) {" << std::endl;
         try {
             if (layer->insData.size() != 2 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -53,43 +57,54 @@ public:
             const std::vector<float> aspect_ratios = layer->GetParamAsFloats("aspect_ratio", {});
 
             for (float aspect_ratio : aspect_ratios) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              for (float aspect_ratio : aspect_ratios) {" << std::endl;
                 exist = false;
 
                 if (std::fabs(aspect_ratio) < std::numeric_limits<float>::epsilon()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                  if (std::fabs(aspect_ratio) < std::numeric_limits<float>::epsilon()) {" << std::endl;
                     THROW_IE_EXCEPTION << "aspect_ratio param can't be equal to zero";
                 }
 
                 for (float _aspect_ratio : _aspect_ratios) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                  for (float _aspect_ratio : _aspect_ratios) {" << std::endl;
                     if (fabs(aspect_ratio - _aspect_ratio) < 1e-6) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                      if (fabs(aspect_ratio - _aspect_ratio) < 1e-6) {" << std::endl;
                         exist = true;
                         break;
                     }
                 }
 
                 if (exist) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                  if (exist) {" << std::endl;
                     continue;
                 }
 
                 _aspect_ratios.push_back(aspect_ratio);
 
                 if (_flip) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                  if (_flip) {" << std::endl;
                     _aspect_ratios.push_back(1.0f / aspect_ratio);
                 }
             }
 
             if (_scale_all_sizes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              if (_scale_all_sizes) {" << std::endl;
                 _num_priors = static_cast<int>(_aspect_ratios.size() * _min_sizes.size());
             } else {
                 _num_priors = static_cast<int>(_aspect_ratios.size() + _min_sizes.size() - 1);
             }
 
             if (_fixed_sizes.size() > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              if (_fixed_sizes.size() > 0) {" << std::endl;
                 _num_priors = static_cast<int>(_aspect_ratios.size() * _fixed_sizes.size());
             }
 
             if (_densitys.size() > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              if (_densitys.size() > 0) {" << std::endl;
                 for (size_t i = 0; i < _densitys.size(); ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                  for (size_t i = 0; i < _densitys.size(); ++i) {" << std::endl;
                     if (_fixed_ratios.size() > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                      if (_fixed_ratios.size() > 0) {" << std::endl;
                        _num_priors += (_fixed_ratios.size()) * (static_cast<size_t>(pow(_densitys[i], 2)) - 1);
                     } else {
                         _num_priors += (_aspect_ratios.size()) * (static_cast<size_t>(pow(_densitys[i], 2)) - 1);
@@ -98,20 +113,25 @@ public:
             }
 
             for (auto it = _max_sizes.begin(); it != _max_sizes.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              for (auto it = _max_sizes.begin(); it != _max_sizes.end(); it++) {" << std::endl;
                 _num_priors += 1;
             }
 
             const std::vector<float> variance = layer->GetParamAsFloats("variance", {});
 
             if (variance.size() == 1 || variance.size() == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              if (variance.size() == 1 || variance.size() == 4) {" << std::endl;
                 for (float i : variance) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                  for (float i : variance) {" << std::endl;
                     if (i < 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                      if (i < 0) {" << std::endl;
                         THROW_IE_EXCEPTION << "Variance must be > 0.";
                     }
 
                     _variance.push_back(i);
                 }
             } else if (variance.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              } else if (variance.empty()) {" << std::endl;
                 _variance.push_back(0.1f);
             } else {
                 THROW_IE_EXCEPTION << "Wrong number of variance values. Not less than 1 and more than 4 variance values.";
@@ -119,6 +139,7 @@ public:
 
             addConfig(layer, {{ConfLayout::ANY, true}, {ConfLayout::ANY, true}}, {{ConfLayout::PLN, true}});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -130,7 +151,9 @@ public:
     StatusCode execute(std::vector<Blob::Ptr>& inputs, std::vector<Blob::Ptr>& outputs,
                        ResponseDesc *resp) noexcept override {
         if (inputs.size() != 2 || outputs.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:          if (inputs.size() != 2 || outputs.empty()) {" << std::endl;
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Incorrect number of input or output edges!";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }
@@ -153,6 +176,7 @@ public:
         float step_y = 0.0f;
 
         if (_step == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:          if (_step == 0) {" << std::endl;
             step_x = static_cast<float>(IW) / W;
             step_y = static_cast<float>(IH) / H;
         } else {
@@ -173,8 +197,11 @@ public:
         float box_height;
 
         for (int h = 0; h < H; ++h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:          for (int h = 0; h < H; ++h) {" << std::endl;
             for (int w = 0; w < W; ++w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              for (int w = 0; w < W; ++w) {" << std::endl;
                 if (_step == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                  if (_step == 0) {" << std::endl;
                     center_x = (w + 0.5f) * step_x;
                     center_y = (h + 0.5f) * step_y;
                 } else {
@@ -183,18 +210,23 @@ public:
                 }
 
                 for (size_t s = 0; s < _fixed_sizes.size(); ++s) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                  for (size_t s = 0; s < _fixed_sizes.size(); ++s) {" << std::endl;
                     size_t fixed_size_ = static_cast<size_t>(_fixed_sizes[s]);
                     box_width = box_height = fixed_size_ * 0.5f;
 
                     if (_fixed_ratios.size() > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                      if (_fixed_ratios.size() > 0) {" << std::endl;
                         for (float ar : _fixed_ratios) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                          for (float ar : _fixed_ratios) {" << std::endl;
                             size_t density_ = static_cast<size_t>(_densitys[s]);
                             int shift = static_cast<int>(_fixed_sizes[s] / density_);
                             ar = sqrt(ar);
                             float box_width_ratio = _fixed_sizes[s] * 0.5f * ar;
                             float box_height_ratio = _fixed_sizes[s] * 0.5f / ar;
                             for (size_t r = 0; r < density_; ++r) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                              for (size_t r = 0; r < density_; ++r) {" << std::endl;
                                 for (size_t c = 0; c < density_; ++c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                                  for (size_t c = 0; c < density_; ++c) {" << std::endl;
                                     float center_x_temp = center_x - fixed_size_ / 2 + shift / 2.f + c * shift;
                                     float center_y_temp = center_y - fixed_size_ / 2 + shift / 2.f + r * shift;
 
@@ -211,10 +243,13 @@ public:
                         }
                     } else {
                         if (_densitys.size() > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                          if (_densitys.size() > 0) {" << std::endl;
                             int density_ = static_cast<int>(_densitys[s]);
                             int shift = static_cast<int>(_fixed_sizes[s] / density_);
                             for (int r = 0; r < density_; ++r) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                              for (int r = 0; r < density_; ++r) {" << std::endl;
                                 for (int c = 0; c < density_; ++c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                                  for (int c = 0; c < density_; ++c) {" << std::endl;
                                     float center_x_temp = center_x - fixed_size_ / 2 + shift / 2.f + c * shift;
                                     float center_y_temp = center_y - fixed_size_ / 2 + shift / 2.f + r * shift;
 
@@ -231,7 +266,9 @@ public:
                         }
                         //  Rest of priors
                         for (float ar : _aspect_ratios) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                          for (float ar : _aspect_ratios) {" << std::endl;
                             if (fabs(ar - 1.) < 1e-6) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                              if (fabs(ar - 1.) < 1e-6) {" << std::endl;
                                 continue;
                             }
 
@@ -241,7 +278,9 @@ public:
                             float box_width_ratio = _fixed_sizes[s] * 0.5f * ar;
                             float box_height_ratio = _fixed_sizes[s] * 0.5f / ar;
                             for (int r = 0; r < density_; ++r) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                              for (int r = 0; r < density_; ++r) {" << std::endl;
                                 for (int c = 0; c < density_; ++c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                                  for (int c = 0; c < density_; ++c) {" << std::endl;
                                     float center_x_temp = center_x - fixed_size_ / 2 + shift / 2.f + c * shift;
                                     float center_y_temp = center_y - fixed_size_ / 2 + shift / 2.f + r * shift;
                                     // xmin
@@ -259,6 +298,7 @@ public:
                 }
 
                 for (size_t msIdx = 0; msIdx < _min_sizes.size(); msIdx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                  for (size_t msIdx = 0; msIdx < _min_sizes.size(); msIdx++) {" << std::endl;
                     box_width = _min_sizes[msIdx] * 0.5f;
                     box_height = _min_sizes[msIdx] * 0.5f;
 
@@ -268,6 +308,7 @@ public:
                     dst_data[idx++] = (center_y + box_height) * IHI;
 
                     if (_max_sizes.size() > msIdx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                      if (_max_sizes.size() > msIdx) {" << std::endl;
                         box_width = box_height = sqrt(_min_sizes[msIdx] * _max_sizes[msIdx]) * 0.5f;
 
                         dst_data[idx++] = (center_x - box_width) * IWI;
@@ -277,9 +318,12 @@ public:
                     }
 
                     if (_scale_all_sizes || (!_scale_all_sizes && (msIdx == _min_sizes.size() - 1))) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                      if (_scale_all_sizes || (!_scale_all_sizes && (msIdx == _min_sizes.size() - 1))) {" << std::endl;
                         size_t sIdx = _scale_all_sizes ? msIdx : 0;
                         for (float ar : _aspect_ratios) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                          for (float ar : _aspect_ratios) {" << std::endl;
                             if (fabs(ar - 1.0f) < 1e-6) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                              if (fabs(ar - 1.0f) < 1e-6) {" << std::endl;
                                 continue;
                             }
 
@@ -298,7 +342,9 @@ public:
         }
 
         if (_clip) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:          if (_clip) {" << std::endl;
             parallel_for((H * W * _num_priors * 4), [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              parallel_for((H * W * _num_priors * 4), [&](size_t i) {" << std::endl;
                 dst_data[i] = (std::min)((std::max)(dst_data[i], 0.0f), 1.0f);
             });
         }
@@ -306,12 +352,16 @@ public:
         size_t channel_size = OH * OW;
         dst_data += channel_size;
         if (_variance.size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:          if (_variance.size() == 1) {" << std::endl;
             parallel_for(channel_size, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              parallel_for(channel_size, [&](size_t i) {" << std::endl;
                 dst_data[i] = _variance[0];
             });
         } else {
             parallel_for((H * W * _num_priors), [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:              parallel_for((H * W * _num_priors), [&](size_t i) {" << std::endl;
                 for (size_t j = 0; j < 4; ++j) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox.cpp:                  for (size_t j = 0; j < 4; ++j) {" << std::endl;
                     dst_data[i * 4 + j] = _variance[j];
                 }
             });

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -8,19 +9,23 @@
 using namespace InferenceEngine;
 
 Builder::ConstLayer::ConstLayer(const std::string& name): LayerDecorator("Const", name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_const_layer.cpp:  Builder::ConstLayer::ConstLayer(const std::string& name): LayerDecorator('Const', name) {" << std::endl;
     getLayer()->getOutputPorts().resize(1);
     getLayer()->getParameters()["custom"] = Blob::CPtr();
 }
 
 Builder::ConstLayer::ConstLayer(const Layer::Ptr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_const_layer.cpp:  Builder::ConstLayer::ConstLayer(const Layer::Ptr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("Const");
 }
 
 Builder::ConstLayer::ConstLayer(const Layer::CPtr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_const_layer.cpp:  Builder::ConstLayer::ConstLayer(const Layer::CPtr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("Const");
 }
 
 Builder::ConstLayer& Builder::ConstLayer::setName(const std::string& name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_const_layer.cpp:  Builder::ConstLayer& Builder::ConstLayer::setName(const std::string& name) {" << std::endl;
     getLayer()->setName(name);
     return *this;
 }
@@ -30,6 +35,7 @@ const Port& Builder::ConstLayer::getPort() const {
 }
 
 Builder::ConstLayer& Builder::ConstLayer::setPort(const Port& port) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_const_layer.cpp:  Builder::ConstLayer& Builder::ConstLayer::setPort(const Port& port) {" << std::endl;
     const auto& data = getLayer()->getOutputPorts()[0].getData();
     getLayer()->getOutputPorts()[0] = port;
     getLayer()->getOutputPorts()[0].setData(data);
@@ -37,6 +43,7 @@ Builder::ConstLayer& Builder::ConstLayer::setPort(const Port& port) {
 }
 
 Builder::ConstLayer& Builder::ConstLayer::setData(const Blob::CPtr& data) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_const_layer.cpp:  Builder::ConstLayer& Builder::ConstLayer::setData(const Blob::CPtr& data) {" << std::endl;
     getLayer()->getParameters()["custom"] = data;
     getLayer()->getOutputPorts()[0].getData()->setData(std::const_pointer_cast<Blob>(data));
     return *this;
@@ -50,6 +57,7 @@ const Blob::CPtr& Builder::ConstLayer::getData() const {
 }
 
 REG_VALIDATOR_FOR(Const, [](const InferenceEngine::Builder::Layer::CPtr& layer, bool partial) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_const_layer.cpp:  REG_VALIDATOR_FOR(Const, [](const InferenceEngine::Builder::Layer::CPtr& layer, bool partial) {" << std::endl;
     Builder::ConstLayer constBuilder(layer);
     const auto& data = constBuilder.getData();
     if (!data || data->cbuffer() == nullptr) THROW_IE_EXCEPTION << "Cannot create Const layer! Data is required!";

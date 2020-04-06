@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -46,7 +47,9 @@ void ref_softmax_fwd_t<data_type>::execute_forward_dense() const {
     int outer_size_ = utils::array_product(pd()->src_pd()->desc()->dims, pd()->desc()->softmax_axis);
 
     if (outer_size_ == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      if (outer_size_ == 1) {" << std::endl;
         for (int ou = 0; ou < outer_size_; ou++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          for (int ou = 0; ou < outer_size_; ou++) {" << std::endl;
             const data_t *src_data = src + ou * ou_stride;
             data_t *dst_data = dst + ou * ou_stride;
             data_t scalar = 0;
@@ -59,6 +62,7 @@ void ref_softmax_fwd_t<data_type>::execute_forward_dense() const {
         }
     } else {
         parallel_nd(outer_size_, [&](int ou) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          parallel_nd(outer_size_, [&](int ou) {" << std::endl;
             const data_t *src_data = src + ou * ou_stride;
             data_t *dst_data = dst + ou * ou_stride;
             data_t scalar = 0;
@@ -80,6 +84,7 @@ void ref_softmax_fwd_t<data_type>::execute_forward_generic() const {
     data_t space_max_val = 0, space_denom_val = 0;
     data_t *space_max = &space_max_val, *space_denom = &space_denom_val;
     if (inner_size_ > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      if (inner_size_ > 1) {" << std::endl;
         using namespace memory_tracking::names;
         space_max = scratchpad().template get<data_t>(key_softmax_reduction);
         space_denom = space_max + inner_size_;
@@ -91,25 +96,32 @@ void ref_softmax_fwd_t<data_type>::execute_forward_generic() const {
     int outer_size_ = utils::array_product(pd()->src_pd()->desc()->dims, pd()->desc()->softmax_axis);
 
     for (int ou = 0; ou < outer_size_; ou++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      for (int ou = 0; ou < outer_size_; ou++) {" << std::endl;
         utils::array_set(space_max, -FLT_MAX, inner_size_);
         utils::array_set(space_denom, 0, inner_size_);
 
         for (int c = 0; c < channels_; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          for (int c = 0; c < channels_; c++) {" << std::endl;
             for(int in = 0; in < inner_size_; in++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:              for(int in = 0; in < inner_size_; in++) {" << std::endl;
                 size_t off = data_d.off_l(ou * dim + c * inner_size_ + in);
                 space_max[in] = nstl::max(space_max[in], src[off]);
             }
         }
 
         for (int c = 0; c < channels_; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          for (int c = 0; c < channels_; c++) {" << std::endl;
             for(int in = 0; in < inner_size_; in++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:              for(int in = 0; in < inner_size_; in++) {" << std::endl;
                 size_t off = data_d.off_l(ou * dim + c * inner_size_ + in);
                 space_denom[in] += dst[off] = exp(src[off] - space_max[in]);
             }
         }
 
         for (int c = 0; c < channels_; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          for (int c = 0; c < channels_; c++) {" << std::endl;
             for (int in = 0; in < inner_size_; in++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:              for (int in = 0; in < inner_size_; in++) {" << std::endl;
                 size_t off = data_d.off_l(ou * dim + c * inner_size_ + in);
                 dst[off] /= space_denom[in];
             }
@@ -125,31 +137,39 @@ void ref_softmax_fwd_t<data_type>::_max(int n, const data_t *x,
 #if !defined(__INTEL_COMPILER)
     // The code below makes a compiler to generate maxps instruction
     // rather than maxss, which is generated for the 'else' code path
-    auto max_wrapper = [](data_t a, data_t b) { return nstl::max(a, b); };
-    auto min_wrapper = [](int a, int b) { return nstl::min(a, b); };
+    auto max_wrapper = [](data_t a, data_t b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      auto max_wrapper = [](data_t a, data_t b) {" << std::endl; return nstl::max(a, b); };
+    auto min_wrapper = [](int a, int b) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      auto min_wrapper = [](int a, int b) {" << std::endl; return nstl::min(a, b); };
 
     constexpr int unroll_factor = 32;
     data_t max_values[unroll_factor];
 
     if (n < unroll_factor) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      if (n < unroll_factor) {" << std::endl;
         data_t max_val = x[0];
         for (int i = 1; i < n; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          for (int i = 1; i < n; i++) {" << std::endl;
             max_val = max_wrapper(max_val, x[i]);
         }
         max_data[0] = max_val;
         return;
     }
     for (int i = 0; i < unroll_factor; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      for (int i = 0; i < unroll_factor; i++) {" << std::endl;
         max_values[i] = x[i];
     }
     for (int i = unroll_factor; i < n; i += unroll_factor) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      for (int i = unroll_factor; i < n; i += unroll_factor) {" << std::endl;
         int offset = min_wrapper(i, n - unroll_factor);
         for (int j = 0; j < unroll_factor; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          for (int j = 0; j < unroll_factor; j++) {" << std::endl;
             max_values[j] = max_wrapper(max_values[j], x[offset + j]);
         }
     }
     data_t max_val = max_values[0];
     for (int i = 1; i < unroll_factor; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      for (int i = 1; i < unroll_factor; i++) {" << std::endl;
         max_val = max_wrapper(max_val, max_values[i]);
     }
     max_data[0] = max_val;
@@ -166,13 +186,16 @@ void ref_softmax_fwd_t<data_type>::_sub(int n, data_t alpha, const data_t *x,
     constexpr int unroll_factor = 32;
     int tail = n % unroll_factor;
     for (int i = 0; i < n - tail; i += unroll_factor) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      for (int i = 0; i < n - tail; i += unroll_factor) {" << std::endl;
         PRAGMA_OMP_SIMD()
         for (int j = 0; j < unroll_factor; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          for (int j = 0; j < unroll_factor; j++) {" << std::endl;
             y[i + j] = x[i + j] - alpha;
         }
     }
     PRAGMA_OMP_SIMD()
     for (int i = n - tail; i < n; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      for (int i = n - tail; i < n; i++) {" << std::endl;
         y[i] = x[i] - alpha;
     }
 }
@@ -181,6 +204,7 @@ template <impl::data_type_t data_type>
 void ref_softmax_fwd_t<data_type>::_exp_parallel(int n, const data_t *a, data_t *r) const {
 #ifdef USE_MKL
     if (data_type == data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      if (data_type == data_type::f32) {" << std::endl;
 // TODO: mklml for win doesn't contain vmsExp symbol
 // Remove this limitation once it's updated
 #ifndef _WIN32
@@ -191,7 +215,8 @@ void ref_softmax_fwd_t<data_type>::_exp_parallel(int n, const data_t *a, data_t 
         return;
     }
 #endif
-    parallel_nd(n, [&](int c) { r[c] = expf(a[c]); });
+    parallel_nd(n, [&](int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      parallel_nd(n, [&](int c) {" << std::endl; r[c] = expf(a[c]); });
 }
 
 template <impl::data_type_t data_type>
@@ -207,6 +232,7 @@ void ref_softmax_fwd_t<data_type>::_sum(int n, const data_t *x,
     // Here we are summing x's eg. e^z , which are positives
     // so we can use BLAS ASUM
     if (data_type == data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      if (data_type == data_type::f32) {" << std::endl;
         sum_data[0] = cblas_sasum(n, x, 1);
         return;
     }
@@ -222,11 +248,13 @@ template <impl::data_type_t data_type>
 void ref_softmax_fwd_t<data_type>::_scal_parallel(int n, data_t alpha, data_t *x) const {
 #ifdef USE_CBLAS
     if (data_type == data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      if (data_type == data_type::f32) {" << std::endl;
         cblas_sscal(n, alpha, x, 1);
         return;
     }
 #endif
-    parallel_nd(n, [&](int c) { x[c] *= alpha; });
+    parallel_nd(n, [&](int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      parallel_nd(n, [&](int c) {" << std::endl; x[c] *= alpha; });
 }
 
 template <impl::data_type_t data_type>
@@ -251,9 +279,11 @@ void ref_softmax_bwd_t<data_type>::execute_backward_dense() const {
         ? diff_d.blocking_desc().strides[0][axis - 1] : 1u;
 
     parallel_nd(outer_size_, [&](int ou) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      parallel_nd(outer_size_, [&](int ou) {" << std::endl;
         data_t sbr = 0;
         size_t off = ou * ou_stride;
         for (int c = 0; c < channels_; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          for (int c = 0; c < channels_; ++c) {" << std::endl;
             size_t loff = off + c;
             data_t ldata = data[loff];
             sbr += diff_dst[loff] * ldata;
@@ -261,6 +291,7 @@ void ref_softmax_bwd_t<data_type>::execute_backward_dense() const {
         }
 
         for(int c = 0; c < channels_; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          for(int c = 0; c < channels_; ++c) {" << std::endl;
             size_t loff = off + c;
             diff_src[loff] *= (diff_dst[loff] - sbr);
         }
@@ -277,15 +308,19 @@ void ref_softmax_bwd_t<data_type>::execute_backward_generic() const {
     const memory_desc_wrapper data_d(pd()->dst_pd());
 
     parallel_nd(outer_size_, [&](int ou) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:      parallel_nd(outer_size_, [&](int ou) {" << std::endl;
         for (int in = 0; in < inner_size_; in++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:          for (int in = 0; in < inner_size_; in++) {" << std::endl;
             data_t sbr = 0;
             for (int c = 0; c < channels_; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:              for (int c = 0; c < channels_; c++) {" << std::endl;
                 size_t off_diff = diff_d.off_l(ou * dim + c * inner_size_ + in);
                 size_t off_data = diff_d.off_l(ou * dim + c * inner_size_ + in);
                 sbr += diff_dst[off_diff]*data[off_data];
             }
 
             for(int c=0; c < channels_ ; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_softmax.cpp:              for(int c=0; c < channels_ ; ++c) {" << std::endl;
               size_t off_diff = diff_d.off_l(ou * dim + c * inner_size_ + in);
               size_t off_data = data_d.off_l(ou * dim + c * inner_size_ + in);
               diff_src[off_diff] = data[off_data]*(diff_dst[off_diff] - sbr);

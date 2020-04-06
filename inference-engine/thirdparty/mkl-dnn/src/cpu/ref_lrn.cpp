@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -28,6 +29,7 @@ namespace impl {
 namespace cpu {
 
 static inline float fast_negative_powf(float omega, float beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:  static inline float fast_negative_powf(float omega, float beta) {" << std::endl;
     float Y;
 /*
  * Y = omega^(-3/4) =
@@ -38,6 +40,7 @@ static inline float fast_negative_powf(float omega, float beta) {
  * = sqrtf(1.0f / (sqrtf(omega) * omega))
  */
     if (beta == 0.75f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:      if (beta == 0.75f) {" << std::endl;
         Y = sqrtf(1.0f / (sqrtf(omega) * omega));
     } else {
         Y = 1.0f / powf(omega, beta);
@@ -68,6 +71,7 @@ void ref_lrn_fwd_t<data_type>::execute_forward() const {
 
     auto data_off = [&](int mb, int c, int h, int w) -> size_t {
         switch (fmt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:          switch (fmt) {" << std::endl;
         case nChw16c:
         case nChw8c: return mb * stride_mb + c / blksize * H * W * blksize
                      + h * W * blksize + w * blksize + c % blksize;
@@ -78,6 +82,7 @@ void ref_lrn_fwd_t<data_type>::execute_forward() const {
     };
 
     auto ker = [=](data_t *d, int mb, int oc, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:      auto ker = [=](data_t *d, int mb, int oc, int oh, int ow) {" << std::endl;
         const float alpha = static_cast<float>(pd()->desc()->lrn_alpha);
         const float beta = static_cast<float>(pd()->desc()->lrn_beta);
         const float k = static_cast<float>(pd()->desc()->lrn_k);
@@ -87,10 +92,12 @@ void ref_lrn_fwd_t<data_type>::execute_forward() const {
 
         float sum = 0;
         if (across_channels) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:          if (across_channels) {" << std::endl;
             const int c_st = nstl::max(oc - half_size + 0, 0);
             const int c_en = nstl::min(oc + half_size + 1, C);
 
             for (int c = c_st; c < c_en; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:              for (int c = c_st; c < c_en; ++c) {" << std::endl;
                 const float s = src[data_off(mb, c, oh, ow)];
                 sum += s * s;
             }
@@ -100,7 +107,9 @@ void ref_lrn_fwd_t<data_type>::execute_forward() const {
             int w_st = nstl::max(ow - half_size + 0, 0);
             int w_en = nstl::min(ow + half_size + 1, W);
             for (int h = h_st; h < h_en; ++h) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:              for (int h = h_st; h < h_en; ++h) {" << std::endl;
                 for (int w = w_st; w < w_en; ++w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:                  for (int w = w_st; w < w_en; ++w) {" << std::endl;
                     const float s = src[data_off(mb, oc, h, w)];
                     sum += s * s;
                 }
@@ -116,8 +125,10 @@ void ref_lrn_fwd_t<data_type>::execute_forward() const {
 
     const int MB = pd()->MB();
     if (fmt == nChw16c || fmt == nChw8c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:      if (fmt == nChw16c || fmt == nChw8c) {" << std::endl;
         parallel_nd(MB, utils::div_up(C, blksize), H, W,
             [&](int mb, int c_blk, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:              [&](int mb, int c_blk, int h, int w) {" << std::endl;
             int c = c_blk * blksize;
             const size_t off = mb * stride_mb + c * H * W
                 + (h * W + w) * blksize;
@@ -126,14 +137,17 @@ void ref_lrn_fwd_t<data_type>::execute_forward() const {
                 ker(&dst[off + cc], mb, c + cc, h, w);
         });
     } else if (fmt == nhwc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:      } else if (fmt == nhwc) {" << std::endl;
         parallel_nd(MB, H, W, C,
             [&](int mb, int h, int w, int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:              [&](int mb, int h, int w, int c) {" << std::endl;
             const size_t off = mb * stride_mb + h * W * C + w * C + c;
             ker(&dst[off], mb, c, h, w);
         });
     } else {
         parallel_nd(MB, C, H, W,
             [&](int mb, int c, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:              [&](int mb, int c, int h, int w) {" << std::endl;
             const size_t off = data_off(mb, c, h, w);
             ker(&dst[off], mb, c, h, w);
         });
@@ -169,6 +183,7 @@ void ref_lrn_bwd_t<data_type>::execute_backward() const {
 
     auto data_off = [&](int mb, int c, int h, int w) -> size_t {
         switch (fmt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:          switch (fmt) {" << std::endl;
         case nChw16c:
         case nChw8c: return mb * stride_mb + c/blksize * H * W * blksize
                      + h * W * blksize + w * blksize + c%blksize;
@@ -179,16 +194,19 @@ void ref_lrn_bwd_t<data_type>::execute_backward() const {
     };
 
     auto ker = [=](data_t *d, int mb, int oc, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:      auto ker = [=](data_t *d, int mb, int oc, int oh, int ow) {" << std::endl;
         const int c_st = nstl::max(oc - half_ksize + 0, 0);
         const int c_en = nstl::min(oc + half_ksize + 1, C);
 
         float A = 0, B = 0, omega_mid = 0;
         for (int c = c_st; c < c_en; c++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:          for (int c = c_st; c < c_en; c++) {" << std::endl;
             float sum = 0.0;
             const int i_st = nstl::max(c - half_ksize, 0);
             const int i_en = nstl::min(c + kernel_size - half_ksize, C);
 
             for (int i = i_st; i < i_en; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:              for (int i = i_st; i < i_en; ++i) {" << std::endl;
                 const float value = src[data_off(mb, i, oh, ow)];
                 sum += value * value;
             }
@@ -207,8 +225,10 @@ void ref_lrn_bwd_t<data_type>::execute_backward() const {
     };
 
     if (fmt == nChw16c || fmt == nChw8c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:      if (fmt == nChw16c || fmt == nChw8c) {" << std::endl;
         parallel_nd(MB, utils::div_up(C, blksize), H, W,
             [&](int mb, int c_blk, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:              [&](int mb, int c_blk, int h, int w) {" << std::endl;
             int c = c_blk * blksize;
             const size_t off = mb * stride_mb + c * H * W +
                 (h * W + w) * blksize;
@@ -217,14 +237,17 @@ void ref_lrn_bwd_t<data_type>::execute_backward() const {
                 ker(&diff_src[off + cc], mb, c + cc, h, w);
         });
     } else if (fmt == nhwc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:      } else if (fmt == nhwc) {" << std::endl;
         parallel_nd(MB, H, W, C,
             [&](int mb, int h, int w, int c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:              [&](int mb, int h, int w, int c) {" << std::endl;
             const size_t off = mb * stride_mb + h * W * C + w * C + c;
             ker(&diff_src[off], mb, c, h, w);
         });
     } else {
         parallel_nd(MB, C, H, W,
             [&](int mb, int c, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_lrn.cpp:              [&](int mb, int c, int h, int w) {" << std::endl;
             const size_t off = data_off(mb, c, h, w);
             ker(&diff_src[off], mb, c, h, w);
         });

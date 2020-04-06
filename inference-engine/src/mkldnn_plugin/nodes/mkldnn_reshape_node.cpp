@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -13,9 +14,11 @@ using namespace MKLDNNPlugin;
 using namespace InferenceEngine;
 
 MKLDNNReshapeNode::MKLDNNReshapeNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) :
-        MKLDNNNode(layer, eng, socket) {}
+        MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reshape_node.cpp:          MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNReshapeNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reshape_node.cpp:  void MKLDNNReshapeNode::getSupportedDescriptors() {" << std::endl;
     if (getParentEdges().size() != 1 && getParentEdges().size() != 2)
         THROW_IE_EXCEPTION << "Incorrect number of input edges for layer " << getName();
     if (getChildEdges().empty())
@@ -23,6 +26,7 @@ void MKLDNNReshapeNode::getSupportedDescriptors() {
 }
 
 void MKLDNNReshapeNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reshape_node.cpp:  void MKLDNNReshapeNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -42,6 +46,7 @@ void MKLDNNReshapeNode::initSupportedPrimitiveDescriptors() {
     config.dynBatchSupport = true;
     config.inConfs.resize(getParentEdges().size());
     for (size_t i = 0; i <getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reshape_node.cpp:      for (size_t i = 0; i <getParentEdges().size(); i++) {" << std::endl;
         config.inConfs[i].inPlace = -1;
         config.inConfs[i].constant = false;
         config.inConfs[i].desc = MKLDNNMemoryDesc(getParentEdgeAt(i)->getDims(), inputDataType,
@@ -55,6 +60,7 @@ void MKLDNNReshapeNode::initSupportedPrimitiveDescriptors() {
 }
 
 void MKLDNNReshapeNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reshape_node.cpp:  void MKLDNNReshapeNode::createPrimitive() {" << std::endl;
     auto& dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
     auto& srcMemPtr = getParentEdgeAt(0)->getMemoryPtr();
     if (!dstMemPtr || !dstMemPtr->GetPrimitivePtr())

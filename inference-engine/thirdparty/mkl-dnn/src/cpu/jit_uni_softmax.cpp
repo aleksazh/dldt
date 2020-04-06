@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017 Intel Corporation
 *
@@ -37,11 +38,13 @@ jit_uni_softmax_fwd_t<isa>::jit_uni_softmax_fwd_t(const pd_t *apd,
         const input_vector &inputs, const output_vector &outputs)
         : cpu_primitive_t(apd, inputs, outputs)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax.cpp:          : cpu_primitive_t(apd, inputs, outputs) {" << std::endl;
     kernel_ = new jit_uni_softmax_kernel_f32<isa>(pd()->jpp_);
 }
 
 template <cpu_isa_t isa>
 jit_uni_softmax_fwd_t<isa>::~jit_uni_softmax_fwd_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax.cpp:  jit_uni_softmax_fwd_t<isa>::~jit_uni_softmax_fwd_t() {" << std::endl;
     delete kernel_;
 }
 
@@ -60,9 +63,11 @@ void jit_uni_softmax_fwd_t<isa>::execute_forward() const
     size_t dim = jpp.channels * jpp.inner_size;
 
     if (jpp.inner_size > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax.cpp:      if (jpp.inner_size > 1) {" << std::endl;
         const size_t work_amount = outer_size;
 
         auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax.cpp:          auto ker = [&](const int ithr, const int nthr) {" << std::endl;
             size_t start{0}, end{0};
 
             balance211(work_amount, nthr, ithr, start, end);
@@ -71,6 +76,7 @@ void jit_uni_softmax_fwd_t<isa>::execute_forward() const
             nd_iterator_init(start, ou, outer_size);
 
             for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax.cpp:              for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
                 auto args = jit_softmax_call_s();
                 args.channels = jpp.channels;
                 args.work = jpp.inner_size;
@@ -90,6 +96,7 @@ void jit_uni_softmax_fwd_t<isa>::execute_forward() const
         const size_t work_amount = ou_blocks;
 
         auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax.cpp:          auto ker = [&](const int ithr, const int nthr) {" << std::endl;
             size_t start{0}, end{0};
 
             balance211(work_amount, nthr, ithr, start, end);
@@ -98,6 +105,7 @@ void jit_uni_softmax_fwd_t<isa>::execute_forward() const
             nd_iterator_init(start, oub, ou_blocks);
 
             for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax.cpp:              for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
                 size_t work = nstl::min(jpp.outer_block, outer_size - oub * jpp.outer_block);
 
                 auto args = jit_softmax_call_s();

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,6 +21,7 @@ op::GatherIE::GatherIE(const Output<Node>& params, const Output<Node>& indices, 
         : Op({params, indices})
         , m_axis(axis)
         , m_output_shape(output_shape) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/gather_ie.cpp:          , m_output_shape(output_shape) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
@@ -29,5 +31,6 @@ shared_ptr<Node> op::GatherIE::copy_with_new_args(const NodeVector& new_args) co
 }
 
 void op::GatherIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/gather_ie.cpp:  void op::GatherIE::validate_and_infer_types() {" << std::endl;
     set_output_type(0, get_input_element_type(0), m_output_shape);
 }

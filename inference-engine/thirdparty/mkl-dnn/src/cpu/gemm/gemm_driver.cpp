@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018-2019 Intel Corporation
 *
@@ -44,14 +45,18 @@ typedef struct {
 
 template <typename c_type>
 static inline void round_to_nearest(c_type *rounded_val, double fp_val) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:  static inline void round_to_nearest(c_type *rounded_val, double fp_val) {" << std::endl;
     if (fp_val >= 0.) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (fp_val >= 0.) {" << std::endl;
         fp_val += 0.5;
         if (fp_val > INT32_MAX) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (fp_val > INT32_MAX) {" << std::endl;
             fp_val = INT32_MAX;
         }
     } else {
         fp_val -= 0.5;
         if (fp_val < INT32_MIN) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (fp_val < INT32_MIN) {" << std::endl;
             fp_val = INT32_MIN;
         }
     }
@@ -63,13 +68,18 @@ static inline void add_results(const dim_t m, const dim_t n,
         const float alpha, const float beta, const c_type *c_partial_sum,
         const dim_t ldcp, c_type *c_data, const dim_t ldc, const c_type *co,
         const int offsetc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const int offsetc) {" << std::endl;
 
     for (dim_t j = 0; j < n; ++j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      for (dim_t j = 0; j < n; ++j) {" << std::endl;
         for (dim_t i = 0; i < m; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          for (dim_t i = 0; i < m; ++i) {" << std::endl;
             c_type ctemp = c_partial_sum[i + j * ldcp];
 
             if (alpha == 1.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (alpha == 1.0f) {" << std::endl;
                 if (beta == 0.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (beta == 0.0f) {" << std::endl;
                     c_data[i + j * ldc] = ctemp;
                 } else {
                     double c_float = (double) beta
@@ -78,7 +88,9 @@ static inline void add_results(const dim_t m, const dim_t n,
                     round_to_nearest(&c_data[i + j * ldc], c_float);
                 }
             } else if (alpha == -1.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              } else if (alpha == -1.0f) {" << std::endl;
                 if (beta == 0.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (beta == 0.0f) {" << std::endl;
                     c_data[i + j * ldc] = -ctemp;
                 } else {
                     double c_float = (double) beta
@@ -88,6 +100,7 @@ static inline void add_results(const dim_t m, const dim_t n,
                 }
             } else {
                 if (beta == 0.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (beta == 0.0f) {" << std::endl;
                     double c_float = alpha * (double) ctemp;
                     round_to_nearest(&c_data[i + j * ldc], c_float);
                 } else {
@@ -98,10 +111,13 @@ static inline void add_results(const dim_t m, const dim_t n,
             }
 
             if (offsetc == FIX_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (offsetc == FIX_OFFSET) {" << std::endl;
                 c_data[i + j * ldc] += co[0];
             } else if (offsetc == ROW_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              } else if (offsetc == ROW_OFFSET) {" << std::endl;
                 c_data[i + j * ldc] += co[j];
             } else if (offsetc == COL_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              } else if (offsetc == COL_OFFSET) {" << std::endl;
                 c_data[i + j * ldc] += co[i];
             }
         }
@@ -111,6 +127,7 @@ static inline void add_results(const dim_t m, const dim_t n,
 // TODO Find a better place for those functions.
 template <typename T>
 static inline dim_t ld_padd(const dim_t x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:  static inline dim_t ld_padd(const dim_t x) {" << std::endl;
     return ((x + ((2048 / sizeof(T)) - 1)) / (2048 / sizeof(T)))
         * (2048 / sizeof(T)) +  (64 / sizeof(T));
 }
@@ -121,6 +138,7 @@ void gemm_kernel(const dim_t m, const dim_t n, const dim_t k,
         c_type *c, const dim_t ldc, const c_type *a_row_sum,
         const c_type *b_col_sum, const c_type *co, const int offsetc,
         const gemm_info_t<a_type, b_type, c_type> *arg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const gemm_info_t<a_type, b_type, c_type> *arg) {" << std::endl;
 
     // Since m and n are limited by blocking, stack overflow may not happen;
     // it's up to 32kB
@@ -136,6 +154,7 @@ void gemm_kernel(const dim_t m, const dim_t n, const dim_t k,
     int row_req = 0;
 
     if (data_traits<a_type>::data_type == data_type::s8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (data_traits<a_type>::data_type == data_type::s8) {" << std::endl;
         a_type ao = arg->ao;
         a_type bo = arg->bo;
         c_type co_0 = offsetc == NO_OFFSET ? 0 : co[0];
@@ -147,8 +166,11 @@ void gemm_kernel(const dim_t m, const dim_t n, const dim_t k,
 
         // It needs one of column or row offsets, but it doesn't need both
         if ((ao != 0 && bo != 0) || (offsetc == FIX_OFFSET && co_0 != 0)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if ((ao != 0 && bo != 0) || (offsetc == FIX_OFFSET && co_0 != 0)) {" << std::endl;
             if (col_req == 0 && row_req == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (col_req == 0 && row_req == 0) {" << std::endl;
                 if (m <= n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (m <= n) {" << std::endl;
                     col_req = 1;
                 } else {
                     row_req = 1;
@@ -157,37 +179,45 @@ void gemm_kernel(const dim_t m, const dim_t n, const dim_t k,
         }
 
         if (col_req) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (col_req) {" << std::endl;
             for (dim_t i = 0; i < m; i++)
                 col_offset[i] = 0;
 
             if (offsetc == COL_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (offsetc == COL_OFFSET) {" << std::endl;
                 for (dim_t i = 0; i < m; i++)
                     col_offset[i] += co[i];
             }
 
             if (bo != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (bo != 0) {" << std::endl;
                 for (dim_t i = 0; i < m; i++)
                     col_offset[i] += bo * a_row_sum[i];
             }
         }
 
         if (row_req) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (row_req) {" << std::endl;
             for (dim_t i = 0; i < n; i++)
                 row_offset[i] = 0;
 
             if (offsetc == ROW_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (offsetc == ROW_OFFSET) {" << std::endl;
                 for (dim_t i = 0; i < n; i++)
                     row_offset[i] += co[i];
             }
 
             if (ao != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (ao != 0) {" << std::endl;
                 for (dim_t i = 0; i < n; i++)
                     row_offset[i] += ao * b_col_sum[i];
             }
         }
 
         if (offsetc == FIX_OFFSET && co_0 != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (offsetc == FIX_OFFSET && co_0 != 0) {" << std::endl;
             if (col_req) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (col_req) {" << std::endl;
                 for (dim_t i = 0; i < m; i++)
                     col_offset[i] += co_0;
             } else {
@@ -197,7 +227,9 @@ void gemm_kernel(const dim_t m, const dim_t n, const dim_t k,
         }
 
         if (ao != 0 && bo != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (ao != 0 && bo != 0) {" << std::endl;
             if (col_req) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (col_req) {" << std::endl;
                 for (dim_t i = 0; i < m; i++)
                     col_offset[i] += (c_type) k * ao * bo;
             } else {
@@ -219,15 +251,20 @@ void gemm_kernel(const dim_t m, const dim_t n, const dim_t k,
 }
 
 static inline void *align(void *ptr, size_t alignment) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:  static inline void *align(void *ptr, size_t alignment) {" << std::endl;
     return (void *) utils::rnd_up((uintptr_t) ptr, alignment);
 }
 
 template <typename scale_t, typename mat_t>
 void scale_matrix(dim_t m, dim_t n, scale_t alpha, mat_t * __restrict p_mat,
         dim_t ld) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          dim_t ld) {" << std::endl;
     if (data_traits<mat_t>::data_type == data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (data_traits<mat_t>::data_type == data_type::f32) {" << std::endl;
         for (dim_t j = 0; j < n; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          for (dim_t j = 0; j < n; j++) {" << std::endl;
             for (dim_t i = 0; i < m; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              for (dim_t i = 0; i < m; i++) {" << std::endl;
                 p_mat[i + j * ld] = (mat_t)
                     ((scale_t) p_mat[i + j * ld] * alpha);
             }
@@ -239,6 +276,7 @@ template <typename a_type, typename b_type, typename c_type>
 static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
         const dim_t k, const a_type *a, const b_type *b, c_type *c,
         const c_type *co, const gemm_info_t<a_type, b_type, c_type> *arg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const c_type *co, const gemm_info_t<a_type, b_type, c_type> *arg) {" << std::endl;
     dim_t lda = arg->lda;
     dim_t ldb = arg->ldb;
     dim_t ldc = arg->ldc;
@@ -247,6 +285,7 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
     float beta = *arg->beta;
 
     if (m <= 0 || n <= 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (m <= 0 || n <= 0) {" << std::endl;
         return mkldnn_success;
     }
 
@@ -254,12 +293,14 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
 
     // Scaling C matrix.
     if (!isInteger && beta != 1.0f && beta != 0.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (!isInteger && beta != 1.0f && beta != 0.0f) {" << std::endl;
         scale_matrix(m, n, beta, c, ldc);
         beta = 1.0f;
     }
 
     // Quick exit for C = beta * C
     if (!isInteger && alpha == 0.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (!isInteger && alpha == 0.0f) {" << std::endl;
         if (beta == 0.0f)
             scale_matrix(m, n, beta, c, ldc);
 
@@ -269,9 +310,11 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
     // Padding along K dimension.
     dim_t k_padd = 0;
     if (k <= arg->bk_traditional) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (k <= arg->bk_traditional) {" << std::endl;
         k_padd = utils::rnd_up(k, arg->uk);
         k_padd = nstl::max(128LL, k_padd);
     } else if (k < 2 * arg->bk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      } else if (k < 2 * arg->bk) {" << std::endl;
         k_padd = utils::rnd_up((k + 1) / 2, arg->uk);
     } else {
         k_padd = arg->bk;
@@ -284,6 +327,7 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
     // Padding along N dimension.
     dim_t n_padd = 0;
     if (k < arg->blocking_small_k) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (k < arg->blocking_small_k) {" << std::endl;
         n_padd = utils::rnd_up(nstl::min(nstl::max(n, arg->un),
                     arg->bn_small_k), arg->un);
     } else {
@@ -308,6 +352,7 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
         + b_buf_nelems * sizeof(*b) + PAGE_4K;
 
     if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (isInteger) {" << std::endl;
         mem_size += a_row_sum_nelems * sizeof(*c) + PAGE_4K
             + b_col_sum_nelems * sizeof(*c) + PAGE_4K;
     }
@@ -316,6 +361,7 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
         (alpha != 1.0f || (beta != 1 && beta != 0));
 
     if (need_c_buffer) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (need_c_buffer) {" << std::endl;
         size_t c_buf_nelems = ldc_buf * n_padd;
         mem_size += c_buf_nelems * sizeof(*c) + PAGE_4K;
     }
@@ -323,6 +369,7 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
     char *mem = (char *) malloc(mem_size, 128);
 
     if (!mem) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (!mem) {" << std::endl;
         return mkldnn_out_of_memory;
     }
 
@@ -332,12 +379,14 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
     c_type *a_row_sum = NULL;
     c_type *b_col_sum = NULL;
     if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (isInteger) {" << std::endl;
         a_row_sum = (c_type *) align(bufferB + b_buf_nelems, PAGE_4K);
         b_col_sum = (c_type *) align(a_row_sum + a_row_sum_nelems, PAGE_4K);
     }
 
     c_type *bufferC = NULL;
     if (need_c_buffer) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (need_c_buffer) {" << std::endl;
         bufferC = (c_type *) align(b_col_sum + b_col_sum_nelems, PAGE_4K);
     }
 
@@ -346,12 +395,14 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
     int a_block_copied = 0;
     dim_t sizeM = 0;
     for (dim_t Bm = 0; Bm < m; Bm += sizeM) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      for (dim_t Bm = 0; Bm < m; Bm += sizeM) {" << std::endl;
         sizeM = m - Bm;
         if (sizeM > m_padd)
             sizeM = m_padd;
 
         dim_t sizeK = 0;
         for (dim_t Bk = 0; Bk < k; Bk += sizeK) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          for (dim_t Bk = 0; Bk < k; Bk += sizeK) {" << std::endl;
             sizeK = k - Bk;
             if (sizeK > k_padd)
                 sizeK = k_padd;
@@ -369,6 +420,7 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
 
             dim_t sizeN = 0;
             for (dim_t Bn = 0; Bn < n; Bn += sizeN) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              for (dim_t Bn = 0; Bn < n; Bn += sizeN) {" << std::endl;
                 sizeN = n - Bn;
                 if (sizeN > n_padd)
                     sizeN = n_padd;
@@ -384,6 +436,7 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
 
                 dim_t sizeUM = 0;
                 for (dim_t Um = 0; Um < sizeM; Um += sizeUM) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  for (dim_t Um = 0; Um < sizeM; Um += sizeUM) {" << std::endl;
                     sizeUM = sizeM - Um;
                     if (sizeUM > arg->um)
                         sizeUM = arg->um;
@@ -399,6 +452,7 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
                     const a_type *a_block = a + (Bm + Um) * strideAm
                         + Bk * strideAn;
                     if (!a_block_copied) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                      if (!a_block_copied) {" << std::endl;
                         /* Row sum argument is ignored for non-integer kernels
                          * and scaling factor is ignored by 8-bit and 16-bit
                          * copy kernels.
@@ -411,15 +465,20 @@ static mkldnn_status_t gemm_kernel_driver(const dim_t m, const dim_t n,
                     c_type *c_block = c + (Bm + Um) + Bn * ldc;
                     dim_t co_stride = 0;
                     if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                      if (isInteger) {" << std::endl;
                         if (offsetc == FIX_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                          if (offsetc == FIX_OFFSET) {" << std::endl;
                             co_stride = 0;
                         } else if (offsetc == ROW_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                          } else if (offsetc == ROW_OFFSET) {" << std::endl;
                             co_stride = Bn;
                         } else if (offsetc == COL_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                          } else if (offsetc == COL_OFFSET) {" << std::endl;
                             co_stride = Bm + Um;
                         }
                     }
                     if (need_c_buffer) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                      if (need_c_buffer) {" << std::endl;
                         gemm_kernel(sizeUM, sizeN, sizeK, 1.0f,
                                 bufferA + Um_forA * sizeK, bufferB, 0.0f,
                                 bufferC + Um, ldc_buf, a_row_sum + Um_forA,
@@ -455,6 +514,7 @@ static mkldnn_status_t kernel_driver_parallel_acopiedbcopy(const dim_t m,
         const float beta, c_type *c, const int offsetc, const c_type *co,
         const c_type *a_row_sum,
         const gemm_info_t<a_type, b_type, c_type> *arg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const gemm_info_t<a_type, b_type, c_type> *arg) {" << std::endl;
 
     dim_t ldb = arg->ldb;
     dim_t ldc = arg->ldc;
@@ -462,12 +522,14 @@ static mkldnn_status_t kernel_driver_parallel_acopiedbcopy(const dim_t m,
     float alpha = *arg->alpha;
 
     if (m <= 0 || n <= 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (m <= 0 || n <= 0) {" << std::endl;
         return mkldnn_success;
     }
 
     // Padding along N dimension.
     dim_t n_padd = 0;
     if (k < arg->blocking_small_k) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (k < arg->blocking_small_k) {" << std::endl;
         n_padd = utils::rnd_up(nstl::min(nstl::max(n, arg->un),
                     arg->bn_small_k), arg->un);
     } else {
@@ -488,6 +550,7 @@ static mkldnn_status_t kernel_driver_parallel_acopiedbcopy(const dim_t m,
     bool isInteger = data_traits<a_type>::data_type == data_type::s8;
 
     if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (isInteger) {" << std::endl;
         mem_size += b_col_sum_nelems * sizeof(*c) + PAGE_4K;
     }
 
@@ -495,6 +558,7 @@ static mkldnn_status_t kernel_driver_parallel_acopiedbcopy(const dim_t m,
         (alpha != 1.0f || (beta != 1 && beta != 0));
 
     if (need_c_buffer) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (need_c_buffer) {" << std::endl;
         size_t c_buf_nelems = ldc_buf * n_padd;
         mem_size += c_buf_nelems * sizeof(*c) + PAGE_4K;
     }
@@ -502,6 +566,7 @@ static mkldnn_status_t kernel_driver_parallel_acopiedbcopy(const dim_t m,
     char *mem = (char *) malloc(mem_size, 128);
 
     if (!mem) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (!mem) {" << std::endl;
         return mkldnn_out_of_memory;
     }
 
@@ -509,16 +574,19 @@ static mkldnn_status_t kernel_driver_parallel_acopiedbcopy(const dim_t m,
 
     c_type *b_col_sum = NULL;
     if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (isInteger) {" << std::endl;
         b_col_sum = (c_type *) align(bufferB + b_buf_nelems, PAGE_4K);
     }
 
     c_type *bufferC = NULL;
     if (need_c_buffer) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (need_c_buffer) {" << std::endl;
         bufferC = (c_type *) align(b_col_sum + b_col_sum_nelems, PAGE_4K);
     }
 
     dim_t sizeN = 0;
     for (dim_t Bn = 0; Bn < n; Bn += sizeN) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      for (dim_t Bn = 0; Bn < n; Bn += sizeN) {" << std::endl;
         sizeN = n - Bn;
         if (sizeN > n_padd)
             sizeN = n_padd;
@@ -534,17 +602,22 @@ static mkldnn_status_t kernel_driver_parallel_acopiedbcopy(const dim_t m,
 
         dim_t co_stride = 0;
         if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (isInteger) {" << std::endl;
             if (offsetc == FIX_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (offsetc == FIX_OFFSET) {" << std::endl;
                 co_stride = 0;
             } else if (offsetc == ROW_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              } else if (offsetc == ROW_OFFSET) {" << std::endl;
                 co_stride = Bn;
             } else if (offsetc == COL_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              } else if (offsetc == COL_OFFSET) {" << std::endl;
                 co_stride = 0;
             }
         }
 
         c_type *c_block = c + Bn * ldc;
         if (need_c_buffer) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (need_c_buffer) {" << std::endl;
             gemm_kernel(m, sizeN, k, 1.0f, bufferA, bufferB, 0.0f, bufferC,
                     ldc_buf, a_row_sum, b_col_sum, (c_type *) NULL, NO_OFFSET,
                     arg);
@@ -567,6 +640,7 @@ static mkldnn_status_t kernel_driver_parallel_acopiedbcopy(const dim_t m,
 static inline int nocopy_checker_avx2(const int nthr, const int transa,
         const int transb, const dim_t m, const dim_t n, const dim_t k,
         const dim_t lda, const dim_t ldb, const dim_t ldc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const dim_t lda, const dim_t ldb, const dim_t ldc) {" << std::endl;
     static const dim_t BM_NOCOPY_AVX2 = 64;
     static const dim_t MN_NOCOPY_AVX2 = 128;
     static const dim_t N_TRANSB_PER_THR = 1;
@@ -577,6 +651,7 @@ static inline int nocopy_checker_avx2(const int nthr, const int transa,
 
     // Crude threshold to nocopy kernels if copy overhead is significant.
     if (1.0 / m + 1.0 / n >= FORCE_NOCOPY_THRESH) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (1.0 / m + 1.0 / n >= FORCE_NOCOPY_THRESH) {" << std::endl;
         return 1;
     }
 
@@ -585,6 +660,7 @@ static inline int nocopy_checker_avx2(const int nthr, const int transa,
     if (m >= nthr * 378 && k >= nthr * 378) return 0;
 
     if (transb == no_trans) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (transb == no_trans) {" << std::endl;
         if (m <= MN_NOCOPY_AVX2 && n <= MN_NOCOPY_AVX2) return 1;
         if (n <= nthr * N_NOTRANSB_PER_THR) return 1;
         if (k <= nthr * K_NOTRANSB_PER_THR) return 1;
@@ -601,6 +677,7 @@ static inline int nocopy_checker_avx2(const int nthr, const int transa,
 static inline int nocopy_checker_avx512(int nthr, const int transa,
         const int transb, const dim_t m, const dim_t n, const dim_t k,
         const dim_t lda, const dim_t ldb, const dim_t ldc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const dim_t lda, const dim_t ldb, const dim_t ldc) {" << std::endl;
     // Constants definition
     static const dim_t BAD_LD_MULT = 256;
     static const dim_t M_TRANSB_PER_THR = 28;
@@ -612,6 +689,7 @@ static inline int nocopy_checker_avx512(int nthr, const int transa,
 
     // Crude threshold to nocopy kernels if copy overhead is significant.
     if (1.0 / m + 1.0 / n >= FORCE_NOCOPY_THRESH) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (1.0 / m + 1.0 / n >= FORCE_NOCOPY_THRESH) {" << std::endl;
         return 1;
     }
 
@@ -632,6 +710,7 @@ static inline int nocopy_checker_avx512(int nthr, const int transa,
     if (m >= nthr * 378 && k >= nthr * 378) return 0;
 
     if (transb == no_trans) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (transb == no_trans) {" << std::endl;
         if (m <= nthr * MN_NOTRANSB_PER_THR) return 1;
         if (n <= nthr * MN_NOTRANSB_PER_THR) return 1;
         if (k <= nthr * K_NOTRANSB_PER_THR) return 1;
@@ -646,11 +725,14 @@ static inline int nocopy_checker_avx512(int nthr, const int transa,
 static inline int nocopy_checker(const int nthr, const int transa,
         const int transb, const dim_t m, const dim_t n, const dim_t k,
         const dim_t lda, const dim_t ldb, const dim_t ldc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const dim_t lda, const dim_t ldb, const dim_t ldc) {" << std::endl;
 
     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (mayiuse(avx512_core)) {" << std::endl;
         return nocopy_checker_avx512(nthr, transa, transb, m, n, k, lda, ldb,
                 ldc);
     } else if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      } else if (mayiuse(avx2)) {" << std::endl;
         return nocopy_checker_avx2(nthr, transa, transb, m, n, k, lda, ldb,
                 ldc);
     } else {
@@ -664,6 +746,7 @@ static inline int nocopy_checker(const int nthr, const int transa,
 template <typename a_type, typename b_type, typename c_type>
 static inline void set_thread_opts(int *p_nthrs, blas_thread_t *thread_info,
         const gemm_info_t<a_type, b_type, c_type> *arg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const gemm_info_t<a_type, b_type, c_type> *arg) {" << std::endl;
 
     int nthrs = *p_nthrs;
     int transa = arg->transa;
@@ -685,6 +768,7 @@ static inline void set_thread_opts(int *p_nthrs, blas_thread_t *thread_info,
 
     if (isSgemm &&
             nocopy_checker(nthrs, transa, transb, m, n, k, lda, ldb, ldc)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              nocopy_checker(nthrs, transa, transb, m, n, k, lda, ldb, ldc)) {" << std::endl;
         thread_info->copy_type = NO_COPY;
         int nthrs_m = 0;
         int nthrs_n = 0;
@@ -694,6 +778,7 @@ static inline void set_thread_opts(int *p_nthrs, blas_thread_t *thread_info,
         int BK = 0;
 
         if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (mayiuse(avx512_core)) {" << std::endl;
             gemm_utils::calc_nthr_nocopy_avx512_common(
                     (int) m, (int) n, (int) k, nthrs,
                     &nthrs_m, &nthrs_n, &nthrs_k, &BM, &BN, &BK);
@@ -720,8 +805,10 @@ static inline void set_thread_opts(int *p_nthrs, blas_thread_t *thread_info,
 
     int condition_2D_bsrc = -1;
     if (isSgemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (isSgemm) {" << std::endl;
         // If m is large and n is small then do 1D partitioning for AVX2.
         if (!mayiuse(avx512_core) && n <= N2D_MAX && (m >= nthrs * M2D_MIN)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (!mayiuse(avx512_core) && n <= N2D_MAX && (m >= nthrs * M2D_MIN)) {" << std::endl;
             condition_2D_bsrc = 0;
         } else {
             condition_2D_bsrc = ((n > nthrs * N2D_MAX) ||
@@ -735,13 +822,16 @@ static inline void set_thread_opts(int *p_nthrs, blas_thread_t *thread_info,
 
     int condition_1D_copya = 0;
     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (mayiuse(avx512_core)) {" << std::endl;
         const dim_t thresh = isSgemm ? N2D_MAX / 4 : 68;
         if (m >= 1000 && (n >= nthrs * thresh)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (m >= 1000 && (n >= nthrs * thresh)) {" << std::endl;
             condition_2D_bsrc = 0;
             condition_1D_copya = 1;
         }
     } else { // AVX2 code path
         if (m >= 1000 && n >= 4000) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (m >= 1000 && n >= 4000) {" << std::endl;
             condition_2D_bsrc = 0;
             condition_1D_copya = 1;
         }
@@ -750,11 +840,13 @@ static inline void set_thread_opts(int *p_nthrs, blas_thread_t *thread_info,
     // If A or B offset are non-zero, we need to keep 1D_copya to reduce update
     // overhead for integer case.
     if (isInteger && (arg->ao != 0 || arg->bo != 0)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (isInteger && (arg->ao != 0 || arg->bo != 0)) {" << std::endl;
         condition_2D_bsrc = 0;
         condition_1D_copya = 1;
     }
 
     if (condition_2D_bsrc == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (condition_2D_bsrc == 1) {" << std::endl;
         int nthrs_m = 1;
         int nthrs_n = nthrs;
 
@@ -762,6 +854,7 @@ static inline void set_thread_opts(int *p_nthrs, blas_thread_t *thread_info,
                 (n / nthrs > N2D_MAX || n / nthrs_n <= N2D_MAX / 2) &&
                 (m / nthrs_m >= 2 * M2D_MIN) &&
                 (nthrs_m < 4)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  (nthrs_m < 4)) {" << std::endl;
             nthrs_m *= 2;
             nthrs_n /= 2;
         }
@@ -774,18 +867,21 @@ static inline void set_thread_opts(int *p_nthrs, blas_thread_t *thread_info,
         *p_nthrs = nthrs_m * nthrs_n;
 
     } else if (condition_1D_copya && mkldnn_thr_syncable()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      } else if (condition_1D_copya && mkldnn_thr_syncable()) {" << std::endl;
         // Use parallel copy A algorithm
         thread_info->copy_type = COPY_A;
         thread_info->partition = PARTITION_1D_COL;
     } else {
         int veclen = 0;
         if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (mayiuse(avx512_core)) {" << std::endl;
             veclen = cpu_isa_traits<avx512_core>::vlen / (int) sizeof(c_type);
         } else {
             veclen = cpu_isa_traits<avx2>::vlen / (int) sizeof(c_type);
         }
 
         if (m > n && (m >= nthrs * veclen || n < nthrs)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (m > n && (m >= nthrs * veclen || n < nthrs)) {" << std::endl;
             thread_info->partition = PARTITION_1D_ROW;
         } else {
             thread_info->partition = PARTITION_1D_COL;
@@ -797,6 +893,7 @@ static inline void set_thread_opts(int *p_nthrs, blas_thread_t *thread_info,
 
 static inline void partition_1d(const int ithr, const int nthrs, const dim_t n,
         dim_t *t_offset, dim_t *t_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          dim_t *t_offset, dim_t *t_block) {" << std::endl;
 
     dim_t band = n / nthrs;
 
@@ -813,9 +910,11 @@ static inline void partition_1d(const int ithr, const int nthrs, const dim_t n,
     *t_offset = ithr * band;
 
     if (*t_offset >= n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (*t_offset >= n) {" << std::endl;
         *t_block = 0;
         *t_offset = 0;
     } else if ((*t_offset + *t_block) > n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      } else if ((*t_offset + *t_block) > n) {" << std::endl;
         *t_block = n - *t_offset;
     }
 }
@@ -824,6 +923,7 @@ static inline void partition_2d(const int ithr, int *nthrs, const int ithr_i,
         const int ithr_j, const int nthrs_m, const int nthrs_n, const dim_t m,
         const dim_t n, dim_t *p_m_disp, dim_t *p_m_band, dim_t *p_n_disp,
         dim_t *p_n_band) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          dim_t *p_n_band) {" << std::endl;
 
     dim_t m_disp = 0, n_disp = 0;
     dim_t m_band = 0, n_band = 0;
@@ -840,6 +940,7 @@ static inline void partition_2d(const int ithr, int *nthrs, const int ithr_i,
 
     int mthr_used = mdiv;
     if (m - (mdiv - 1) * m_bandt > m_bandt + 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (m - (mdiv - 1) * m_bandt > m_bandt + 1) {" << std::endl;
         if (m - (mdiv - 1) * m_bandt > mdiv)
             ++m_bandt;
 
@@ -854,6 +955,7 @@ static inline void partition_2d(const int ithr, int *nthrs, const int ithr_i,
 
     int nthr_used = ndiv;
     if (n - (ndiv - 1) * n_bandt > n_bandt + 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (n - (ndiv - 1) * n_bandt > n_bandt + 1) {" << std::endl;
         firstnval = n_bandt + 1;
         nthr_used = (int) (n / firstnval);
 
@@ -866,10 +968,13 @@ static inline void partition_2d(const int ithr, int *nthrs, const int ithr_i,
     *nthrs = mthr_used * nthr_used;
 
     if (ithr < *nthrs) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (ithr < *nthrs) {" << std::endl;
         if (ithr_i < firstmgroup) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (ithr_i < firstmgroup) {" << std::endl;
             m_band = firstmval;
             m_disp = ithr_i * firstmval;
         } else if (ithr_i <= mthr_used - 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          } else if (ithr_i <= mthr_used - 2) {" << std::endl;
             m_band = m_bandt;
             m_disp = firstmgroup * firstmval + (ithr_i - firstmgroup) * m_bandt;
         } else {
@@ -879,9 +984,11 @@ static inline void partition_2d(const int ithr, int *nthrs, const int ithr_i,
         }
 
         if (ithr_j < firstngroup) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (ithr_j < firstngroup) {" << std::endl;
             n_band = firstnval;
             n_disp = ithr_j * firstnval;
         } else if (ithr_j <= nthr_used - 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          } else if (ithr_j <= nthr_used - 2) {" << std::endl;
             n_band = n_bandt;
             n_disp = firstngroup * firstnval + (ithr_j - firstngroup) * n_bandt;
         } else {
@@ -894,6 +1001,7 @@ static inline void partition_2d(const int ithr, int *nthrs, const int ithr_i,
     }
 
     if (ithr < *nthrs) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (ithr < *nthrs) {" << std::endl;
         *p_m_disp = m_disp;
         *p_n_disp = n_disp;
         *p_m_band = m_band;
@@ -913,6 +1021,7 @@ static inline void decompose_matrices(const int ithr, int *nthrs, dim_t *m,
         dim_t *n, dim_t *k, const a_type **a, const b_type **b, c_type **c,
         const c_type **co, const blas_thread_t *thread_info,
         const gemm_info_t<a_type, b_type, c_type> *arg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const gemm_info_t<a_type, b_type, c_type> *arg) {" << std::endl;
 
     dim_t strideAm = (arg->transa == no_trans)? 1 : arg->lda;
     dim_t strideBn = (arg->transb != no_trans)? 1 : arg->ldb;
@@ -921,6 +1030,7 @@ static inline void decompose_matrices(const int ithr, int *nthrs, dim_t *m,
     bool isInteger = data_traits<a_type>::data_type == data_type::s8;
 
     switch (thread_info->partition) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      switch (thread_info->partition) {" << std::endl;
     case PARTITION_1D_ROW:
         {
             dim_t offset = 0;
@@ -942,12 +1052,16 @@ static inline void decompose_matrices(const int ithr, int *nthrs, dim_t *m,
 
             // Set offset vector for C matrix.
             if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (isInteger) {" << std::endl;
                 dim_t co_stride = 0;
                 if (offsetc == FIX_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (offsetc == FIX_OFFSET) {" << std::endl;
                     co_stride = 0;
                 } else if (offsetc == ROW_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  } else if (offsetc == ROW_OFFSET) {" << std::endl;
                     co_stride = 0;
                 } else if (offsetc == COL_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  } else if (offsetc == COL_OFFSET) {" << std::endl;
                     co_stride = offset;
                 }
                 *co = arg->co + co_stride;
@@ -976,12 +1090,16 @@ static inline void decompose_matrices(const int ithr, int *nthrs, dim_t *m,
 
             // Set offset vector for C matrix
             if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (isInteger) {" << std::endl;
                 dim_t co_stride = 0;
                 if (offsetc == FIX_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (offsetc == FIX_OFFSET) {" << std::endl;
                     co_stride = 0;
                 } else if (offsetc == ROW_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  } else if (offsetc == ROW_OFFSET) {" << std::endl;
                     co_stride = offset;
                 } else if (offsetc == COL_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  } else if (offsetc == COL_OFFSET) {" << std::endl;
                     co_stride = 0;
                 }
                 *co = arg->co + co_stride;
@@ -1019,12 +1137,16 @@ static inline void decompose_matrices(const int ithr, int *nthrs, dim_t *m,
 
             // Set offset vector for C matrix
             if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (isInteger) {" << std::endl;
                 dim_t co_stride = 0;
                 if (offsetc == FIX_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (offsetc == FIX_OFFSET) {" << std::endl;
                     co_stride = 0;
                 } else if (offsetc == ROW_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  } else if (offsetc == ROW_OFFSET) {" << std::endl;
                     co_stride = n_disp;
                 } else if (offsetc == COL_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  } else if (offsetc == COL_OFFSET) {" << std::endl;
                     co_stride = m_disp;
                 }
                 *co = arg->co + co_stride;
@@ -1040,6 +1162,7 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
         const dim_t m, const dim_t n, const dim_t k, const a_type *a,
         const b_type *b, c_type *c, const c_type *co,
         const gemm_info_t<a_type, b_type, c_type> *arg, char **p_shared_mem) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const gemm_info_t<a_type, b_type, c_type> *arg, char **p_shared_mem) {" << std::endl;
 
     const dim_t lda = arg->lda;
     const dim_t ldb = arg->ldb;
@@ -1055,6 +1178,7 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
 
     // Scaling C matrix.
     if (!isInteger && beta != 1.0f && beta != 0.0f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (!isInteger && beta != 1.0f && beta != 0.0f) {" << std::endl;
         scale_matrix(m, n, beta, c, ldc);
         beta = 1.0f;
     }
@@ -1066,9 +1190,11 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
     // Padding along K dimension.
     dim_t k_padd = 0;
     if (k <= arg->bk_traditional) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (k <= arg->bk_traditional) {" << std::endl;
         k_padd = utils::rnd_up(k, arg->uk);
         k_padd = nstl::max(128LL, k_padd);
     } else if (k < 2 * arg->bk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      } else if (k < 2 * arg->bk) {" << std::endl;
         k_padd = utils::rnd_up(k / 2, arg->uk);
     } else {
         k_padd = arg->bk;
@@ -1076,16 +1202,19 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
 
     m_padd *= nthrs > MULTIPLIER ? MULTIPLIER : nthrs;
     if (m_padd > m) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (m_padd > m) {" << std::endl;
         m_padd = utils::rnd_up(m, arg->um);
     }
 
     size_t a_buf_nelems = m_padd * k_padd;
 
     // Allocate shared memory for A and its row sum buffers in master thread.
-    if (ithr == 0) { // If thread master
+    if (ithr == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (ithr == 0) {" << std::endl; // If thread master
         size_t mem_size = (a_buf_nelems * sizeof(*a) + PAGE_4K);
 
         if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (isInteger) {" << std::endl;
             size_t a_row_sum_nelems = m_padd;
             mem_size += a_row_sum_nelems * sizeof(*c) + PAGE_4K;
         }
@@ -1100,10 +1229,12 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
 
     c_type *a_row_sum = NULL;
     if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (isInteger) {" << std::endl;
         a_row_sum = (c_type *) align(bufferA + a_buf_nelems, PAGE_4K);
     }
 
     if (!mem) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (!mem) {" << std::endl;
         return mkldnn_out_of_memory;
     }
 
@@ -1113,6 +1244,7 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
 
     dim_t sizeK = 0;
     for (dim_t Bk = 0; Bk < k; Bk += sizeK) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      for (dim_t Bk = 0; Bk < k; Bk += sizeK) {" << std::endl;
         sizeK = k - Bk;
         if (sizeK > k_padd)
             sizeK = k_padd;
@@ -1130,11 +1262,13 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
 
         dim_t sizeM = 0;
         for (dim_t Bm = 0; Bm < m; Bm += sizeM) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          for (dim_t Bm = 0; Bm < m; Bm += sizeM) {" << std::endl;
             sizeM = m - Bm;
             if (sizeM > m_padd)
                 sizeM = m_padd;
 
             if (ithr < nthrs) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (ithr < nthrs) {" << std::endl;
                 dim_t band = (sizeM + nthrs - 1) / nthrs;
                 band = utils::rnd_up(band, arg->um);
 
@@ -1142,16 +1276,19 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
 
                 // If offset is too large don't use that thread for copying.
                 if (offset >= sizeM) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (offset >= sizeM) {" << std::endl;
                     offset = 0;
                     band = 0;
                 }
 
                 // Handle the tail of the copy.
                 if (offset + band > sizeM) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (offset + band > sizeM) {" << std::endl;
                     band = sizeM - offset;
                 }
 
                 if (band > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (band > 0) {" << std::endl;
                     const a_type *a_block = a + (Bm + offset) * strideAm
                         + Bk * strideAn;
 
@@ -1171,11 +1308,15 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
 
             dim_t co_stride = 0;
             if (isInteger) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (isInteger) {" << std::endl;
                 if (offsetc == FIX_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  if (offsetc == FIX_OFFSET) {" << std::endl;
                     co_stride = 0;
                 } else if (offsetc == ROW_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  } else if (offsetc == ROW_OFFSET) {" << std::endl;
                     co_stride = 0;
                 } else if (offsetc == COL_OFFSET) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  } else if (offsetc == COL_OFFSET) {" << std::endl;
                     co_stride = Bm;
                 }
             }
@@ -1190,6 +1331,7 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
 
     // Free memory allocated in master thread
     if (ithr == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (ithr == 0) {" << std::endl;
         free(mem);
     }
 
@@ -1199,12 +1341,14 @@ static mkldnn_status_t parallel_a_copy(const int ithr, const int nthrs,
 
 template <typename T>
 static inline void get_omp_thread_count(dim_t m, dim_t n, dim_t k, int *nthrs) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:  static inline void get_omp_thread_count(dim_t m, dim_t n, dim_t k, int *nthrs) {" << std::endl;
     const double omp_overhead_small_core = 3.0e+3;
     const double omp_intercept_big_core = 4.0e+3;
     const double omp_slope_big_core = 5.0e+2;
 
     int veclen = 0;
     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (mayiuse(avx512_core)) {" << std::endl;
         veclen = cpu_isa_traits<avx512_core>::vlen / (int) sizeof(T);
     } else {
         veclen = cpu_isa_traits<avx2>::vlen / (int) sizeof(T);
@@ -1213,6 +1357,7 @@ static inline void get_omp_thread_count(dim_t m, dim_t n, dim_t k, int *nthrs) {
 
     double gemm_cycles = m * n * k / fp_per_cycle;
     if (data_traits<T>::data_type == data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (data_traits<T>::data_type == data_type::f32) {" << std::endl;
         gemm_cycles *= 2.0;
     } else {
         gemm_cycles *= 8.0;
@@ -1222,24 +1367,29 @@ static inline void get_omp_thread_count(dim_t m, dim_t n, dim_t k, int *nthrs) {
 
     // Use a different model for omp overheads if nthrs is <= 4
     if (*nthrs <= 4 && omp_overhead_small_core > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (*nthrs <= 4 && omp_overhead_small_core > 0) {" << std::endl;
         double omp_cycles = omp_overhead_small_core;
         if (gemm_cycles < omp_cycles) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (gemm_cycles < omp_cycles) {" << std::endl;
             *nthrs = 1;
             return;
         } else {
             while (i > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              while (i > 1) {" << std::endl;
                 if (omp_cycles * i < gemm_cycles * (i - 1)) break;
                 --i;
             }
         }
     } else {
         if (gemm_cycles < (omp_intercept_big_core + 2 * omp_slope_big_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (gemm_cycles < (omp_intercept_big_core + 2 * omp_slope_big_core)) {" << std::endl;
             *nthrs = 1;
             return;
         }
 
         // adaptive decrement to march faster·
         while (i > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          while (i > 1) {" << std::endl;
             double omp_cycles = omp_intercept_big_core + i * omp_slope_big_core;
             if (omp_cycles * i < gemm_cycles * (i - 1))
                 break;
@@ -1263,6 +1413,7 @@ static mkldnn_status_t call_no_copy_sgemm(const int transa, const int transb,
         const dim_t m, const dim_t n, const dim_t k, const float *alpha,
         const float *a, const dim_t lda, const float *b, const dim_t ldb,
         const float *beta, float *c, dim_t ldc, const float *bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const float *beta, float *c, dim_t ldc, const float *bias) {" << std::endl;
     int m_s32 = (int) m;
     int n_s32 = (int) n;
     int k_s32 = (int) k;
@@ -1292,11 +1443,13 @@ static mkldnn_status_t call_no_copy_sgemm(const int transa, const int transb,
 template <typename a_type, typename b_type, typename c_type>
 static mkldnn_status_t gemm_threading_driver(
         gemm_info_t<a_type, b_type, c_type> *arg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          gemm_info_t<a_type, b_type, c_type> *arg) {" << std::endl;
 
     if ((arg->m <= 0) || (arg->n <= 0))
         return mkldnn_success;
 
     if (arg->force_nocopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (arg->force_nocopy) {" << std::endl;
         return call_no_copy_sgemm(arg->transa, arg->transb,
                 arg->m, arg->n, arg->k, arg->alpha,
                 (float *) arg->a, arg->lda,
@@ -1306,7 +1459,9 @@ static mkldnn_status_t gemm_threading_driver(
     }
 
     if (data_traits<a_type>::data_type == data_type::s8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (data_traits<a_type>::data_type == data_type::s8) {" << std::endl;
         if (gemm_s8u8s32_jump_to_gemv_s8u8s32(arg)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (gemm_s8u8s32_jump_to_gemv_s8u8s32(arg)) {" << std::endl;
             return mkldnn_success;
         }
     }
@@ -1315,9 +1470,12 @@ static mkldnn_status_t gemm_threading_driver(
 
     // Check if thread is beneficial.
     if (mayiuse(avx2) && !mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (mayiuse(avx2) && !mayiuse(avx512_core)) {" << std::endl;
         if (arg->m > 10 * arg->n && arg->n < nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (arg->m > 10 * arg->n && arg->n < nthr) {" << std::endl;
             const int veclen = cpu_isa_traits<avx2>::vlen / (int)sizeof(c_type);
             if (arg->m / nthr < veclen * 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (arg->m / nthr < veclen * 3) {" << std::endl;
                 nthr = (int) nstl::max(arg->m / veclen / 3, 1LL);
             }
         }
@@ -1325,6 +1483,7 @@ static mkldnn_status_t gemm_threading_driver(
     get_omp_thread_count<c_type>(arg->m, arg->n, arg->k, &nthr);
 
     if (nthr == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (nthr == 1) {" << std::endl;
         return gemm_kernel_driver(arg->m, arg->n, arg->k, arg->a, arg->b,
                 arg->c, arg->co, arg);
     }
@@ -1342,18 +1501,22 @@ static mkldnn_status_t gemm_threading_driver(
             sizeof(*results) * nthr * CACHE_LINE_SIZE, PAGE_4K);
 
     if (!results) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      if (!results) {" << std::endl;
         return mkldnn_out_of_memory;
     }
 
     for (int i = 0; i < nthr; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      for (int i = 0; i < nthr; i++) {" << std::endl;
         results[i * CACHE_LINE_SIZE] = mkldnn_success; // Initialize to success
     }
 
     char *shared_mem = NULL;
 
     parallel(nthr, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      parallel(nthr, [&](const int ithr, const int nthr) {" << std::endl;
         int nthrs = nthr;
         if (nthrs == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (nthrs == 1) {" << std::endl;
             results[0] = gemm_kernel_driver(arg->m, arg->n, arg->k, arg->a,
                 arg->b, arg->c, arg->co, arg);
         } else {
@@ -1371,7 +1534,9 @@ static mkldnn_status_t gemm_threading_driver(
                 &thread_info, arg);
 
             if (ithr < nthrs) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:              if (ithr < nthrs) {" << std::endl;
                 switch (thread_info.copy_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                  switch (thread_info.copy_type) {" << std::endl;
                 case COPY_A:
                     results[ithr * CACHE_LINE_SIZE] =
                         parallel_a_copy(ithr, nthrs, m, n, k, a, b, c, co, arg,
@@ -1386,7 +1551,9 @@ static mkldnn_status_t gemm_threading_driver(
 
                 case NO_COPY:
                     if (data_traits<a_type>::data_type == data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                      if (data_traits<a_type>::data_type == data_type::f32) {" << std::endl;
                         if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:                          if (mayiuse(avx512_core)) {" << std::endl;
                             avx512_common_gemm_f32::sgemm_nocopy_driver(
                                     arg->transa == no_trans ? "N" : "T",
                                     arg->transb == no_trans ? "N" : "T",
@@ -1416,7 +1583,9 @@ static mkldnn_status_t gemm_threading_driver(
 
     mkldnn_status_t result = mkldnn_success;  // Initialize to success
     for (int i = 0; i < nthr; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:      for (int i = 0; i < nthr; i++) {" << std::endl;
         if (results[i * CACHE_LINE_SIZE] != mkldnn_success) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          if (results[i * CACHE_LINE_SIZE] != mkldnn_success) {" << std::endl;
             result = results[i * CACHE_LINE_SIZE];
             break;
         }
@@ -1436,6 +1605,7 @@ mkldnn_status_t gemm_driver(
         const b_type *b, const int *ldb, const a_type *ob,
         const float *beta, c_type *c, const int *ldc, const c_type *oc,
         const bool force_nocopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_driver.cpp:          const bool force_nocopy) {" << std::endl;
 
     // gemm_driver supports bfloat16 gemm for avx512_core and above.
     assert(IMPLICATION(data_traits<a_type>::data_type == data_type::bf16,

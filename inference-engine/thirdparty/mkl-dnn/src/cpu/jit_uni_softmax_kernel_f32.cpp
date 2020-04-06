@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017 Intel Corporation
 *
@@ -33,18 +34,22 @@ template <cpu_isa_t isa>
 status_t jit_uni_softmax_kernel_f32<isa>::init_conf(jit_softmax_conf_t &jpp,
                    const softmax_desc_t &pd, const memory_desc_wrapper &src_d,
                    const memory_desc_wrapper &dst_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:                     const memory_desc_wrapper &dst_d) {" << std::endl;
     auto ndims = pd.data_desc.ndims;
     auto dims = pd.data_desc.dims;
     auto axis = pd.softmax_axis;
 
     bool is_plain = true;
     for (int i = axis; i < ndims; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      for (int i = axis; i < ndims; i++) {" << std::endl;
         if (src_d.blocking_desc().block_dims[i] != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          if (src_d.blocking_desc().block_dims[i] != 1) {" << std::endl;
             is_plain = false;
         }
     }
 
     if (!is_plain) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      if (!is_plain) {" << std::endl;
         return status::unimplemented;
     }
 
@@ -59,6 +64,7 @@ status_t jit_uni_softmax_kernel_f32<isa>::init_conf(jit_softmax_conf_t &jpp,
     jpp.inner_size = utils::array_product(dims + axis + 1, ndims - axis - 1);
 
     if (jpp.outer_size < 1 || jpp.channels < 1 || jpp.inner_size < 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      if (jpp.outer_size < 1 || jpp.channels < 1 || jpp.inner_size < 1) {" << std::endl;
         return status::unimplemented;
     }
 
@@ -67,13 +73,16 @@ status_t jit_uni_softmax_kernel_f32<isa>::init_conf(jit_softmax_conf_t &jpp,
     jpp.outer_block = 2 * cpu_isa_traits<isa>::vlen / sizeof(float);
 
     if (jpp.inner_size == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      if (jpp.inner_size == 1) {" << std::endl;
         // limit max jit code size for dense case
         if (jpp.channels > 128) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          if (jpp.channels > 128) {" << std::endl;
             return status::unimplemented;
         }
 
         // ref implementation is faster for small work amount
         if (jpp.channels * jpp.outer_size < 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          if (jpp.channels * jpp.outer_size < 16) {" << std::endl;
             return status::unimplemented;
         }
     }
@@ -83,16 +92,19 @@ status_t jit_uni_softmax_kernel_f32<isa>::init_conf(jit_softmax_conf_t &jpp,
 
 template <cpu_isa_t isa>
 int jit_uni_softmax_kernel_f32<isa>::id_vreg_max(int ur_inner) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  int jit_uni_softmax_kernel_f32<isa>::id_vreg_max(int ur_inner) {" << std::endl;
     return 5+ur_inner;
 }
 
 template <cpu_isa_t isa>
 int jit_uni_softmax_kernel_f32<isa>::id_vreg_denom(int ur_inner) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  int jit_uni_softmax_kernel_f32<isa>::id_vreg_denom(int ur_inner) {" << std::endl;
     return 5+jpp.ur_inner + ur_inner;
 }
 
 template <cpu_isa_t isa>
 int jit_uni_softmax_kernel_f32<isa>::id_vreg_src(int ur_inner) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  int jit_uni_softmax_kernel_f32<isa>::id_vreg_src(int ur_inner) {" << std::endl;
     return 5+2*jpp.ur_inner;
 }
 
@@ -113,6 +125,7 @@ auto jit_uni_softmax_kernel_f32<isa>::vreg_src(int ur_inner) -> Vmm {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::prepare_table() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::prepare_table() {" << std::endl;
     const unsigned int cvals[] = {
             0x3f800000, // [0] 1.0f
             0x3f000000, // [1] 0.5f
@@ -132,7 +145,9 @@ void jit_uni_softmax_kernel_f32<isa>::prepare_table() {
     align(64);
     L(l_table);
     for (size_t i = 0; i < sizeof(cvals) / sizeof(cvals[0]); ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      for (size_t i = 0; i < sizeof(cvals) / sizeof(cvals[0]); ++i) {" << std::endl;
         for (size_t d = 0; d < vlen / sizeof(float); ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (size_t d = 0; d < vlen / sizeof(float); ++d) {" << std::endl;
             dd(cvals[i]);
         }
     }
@@ -140,6 +155,7 @@ void jit_uni_softmax_kernel_f32<isa>::prepare_table() {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::simd_expf(const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::simd_expf(const Vmm &vmm_src) {" << std::endl;
     uni_vminps(vmm_src, vmm_src, ptr[imm_addr64 + 10 * vlen]);
     uni_vmaxps(vmm_src, vmm_src, ptr[imm_addr64 + 11 * vlen]);
     uni_vmovups(vmm_aux0, vmm_src);
@@ -150,6 +166,7 @@ void jit_uni_softmax_kernel_f32<isa>::simd_expf(const Vmm &vmm_src) {
 
     // tmp = floorf(fx)
     if (isa < avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      if (isa < avx512_common) {" << std::endl;
         uni_vroundps(vmm_aux1, vmm_src, _op_floor);
     } else {
         vcvtps2dq(vmm_aux1 | T_rd_sae, vmm_src);
@@ -187,6 +204,7 @@ void jit_uni_softmax_kernel_f32<isa>::simd_expf(const Vmm &vmm_src) {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::scalar_expf(const Xmm &xmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::scalar_expf(const Xmm &xmm_src) {" << std::endl;
     minss(xmm_src, ptr[imm_addr64 + 10 * vlen]);
     maxss(xmm_src, ptr[imm_addr64 + 11 * vlen]);
     movups(xmm_aux0, xmm_src);
@@ -234,11 +252,13 @@ void jit_uni_softmax_kernel_f32<isa>::scalar_expf(const Xmm &xmm_src) {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::simd_loop_max(int ur_inner) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::simd_loop_max(int ur_inner) {" << std::endl;
     Label loop_channel_blocks;
     Label loop_channel_tail;
     Label loop_channel_end;
 
     for (int i = 0; i < ur_inner; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      for (int i = 0; i < ur_inner; ++i) {" << std::endl;
         uni_vbroadcastss(vreg_max(i), xmm_float_min);
     }
 
@@ -252,7 +272,9 @@ void jit_uni_softmax_kernel_f32<isa>::simd_loop_max(int ur_inner) {
         jl(loop_channel_tail, T_NEAR);
 
         for (int i = 0; i < ur_inner; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (int i = 0; i < ur_inner; ++i) {" << std::endl;
             for (int c = 0; c < (int)jpp.ur_channel; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:              for (int c = 0; c < (int)jpp.ur_channel; ++c) {" << std::endl;
                 uni_vmovups(vreg_src(i), ptr[reg_src_ptr + (i*simd_w + c*jpp.inner_size) * sizeof(float)]);
                 uni_vmaxps(vreg_max(i), vreg_max(i), vreg_src(i));
             }
@@ -270,6 +292,7 @@ void jit_uni_softmax_kernel_f32<isa>::simd_loop_max(int ur_inner) {
         jle(loop_channel_end, T_NEAR);
 
         for (int i = 0; i < ur_inner; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (int i = 0; i < ur_inner; ++i) {" << std::endl;
             uni_vmovups(vreg_src(i), ptr[reg_src_ptr + i*simd_w*sizeof(float)]);
             uni_vmaxps(vreg_max(i), vreg_max(i), vreg_src(i));
         }
@@ -286,11 +309,13 @@ void jit_uni_softmax_kernel_f32<isa>::simd_loop_max(int ur_inner) {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::simd_loop_exp(int ur_inner) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::simd_loop_exp(int ur_inner) {" << std::endl;
     Label loop_channel_blocks;
     Label loop_channel_tail;
     Label loop_channel_end;
 
     for (int i = 0; i < ur_inner; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      for (int i = 0; i < ur_inner; ++i) {" << std::endl;
         uni_vpxor(vreg_denom(i), vreg_denom(i), vreg_denom(i));
     }
 
@@ -304,7 +329,9 @@ void jit_uni_softmax_kernel_f32<isa>::simd_loop_exp(int ur_inner) {
         jl(loop_channel_tail, T_NEAR);
 
         for (int i = 0; i < ur_inner; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (int i = 0; i < ur_inner; ++i) {" << std::endl;
             for (int c = 0; c < (int)jpp.ur_channel; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:              for (int c = 0; c < (int)jpp.ur_channel; ++c) {" << std::endl;
                 uni_vmovups(vreg_src(i), ptr[reg_src_ptr + (i*simd_w + c*jpp.inner_size) *sizeof(float)]);
                 uni_vsubps(vreg_src(i),vreg_src(i), vreg_max(i));
                 simd_expf(vreg_src(i));
@@ -325,6 +352,7 @@ void jit_uni_softmax_kernel_f32<isa>::simd_loop_exp(int ur_inner) {
         jle(loop_channel_end, T_NEAR);
 
         for (int i = 0; i < ur_inner; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (int i = 0; i < ur_inner; ++i) {" << std::endl;
             uni_vmovups(vreg_src(i), ptr[reg_src_ptr + i*simd_w*sizeof(float)]);
             uni_vsubps(vreg_src(i), vreg_src(i), vreg_max(i));
             simd_expf(vreg_src(i));
@@ -345,12 +373,15 @@ void jit_uni_softmax_kernel_f32<isa>::simd_loop_exp(int ur_inner) {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::simd_loop_div(int ur_inner) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::simd_loop_div(int ur_inner) {" << std::endl;
     Label loop_channel_blocks;
     Label loop_channel_tail;
     Label loop_channel_end;
 
     for (int i = 0; i < ur_inner; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      for (int i = 0; i < ur_inner; ++i) {" << std::endl;
         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          if (isa == sse42) {" << std::endl;
             uni_vmovups(vmm_aux0, vmm_one);
             uni_vdivps(vmm_aux0, vmm_aux0, vreg_denom(i));
             uni_vmovups(vreg_denom(i), vmm_aux0);
@@ -369,7 +400,9 @@ void jit_uni_softmax_kernel_f32<isa>::simd_loop_div(int ur_inner) {
         jl(loop_channel_tail, T_NEAR);
 
         for (int i = 0; i < ur_inner; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (int i = 0; i < ur_inner; ++i) {" << std::endl;
             for (int c = 0; c < (int)jpp.ur_channel; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:              for (int c = 0; c < (int)jpp.ur_channel; ++c) {" << std::endl;
                 uni_vmovups(vreg_src(i), ptr[reg_dst_ptr + (i*simd_w + c*jpp.inner_size)*sizeof(float)]);
                 uni_vmulps(vreg_src(i), vreg_src(i), vreg_denom(i));
                 uni_vmovups(ptr[reg_dst_ptr + (i*simd_w + c*jpp.inner_size)*sizeof(float)], vreg_src(i));
@@ -388,6 +421,7 @@ void jit_uni_softmax_kernel_f32<isa>::simd_loop_div(int ur_inner) {
         jle(loop_channel_end, T_NEAR);
 
         for (int i = 0; i < ur_inner; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (int i = 0; i < ur_inner; ++i) {" << std::endl;
             uni_vmovups(vreg_src(i), ptr[reg_dst_ptr + i*simd_w*sizeof(float)]);
             uni_vmulps(vreg_src(i), vreg_src(i), vreg_denom(i));
             uni_vmovups(ptr[reg_dst_ptr + i*simd_w*sizeof(float)], vreg_src(i));
@@ -405,6 +439,7 @@ void jit_uni_softmax_kernel_f32<isa>::simd_loop_div(int ur_inner) {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::scalar_loop_max() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::scalar_loop_max() {" << std::endl;
     Label loop_channel_tail;
     Label loop_channel_end;
 
@@ -430,6 +465,7 @@ void jit_uni_softmax_kernel_f32<isa>::scalar_loop_max() {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::scalar_loop_exp() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::scalar_loop_exp() {" << std::endl;
     Label loop_channel_tail;
     Label loop_channel_end;
 
@@ -462,6 +498,7 @@ void jit_uni_softmax_kernel_f32<isa>::scalar_loop_exp() {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::scalar_loop_div() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::scalar_loop_div() {" << std::endl;
     Label loop_channel_tail;
     Label loop_channel_end;
 
@@ -489,13 +526,17 @@ void jit_uni_softmax_kernel_f32<isa>::scalar_loop_div() {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::dense_loop(int ou_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::dense_loop(int ou_block) {" << std::endl;
     for (int ou = 0; ou < ou_block; ou++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      for (int ou = 0; ou < ou_block; ou++) {" << std::endl;
         movups(xmm_max, xmm_float_min);
         for (int ch = 0; ch < (int)jpp.channels; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (int ch = 0; ch < (int)jpp.channels; ch++) {" << std::endl;
             maxss(xmm_max, ptr[reg_src_base_ptr + (ou * jpp.channels + ch) * sizeof(float)]);
         }
 
         for (int ch = 0; ch < (int)jpp.channels; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (int ch = 0; ch < (int)jpp.channels; ch++) {" << std::endl;
             movss(xmm_src, ptr[reg_src_base_ptr + (ou * jpp.channels + ch) * sizeof(float)]);
             subss(xmm_src, xmm_max);
             movss(ptr[reg_dst_base_ptr + (ou * jpp.channels + ch) * sizeof(float)], xmm_src);
@@ -505,20 +546,24 @@ void jit_uni_softmax_kernel_f32<isa>::dense_loop(int ou_block) {
     int full_work = ou_block * (int)jpp.channels;
     int i = 0;
     for (; i <= full_work - simd_w; i += simd_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      for (; i <= full_work - simd_w; i += simd_w) {" << std::endl;
         uni_vmovups(vreg_src(0), ptr[reg_dst_base_ptr + i * sizeof(float)]);
         simd_expf(vreg_src(0));
         uni_vmovups(ptr[reg_dst_base_ptr + i * sizeof(float)], vreg_src(0));
     }
 
     for (; i < full_work; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      for (; i < full_work; i++) {" << std::endl;
         movss(xmm_src, ptr[reg_dst_base_ptr + i * sizeof(float)]);
         scalar_expf(xmm_src);
         movss(ptr[reg_dst_base_ptr + i * sizeof(float)], xmm_src);
     }
 
     for (int ou = 0; ou < ou_block; ou++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:      for (int ou = 0; ou < ou_block; ou++) {" << std::endl;
         pxor(xmm_denom, xmm_denom);
         for (int ch = 0; ch < (int)jpp.channels; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (int ch = 0; ch < (int)jpp.channels; ch++) {" << std::endl;
             addss(xmm_denom, ptr[reg_dst_base_ptr + (ou * jpp.channels + ch) * sizeof(float)]);
         }
 
@@ -526,6 +571,7 @@ void jit_uni_softmax_kernel_f32<isa>::dense_loop(int ou_block) {
         divss(xmm_one, xmm_denom);
         movss(xmm_denom, xmm_one);
         for (int ch = 0; ch < (int)jpp.channels; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:          for (int ch = 0; ch < (int)jpp.channels; ch++) {" << std::endl;
             movss(xmm_src, ptr[reg_dst_base_ptr + (ou * jpp.channels + ch) * sizeof(float)]);
             mulss(xmm_src, xmm_denom);
             movss(ptr[reg_dst_base_ptr + (ou * jpp.channels + ch) * sizeof(float)], xmm_src);
@@ -535,6 +581,7 @@ void jit_uni_softmax_kernel_f32<isa>::dense_loop(int ou_block) {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::generate() {" << std::endl;
     this->preamble();
 
     mov(reg_src_base_ptr, ptr[abi_param1 + GET_OFF(src)]);
@@ -603,6 +650,7 @@ void jit_uni_softmax_kernel_f32<isa>::generate() {
 
 template <cpu_isa_t isa>
 void jit_uni_softmax_kernel_f32<isa>::generate_dense() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_softmax_kernel_f32.cpp:  void jit_uni_softmax_kernel_f32<isa>::generate_dense() {" << std::endl;
     this->preamble();
 
     mov(reg_src_base_ptr, ptr[abi_param1 + GET_OFF(src)]);

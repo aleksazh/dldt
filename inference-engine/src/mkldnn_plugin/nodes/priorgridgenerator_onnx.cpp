@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -29,6 +30,7 @@ private:
 
 public:
     explicit ExperimentalDetectronPriorGridGeneratorImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorgridgenerator_onnx.cpp:      explicit ExperimentalDetectronPriorGridGeneratorImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() > 3 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -49,6 +51,7 @@ public:
                       {DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::ANY), DataConfigurator(ConfLayout::ANY)},
                       {DataConfigurator(ConfLayout::PLN)});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorgridgenerator_onnx.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -68,8 +71,11 @@ public:
         auto *top_data_0 = outputs[OUTPUT_ROIS]->buffer().as<float *>();
 
         for (int h = 0; h < layer_height; ++h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorgridgenerator_onnx.cpp:          for (int h = 0; h < layer_height; ++h) {" << std::endl;
             for (int w = 0; w < layer_width; ++w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorgridgenerator_onnx.cpp:              for (int w = 0; w < layer_width; ++w) {" << std::endl;
                 for (int s = 0; s < num_priors_; ++s) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorgridgenerator_onnx.cpp:                  for (int s = 0; s < num_priors_; ++s) {" << std::endl;
                     top_data_0[0] = bottom_data_0[4 * s + 0] + step_w * (w + 0.5f);
                     top_data_0[1] = bottom_data_0[4 * s + 1] + step_h * (h + 0.5f);
                     top_data_0[2] = bottom_data_0[4 * s + 2] + step_w * (w + 0.5f);

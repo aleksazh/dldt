@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -15,9 +16,11 @@ using namespace MKLDNNPlugin;
 
 MKLDNNReorderNode::MKLDNNReorderNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) :
         MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:          MKLDNNNode(layer, eng, socket) {" << std::endl;
 }
 
 void MKLDNNReorderNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:  void MKLDNNReorderNode::getSupportedDescriptors() {" << std::endl;
     if (outDims.empty() && output.getLayout() != InferenceEngine::Layout::ANY)
         outDims.push_back(MKLDNNDims(output.getDims()));
     if (inDims.empty() && input.getLayout() != InferenceEngine::Layout::ANY)
@@ -29,6 +32,7 @@ void MKLDNNReorderNode::getSupportedDescriptors() {
 }
 
 void MKLDNNReorderNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:  void MKLDNNReorderNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -47,10 +51,12 @@ void MKLDNNReorderNode::initSupportedPrimitiveDescriptors() {
     config.outConfs[0].inPlace = -1;
     config.outConfs[0].constant = false;
     if (input.getLayout() != InferenceEngine::Layout::ANY && output.getLayout() != InferenceEngine::Layout::ANY) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:      if (input.getLayout() != InferenceEngine::Layout::ANY && output.getLayout() != InferenceEngine::Layout::ANY) {" << std::endl;
         config.inConfs[0].desc = input;
         config.outConfs[0].desc = output;
     } else if (parent->getSelectedPrimitiveDescriptor() != nullptr &&
                child->getSelectedPrimitiveDescriptor() != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:                 child->getSelectedPrimitiveDescriptor() != nullptr) {" << std::endl;
         config.inConfs[0].desc = parent->getSelectedPrimitiveDescriptor()->getConfig().outConfs[0].desc;
         config.outConfs[0].desc = child->getSelectedPrimitiveDescriptor()->getConfig().inConfs[0].desc;
     } else {
@@ -62,6 +68,7 @@ void MKLDNNReorderNode::initSupportedPrimitiveDescriptors() {
 }
 
 void MKLDNNReorderNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:  void MKLDNNReorderNode::createPrimitive() {" << std::endl;
     auto &dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
     auto &srcMemPtr = getParentEdgeAt(0)->getMemoryPtr();
     if (!dstMemPtr || !dstMemPtr->GetPrimitivePtr())
@@ -76,6 +83,7 @@ void MKLDNNReorderNode::createPrimitive() {
 }
 
 void MKLDNNReorderNode::createReorderPrimitive(const mkldnn::memory::desc &srcDesc, void* srcPtr, const mkldnn::memory::desc &dstDesc, void* dstPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:  void MKLDNNReorderNode::createReorderPrimitive(const mkldnn::memory::desc &srcDesc, void* srcPtr, const mkldnn::memory::desc &dstDesc, void* dstPtr) {" << std::endl;
     src_blocked = std::make_shared<MKLDNNMemory>(getEngine());
     src_blocked->Create(srcDesc, srcPtr, false);
 
@@ -85,11 +93,13 @@ void MKLDNNReorderNode::createReorderPrimitive(const mkldnn::memory::desc &srcDe
     mkldnn::primitive_attr attr;
 
     if (_scales) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:      if (_scales) {" << std::endl;
         std::vector<float> scales;
 
         float* scaleData = static_cast<float*>(_scales->buffer());
 
         for (size_t i = 0; i < _scales->size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:          for (size_t i = 0; i < _scales->size(); i++) {" << std::endl;
             scales.push_back(scaleData[i]);
         }
 
@@ -102,6 +112,7 @@ void MKLDNNReorderNode::createReorderPrimitive(const mkldnn::memory::desc &srcDe
     }
 
     auto createReorder = [&]() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:      auto createReorder = [&]() {" << std::endl;
         // No autoblocking. Reorder can be applied as is
         reorder::primitive_desc pd = reorder::primitive_desc(src_blocked->GetPrimitiveDescriptor(), dst_blocked->GetPrimitiveDescriptor(), attr);
 
@@ -116,10 +127,12 @@ void MKLDNNReorderNode::createReorderPrimitive(const mkldnn::memory::desc &srcDe
     try {
         createReorder();
     } catch (...) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:      } catch (...) {" << std::endl;
         // MKLDNN doesn't support direct reorders from planar data formats to grouped weights formats.
         // Code block below tries to detect such cases and reinterpret data planar formats (e.g. nchw)
         // as grouped weights planar formats (e.g. goihw) since they have same physical memory layout.
         if (MKLDNNMemory::GetPlainFormat(src_blocked->GetDims()) == src_blocked->GetFormat() && MKLDNNMemory::IsGroupedFormat(dst_blocked->GetFormat())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:          if (MKLDNNMemory::GetPlainFormat(src_blocked->GetDims()) == src_blocked->GetFormat() && MKLDNNMemory::IsGroupedFormat(dst_blocked->GetFormat())) {" << std::endl;
             try {
                 mkldnn::memory::dims newDims = dst_blocked->GetDims();
                 mkldnn::memory::format newFormat = src_blocked->GetDims().size() == 4 ? memory::goihw :
@@ -131,6 +144,7 @@ void MKLDNNReorderNode::createReorderPrimitive(const mkldnn::memory::desc &srcDe
 
                 createReorder();
             } catch (const std::exception&) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:              } catch (const std::exception&) {" << std::endl;
                 THROW_IE_EXCEPTION << "Cannot create reorder primitive: unsupported reorder case";
             }
         }
@@ -139,6 +153,7 @@ void MKLDNNReorderNode::createReorderPrimitive(const mkldnn::memory::desc &srcDe
 }
 
 const std::vector<impl_desc_type>& MKLDNNReorderNode::getPrimitivesPriority() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:  const std::vector<impl_desc_type>& MKLDNNReorderNode::getPrimitivesPriority() {" << std::endl;
     implPriorities = {impl_desc_type::reorder};
     return implPriorities;
 }
@@ -148,6 +163,7 @@ bool MKLDNNReorderNode::created() const {
 }
 
 void MKLDNNReorderNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:  void MKLDNNReorderNode::execute(mkldnn::stream strm) {" << std::endl;
     src_blocked->GetPrimitivePtr()->set_data_handle(getParentEdgeAt(0)->getMemory().GetPrimitive().get_data_handle());
     dst_blocked->GetPrimitivePtr()->set_data_handle(getChildEdgeAt(0)->getMemory().GetPrimitive().get_data_handle());
 
@@ -155,8 +171,10 @@ void MKLDNNReorderNode::execute(mkldnn::stream strm) {
 }
 
 void MKLDNNReorderNode::setDynamicBatchLim(int lim) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:  void MKLDNNReorderNode::setDynamicBatchLim(int lim) {" << std::endl;
     dynBatchLim = lim;
     if (prim) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_reorder_node.cpp:      if (prim) {" << std::endl;
         auto &dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
         auto &srcMemPtr = getParentEdgeAt(0)->getMemoryPtr();
         memory::desc src_d = srcMemPtr->GetDescriptor();

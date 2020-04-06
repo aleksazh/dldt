@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -43,6 +44,7 @@ void jit_uni_pooling_fwd_t<isa, d_type>::execute_forward() const {
     int mb = pd()->MB();
 
     auto ker = [&](int n, int b_c, int oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:      auto ker = [&](int n, int b_c, int oh) {" << std::endl;
         auto arg = jit_pool_call_s();
 
         const int ij = oh * jpp.stride_h;
@@ -53,6 +55,7 @@ void jit_uni_pooling_fwd_t<isa, d_type>::execute_forward() const {
         arg.src = (const void*)&src[src_d.blk_off(n, b_c, ih)];
         arg.dst = (const void*)&dst[dst_d.blk_off(n, b_c, oh)];
         if (indices) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:          if (indices) {" << std::endl;
             const size_t ind_off = indices_d.blk_off(n, b_c, oh);
             arg.indices = (const void*)&indices[ind_off * ind_dt_size];
         }
@@ -70,6 +73,7 @@ void jit_uni_pooling_fwd_t<isa, d_type>::execute_forward() const {
 
     parallel_nd(mb, jpp.nb_c, jpp.oh,
         [&](int n, int b_c, int oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:          [&](int n, int b_c, int oh) {" << std::endl;
         ker(n, b_c, oh);
     });
 }
@@ -92,6 +96,7 @@ void jit_uni_pooling_fwd_t<isa, d_type>::execute_forward_3d() const {
 
     auto ker = [&](int n, int b_c, int od, int oh, int id, int d_t_overflow,
             int d_b_overflow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:              int d_b_overflow) {" << std::endl;
         auto arg = jit_pool_call_s();
 
         const int ij = oh * jpp.stride_h;
@@ -102,6 +107,7 @@ void jit_uni_pooling_fwd_t<isa, d_type>::execute_forward_3d() const {
         arg.src = &src[src_d.blk_off(n, b_c, id, ih)];
         arg.dst = &dst[dst_d.blk_off(n, b_c, od, oh)];
         if (indices) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:          if (indices) {" << std::endl;
             const size_t ind_off = indices_d.blk_off(n, b_c, od, oh);
             arg.indices = &indices[ind_off * ind_dt_size];
         }
@@ -123,12 +129,14 @@ void jit_uni_pooling_fwd_t<isa, d_type>::execute_forward_3d() const {
 
     parallel_nd(mb, jpp.nb_c, jpp.od,
         [&](int n, int b_c, int od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:          [&](int n, int b_c, int od) {" << std::endl;
         const int ik = od * jpp.stride_d;
         const int d_t_overflow = nstl::max(0, jpp.f_pad-ik);
         const int d_b_overflow = nstl::max(jpp.id, ik+jpp.kd-jpp.f_pad)
             -jpp.id;
         const int id = nstl::max(ik - jpp.f_pad, 0);
         for (int oh = 0; oh < jpp.oh; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:          for (int oh = 0; oh < jpp.oh; ++oh) {" << std::endl;
             ker(n, b_c, od, oh, id, d_t_overflow, d_b_overflow);
         }
     });
@@ -151,6 +159,7 @@ void jit_uni_pooling_bwd_t<isa, d_type>::execute_backward() const {
     int mb = pd()->MB();
 
     auto ker = [&](int n, int b_c, int oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:      auto ker = [&](int n, int b_c, int oh) {" << std::endl;
         auto arg = jit_pool_call_s();
 
         const int ij = oh * jpp.stride_h;
@@ -161,6 +170,7 @@ void jit_uni_pooling_bwd_t<isa, d_type>::execute_backward() const {
         arg.src = &diff_src[diff_src_d.blk_off(n, b_c, ih)];
         arg.dst = &diff_dst[diff_dst_d.blk_off(n, b_c, oh)];
         if (indices) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:          if (indices) {" << std::endl;
             const size_t ind_off = indices_d.blk_off(n, b_c, oh);
             arg.indices = &indices[ind_off * ind_dt_size];
         }
@@ -176,7 +186,9 @@ void jit_uni_pooling_bwd_t<isa, d_type>::execute_backward() const {
     };
 
     parallel_nd(mb, jpp.nb_c, [&](int n, int b_c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:      parallel_nd(mb, jpp.nb_c, [&](int n, int b_c) {" << std::endl;
         for (int oh = 0; oh < jpp.oh; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:          for (int oh = 0; oh < jpp.oh; ++oh) {" << std::endl;
             ker(n, b_c, oh);
         }
     });
@@ -200,6 +212,7 @@ void jit_uni_pooling_bwd_t<isa, d_type>::execute_backward_3d() const {
 
     auto ker = [&](int n, int b_c, int od, int oh, int id, int d_t_overflow,
             int d_b_overflow, int zero_size, int kd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:              int d_b_overflow, int zero_size, int kd) {" << std::endl;
         auto arg = jit_pool_call_s();
 
         const int ij = oh * jpp.stride_h;
@@ -210,6 +223,7 @@ void jit_uni_pooling_bwd_t<isa, d_type>::execute_backward_3d() const {
         arg.src = (const void*)&diff_src[diff_src_d.blk_off(n, b_c, id + kd, ih)];
         arg.dst = (const void*)&diff_dst[diff_dst_d.blk_off(n, b_c, od, oh)];
         if (indices) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:          if (indices) {" << std::endl;
             const size_t ind_off = indices_d.blk_off(n, b_c, od, oh);
             arg.indices = (const void*)&indices[ind_off * ind_dt_size];
         }
@@ -230,9 +244,11 @@ void jit_uni_pooling_bwd_t<isa, d_type>::execute_backward_3d() const {
     };
 
     if (jpp.simple_alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:      if (jpp.simple_alg) {" << std::endl;
 
         parallel_nd(mb, jpp.nb_c, jpp.od,
             [&](int n, int b_c, int od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:              [&](int n, int b_c, int od) {" << std::endl;
             const int ik = od * jpp.stride_d;
             const int d_t_overflow = nstl::max(0, jpp.f_pad - ik);
             const int d_b_overflow = nstl::max(jpp.id, ik + jpp.kd
@@ -241,6 +257,7 @@ void jit_uni_pooling_bwd_t<isa, d_type>::execute_backward_3d() const {
             int zero_s = jpp.stride_d - d_t_overflow - (nstl::max(
                     jpp.id, ik + jpp.stride_d - jpp.f_pad) - jpp.id);
             for (int oh = 0; oh < jpp.oh; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:              for (int oh = 0; oh < jpp.oh; ++oh) {" << std::endl;
                 ker(n, b_c, od, oh, id, d_t_overflow, d_b_overflow,
                         (oh == 0) ? zero_s : 0, 0);
             }
@@ -250,17 +267,23 @@ void jit_uni_pooling_bwd_t<isa, d_type>::execute_backward_3d() const {
             * (ptrdiff_t)jpp.id * (ptrdiff_t)jpp.ih * (ptrdiff_t)jpp.iw;
 
         if (diff_src_d.data_type() == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:          if (diff_src_d.data_type() == data_type::bf16) {" << std::endl;
             mkldnn_bfloat16_t bf16_zero =
                 bf16_cvt_utils::cvt_float_to_bfloat16(0.f);
             parallel_nd(nelems, [&](ptrdiff_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:              parallel_nd(nelems, [&](ptrdiff_t i) {" << std::endl;
                     diff_src[i] = bf16_zero;});
         } else
             parallel_nd(nelems, [&](ptrdiff_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:              parallel_nd(nelems, [&](ptrdiff_t i) {" << std::endl;
                     diff_src[i] = static_cast<data_t>(0.f); });
 
         for (int kd = 0; kd < jpp.kd; ++kd) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:          for (int kd = 0; kd < jpp.kd; ++kd) {" << std::endl;
             parallel_nd(mb, jpp.nb_c, [&](int n, int b_c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:              parallel_nd(mb, jpp.nb_c, [&](int n, int b_c) {" << std::endl;
                 for (int od = 0; od < jpp.od; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:                  for (int od = 0; od < jpp.od; ++od) {" << std::endl;
                     const int ik = od * jpp.stride_d;
                     const int d_t_overflow = nstl::max(0, jpp.f_pad-ik);
                     const int d_b_overflow = nstl::max(jpp.id, ik + jpp.kd
@@ -269,6 +292,7 @@ void jit_uni_pooling_bwd_t<isa, d_type>::execute_backward_3d() const {
                         continue;
                     const int id = nstl::max(ik - jpp.f_pad, 0);
                     for (int oh = 0; oh < jpp.oh; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pooling.cpp:                      for (int oh = 0; oh < jpp.oh; ++oh) {" << std::endl;
                         ker(n, b_c, od, oh, id, d_t_overflow, d_b_overflow,
                                 0, kd);
                     }

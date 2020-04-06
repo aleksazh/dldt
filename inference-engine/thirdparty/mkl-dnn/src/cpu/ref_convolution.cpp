@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -87,11 +88,13 @@ void ref_convolution_fwd_t<src_type, wei_type, dst_type, acc_type>
 
     auto ker = [=](int g, int mb, int oc, int od, int oh,
             int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              int ow) {" << std::endl;
         acc_data_t d = 0;
         for (int ic = 0; ic < IC; ++ic)
         for (int kd = 0; kd < KD; ++kd)
         for (int kh = 0; kh < KH; ++kh)
         for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:          for (int kw = 0; kw < KW; ++kw) {" << std::endl;
             const int id = od * KSD - padFront + kd * (1 + KDD);
             const int ih = oh * KSH - padT + kh * (1 + KDH);
             const int iw = ow * KSW - padL + kw * (1 + KDW);
@@ -103,16 +106,19 @@ void ref_convolution_fwd_t<src_type, wei_type, dst_type, acc_type>
             src_data_t s = 0;
             wei_data_t w = 0;
             if (ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              if (ndims == 5) {" << std::endl;
                 s = src[src_d.off(mb, g * IC + ic, id, ih, iw)];
                 w = (with_groups
                      ? weights[weights_d.off(g, oc, ic, kd, kh, kw)]
                      : weights[weights_d.off(oc, ic, kd, kh, kw)]);
             } else if (ndims == 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              } else if (ndims == 4) {" << std::endl;
                 s = src[src_d.off(mb, g * IC + ic, ih, iw)];
                 w = (with_groups
                      ? weights[weights_d.off(g, oc, ic, kh, kw)]
                      : weights[weights_d.off(oc, ic, kh, kw)]);
             } else if (ndims == 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              } else if (ndims == 3) {" << std::endl;
                 s = src[src_d.off(mb, g * IC + ic, iw)];
                 w = (with_groups
                      ? weights[weights_d.off(g, oc, ic, kw)]
@@ -136,6 +142,7 @@ void ref_convolution_fwd_t<src_type, wei_type, dst_type, acc_type>
 
     parallel_nd(G, MB, OC, OD, OH, OW,
         [&](int g, int mb, int oc, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:          [&](int g, int mb, int oc, int od, int oh, int ow) {" << std::endl;
         float a_fp = ker(g, mb, oc, od, oh, ow);
 
         if (bias)
@@ -143,17 +150,21 @@ void ref_convolution_fwd_t<src_type, wei_type, dst_type, acc_type>
                              pd()->desc()->bias_desc.data_type);
 
          if (!pd()->attr()->output_scales_.has_default_values()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:           if (!pd()->attr()->output_scales_.has_default_values()) {" << std::endl;
              a_fp *= pd()->attr()->output_scales_.scales_[g * OC + oc];
          }
 
         int eltwise_inj_idx = 0;
         int depthwise_inj_idx = 0;
         for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:          for (int i = 0; i < p.len_; i++) {" << std::endl;
             auto &post_op = p.entry_[i];
             if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              if (post_op.is_eltwise()) {" << std::endl;
                 a_fp = eltwise_injectors[eltwise_inj_idx]->compute_scalar(a_fp);
                 eltwise_inj_idx++;
             } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              } else if (post_op.is_depthwise()) {" << std::endl;
                 auto depthwise_weights = post_op.depthwise.weights_data;
                 auto depthwise_bias = post_op.depthwise.biases_data;
 
@@ -162,6 +173,7 @@ void ref_convolution_fwd_t<src_type, wei_type, dst_type, acc_type>
                                                                               depthwise_bias + g * OC + oc);
                 depthwise_inj_idx++;
             } else if (post_op.is_quantization()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              } else if (post_op.is_quantization()) {" << std::endl;
                 float cl = post_op.quantization.crop_low_data[g * OC + oc];
                 float ch = post_op.quantization.crop_high_data[g * OC + oc];
                 float isc = post_op.quantization.input_scale_data[g * OC + oc];
@@ -174,6 +186,7 @@ void ref_convolution_fwd_t<src_type, wei_type, dst_type, acc_type>
                 a_fp = roundf(a_fp);
                 a_fp = a_fp * osc + osh;
             } else if (post_op.is_sum()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              } else if (post_op.is_sum()) {" << std::endl;
                 if (ndims == 5)
                     a_fp += get_sum((char*)dst, dst_d.off(mb, g * OC + oc, od, oh, ow), post_op.sum.data_type);
                 else if (ndims == 4)
@@ -186,7 +199,9 @@ void ref_convolution_fwd_t<src_type, wei_type, dst_type, acc_type>
         }
 
         if (data_traits<dst_data_t>::data_type != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:          if (data_traits<dst_data_t>::data_type != data_type::f32) {" << std::endl;
             switch (pd()->attr()->round_mode_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              switch (pd()->attr()->round_mode_) {" << std::endl;
                 case round_mode::down:    a_fp = floorf(a_fp); break;
                 case round_mode::nearest: a_fp = nearbyintf(a_fp); break;
             }
@@ -251,11 +266,13 @@ void ref_convolution_bwd_data_t<diff_src_type, wei_type, diff_dst_type,
 
     auto ker = [=](int g, int mb, int ic, int id, int ih,
             int iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              int iw) {" << std::endl;
         acc_data_t d = 0;
         for (int oc = 0; oc < OC; ++oc)
         for (int kd = 0; kd < KD; ++kd)
         for (int kh = 0; kh < KH; ++kh)
         for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:          for (int kw = 0; kw < KW; ++kw) {" << std::endl;
             if (iw + padL < kw * (1 + KDW)
                 || ih + padT < kh * (1 + KDH)
                 || id + padFront < kd * (1 + KDD))
@@ -271,6 +288,7 @@ void ref_convolution_bwd_data_t<diff_src_type, wei_type, diff_dst_type,
             od /= KSD;
 
             if (od < OD && oh < OH && ow < OW) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              if (od < OD && oh < OH && ow < OW) {" << std::endl;
                 if (ndims == 5)
                     d += (acc_data_t)diff_dst[diff_dst_d.off(mb, g*OC
                         + oc, od, oh, ow)] * (with_groups
@@ -295,6 +313,7 @@ void ref_convolution_bwd_data_t<diff_src_type, wei_type, diff_dst_type,
 
     parallel_nd(G, MB, IC, ID, IH, IW,
         [&](int g, int mb, int ic, int id, int ih, int iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:          [&](int g, int mb, int ic, int id, int ih, int iw) {" << std::endl;
         auto ds_idx = (ndims == 5)
             ? diff_src_d.off(mb, g*IC + ic, id, ih, iw)
             : (ndims == 4)
@@ -356,10 +375,12 @@ void ref_convolution_bwd_weights_t<src_type, diff_wei_type, diff_dst_type,
     const int ndims = pd()->desc()->src_desc.ndims;
 
 auto ker = [=](acc_data_t &d, int g, int oc, int ic, int kd, int kh, int kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:  auto ker = [=](acc_data_t &d, int g, int oc, int ic, int kd, int kh, int kw) {" << std::endl;
         for (int mb = 0; mb < MB; ++mb)
         for (int od = 0; od < OD; ++od)
         for (int oh = 0; oh < OH; ++oh)
         for (int ow = 0; ow < OW; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:          for (int ow = 0; ow < OW; ++ow) {" << std::endl;
             if (ow*KSW + kw * (1 + KDW) < padL
                 || oh*KSH + kh * (1 + KDH) < padT
                 || od*KSD + kd * (1 + KDD) < padFront
@@ -386,10 +407,12 @@ auto ker = [=](acc_data_t &d, int g, int oc, int ic, int kd, int kh, int kw) {
     };
 
     auto ker_bias = [=](acc_data_t &d, int g, int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:      auto ker_bias = [=](acc_data_t &d, int g, int oc) {" << std::endl;
         for (int mb = 0; mb < MB; ++mb)
         for (int od = 0; od < OD; ++od)
         for (int oh = 0; oh < OH; ++oh)
         for (int ow = 0; ow < OW; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:          for (int ow = 0; ow < OW; ++ow) {" << std::endl;
             if (ndims == 5)
                 d += (acc_data_t)diff_dst[diff_dst_d.off(mb, g*OC + oc, od, oh,
                      ow)];
@@ -404,7 +427,9 @@ auto ker = [=](acc_data_t &d, int g, int oc, int ic, int kd, int kh, int kw) {
     };
 
     parallel_nd(G, OC, [&](int g, int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:      parallel_nd(G, OC, [&](int g, int oc) {" << std::endl;
         if (diff_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:          if (diff_bias) {" << std::endl;
             // XXX: loss of precision when bias is a float...
             acc_data_t db = 0;
             ker_bias(db, g, oc);
@@ -416,20 +441,24 @@ auto ker = [=](acc_data_t &d, int g, int oc, int ic, int kd, int kh, int kw) {
         for (int kd = 0; kd < KD; ++kd)
         for (int kh = 0; kh < KH; ++kh)
         for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:          for (int kw = 0; kw < KW; ++kw) {" << std::endl;
             acc_data_t dw = 0;
             ker(dw, g, oc, ic, kd, kh, kw);
 
             if (ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              if (ndims == 5) {" << std::endl;
                 auto idx = with_groups
                     ? diff_weights_d.off(g, oc, ic, kd, kh, kw)
                     : diff_weights_d.off(oc, ic, kd, kh, kw);
                     diff_weights[idx] = saturate<diff_wei_data_t>(dw);
             } else if (ndims == 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              } else if (ndims == 4) {" << std::endl;
                 auto idx = with_groups
                     ? diff_weights_d.off(g, oc, ic, kh, kw)
                     : diff_weights_d.off(oc, ic, kh, kw);
                     diff_weights[idx] = saturate<diff_wei_data_t>(dw);
             } else if (ndims == 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_convolution.cpp:              } else if (ndims == 3) {" << std::endl;
                 auto idx = with_groups
                     ? diff_weights_d.off(g, oc, ic, kw)
                     : diff_weights_d.off(oc, ic, kw);

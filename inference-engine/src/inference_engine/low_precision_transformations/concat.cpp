@@ -1,4 +1,5 @@
-﻿// Copyright (C) 2018-2020 Intel Corporation
+#include <iostream>
+// Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -35,23 +36,29 @@ bool ConcatTransformation::getQuantizeLayers(
     std::string childName,
     std::vector<CNNLayerPtr>& sideOutputLayers,
     std::vector<std::string>& childrenNameSideOutputLayers) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      std::vector<std::string>& childrenNameSideOutputLayers) {" << std::endl;
     if (!CaselessEq<std::string>()(layer->type, "FakeQuantize") &&
         !CaselessEq<std::string>()(layer->type, "Quantize")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          !CaselessEq<std::string>()(layer->type, 'Quantize')) {" << std::endl;
         do {
             if (CaselessEq<std::string>()(layer->type, "Pooling")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:              if (CaselessEq<std::string>()(layer->type, 'Pooling')) {" << std::endl;
                 intermediateLayers.back().push_back(layer);
                 childName = layer->name;
                 layer = CNNNetworkHelper::getParent(*layer, 0);
             } else if (CaselessEq<std::string>()(layer->type, "Concat")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:              } else if (CaselessEq<std::string>()(layer->type, 'Concat')) {" << std::endl;
                 concatLayers.push_back(layer);
 
                 if (layer->outData[0]->getInputTo().size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:                  if (layer->outData[0]->getInputTo().size() != 1) {" << std::endl;
                     sideOutputLayers.push_back(layer);
                     childrenNameSideOutputLayers.push_back(childName);
                 }
                 int size = layer->insData.size();
                 childName = layer->name;
                 for (int i = 0; i < size; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:                  for (int i = 0; i < size; i++) {" << std::endl;
                     CNNLayerPtr layer1 = CNNNetworkHelper::getParent(*layer, i);
                     intermediateLayers.push_back({});
                     if (!getQuantizeLayers(
@@ -63,6 +70,7 @@ bool ConcatTransformation::getQuantizeLayers(
                         childName,
                         sideOutputLayers,
                         childrenNameSideOutputLayers)) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:                          childrenNameSideOutputLayers)) {" << std::endl;
                         return false;
                     }
                 }
@@ -81,23 +89,28 @@ bool ConcatTransformation::getQuantizeLayers(
 
 void ConcatTransformation::transform(TransformationContext& context, CNNLayer& concat) const {
     if (!canBeTransformed(context, concat)) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      if (!canBeTransformed(context, concat)) {" << std::endl;
         return;
     }
 
     if (!CaselessEq<std::string>()(concat.type, "Concat")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      if (!CaselessEq<std::string>()(concat.type, 'Concat')) {" << std::endl;
         THROW_IE_EXCEPTION << "layer type '" << concat.name << "' is not correct";
     }
 
     if (concat.GetParamAsUInt("axis", 1) != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      if (concat.GetParamAsUInt('axis', 1) != 1) {" << std::endl;
         return;
     }
 
     if ((concat.insData.size() < 2)) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      if ((concat.insData.size() < 2)) {" << std::endl;
         THROW_IE_EXCEPTION << "layer inputs '" << concat.insData.size() << "' is not correct";
     }
 
     std::vector<CNNLayerPtr> children = CNNNetworkHelper::getChildren(concat);
     if (CNNNetworkHelper::IsChild(children, {"Concat"}, {"Pooling"})) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      if (CNNNetworkHelper::IsChild(children, {'Concat'}, {'Pooling'})) {" << std::endl;
         return;
     }
 
@@ -110,8 +123,10 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
     std::vector<CNNLayerPtr> sideOutputLayers;
     std::vector<std::string> childrenNameSideOutputLayers;
     for (size_t index = 0lu; index < inputDataNumber; index++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      for (size_t index = 0lu; index < inputDataNumber; index++) {" << std::endl;
         DataPtr quantizeOnData = concat.insData[index].lock();
         if (quantizeOnData == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          if (quantizeOnData == nullptr) {" << std::endl;
             THROW_IE_EXCEPTION << "input is absent";
         }
         auto parentLayer = quantizeOnData->getCreatorLayer().lock();
@@ -125,21 +140,26 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
             concat.name,
             sideOutputLayers,
             childrenNameSideOutputLayers)) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:              childrenNameSideOutputLayers)) {" << std::endl;
             return;
         }
     }
 
     if (quantizeLayers.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      if (quantizeLayers.empty()) {" << std::endl;
         return;
     }
 
     size_t quantizationLevels = 0lu;
     for (int i = 0; i < quantizeLayers.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      for (int i = 0; i < quantizeLayers.size(); i++) {" << std::endl;
         const QuantizationDetails& quantizationDetails = QuantizationDetails::getDetails(*quantizeLayers[i]);
         if (!QuantizationDetails::isSupportedLevel(quantizationDetails.levels)) continue;
         if (quantizationLevels == 0lu) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          if (quantizationLevels == 0lu) {" << std::endl;
             quantizationLevels = quantizationDetails.levels;
         } else if (quantizationLevels != quantizationDetails.levels) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          } else if (quantizationLevels != quantizationDetails.levels) {" << std::endl;
             THROW_IE_EXCEPTION << "different quantization levels " << quantizationLevels << " are not supported";
         }
 
@@ -148,6 +168,7 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
 
     const DataPrecision dataPrecision = getDataPrecision(*quantizeLayers[0], QuantizationDetails::getDetails(*quantizeLayers[0]), false, false);
     if (dataPrecision.precision == Precision::UNSPECIFIED) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      if (dataPrecision.precision == Precision::UNSPECIFIED) {" << std::endl;
         return;
     }
 
@@ -162,21 +183,27 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
     dequantizationShiftsLayers.resize(parentsCount);
 
     if ((quantizationLayersDetails[0].inputHighValues.size() == 1)) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      if ((quantizationLayersDetails[0].inputHighValues.size() == 1)) {" << std::endl;
         float outputLowValue = quantizationLayersDetails[0].outputLowValues[0];
         float outputHighValue = quantizationLayersDetails[0].outputHighValues[0];
         for (size_t index = 0lu; index < parentsCount; index++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          for (size_t index = 0lu; index < parentsCount; index++) {" << std::endl;
             if (outputLowValue > quantizationLayersDetails[index].outputLowValues[0]) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:              if (outputLowValue > quantizationLayersDetails[index].outputLowValues[0]) {" << std::endl;
                 outputLowValue = quantizationLayersDetails[index].outputLowValues[0];
             }
             if (outputHighValue < quantizationLayersDetails[index].outputHighValues[0]) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:              if (outputHighValue < quantizationLayersDetails[index].outputHighValues[0]) {" << std::endl;
                 outputHighValue = quantizationLayersDetails[index].outputHighValues[0];
             }
         }
 
         const float maxOutputInterval = outputHighValue - outputLowValue;
         if (quantizedTensorAlignmentOnActivations == QuantizedTensorAlignment::UpdateLevel) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          if (quantizedTensorAlignmentOnActivations == QuantizedTensorAlignment::UpdateLevel) {" << std::endl;
             const size_t minLevels = getMinQuantizationLevels(dataPrecision, maxOutputInterval, quantizationLayersDetails, outputLowValue);
             if (minLevels < this->minQuantizationLevels) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:              if (minLevels < this->minQuantizationLevels) {" << std::endl;
                 return;
             }
         }
@@ -184,6 +211,7 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
         const float generalScaleDequantize = maxOutputInterval / (dataPrecision.max - dataPrecision.min);
 
         for (int index = 0; index < parentsCount; index++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          for (int index = 0; index < parentsCount; index++) {" << std::endl;
             if (quantizeLayers[index] == nullptr)
                 continue;
             CNNLayer& fakeQuantizeLayer = *quantizeLayers[index];
@@ -191,6 +219,7 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
 
             // TODO: copy/paste, refactor: extract to MultiBranchTransformation::updateQuantizationRange
             switch (quantizedTensorAlignmentOnActivations) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:              switch (quantizedTensorAlignmentOnActivations) {" << std::endl;
             case QuantizedTensorAlignment::None: {
                 const float quantizationScale = (dataPrecision.max - dataPrecision.min) / maxOutputInterval;
 
@@ -235,6 +264,7 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
                 fakeQuantizeLayer.params["levels"] = std::to_string(levels);
                 QuantizeLayer* layer = dynamic_cast<QuantizeLayer*>(&fakeQuantizeLayer);
                 if (layer == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:                  if (layer == nullptr) {" << std::endl;
                     THROW_IE_EXCEPTION << "incorrect type for layer " << fakeQuantizeLayer.name;
                 }
                 layer->levels = levels;
@@ -247,10 +277,12 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
             }
 
             if (updatePrecisions) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:              if (updatePrecisions) {" << std::endl;
                 CNNNetworkHelper::setOutDataPrecision(fakeQuantizeLayer, dataPrecision.precision);
 
                 const std::vector<CNNLayerPtr>& intermediateLayersList = intermediateLayers[index];
                 for (const CNNLayerPtr intermediateLayer : intermediateLayersList) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:                  for (const CNNLayerPtr intermediateLayer : intermediateLayersList) {" << std::endl;
                     CNNNetworkHelper::setOutDataPrecision(*intermediateLayer, dataPrecision.precision);
                 }
             }
@@ -259,6 +291,7 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
         }
 
         for (size_t channel = 0lu; channel < outputChannelsCount; ++channel) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          for (size_t channel = 0lu; channel < outputChannelsCount; ++channel) {" << std::endl;
             dequantizationScales[channel] = generalScaleDequantize;
             dequantizationShifts[channel] = outputLowValue;
         }
@@ -268,11 +301,14 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
 
     // Add scaleshift at other outputs of the Quantize layer
     for (int index = 0; index < parentsCount; index++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      for (int index = 0; index < parentsCount; index++) {" << std::endl;
         context.quantizedFakeQuantizeNames.insert(quantizeLayers[index]->name);
         if (quantizeLayers[index]->outData[0]->getInputTo().size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          if (quantizeLayers[index]->outData[0]->getInputTo().size() != 1) {" << std::endl;
             std::vector<CNNLayerPtr> children = CNNNetworkHelper::getChildren(*quantizeLayers[index], childNameOurAfterQuantizeLayers[index]);
 
             for (int i = 0; i < children.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:              for (int i = 0; i < children.size(); i++) {" << std::endl;
                 const size_t outputChannelsCount = CNNNetworkHelper::getOutputChannelsCount(*quantizeLayers[index]);
                 std::vector<float> branchDequantizationScales(outputChannelsCount, dequantizationScales[0]);
                 std::vector<float> branchDequantizationShifts(outputChannelsCount, dequantizationShiftsLayers[index][0]);
@@ -287,8 +323,10 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
     }
 
     if (updatePrecisions) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      if (updatePrecisions) {" << std::endl;
         CNNNetworkHelper::setOutDataPrecision(concat, dataPrecision.precision);
         for (const CNNLayerPtr concatLayer : concatLayers) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          for (const CNNLayerPtr concatLayer : concatLayers) {" << std::endl;
             // TODO: check if the same precision is used: U8 or S8 for all concat layers
             CNNNetworkHelper::setOutDataPrecision(*concatLayer, dataPrecision.precision);
         }
@@ -297,6 +335,7 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
     // Add scaleshift at outputs of our layers
     children = CNNNetworkHelper::getChildren(concat);
     if (children.size() == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      if (children.size() == 0) {" << std::endl;
         const std::string originalName = concat.name;
         CNNNetworkHelper::renameLayer(context.network, concat.name, concat.name + LayerTransformation::lastLayerPrefix);
 
@@ -308,6 +347,7 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
         context.dequantizationLayersNames.insert(dequantizationLayer->name);
     } else {
         for (const CNNLayerPtr child : children) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          for (const CNNLayerPtr child : children) {" << std::endl;
             CNNLayerPtr dequantizationLayer = CNNNetworkHelper::addScaleShiftBetween(
                 context,
                 std::make_shared<CNNLayer>(concat),
@@ -319,9 +359,11 @@ void ConcatTransformation::transform(TransformationContext& context, CNNLayer& c
 
     // Add scaleshift at outputs of side branches
     for (int index = 0; index < sideOutputLayers.size(); index++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      for (int index = 0; index < sideOutputLayers.size(); index++) {" << std::endl;
         const size_t outputChannelsCount = CNNNetworkHelper::getOutputChannelsCount(*sideOutputLayers[index]);
         std::vector<CNNLayerPtr> children = CNNNetworkHelper::getChildren(*sideOutputLayers[index], childrenNameSideOutputLayers[index]);
         for (int i = 0; i < children.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          for (int i = 0; i < children.size(); i++) {" << std::endl;
             std::vector<float> dequantizationScales1(outputChannelsCount, dequantizationScales[0]);
             std::vector<float> dequantizationShifts1(outputChannelsCount, dequantizationShifts[0]);
             CNNLayerPtr dequantizationLayer = CNNNetworkHelper::addScaleShiftBetween(
@@ -341,12 +383,14 @@ size_t ConcatTransformation::getMinQuantizationLevels(
     const float outputLowValue) const {
     size_t minLevels = std::numeric_limits<std::size_t>::max();
     for (const QuantizationDetails quantizationDetails : quantizationLayersDetails) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:      for (const QuantizationDetails quantizationDetails : quantizationLayersDetails) {" << std::endl;
         const float quantizationScale = (dataPrecision.max - dataPrecision.min) / maxOutputInterval;
         const float inputLowValue = roundf((quantizationDetails.outputLowValues[0] - outputLowValue) * quantizationScale);
         const float inputHighValue = roundf((quantizationDetails.outputHighValues[0] - outputLowValue) * quantizationScale);
 
         const int levels = static_cast<int>(fabs(inputHighValue - inputLowValue) + 1.0);
         if (minLevels > levels) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/concat.cpp:          if (minLevels > levels) {" << std::endl;
             minLevels = levels;
         }
     }

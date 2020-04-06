@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,16 +18,19 @@ constexpr NodeTypeInfo op::PowerIE::type_info;
 op::PowerIE::PowerIE(const std::shared_ptr<ngraph::Node>& data_batch, const float power, const float scale,
                      const float shift)
     : Op("PowerIE", check_single_output_args({data_batch})), power(power), scale(scale), shift(shift) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/power.cpp:      : Op('PowerIE', check_single_output_args({data_batch})), power(power), scale(scale), shift(shift) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 op::PowerIE::PowerIE(const Output<ngraph::Node>& data_batch, const float power, const float scale, const float shift)
     : Op(OutputVector {data_batch}), power(power), scale(scale), shift(shift) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/power.cpp:      : Op(OutputVector {data_batch}), power(power), scale(scale), shift(shift) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 std::shared_ptr<Node> op::PowerIE::copy_with_new_args(const NodeVector& new_args) const {
     if (new_args.size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/power.cpp:      if (new_args.size() != 1) {" << std::endl;
         throw ngraph_error("Incorrect number of new arguments");
     }
 
@@ -34,5 +38,6 @@ std::shared_ptr<Node> op::PowerIE::copy_with_new_args(const NodeVector& new_args
 }
 
 void op::PowerIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/power.cpp:  void op::PowerIE::validate_and_infer_types() {" << std::endl;
     set_output_type(0, get_input_element_type(0), get_input_partial_shape(0));
 }

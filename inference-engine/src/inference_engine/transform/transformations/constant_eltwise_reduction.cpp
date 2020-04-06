@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,20 +19,24 @@
 
 template <typename T>
 std::shared_ptr<ngraph::op::Constant> constant_reduction(const std::shared_ptr<ngraph::op::Constant>& const_node) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/constant_eltwise_reduction.cpp:  std::shared_ptr<ngraph::op::Constant> constant_reduction(const std::shared_ptr<ngraph::op::Constant>& const_node) {" << std::endl;
     std::vector<T> data = const_node->get_vector<T>();
     // TODO: implement this function after eltwise broadcast support will be added
     return nullptr;
 }
 
 ngraph::graph_rewrite_callback callback = [](ngraph::pattern::Matcher& m) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/constant_eltwise_reduction.cpp:  ngraph::graph_rewrite_callback callback = [](ngraph::pattern::Matcher& m) {" << std::endl;
     // Check that eltwise operation either Add or Multiply
     auto eltwise_node = m.get_match_root();
     if (!std::dynamic_pointer_cast<ngraph::op::v1::Add>(eltwise_node) &&
         !std::dynamic_pointer_cast<ngraph::op::v1::Multiply>(eltwise_node)) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/constant_eltwise_reduction.cpp:          !std::dynamic_pointer_cast<ngraph::op::v1::Multiply>(eltwise_node)) {" << std::endl;
         return false;
     }
 
     for (const auto& input : eltwise_node->get_inputs()) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/constant_eltwise_reduction.cpp:      for (const auto& input : eltwise_node->get_inputs()) {" << std::endl;
         const auto& inputLayer = input.get_output().get_node();
         auto const_node = std::dynamic_pointer_cast<ngraph::op::Constant>(inputLayer);
         if (!const_node) continue;
@@ -41,6 +46,7 @@ ngraph::graph_rewrite_callback callback = [](ngraph::pattern::Matcher& m) {
         InferenceEngine::Precision ie_precision =
             InferenceEngine::details::ngraph::convertPrecision(const_node->get_element_type());
         switch (ie_precision) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/constant_eltwise_reduction.cpp:          switch (ie_precision) {" << std::endl;
         case InferenceEngine::Precision::FP32:
             result = constant_reduction<float>(const_node);
             break;
@@ -62,6 +68,7 @@ ngraph::graph_rewrite_callback callback = [](ngraph::pattern::Matcher& m) {
             return false;
         }
         if (result) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/constant_eltwise_reduction.cpp:          if (result) {" << std::endl;
             ngraph::replace_node(inputLayer, std::dynamic_pointer_cast<ngraph::Node>(result));
             std::cout << "Successful constant_eltwise reduction" << std::endl;
         }
@@ -71,6 +78,7 @@ ngraph::graph_rewrite_callback callback = [](ngraph::pattern::Matcher& m) {
 };
 
 void ngraph::pass::ConstantEltwiseReduction::constant_multiply_reduction() {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/constant_eltwise_reduction.cpp:  void ngraph::pass::ConstantEltwiseReduction::constant_multiply_reduction() {" << std::endl;
     Shape shape {2, 2, 1, 1};
     auto constant1 = std::make_shared<pattern::op::Label>(element::f32, shape);
     auto constant2 = std::make_shared<pattern::op::Label>(element::f32, shape);
@@ -81,6 +89,7 @@ void ngraph::pass::ConstantEltwiseReduction::constant_multiply_reduction() {
 }
 
 void ngraph::pass::ConstantEltwiseReduction::constant_add_reduction() {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/constant_eltwise_reduction.cpp:  void ngraph::pass::ConstantEltwiseReduction::constant_add_reduction() {" << std::endl;
     Shape shape {2, 2, 1, 1};
     auto constant1 = std::make_shared<pattern::op::Label>(element::f32, shape);
     auto constant2 = std::make_shared<pattern::op::Label>(element::f32, shape);

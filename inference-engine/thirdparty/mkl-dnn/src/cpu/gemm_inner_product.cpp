@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -52,7 +53,9 @@ void gemm_inner_product_fwd_t<data_type>::execute_forward() const {
             postops_in_ip_ ? nullptr : bias);
 
     if (postops_in_ip_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product.cpp:      if (postops_in_ip_) {" << std::endl;
         parallel(0, (size_t)OC * MB, [&](int ithr, int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product.cpp:          parallel(0, (size_t)OC * MB, [&](int ithr, int nthr) {" << std::endl;
             size_t start = 0, end = 0;
             balance211((size_t)OC * MB, nthr, ithr, start, end);
             (*pp_kernel_)(dst, dst, (char *)bias, scales, start, end);
@@ -106,11 +109,13 @@ void gemm_inner_product_bwd_weights_t<data_type>::execute_backward_weights() con
                 &beta, diff_weights, &IC);
 
     if (diff_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product.cpp:      if (diff_bias) {" << std::endl;
         diff_bias += diff_bias_d.blocking_desc().offset_padding;
         constexpr int blksize = 8;
         const int OC_blocks = OC / blksize;
         const int rem_OC = OC % blksize;
         parallel(0, (size_t)OC_blocks, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product.cpp:          parallel(0, (size_t)OC_blocks, [&](const int ithr, const int nthr) {" << std::endl;
             int oc_st{0}, oc_e{0};
             balance211(OC_blocks, nthr, ithr, oc_st, oc_e);
             oc_st = oc_st * blksize;
@@ -118,21 +123,27 @@ void gemm_inner_product_bwd_weights_t<data_type>::execute_backward_weights() con
 
             PRAGMA_OMP_SIMD()
             for (int oc = oc_st; oc < oc_e; ++oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product.cpp:              for (int oc = oc_st; oc < oc_e; ++oc) {" << std::endl;
                 diff_bias[oc] = diff_dst[oc];
             }
 
             for (int mb = 1; mb < MB; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product.cpp:              for (int mb = 1; mb < MB; ++mb) {" << std::endl;
                 PRAGMA_OMP_SIMD()
                 for (int oc = oc_st; oc < oc_e; ++oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product.cpp:                  for (int oc = oc_st; oc < oc_e; ++oc) {" << std::endl;
                     diff_bias[oc] += diff_dst[mb * OC + oc];
                 }
             }
 
             if (rem_OC != 0 && ithr == nthr-1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product.cpp:              if (rem_OC != 0 && ithr == nthr-1) {" << std::endl;
                 for (int oc = OC_blocks * blksize; oc < OC; oc++)
                     diff_bias[oc] = diff_dst[oc];
                 for (int mb = 1; mb < MB; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product.cpp:                  for (int mb = 1; mb < MB; ++mb) {" << std::endl;
                     for (int oc = OC_blocks * blksize; oc < OC; oc++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product.cpp:                      for (int oc = OC_blocks * blksize; oc < OC; oc++) {" << std::endl;
                         diff_bias[oc] += diff_dst[mb * OC + oc];
                     }
                 }

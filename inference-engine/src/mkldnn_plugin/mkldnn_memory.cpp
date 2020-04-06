@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,7 +20,8 @@ using namespace mkldnn;
 
 namespace MKLDNNPlugin {
 
-MKLDNNMemory::MKLDNNMemory(const engine& eng) : eng(eng) {}
+MKLDNNMemory::MKLDNNMemory(const engine& eng) : eng(eng) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  MKLDNNMemory::MKLDNNMemory(const engine& eng) : eng(eng) {" << std::endl;}
 
 size_t MKLDNNMemory::GetSize() const {
     uint8_t itemSize = MKLDNNExtensionUtils::sizeOfDataType(mkldnn::memory::data_type(GetDataType()));
@@ -31,17 +33,21 @@ size_t MKLDNNMemory::GetSize() const {
 }
 
 void MKLDNNMemory::Create(memory::dims dims, memory::data_type data_type, memory::format format, const void* data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  void MKLDNNMemory::Create(memory::dims dims, memory::data_type data_type, memory::format format, const void* data) {" << std::endl;
     if (!isConsistant(dims, format)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      if (!isConsistant(dims, format)) {" << std::endl;
         THROW_IE_EXCEPTION << "dims and format are inconsistent.";
     }
 
     if (format == memory::blocked) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      if (format == memory::blocked) {" << std::endl;
         format = memory::any;
     }
 
     memory::desc desc = MKLDNNMemoryDesc({dims}, data_type, format);
 
     if (format == memory::any) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      if (format == memory::any) {" << std::endl;
         CreateBlockingDesc(desc);
     }
 
@@ -49,18 +55,22 @@ void MKLDNNMemory::Create(memory::dims dims, memory::data_type data_type, memory
 }
 
 void MKLDNNMemory::Create(const mkldnn::memory::desc& desc, const void *data, bool pads_zeroing) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  void MKLDNNMemory::Create(const mkldnn::memory::desc& desc, const void *data, bool pads_zeroing) {" << std::endl;
     auto primitive_desc = memory::primitive_desc(desc, eng);
     uint8_t itemSize = MKLDNNExtensionUtils::sizeOfDataType(mkldnn::memory::data_type(desc.data.data_type));
 
     if (data == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      if (data == nullptr) {" << std::endl;
         prim.reset(new memory(primitive_desc));
 
         size_t real_size = 0;
         if (desc.data.format == mkldnn_wino_fmt)
             return;
         if (prim->get_primitive_desc().desc().data.ndims > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          if (prim->get_primitive_desc().desc().data.ndims > 0) {" << std::endl;
             real_size = static_cast<size_t>(prim->get_primitive_desc().desc().data.layout_desc.blocking.padding_dims[0]);
             for (int i = 1; i < prim->get_primitive_desc().desc().data.ndims; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              for (int i = 1; i < prim->get_primitive_desc().desc().data.ndims; i++) {" << std::endl;
                 real_size *= prim->get_primitive_desc().desc().data.layout_desc.blocking.padding_dims[i];
             }
         }
@@ -91,6 +101,7 @@ void MKLDNNMemory::SetData(memory::data_type dataType, memory::format format, co
 
     if (static_cast<mkldnn_memory_format_t>(format) != GetDescriptor().data.format ||
             GetDataType() != dataType) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              GetDataType() != dataType) {" << std::endl;
         auto memData = GetDescriptor().data;
 
         std::vector<ptrdiff_t> dims(memData.dims, memData.dims + memData.ndims);
@@ -112,12 +123,15 @@ void MKLDNNMemory::SetData(memory::data_type dataType, memory::format format, co
     }
 
     if (ftz && dataType == mkldnn_f32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      if (ftz && dataType == mkldnn_f32) {" << std::endl;
         // Internal blobs haven't strides yet.
         auto *memData = static_cast<float *>(GetData());
         memData += prim->get_primitive_desc().desc().data.layout_desc.blocking.offset_padding;
         size_t realSize = GetSize() / sizeof(float);
         for (size_t i = 0; i < realSize; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          for (size_t i = 0; i < realSize; i++) {" << std::endl;
             if (memData[i] != 0 && (fabsf(memData[i]) < std::numeric_limits<float>::min())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              if (memData[i] != 0 && (fabsf(memData[i]) < std::numeric_limits<float>::min())) {" << std::endl;
                 memData[i] = 0.0f;
             }
         }
@@ -129,12 +143,15 @@ void MKLDNNMemory::SetData(const MKLDNNMemory& memory, bool ftz) const {
     mkldnn::stream(stream::kind::eager).submit({reorderPrim});
 
     if (ftz && memory.GetDataType() == mkldnn::memory::f32 && GetFormat() != mkldnn::memory::wino_fmt) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      if (ftz && memory.GetDataType() == mkldnn::memory::f32 && GetFormat() != mkldnn::memory::wino_fmt) {" << std::endl;
         // Internal blobs haven't strides yet.
         auto *memData = static_cast<float *>(GetData());
         memData += prim->get_primitive_desc().desc().data.layout_desc.blocking.offset_padding;
         size_t realSize = GetSize() / sizeof(float);
         for (size_t i = 0; i < realSize; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          for (size_t i = 0; i < realSize; i++) {" << std::endl;
             if (memData[i] != 0 && (fabsf(memData[i]) < std::numeric_limits<float>::min())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              if (memData[i] != 0 && (fabsf(memData[i]) < std::numeric_limits<float>::min())) {" << std::endl;
                 memData[i] = 0.0f;
             }
         }
@@ -142,16 +159,19 @@ void MKLDNNMemory::SetData(const MKLDNNMemory& memory, bool ftz) const {
 }
 
 void MKLDNNMemory::FillZero() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  void MKLDNNMemory::FillZero() {" << std::endl;
     void* dataPtr = GetData();
     memset(dataPtr, 0, GetSize());
 }
 
 bool MKLDNNMemory::isConsistant(memory::dims dims, memory::format format) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  bool MKLDNNMemory::isConsistant(memory::dims dims, memory::format format) {" << std::endl;
     using f = mkldnn::memory::format;
 
     size_t ndims = 0;
 
     switch (format) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      switch (format) {" << std::endl;
         case f::x:
             ndims = 1; break;
         case f::nc:
@@ -247,6 +267,7 @@ bool MKLDNNMemory::isConsistant(memory::dims dims, memory::format format) {
 }
 
 bool MKLDNNMemory::IsPlainFormat(memory::format format) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  bool MKLDNNMemory::IsPlainFormat(memory::format format) {" << std::endl;
     std::vector<memory::format> plains = {
     /* 1D */  memory::x,
     /* 2D */  memory::nc, memory::oi, memory::io,
@@ -257,7 +278,9 @@ bool MKLDNNMemory::IsPlainFormat(memory::format format) {
               memory::blocked};
 
     for (auto it : plains) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      for (auto it : plains) {" << std::endl;
         if (format == it) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          if (format == it) {" << std::endl;
             return true;
         }
     }
@@ -266,6 +289,7 @@ bool MKLDNNMemory::IsPlainFormat(memory::format format) {
 }
 
 bool MKLDNNMemory::IsGroupedFormat(memory::format format) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  bool MKLDNNMemory::IsGroupedFormat(memory::format format) {" << std::endl;
     using f = mkldnn::memory::format;
 
     std::vector<memory::format> groupedFormats = {f::hwigo, f::goihw, f::gOIhw8i8o, f::gOIhw16i16o, f::gOIhw8i16o2i,
@@ -274,7 +298,9 @@ bool MKLDNNMemory::IsGroupedFormat(memory::format format) {
             f::gOIhw4i16o4i, f::dhwigo, f::gOIhw2i8o4i, f::gOIhw4o4i, f::Goidhw8g, f::Goidhw16g, f::gOIdhw4i16o4i, f::gOdhIw8o4i};
 
     for (auto it : groupedFormats) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      for (auto it : groupedFormats) {" << std::endl;
         if (format == it) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          if (format == it) {" << std::endl;
             return true;
         }
     }
@@ -283,7 +309,9 @@ bool MKLDNNMemory::IsGroupedFormat(memory::format format) {
 }
 
 memory::format MKLDNNMemory::GetPlainFormat(memory::dims dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  memory::format MKLDNNMemory::GetPlainFormat(memory::dims dims) {" << std::endl;
     switch (dims.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      switch (dims.size()) {" << std::endl;
         case 0:
             return memory::x;
         case 1:
@@ -302,7 +330,9 @@ memory::format MKLDNNMemory::GetPlainFormat(memory::dims dims) {
 }
 
 InferenceEngine::Layout MKLDNNMemory::GetPlainLayout(memory::dims dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  InferenceEngine::Layout MKLDNNMemory::GetPlainLayout(memory::dims dims) {" << std::endl;
     switch (dims.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      switch (dims.size()) {" << std::endl;
         case 0: return Layout::SCALAR;
         case 1: return Layout::C;
         case 2: return Layout::NC;
@@ -315,6 +345,7 @@ InferenceEngine::Layout MKLDNNMemory::GetPlainLayout(memory::dims dims) {
 }
 
 void MKLDNNMemory::CreateBlockingDesc(memory::desc &desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  void MKLDNNMemory::CreateBlockingDesc(memory::desc &desc) {" << std::endl;
     auto dims = desc.data.dims;
     int ndims = desc.data.ndims;
 
@@ -325,6 +356,7 @@ void MKLDNNMemory::CreateBlockingDesc(memory::desc &desc) {
     blk.offset_padding = 0;
 
     for (int i = 0; i < ndims; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      for (int i = 0; i < ndims; i++) {" << std::endl;
         blk.block_dims[i] = 1;
         blk.strides[1][i] = 1;
         blk.padding_dims[i] = dims[i];
@@ -334,12 +366,14 @@ void MKLDNNMemory::CreateBlockingDesc(memory::desc &desc) {
     int perm[TENSOR_MAX_DIMS] = {0};
 
     for (int i = 0; i < ndims; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      for (int i = 0; i < ndims; ++i) {" << std::endl;
         perm[i] = i;
     }
 
     blk.strides[0][perm[ndims - 1]] = 1;
 
     for (int d = 1; d < ndims; ++d) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      for (int d = 1; d < ndims; ++d) {" << std::endl;
         const int prev_idx = perm[ndims - d];
         const int curr_idx = perm[ndims - 1 - d];
 
@@ -347,7 +381,9 @@ void MKLDNNMemory::CreateBlockingDesc(memory::desc &desc) {
     }
 }
 memory::format MKLDNNMemory::Convert(const InferenceEngine::Layout layout) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  memory::format MKLDNNMemory::Convert(const InferenceEngine::Layout layout) {" << std::endl;
     switch (layout) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      switch (layout) {" << std::endl;
         case NCHW:
             return memory::nchw;
         case NHWC:
@@ -370,7 +406,9 @@ memory::format MKLDNNMemory::Convert(const InferenceEngine::Layout layout) {
 }
 
 std::string MKLDNNMemory::formatToString(memory::format fmt) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:  std::string MKLDNNMemory::formatToString(memory::format fmt) {" << std::endl;
     switch (fmt) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      switch (fmt) {" << std::endl;
         case memory::format_undef: return "undef";
         case memory::any: return "any";
         case memory::blocked: return "blocked";
@@ -466,15 +504,18 @@ std::string MKLDNNMemory::formatToString(memory::format fmt) {
 
 bool MKLDNNMemoryDesc::operator==(const MKLDNNMemoryDesc &rhs) const {
     auto dims_equal = [] (const mkldnn_memory_desc_t &ldata, const mkldnn_memory_desc_t &rdata) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      auto dims_equal = [] (const mkldnn_memory_desc_t &ldata, const mkldnn_memory_desc_t &rdata) {" << std::endl;
         if (ldata.ndims != rdata.ndims)
             return false;
         for (int i = 0; i < ldata.ndims; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          for (int i = 0; i < ldata.ndims; i++) {" << std::endl;
             if (ldata.dims[i] != rdata.dims[i])
                 return false;
         }
         return true;
     };
     auto blocking_equal = [] (const mkldnn_memory_desc_t &ldata, const mkldnn_memory_desc_t &rdata) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      auto blocking_equal = [] (const mkldnn_memory_desc_t &ldata, const mkldnn_memory_desc_t &rdata) {" << std::endl;
         if (ldata.ndims != rdata.ndims)
             return false;
         mkldnn_blocking_desc_t lblock = ldata.layout_desc.blocking;
@@ -482,6 +523,7 @@ bool MKLDNNMemoryDesc::operator==(const MKLDNNMemoryDesc &rhs) const {
         if (lblock.offset_padding != rblock.offset_padding)
             return false;
         for (int i = 0; i < ldata.ndims; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          for (int i = 0; i < ldata.ndims; i++) {" << std::endl;
             if (lblock.block_dims[i] != rblock.block_dims[i] ||
                 lblock.offset_padding_to_data[i] != rblock.offset_padding_to_data[i] ||
                 lblock.padding_dims[i] != rblock.padding_dims[i] || lblock.strides[0][i] != rblock.strides[0][i] ||
@@ -507,8 +549,11 @@ MKLDNNMemoryDesc::operator mkldnn::memory::desc() const {
 
 MKLDNNMemoryDesc::MKLDNNMemoryDesc(mkldnn::memory::dims dims, mkldnn::memory::data_type dataType,
                                    mkldnn::memory::format format): desc(dims, dataType, mkldnn::memory::any) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                                     mkldnn::memory::format format): desc(dims, dataType, mkldnn::memory::any) {" << std::endl;
     if (format != memory::blocked) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      if (format != memory::blocked) {" << std::endl;
         if (format == memory::x && dims.size() == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          if (format == memory::x && dims.size() == 0) {" << std::endl;
             desc = mkldnn::memory::desc(mkldnn::memory::dims(1, 1), dataType, format);
             MKLDNNMemory::CreateBlockingDesc(desc);
         } else {
@@ -522,6 +567,7 @@ MKLDNNMemoryDesc::MKLDNNMemoryDesc(mkldnn::memory::dims dims, mkldnn::memory::da
 MKLDNNMemoryDesc::operator InferenceEngine::TensorDesc() const {
     Precision precision;
     switch (desc.data.data_type) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      switch (desc.data.data_type) {" << std::endl;
         case mkldnn_f32:
             precision = Precision::FP32;
             break;
@@ -551,6 +597,7 @@ MKLDNNMemoryDesc::operator InferenceEngine::TensorDesc() const {
     SizeVector offsetsForDims;
     SizeVector dims = getDims().ToSizeVector();
     switch (getFormat()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      switch (getFormat()) {" << std::endl;
         case memory::format_undef:
             THROW_IE_EXCEPTION << "Cannot cast to tensor desc. Format is undefined!";
         case memory::any:
@@ -616,6 +663,7 @@ MKLDNNMemoryDesc::operator InferenceEngine::TensorDesc() const {
             layout = Layout::NHWC;
             order = {0, 2, 3, 1};
             if (precision == Precision::BIN) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              if (precision == Precision::BIN) {" << std::endl;
                 blkDims = {static_cast<size_t>(dims[0]),
                            static_cast<size_t>(dims[2]),
                            static_cast<size_t>(dims[3]),
@@ -914,8 +962,10 @@ MKLDNNMemoryDesc::operator InferenceEngine::TensorDesc() const {
             order.clear();
             blkDims = dims;
             for (size_t i = 0; i < blkDims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              for (size_t i = 0; i < blkDims.size(); i++) {" << std::endl;
                 order.push_back(i);
                 if ((i && blkInfo.strides[0][i - 1] < blkInfo.strides[0][i]) || blkInfo.block_dims[i] != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  if ((i && blkInfo.strides[0][i - 1] < blkInfo.strides[0][i]) || blkInfo.block_dims[i] != 1) {" << std::endl;
                     THROW_IE_EXCEPTION << "Cannot cast to tensor desc."
                                        << " Unsupported blocked format.";
                 }
@@ -932,13 +982,17 @@ MKLDNNMemoryDesc::operator InferenceEngine::TensorDesc() const {
     SizeVector strides(blkDims.size());
 
     if (layout == Layout::NHWC || layout == Layout::NDHWC || layout == Layout::CHW) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      if (layout == Layout::NHWC || layout == Layout::NDHWC || layout == Layout::CHW) {" << std::endl;
         for (size_t i = 0; i < order.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          for (size_t i = 0; i < order.size(); i++) {" << std::endl;
             strides[i] = static_cast<size_t>(blkInfo.strides[0][order[i]]);
         }
     } else {
         strides[blkDims.size() - 1] = 1;
         for (size_t i = 2; i <= order.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          for (size_t i = 2; i <= order.size(); i++) {" << std::endl;
             if (blkDims.size() - i < dims.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              if (blkDims.size() - i < dims.size()) {" << std::endl;
                 strides[blkDims.size() - i] = static_cast<size_t>(blkInfo.strides[0][order[blkDims.size() - i]]);
             } else {
                 strides[blkDims.size() - i] = strides[blkDims.size() - i + 1] * blkDims[blkDims.size() - i + 1];
@@ -947,6 +1001,7 @@ MKLDNNMemoryDesc::operator InferenceEngine::TensorDesc() const {
     }
 
     for (size_t i = 0; i < blkDims.size() && i < TENSOR_MAX_DIMS; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      for (size_t i = 0; i < blkDims.size() && i < TENSOR_MAX_DIMS; i++) {" << std::endl;
         if (i < dims.size())
             offsetsForDims.push_back(blkInfo.offset_padding_to_data[i]);
         else
@@ -961,8 +1016,10 @@ MKLDNNMemoryDesc::operator InferenceEngine::TensorDesc() const {
 
 MKLDNNMemoryDesc::MKLDNNMemoryDesc(const TensorDesc& tDesc):
         desc({}, mkldnn::memory::data_type::f32, mkldnn::memory::format::format_undef) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          desc({}, mkldnn::memory::data_type::f32, mkldnn::memory::format::format_undef) {" << std::endl;
     mkldnn::memory::data_type data_type;
     switch (tDesc.getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      switch (tDesc.getPrecision()) {" << std::endl;
         case Precision::FP32:
             data_type = mkldnn::memory::data_type::f32;
             break;
@@ -995,6 +1052,7 @@ MKLDNNMemoryDesc::MKLDNNMemoryDesc(const TensorDesc& tDesc):
     SizeVector strides = tDesc.getBlockingDesc().getStrides();
     auto realDims = MKLDNNDims(tDesc.getDims());
     switch (tDesc.getLayout()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      switch (tDesc.getLayout()) {" << std::endl;
         case ANY:
             mkldnnFormat = memory::format::any;
             break;
@@ -1041,152 +1099,218 @@ MKLDNNMemoryDesc::MKLDNNMemoryDesc(const TensorDesc& tDesc):
         case BLOCKED:
             mkldnnFormat = memory::format::blocked;
             if (realDims.ndims() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              if (realDims.ndims() == 1) {" << std::endl;
                 mkldnnFormat = memory::format::x;
             } else if (realDims.ndims() == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              } else if (realDims.ndims() == 2) {" << std::endl;
                 mkldnnFormat = memory::format::nc;
             } else if (realDims.ndims() == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              } else if (realDims.ndims() == 4) {" << std::endl;
                 if (order.size() == 7 &&
                     order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 1 && order[5] == 0 && order[6] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 1 && order[5] == 0 && order[6] == 1) {" << std::endl;
                     if (blkdDims[4] == 4 && blkdDims[5] == 16 && blkdDims[6] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[4] == 4 && blkdDims[5] == 16 && blkdDims[6] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::OIhw4i16o4i;
                     }
                 } else if (order.size() == 6 && order[0] == 0 && order[1] == 2 && order[2] == 1 && order[3] == 3 && order[4] == 0 && order[5] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  } else if (order.size() == 6 && order[0] == 0 && order[1] == 2 && order[2] == 1 && order[3] == 3 && order[4] == 0 && order[5] == 1) {" << std::endl;
                     if (blkdDims[4] == 8 && blkdDims[5] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[4] == 8 && blkdDims[5] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::OhIw8o4i;
                     }
                 } else if (order.size() == 6 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 1 && order[5] == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  } else if (order.size() == 6 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 1 && order[5] == 0) {" << std::endl;
                     if (blkdDims[4] == 8 && blkdDims[5] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[4] == 8 && blkdDims[5] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::OIhw8i8o;
                     } else if (blkdDims[4] == 16 && blkdDims[5] == 16) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[4] == 16 && blkdDims[5] == 16) {" << std::endl;
                         mkldnnFormat = memory::format::OIhw16i16o;
                     }
                 } else if (order.size() == 5 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  } else if (order.size() == 5 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 0) {" << std::endl;
                     if (blkdDims[4] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[4] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::Ohwi8o;
                     } else if (blkdDims[4] == 16) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[4] == 16) {" << std::endl;
                         mkldnnFormat = memory::format::Ohwi16o;
                     }
                 } else if (order.size() == 5 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  } else if (order.size() == 5 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 1) {" << std::endl;
                     if (blkdDims[4] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[4] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::nChw8c;
                     } else if (blkdDims[4] == 16) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[4] == 16) {" << std::endl;
                         mkldnnFormat = memory::format::nChw16c;
                     }
                 } else if (order.size() == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  } else if (order.size() == 4) {" << std::endl;
                     if (order[0] == 2 && order[1] == 3 && order[2] == 1 && order[3] == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (order[0] == 2 && order[1] == 3 && order[2] == 1 && order[3] == 0) {" << std::endl;
                         mkldnnFormat = memory::format::hwio;
                     } else if (order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3) {" << std::endl;
                         mkldnnFormat = memory::format::nchw;
                     } else if (order[0] == 0 && order[1] == 2 && order[2] == 3 && order[3] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (order[0] == 0 && order[1] == 2 && order[2] == 3 && order[3] == 1) {" << std::endl;
                         mkldnnFormat = memory::format::nhwc;
                     }
                 }
             } else if (realDims.ndims() == 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              } else if (realDims.ndims() == 5) {" << std::endl;
                 if (order.size() == 5 && order[0] == 2 && order[1] == 3 && order[2] == 4 && order[3] == 1 && order[4] == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  if (order.size() == 5 && order[0] == 2 && order[1] == 3 && order[2] == 4 && order[3] == 1 && order[4] == 0) {" << std::endl;
                     mkldnnFormat = memory::format::dhwio;
                 } else if (order.size() == 5 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  } else if (order.size() == 5 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4) {" << std::endl;
                     mkldnnFormat = memory::format::goihw;
                 } else if (order.size() == 5 && order[0] == 3 && order[1] == 4 && order[2] == 2 && order[3] == 0 && order[4] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  } else if (order.size() == 5 && order[0] == 3 && order[1] == 4 && order[2] == 2 && order[3] == 0 && order[4] == 1) {" << std::endl;
                     mkldnnFormat = memory::format::hwigo;
                 } else if (order.size() == 6 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  } else if (order.size() == 6 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 0) {" << std::endl;
                     if (blkdDims[5] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[5] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::Goihw8g;
                     } else if (blkdDims[5] == 16) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[5] == 16) {" << std::endl;
                         mkldnnFormat = memory::format::Goihw16g;
                     }
                 } else if (order.size() == 6 &&
                         order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                          order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 1) {" << std::endl;
                     if (blkdDims[5] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[5] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::nCdhw8c;
                     } else if (blkdDims[5] == 16) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[5] == 16) {" << std::endl;
                         mkldnnFormat = memory::format::nCdhw16c;
                     }
                 } else if (order.size() == 6 &&
                            order[0] == 0 && order[1] == 2 && order[2] == 3 && order[3] == 4 && order[4] == 1 && order[5] == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[0] == 0 && order[1] == 2 && order[2] == 3 && order[3] == 4 && order[4] == 1 && order[5] == 0) {" << std::endl;
                     if (blkdDims[5] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[5] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::Odhwi8o;
                     } else if (blkdDims[5] == 16) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[5] == 16) {" << std::endl;
                         mkldnnFormat = memory::format::Odhwi16o;
                     }
                 } else if (order.size() == 7 &&
                            order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 1 && order[6] == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 1 && order[6] == 0) {" << std::endl;
                     if (blkdDims[6] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[6] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::OIdhw8i8o;
                     } else if (blkdDims[6] == 16) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[6] == 16) {" << std::endl;
                         mkldnnFormat = memory::format::OIdhw16i16o;
                     }
                 } else if (order.size() == 7 &&
                            order[0] == 0 && order[1] == 2 && order[2] == 3 && order[3] == 1 && order[4] == 4 && order[5] == 0 && order[6] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[0] == 0 && order[1] == 2 && order[2] == 3 && order[3] == 1 && order[4] == 4 && order[5] == 0 && order[6] == 1) {" << std::endl;
                     if (blkdDims[5] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[5] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::OdhIw8o4i;
                     }
                 } else if (order.size() == 8 &&
                            order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 1 && order[6] == 0 &&
                            order[7] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[7] == 1) {" << std::endl;
                     if (blkdDims[7] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[7] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::OIdhw4i16o4i;
                     }
                 } else if (order.size() == 7 &&
                            order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 2 && order[6] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 2 && order[6] == 1) {" << std::endl;
                     if (blkdDims[6] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[6] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::gOIhw4o4i;
                     } else if (blkdDims[6] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[6] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::gOIhw8i8o;
                     } else if (blkdDims[6] == 16) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[6] == 16) {" << std::endl;
                         mkldnnFormat = memory::format::gOIhw16i16o;
                     }
                 } else if (order.size() == 7 &&
                            order[0] == 0 && order[1] == 1 && order[2] == 3 && order[3] == 2 && order[4] == 4 && order[5] == 1 && order[6] == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[0] == 0 && order[1] == 1 && order[2] == 3 && order[3] == 2 && order[4] == 4 && order[5] == 1 && order[6] == 2) {" << std::endl;
                     if (blkdDims[5] == 8 && blkdDims[6] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[5] == 8 && blkdDims[6] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::gOhIw8o4i;
                     }
                 } else if (order.size() == 8 &&
                            order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 &&
                            order[5] == 2 && order[6] == 1 && order[7] == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[5] == 2 && order[6] == 1 && order[7] == 2) {" << std::endl;
                     if (blkdDims[5] == 2 && blkdDims[6] == 8 && blkdDims[7] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[5] == 2 && blkdDims[6] == 8 && blkdDims[7] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::gOIhw2i8o4i;
                     } else if (blkdDims[5] == 4 && blkdDims[6] == 16 && blkdDims[7] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[5] == 4 && blkdDims[6] == 16 && blkdDims[7] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::gOIhw4i16o4i;
                     }
                 } else if (order.size() == 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  } else if (order.size() == 5) {" << std::endl;
                     if (order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::ncdhw;
                     } else if (order[0] == 0 && order[1] == 2 && order[2] == 3 && order[3] == 4 && order[4] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (order[0] == 0 && order[1] == 2 && order[2] == 3 && order[3] == 4 && order[4] == 1) {" << std::endl;
                         mkldnnFormat = memory::format::ndhwc;
                     }
                 }
             } else if (realDims.ndims() == 6) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:              } else if (realDims.ndims() == 6) {" << std::endl;
                 if (order.size() == 6 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  if (order.size() == 6 && order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 5) {" << std::endl;
                     mkldnnFormat = memory::format::goidhw;
                 } else if (order.size() == 6 && order[0] == 3 && order[1] == 4 && order[2] == 5 && order[3] == 2 && order[4] == 0 && order[5] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                  } else if (order.size() == 6 && order[0] == 3 && order[1] == 4 && order[2] == 5 && order[3] == 2 && order[4] == 0 && order[5] == 1) {" << std::endl;
                     mkldnnFormat = memory::format::dhwigo;
                 } else if (order.size() == 7 &&
                            order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 5 && order[6] == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 5 && order[6] == 0) {" << std::endl;
                     if (blkdDims[6] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[6] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::Goidhw8g;
                     } else if (blkdDims[6] == 16) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[6] == 16) {" << std::endl;
                         mkldnnFormat = memory::format::Goidhw16g;
                     }
                 } else if (order.size() == 8 &&
                            order[0] == 0 && order[1] == 1 && order[2] == 3 && order[3] == 4 && order[4] == 2 && order[5] == 5 &&
                            order[6] == 1 && order[7] == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[6] == 1 && order[7] == 2) {" << std::endl;
                     if (blkdDims[6] == 8 && blkdDims[7] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[6] == 8 && blkdDims[7] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::gOdhIw8o4i;
                     }
                 } else if (order.size() == 8 &&
                            order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 5 &&
                            order[6] == 2 && order[7] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[6] == 2 && order[7] == 1) {" << std::endl;
                     if (blkdDims[6] == 4 && blkdDims[7] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[6] == 4 && blkdDims[7] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::gOIdhw4i4o;
                     } else if (blkdDims[6] == 8 && blkdDims[7] == 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[6] == 8 && blkdDims[7] == 8) {" << std::endl;
                         mkldnnFormat = memory::format::gOIdhw8i8o;
                     } else if (blkdDims[6] == 16 && blkdDims[7] == 16) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      } else if (blkdDims[6] == 16 && blkdDims[7] == 16) {" << std::endl;
                         mkldnnFormat = memory::format::gOIdhw16i16o;
                     }
                 } else if (order.size() == 9 &&
                            order[0] == 0 && order[1] == 1 && order[2] == 2 && order[3] == 3 && order[4] == 4 && order[5] == 5 &&
                            order[6] == 2 && order[7] == 1 && order[8] == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                             order[6] == 2 && order[7] == 1 && order[8] == 2) {" << std::endl;
                     if (blkdDims[6] == 4 && blkdDims[7] == 16 && blkdDims[8] == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:                      if (blkdDims[6] == 4 && blkdDims[7] == 16 && blkdDims[8] == 4) {" << std::endl;
                         mkldnnFormat = memory::format::gOIdhw4i16o4i;
                     }
                 }
@@ -1202,11 +1326,14 @@ MKLDNNMemoryDesc::MKLDNNMemoryDesc(const TensorDesc& tDesc):
     bool notDefault = false;
     size_t currentStride = 1;
     for (size_t i = 0; i < order.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      for (size_t i = 0; i < order.size(); i++) {" << std::endl;
         if (offsetsToData[i] != 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          if (offsetsToData[i] != 0) {" << std::endl;
             notDefault = true;
             break;
         }
         if (strides[strides.size() - (1 +i)] != currentStride) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          if (strides[strides.size() - (1 +i)] != currentStride) {" << std::endl;
             notDefault = true;
             break;
         }
@@ -1216,7 +1343,9 @@ MKLDNNMemoryDesc::MKLDNNMemoryDesc(const TensorDesc& tDesc):
     bool blocked = false;
     std::unordered_set<size_t> exist_order;
     for (auto& ord : order) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      for (auto& ord : order) {" << std::endl;
         if (exist_order.find(ord) != exist_order.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          if (exist_order.find(ord) != exist_order.end()) {" << std::endl;
             blocked = true;
             break;
         }
@@ -1227,6 +1356,7 @@ MKLDNNMemoryDesc::MKLDNNMemoryDesc(const TensorDesc& tDesc):
         THROW_IE_EXCEPTION << "Currently MKLDNNPlugin supports only packaged memory for unknown blocked format";
 
     if (mkldnnFormat == memory::blocked) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      if (mkldnnFormat == memory::blocked) {" << std::endl;
         desc = MKLDNNMemoryDesc(realDims, data_type, memory::any);
         desc.data.format = mkldnn_blocked;
 
@@ -1235,6 +1365,7 @@ MKLDNNMemoryDesc::MKLDNNMemoryDesc(const TensorDesc& tDesc):
         blk.offset_padding = tDesc.getBlockingDesc().getOffsetPadding();
 
         for (size_t i = 0; i < realDims.ndims(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          for (size_t i = 0; i < realDims.ndims(); i++) {" << std::endl;
             blk.block_dims[i] = 1;
             blk.strides[1][i] = 1;
             blk.padding_dims[i] = realDims[i];
@@ -1244,12 +1375,14 @@ MKLDNNMemoryDesc::MKLDNNMemoryDesc(const TensorDesc& tDesc):
         int perm[TENSOR_MAX_DIMS] = {0};
 
         for (size_t i = 0; i < realDims.ndims(); ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          for (size_t i = 0; i < realDims.ndims(); ++i) {" << std::endl;
             perm[i] = i;
         }
 
         blk.strides[0][perm[realDims.ndims() - 1]] = 1;
 
         for (int d = 1; d < realDims.ndims(); ++d) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          for (int d = 1; d < realDims.ndims(); ++d) {" << std::endl;
             const int prev_idx = perm[realDims.ndims() - d];
             const int curr_idx = perm[realDims.ndims() - 1 - d];
 
@@ -1261,11 +1394,14 @@ MKLDNNMemoryDesc::MKLDNNMemoryDesc(const TensorDesc& tDesc):
 
     desc.data.layout_desc.blocking.offset_padding = tDesc.getBlockingDesc().getOffsetPadding();
     for (size_t i = 0; i < tDesc.getBlockingDesc().getOffsetPaddingToData().size() && i < TENSOR_MAX_DIMS; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      for (size_t i = 0; i < tDesc.getBlockingDesc().getOffsetPaddingToData().size() && i < TENSOR_MAX_DIMS; i++) {" << std::endl;
         desc.data.layout_desc.blocking.offset_padding_to_data[i] = static_cast<ptrdiff_t>(offsetsToData[i]);
     }
 
     if (notDefault) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      if (notDefault) {" << std::endl;
         for (size_t i = 0; i < strides.size() && i < desc.data.ndims; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:          for (size_t i = 0; i < strides.size() && i < desc.data.ndims; i++) {" << std::endl;
             desc.data.layout_desc.blocking.strides[0][i] = static_cast<ptrdiff_t>(strides[order[i]]);
         }
     }
@@ -1273,6 +1409,7 @@ MKLDNNMemoryDesc::MKLDNNMemoryDesc(const TensorDesc& tDesc):
 
 bool MKLDNNMemoryDesc::blocksExtended() const {
     for (int i = 0; i < desc.data.ndims; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory.cpp:      for (int i = 0; i < desc.data.ndims; i++) {" << std::endl;
         if (desc.data.dims[i] != desc.data.layout_desc.blocking.padding_dims[i])
             return true;
     }

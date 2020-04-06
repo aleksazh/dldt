@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,12 +20,14 @@ using namespace InferenceEngine;
 
 MKLDNNDeconvolutionNode::MKLDNNDeconvolutionNode(const InferenceEngine::CNNLayerPtr& layer,
                                                  const mkldnn::engine& eng, int socket) : MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:                                                   const mkldnn::engine& eng, int socket) : MKLDNNNode(layer, eng, socket) {" << std::endl;
     internalBlobDesc.emplace_back([&](primitive_desc_iterator &primitive_desc_it, size_t idx) -> MKLDNNMemoryDesc {
         return MKLDNNMemoryDesc(primitive_desc_it.weights_primitive_desc(0).desc());
     });
 }
 
 void MKLDNNDeconvolutionNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:  void MKLDNNDeconvolutionNode::getSupportedDescriptors() {" << std::endl;
     if (!descs_fwd.empty() && !descs_bwd.empty())
         return;
 
@@ -46,6 +49,7 @@ void MKLDNNDeconvolutionNode::getSupportedDescriptors() {
     if (deconvLayer == nullptr)
         THROW_IE_EXCEPTION << "Cannot convert deconvolution layer.";
     if (deconvLayer->_weights == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:      if (deconvLayer->_weights == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Weights are empty for layer: " << deconvLayer->name
                            << " used in MKLDNN node: " << getName() << "\n"
                            << "Use ReadWeights and SetWeights methods of InferenceEngine::CNNNetReader"
@@ -64,6 +68,7 @@ void MKLDNNDeconvolutionNode::getSupportedDescriptors() {
      */
     SizeVector weightDims;
     if (withGroups) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:      if (withGroups) {" << std::endl;
         weightDims = {
                 deconvLayer->_group,
                 deconvLayer->input()->getTensorDesc().getDims()[1] / deconvLayer->_group,
@@ -77,6 +82,7 @@ void MKLDNNDeconvolutionNode::getSupportedDescriptors() {
         };
     }
     for (int i = 1; i <= deconvLayer->_kernel.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:      for (int i = 1; i <= deconvLayer->_kernel.size(); i++) {" << std::endl;
         weightDims.push_back(deconvLayer->_kernel[deconvLayer->_kernel.size() - i]);
     }
 
@@ -84,6 +90,7 @@ void MKLDNNDeconvolutionNode::getSupportedDescriptors() {
 
     invertVectorCopyUtoI(deconvLayer->_stride, stride);
     for (int i = 1; i <= deconvLayer->_dilation.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:      for (int i = 1; i <= deconvLayer->_dilation.size(); i++) {" << std::endl;
         dilation.push_back(static_cast<int>(deconvLayer->_dilation[deconvLayer->_dilation.size() - i]) - 1);
     }
     auto allPads = getPaddings(*deconvLayer);
@@ -93,6 +100,7 @@ void MKLDNNDeconvolutionNode::getSupportedDescriptors() {
     weightsDims = MKLDNNDims(weightDims);
 
     for (int i = 0; i < paddingR.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:      for (int i = 0; i < paddingR.size(); i++) {" << std::endl;
         int with_group = (withGroups) ? 1 : 0;
         int krn = weightsDims[with_group + 2 + i];
         int src = getChildEdgeAt(0)->getDims()[2 + i];
@@ -104,6 +112,7 @@ void MKLDNNDeconvolutionNode::getSupportedDescriptors() {
     }
 
     for (auto format : getAvailableFormatsForDims(getParentEdgeAt(0)->getDims())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:      for (auto format : getAvailableFormatsForDims(getParentEdgeAt(0)->getDims())) {" << std::endl;
         MKLDNNMemoryDesc in_candidate(getParentEdgeAt(0)->getDims(), inputDataType, format);
         MKLDNNMemoryDesc out_candidate(getChildEdgeAt(0)->getDims(), outputDataType, format);
         createDescriptor({in_candidate}, {out_candidate});
@@ -111,10 +120,13 @@ void MKLDNNDeconvolutionNode::getSupportedDescriptors() {
 }
 
 void MKLDNNDeconvolutionNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:  void MKLDNNDeconvolutionNode::execute(mkldnn::stream strm) {" << std::endl;
     if (prim) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:      if (prim) {" << std::endl;
         strm.submit({*prim});
     }
     if (withBiases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:      if (withBiases) {" << std::endl;
         const auto *bias = biases->buffer().as<const float*>();
         auto biasSize = biases->size();
 
@@ -132,10 +144,12 @@ void MKLDNNDeconvolutionNode::execute(mkldnn::stream strm) {
         const size_t W = dst->getTensorDesc().getDims()[dims_size - 1];
         size_t blkC = 1lu;
         if (layout == BLOCKED && dst->getTensorDesc().getBlockingDesc().getBlockDims().size() > 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:          if (layout == BLOCKED && dst->getTensorDesc().getBlockingDesc().getBlockDims().size() > 5) {" << std::endl;
             blkC = dst->getTensorDesc().getBlockingDesc().getBlockDims().size() > 5 ?
                    dst->getTensorDesc().getBlockingDesc().getBlockDims()[5] :
                    1lu;
         } else if (layout == BLOCKED && dst->getTensorDesc().getBlockingDesc().getBlockDims().size() > 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:          } else if (layout == BLOCKED && dst->getTensorDesc().getBlockingDesc().getBlockDims().size() > 4) {" << std::endl;
             blkC = dst->getTensorDesc().getBlockingDesc().getBlockDims()[4];
         }
 
@@ -143,7 +157,9 @@ void MKLDNNDeconvolutionNode::execute(mkldnn::stream strm) {
         int output_size = strides[0] * N - dst->getTensorDesc().getBlockingDesc().getOffsetPadding();
 
         parallel_for5d(N, C, D, H, W, [&](size_t n, size_t c, size_t d, size_t h, size_t w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:          parallel_for5d(N, C, D, H, W, [&](size_t n, size_t c, size_t d, size_t h, size_t w) {" << std::endl;
             for (size_t g = 0; g < groupNum; g++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:              for (size_t g = 0; g < groupNum; g++) {" << std::endl;
                 const size_t off = n * strides[0]
                                  + (g * C + c) * strides[1]
                                  + d * strides[dims_size - 3]
@@ -153,6 +169,7 @@ void MKLDNNDeconvolutionNode::execute(mkldnn::stream strm) {
                 auto o = &output[off];
                 int gcb = g * C * blkC + c * blkC;
                 for (int bc = 0; bc < blkC; ++bc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:                  for (int bc = 0; bc < blkC; ++bc) {" << std::endl;
                     int index = gcb + bc;
                     if (index < biasSize)
                         o[bc] += bias[index];
@@ -167,6 +184,7 @@ bool MKLDNNDeconvolutionNode::created() const {
 }
 
 void MKLDNNDeconvolutionNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:  void MKLDNNDeconvolutionNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
@@ -181,6 +199,7 @@ void MKLDNNDeconvolutionNode::createPrimitive() {
 
 void MKLDNNDeconvolutionNode::createDescriptor(const std::vector<InferenceEngine::TensorDesc> &inputDesc,
                                                const std::vector<InferenceEngine::TensorDesc> &outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:                                                 const std::vector<InferenceEngine::TensorDesc> &outputDesc) {" << std::endl;
     MKLDNNMemoryDesc in_candidate(inputDesc[0]);
     MKLDNNMemoryDesc out_candidate(outputDesc[0]);
     auto in_fmt = in_candidate.getFormat();
@@ -194,6 +213,7 @@ void MKLDNNDeconvolutionNode::createDescriptor(const std::vector<InferenceEngine
 
     MKLDNNMemoryDesc wgh_candidate{weightsDims, in_candidate.getDataType(), memory::any};
     for (auto alg : {algorithm::convolution_winograd, algorithm::convolution_direct}) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:      for (auto alg : {algorithm::convolution_winograd, algorithm::convolution_direct}) {" << std::endl;
         try {
             std::shared_ptr<mkldnn::convolution_forward::desc> conv_desc;
             conv_desc.reset(new convolution_forward::desc(prop_kind::forward_inference, alg,
@@ -210,11 +230,13 @@ void MKLDNNDeconvolutionNode::createDescriptor(const std::vector<InferenceEngine
             descs.emplace_back(deconv_desc,
                                std::shared_ptr<convolution_forward::primitive_desc>(
                                        new convolution_forward::primitive_desc(*conv_desc, getEngine())));
-        } catch(...) {}
+        } catch(...) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:          } catch(...) {" << std::endl;}
     }
 }
 
 MKLDNNMemoryDesc MKLDNNDeconvolutionNode::getSrcMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:  MKLDNNMemoryDesc MKLDNNDeconvolutionNode::getSrcMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {" << std::endl;
     InferenceEngine::TensorDesc desc = MKLDNNMemoryDesc(primitive_desc_it.diff_dst_primitive_desc(idx).desc());
     if (desc.getLayout() == InferenceEngine::Layout::ANY)
         return MKLDNNMemoryDesc(InferenceEngine::TensorDesc(desc.getPrecision(),
@@ -227,6 +249,7 @@ MKLDNNMemoryDesc MKLDNNDeconvolutionNode::getSrcMemDesc(mkldnn::primitive_desc_i
 }
 
 MKLDNNMemoryDesc MKLDNNDeconvolutionNode::getDstMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_deconv_node.cpp:  MKLDNNMemoryDesc MKLDNNDeconvolutionNode::getDstMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {" << std::endl;
     InferenceEngine::TensorDesc desc = MKLDNNMemoryDesc(primitive_desc_it.diff_src_primitive_desc(idx).desc());
     if (desc.getLayout() == InferenceEngine::Layout::ANY)
         return MKLDNNMemoryDesc(InferenceEngine::TensorDesc(desc.getPrecision(),

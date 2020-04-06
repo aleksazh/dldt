@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -12,6 +13,7 @@
 #include "ngraph/pattern/matcher.hpp"
 
 void ngraph::pass::QuantizeConvDequantizeFusion::quantize_conv_fusion() {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/quantizeconv_dequantize_fusion.cpp:  void ngraph::pass::QuantizeConvDequantizeFusion::quantize_conv_fusion() {" << std::endl;
     Shape shape {2, 2, 1, 1};
     auto data_batch = std::make_shared<pattern::op::Label>(element::f32, shape);
     auto filters = std::make_shared<pattern::op::Label>(element::f32, shape);
@@ -28,6 +30,7 @@ void ngraph::pass::QuantizeConvDequantizeFusion::quantize_conv_fusion() {
     auto dequantize = std::make_shared<ngraph::op::Dequantize>(conv, dscale, doffset, element::f32, AxisSet {});
 
     ngraph::graph_rewrite_callback callback = [](pattern::Matcher& m) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/quantizeconv_dequantize_fusion.cpp:      ngraph::graph_rewrite_callback callback = [](pattern::Matcher& m) {" << std::endl;
         auto pattern_map = m.get_pattern_map();
 
         auto dequantize = std::dynamic_pointer_cast<op::Dequantize>(m.get_match_root());
@@ -36,6 +39,7 @@ void ngraph::pass::QuantizeConvDequantizeFusion::quantize_conv_fusion() {
         auto w_scale = std::dynamic_pointer_cast<Node>(dequantize->get_argument(1));
 
         if (!conv || !dequantize) {
+    std::cerr << "./inference-engine/src/inference_engine/transform/transformations/quantizeconv_dequantize_fusion.cpp:          if (!conv || !dequantize) {" << std::endl;
             return false;
         }
 

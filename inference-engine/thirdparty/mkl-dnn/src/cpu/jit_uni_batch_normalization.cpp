@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -80,7 +81,8 @@ struct jit_bnorm_t: public jit_generator {
     bool is_bf16_;
 
     void (*ker)(const call_params_t *);
-    void operator()(const call_params_t *p) { (*ker)(p); }
+    void operator()(const call_params_t *p) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void operator()(const call_params_t *p) {" << std::endl; (*ker)(p); }
 
     Reg64 reg_param = abi_param1;
 
@@ -173,10 +175,12 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void compute_static_strides() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void compute_static_strides() {" << std::endl;
         spat_size = bdesc_->D() * bdesc_->W() * bdesc_->H();
         chan_data_offt = bdesc_->C() * sizeof(acc_data_t);
 
         if (isa == avx512_mic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (isa == avx512_mic) {" << std::endl;
             t0_pf_offt = 4096;
             t1_pf_offt = 0;
         } else {
@@ -186,6 +190,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void load_common_params() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void load_common_params() {" << std::endl;
 #       define PARAM_OFF(x) offsetof(call_params_t, x)
         mov(reg_rbuf1, ptr[reg_param + PARAM_OFF(rbuf1)]);
         if (bdesc_->is_bwd())
@@ -219,6 +224,7 @@ struct jit_bnorm_t: public jit_generator {
         mov(reg_tmp, ptr[reg_param + PARAM_OFF(barrier)]);
         mov(ptr[rsp + stack_off_barrier], reg_tmp);
         if (is_spatial_thr_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (is_spatial_thr_) {" << std::endl;
             mov(reg_tmp, ptr[reg_param + PARAM_OFF(spat_size_loc)]);
             mov(ptr[rsp + stack_off_spat_size_loc], reg_tmp);
             mov(reg_tmp, ptr[reg_param + PARAM_OFF(S_s)]);
@@ -227,11 +233,13 @@ struct jit_bnorm_t: public jit_generator {
             mov(ptr[rsp + stack_off_s_tail], reg_tmp);
         }
         if (is_c_padded()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (is_c_padded()) {" << std::endl;
             mov(reg_tmp, ptr[reg_param + PARAM_OFF(is_cblk_tail)]);
             mov(ptr[rsp + stack_off_is_cblk_tail], reg_tmp);
         }
 
         if (bdesc_->is_fwd()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (bdesc_->is_fwd()) {" << std::endl;
             mov(reg_tmp, ptr[reg_param + PARAM_OFF(var)]);
             mov(reg_var, reg_tmp);
         } else {
@@ -244,6 +252,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void prepare_tail_mask_avx512_common() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void prepare_tail_mask_avx512_common() {" << std::endl;
         if (!is_c_padded()) return;
 
         const int tail = bdesc_->C() % (int)(vlen / sizeof(float));
@@ -255,6 +264,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void prepare_tail_mask_avx2_common() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void prepare_tail_mask_avx2_common() {" << std::endl;
         if (!is_c_padded()) return;
 
         const int tail = bdesc_->C() % (int)(vlen / sizeof(float));
@@ -267,6 +277,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void prepare_relu() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void prepare_relu() {" << std::endl;
         with_relu = bdesc_->is_fwd()
             ? bdesc_->with_relu_post_op() || bdesc_->fuse_bn_relu()
             : bdesc_->fuse_bn_relu();
@@ -275,6 +286,7 @@ struct jit_bnorm_t: public jit_generator {
 
         vzero = bdesc_->is_fwd() ? vdiff_beta : vbeta;
         if (with_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (with_relu) {" << std::endl;
             uni_vpxor(vzero, vzero, vzero);
             if (!bdesc_->is_fwd() && isa == avx2)
                 prepare_l_relu_mask_avx2();
@@ -282,6 +294,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void prepare_l_relu_mask_avx2() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void prepare_l_relu_mask_avx2() {" << std::endl;
         Label l_mask_after;
         jmp(l_mask_after);
         align(32);
@@ -291,6 +304,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void fwd_process_relu_avx2(Vmm vdst, int offt, Vmm vstore_mask) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void fwd_process_relu_avx2(Vmm vdst, int offt, Vmm vstore_mask) {" << std::endl;
         Reg64 reg_store_mask = reg_diff_scale_shift;
         shr(reg_soff, 5);
         vcmpps(vstore_mask, vzero, vdst, _cmp_lt_os);
@@ -301,6 +315,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void fwd_process_relu_avx512_common(Vmm vdst, int offt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void fwd_process_relu_avx512_common(Vmm vdst, int offt) {" << std::endl;
         int bs = 5 - is_bf16_; // bit shift depends on data type
         shr(reg_soff, bs);
         vcmpps(kstore_mask, vzero, vdst, _cmp_lt_os);
@@ -310,6 +325,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void bwd_process_relu_avx2(Vmm vdiff_dst, int offt, Vmm vstore_mask) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void bwd_process_relu_avx2(Vmm vdiff_dst, int offt, Vmm vstore_mask) {" << std::endl;
         shr(reg_soff, 5);
         vpbroadcastb(vstore_mask, ptr[reg_ws + reg_soff + offt / (1 << 5)]);
         vpand(vstore_mask, vstore_mask, ptr[rip + l_relu_mask_avx2]);
@@ -319,6 +335,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void bwd_process_relu_avx512_common(Vmm vdiff_dst, int offt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void bwd_process_relu_avx512_common(Vmm vdiff_dst, int offt) {" << std::endl;
         int bs = 5 - is_bf16_; // bit shift depends on data type
         shr(reg_soff, bs);
         kmovw(kstore_mask, ptr[reg_ws + reg_soff + offt / (1 << bs)]);
@@ -327,8 +344,11 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void uni_vmovups_spat_data(const Operand &dst, const Operand &src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void uni_vmovups_spat_data(const Operand &dst, const Operand &src) {" << std::endl;
         if (dst.isMEM()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (dst.isMEM()) {" << std::endl;
             if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (is_bf16_) {" << std::endl;
                 if (mayiuse(avx512_core_bf16))
                     vcvtneps2bf16(Ymm(src.getIdx()), Zmm(src.getIdx()));
                 else
@@ -340,6 +360,7 @@ struct jit_bnorm_t: public jit_generator {
             }
         } else {
             if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (is_bf16_) {" << std::endl;
                 vpmovzxwd(Zmm(dst.getIdx()), src.getAddress());
                 vpslld(Zmm(dst.getIdx()), Zmm(dst.getIdx()), 0x10);
             } else {
@@ -350,7 +371,9 @@ struct jit_bnorm_t: public jit_generator {
 
     void uni_vmovups_tail_avx2_common(const Operand &dst,
             const Operand &src, Label &l_ret) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              const Operand &src, Label &l_ret) {" << std::endl;
         if (dst.isMEM()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (dst.isMEM()) {" << std::endl;
             vmaskmovps(dst.getAddress(), vtail_mask, Vmm(src.getIdx()));
         } else {
             vmaskmovps(Vmm(dst.getIdx()), vtail_mask, src.getAddress());
@@ -360,6 +383,7 @@ struct jit_bnorm_t: public jit_generator {
 
     void uni_vmovups_tail_avx512_common(const Operand &dst,
             const Operand &src, Label &l_ret) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              const Operand &src, Label &l_ret) {" << std::endl;
         if (dst.isMEM())
             uni_vmovups(dst.getAddress() | ktail_mask | T_z, Vmm(src.getIdx()));
         else
@@ -369,9 +393,11 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void uni_vmovups_maybe_tail(const Operand &dst, const Operand &src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void uni_vmovups_maybe_tail(const Operand &dst, const Operand &src) {" << std::endl;
         Label l_no_mask, l_ret;
 
         if (is_c_padded()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (is_c_padded()) {" << std::endl;
             mov(reg_tmp, ptr[rsp + stack_off_is_cblk_tail]);
             cmp(reg_tmp, 0);
             jz(l_no_mask);
@@ -395,40 +421,48 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void barrier() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void barrier() {" << std::endl;
         mov(reg_nnthr, ptr[rsp + stack_off_N_nthr]);
         mov(reg_bar, ptr[rsp + stack_off_barrier]);
         simple_barrier::generate(*this, reg_bar, reg_nnthr);
     }
 
     Address mean_ptr(size_t offt = 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      Address mean_ptr(size_t offt = 0) {" << std::endl;
         return vmmword[reg_mean + reg_coff + offt + 0 * chan_data_offt];
     }
 
     Address var_ptr(size_t offt = 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      Address var_ptr(size_t offt = 0) {" << std::endl;
         return vmmword[reg_var + reg_coff + offt + 0 * chan_data_offt];
     }
 
     Address diff_gamma_ptr(size_t offt = 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      Address diff_gamma_ptr(size_t offt = 0) {" << std::endl;
         return vmmword[reg_diff_scale_shift + reg_coff + offt
             + 0 * chan_data_offt];
     }
 
     Address diff_beta_ptr(size_t offt = 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      Address diff_beta_ptr(size_t offt = 0) {" << std::endl;
         return vmmword[reg_diff_scale_shift + reg_coff + offt
             + 1 * chan_data_offt];
      }
 
     Address gamma_ptr(size_t offt = 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      Address gamma_ptr(size_t offt = 0) {" << std::endl;
         return vmmword[reg_scale_shift + reg_coff + offt + 0 * chan_data_offt];
     }
 
     Address beta_ptr(size_t offt = 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      Address beta_ptr(size_t offt = 0) {" << std::endl;
         return vmmword[reg_scale_shift + reg_coff + offt + 1 * chan_data_offt];
     }
 
     template <typename init_t, typename body_t, typename fini_t>
     void spat_loop(size_t len, size_t blocks, size_t regs,
             init_t init, body_t body, fini_t fini) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              init_t init, body_t body, fini_t fini) {" << std::endl;
         size_t factor = regs * blocks;
         size_t loop_unroll = len / factor * factor;
         size_t loop_tail = len - loop_unroll;
@@ -436,7 +470,9 @@ struct jit_bnorm_t: public jit_generator {
         for (size_t i = 0; i < num_active_regs; i++)
             init(i);
         if (loop_unroll) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (loop_unroll) {" << std::endl;
             if (is_spatial_thr_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (is_spatial_thr_) {" << std::endl;
                 mov(reg_ctr, ptr[rsp + stack_off_spat_size_loc]);
                 add(reg_soff, ptr[rsp + stack_off_s_s]);
             } else {
@@ -445,6 +481,7 @@ struct jit_bnorm_t: public jit_generator {
             Label label;
             L(label); {
                 for (size_t i = 0; i < factor; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                  for (size_t i = 0; i < factor; i++) {" << std::endl;
                     size_t base_reg = i % regs;
                     body(base_reg, i);
                 }
@@ -453,11 +490,13 @@ struct jit_bnorm_t: public jit_generator {
                 jnz(label);
             }
             if (is_spatial_thr_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (is_spatial_thr_) {" << std::endl;
                 add(reg_soff, ptr[rsp + stack_off_s_tail]);
             }
         }
 
         for (size_t i = 0; i < loop_tail; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          for (size_t i = 0; i < loop_tail; i++) {" << std::endl;
             size_t base_reg = i % regs;
             body(base_reg, i);
         }
@@ -469,17 +508,20 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void mean_channels() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void mean_channels() {" << std::endl;
         Label ch_label;
         L(ch_label); {
             uni_vmovups(Vmm(0), vmmword[reg_rbuf1 + reg_coff]);
             spat_loop(spat_size, unroll_blocks,
                 unroll_regs,
                     [=](size_t base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                      [=](size_t base_reg) {" << std::endl;
                         Vmm v = Vmm(base_reg * 2);
                         if (base_reg)
                             uni_vpxor(v, v, v);
                     },
                     [=](size_t base_reg, size_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                      [=](size_t base_reg, size_t i) {" << std::endl;
                         Vmm v0 = Vmm(base_reg * 2 + 0);
                         Vmm v1 = Vmm(base_reg * 2 + 1);
                         size_t offt = i * vlen_spat_data_;
@@ -492,6 +534,7 @@ struct jit_bnorm_t: public jit_generator {
                                 + t1_pf_offt]);
                     },
                     [=](size_t base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                      [=](size_t base_reg) {" << std::endl;
                         Vmm b = Vmm(0);
                         Vmm v = Vmm(base_reg * 2);
                         if (base_reg)
@@ -506,17 +549,20 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void var_channels() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void var_channels() {" << std::endl;
         Label ch_label;
         L(ch_label); {
             uni_vmovups_maybe_tail(vmean, mean_ptr());
             uni_vmovups(Vmm(0), vmmword[reg_rbuf1 + reg_coff]);
             spat_loop(spat_size, unroll_blocks, unroll_regs,
                     [=](size_t base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                      [=](size_t base_reg) {" << std::endl;
                         Vmm v = Vmm(base_reg * 3);
                         if (base_reg > 0)
                             uni_vpxor(v, v, v);
                     },
                     [=](size_t base_reg, size_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                      [=](size_t base_reg, size_t i) {" << std::endl;
                         Vmm v = Vmm(3 * base_reg);
                         Vmm vtmp0 = Vmm(3 * base_reg + 1);
                         Vmm vtmp1 = Vmm(3 * base_reg + 2);
@@ -524,6 +570,7 @@ struct jit_bnorm_t: public jit_generator {
                         uni_vmovups_spat_data(
                                 vtmp0, vmmword[reg_src + reg_soff + offt]);
                         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          if (isa == sse42) {" << std::endl;
                             movups(vtmp1, vmean);
                             subps(vtmp1, vtmp0);
                         } else {
@@ -537,6 +584,7 @@ struct jit_bnorm_t: public jit_generator {
                                 + t1_pf_offt]);
                     },
                     [=](size_t base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                      [=](size_t base_reg) {" << std::endl;
                         Vmm b = Vmm(0);
                         Vmm v = Vmm(base_reg * 3);
                         if (base_reg)
@@ -550,6 +598,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void compute_mean_variance() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void compute_mean_variance() {" << std::endl;
         uni_vpxor(Vmm(0), Vmm(0), Vmm(0));
         xor_(reg_coff, reg_coff);
         Label zero_rbuf;
@@ -573,6 +622,7 @@ struct jit_bnorm_t: public jit_generator {
             mean_channels();
 
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (isa == sse42) {" << std::endl;
                 mov(reg_soff, reg_tmp_off);
                 add(reg_src, vlen / 2);
                 mov(reg_coff, vlen / 2);
@@ -631,6 +681,7 @@ struct jit_bnorm_t: public jit_generator {
             var_channels();
 
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (isa == sse42) {" << std::endl;
                 mov(reg_soff, reg_tmp_off);
                 add(reg_src, vlen / 2);
                 mov(reg_coff, vlen / 2);
@@ -678,6 +729,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void forward_channels() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void forward_channels() {" << std::endl;
         Label ch_label;
         L(ch_label); {
             uni_vmovups_maybe_tail(vmean, mean_ptr());
@@ -686,6 +738,7 @@ struct jit_bnorm_t: public jit_generator {
             uni_vsqrtps(vsqrtvar, vsqrtvar);
 
             if (bdesc_->use_scaleshift()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (bdesc_->use_scaleshift()) {" << std::endl;
                 uni_vmovups_maybe_tail(vgamma, gamma_ptr());
                 uni_vmovups_maybe_tail(vbeta, beta_ptr());
             }
@@ -694,6 +747,7 @@ struct jit_bnorm_t: public jit_generator {
             Vmm vdiv = bdesc_->use_scaleshift() ? vgamma : vsqrtvar;
 
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (isa == sse42) {" << std::endl;
                 movups(vbuf, vscale);
                 divps(vbuf, vsqrtvar);
                 movups(vdiv, vbuf);
@@ -702,9 +756,12 @@ struct jit_bnorm_t: public jit_generator {
             }
 
             auto compute = [=](bool output_is_aligned) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              auto compute = [=](bool output_is_aligned) {" << std::endl;
                 spat_loop(spat_size, unroll_blocks, unroll_regs,
-                        [](size_t base_reg) {UNUSED(base_reg);},
+                        [](size_t base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          [](size_t base_reg) {" << std::endl;UNUSED(base_reg);},
                         [=](size_t base_reg, size_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          [=](size_t base_reg, size_t i) {" << std::endl;
                              Vmm v = Vmm(base_reg);
                              size_t offt = i * vlen_spat_data_;
                              uni_vmovups_spat_data(
@@ -715,19 +772,23 @@ struct jit_bnorm_t: public jit_generator {
                                      + t1_pf_offt]);
                              uni_vsubps(v, v, vmean);
                              if (bdesc_->use_scaleshift()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                               if (bdesc_->use_scaleshift()) {" << std::endl;
                                  uni_vfmadd213ps(v, vgamma, vbeta);
                              } else {
                                 uni_vmulps(v, v, vsqrtvar);
                              }
                              if (with_relu_inf_only) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                               if (with_relu_inf_only) {" << std::endl;
                                  uni_vmaxps(v, v, vzero);
                              } else if (with_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                               } else if (with_relu) {" << std::endl;
                                  if (isa == avx512_common)
                                      fwd_process_relu_avx512_common(v, offt);
                                  else
                                      fwd_process_relu_avx2(v, offt, Vmm(3));
                              }
                              if (output_is_aligned) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                               if (output_is_aligned) {" << std::endl;
                                  uni_vmovntps(
                                      vmmword[reg_dst + reg_soff + offt], v);
                              } else {
@@ -735,10 +796,12 @@ struct jit_bnorm_t: public jit_generator {
                                          vmmword[reg_dst + reg_soff + offt], v);
                              }
                         },
-                        [](size_t base_reg) {UNUSED(base_reg);});
+                        [](size_t base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          [](size_t base_reg) {" << std::endl;UNUSED(base_reg);});
             };
 
             if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (is_bf16_) {" << std::endl;
                 compute(false); // no mask-able NT store for BF16
             } else {
                 Label unaligned_store, end_store;
@@ -759,6 +822,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void forward() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void forward() {" << std::endl;
         mov(reg_src, ptr[rsp + stack_off_src]);
         mov(reg_dst, ptr[rsp + stack_off_dst]);
         mov(reg_ws, ptr[rsp + stack_off_ws]);
@@ -773,6 +837,7 @@ struct jit_bnorm_t: public jit_generator {
             forward_channels();
 
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (isa == sse42) {" << std::endl;
                 mov(reg_soff, reg_tmp_off);
                 add(reg_src, vlen / 2);
                 add(reg_dst, vlen / 2);
@@ -791,6 +856,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void backward_sh_channels() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void backward_sh_channels() {" << std::endl;
         Label sh_channels;
         L(sh_channels); {
             uni_vmovups_maybe_tail(vmean, mean_ptr());
@@ -798,14 +864,18 @@ struct jit_bnorm_t: public jit_generator {
             uni_vmovups(Vmm(1), vmmword[reg_rbuf2 + reg_coff]);
             spat_loop(spat_size, 1, 1,
                     [=](size_t base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                      [=](size_t base_reg) {" << std::endl;
                         if (base_reg > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          if (base_reg > 0) {" << std::endl;
                             for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                              for (int i = 0; i < 2; i++) {" << std::endl;
                                 Vmm v(base_reg * 5 + i);
                                 uni_vpxor(v, v, v);
                             }
                         }
                     },
                     [=](size_t base_reg, size_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                      [=](size_t base_reg, size_t i) {" << std::endl;
                         Vmm o0 = Vmm(base_reg * 5 + 0);
                         Vmm o1 = Vmm(base_reg * 5 + 1);
                         Vmm t1 = Vmm(base_reg * 5 + 2);
@@ -817,6 +887,7 @@ struct jit_bnorm_t: public jit_generator {
                         uni_vmovups_spat_data(
                                 t2, vmmword[reg_diff_dst + reg_soff + offt]);
                         if (with_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          if (with_relu) {" << std::endl;
                             if (isa == avx512_common)
                                 bwd_process_relu_avx512_common(t2, offt);
                             else if (isa == avx2)
@@ -826,6 +897,7 @@ struct jit_bnorm_t: public jit_generator {
                         }
                         uni_vsubps(t3, vmean, t1, t3);
                         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          if (isa == sse42) {" << std::endl;
                             mulps(t3, t2);
                             subps(o0, t3);
                         } else {
@@ -842,9 +914,11 @@ struct jit_bnorm_t: public jit_generator {
                                 + t1_pf_offt]);
                     },
                     [=](size_t base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                      [=](size_t base_reg) {" << std::endl;
                         Vmm b0 = Vmm(0);
                         Vmm b1 = Vmm(1);
                         if (base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          if (base_reg) {" << std::endl;
                             uni_vaddps(b0, b0, Vmm(base_reg * 5 + 0));
                             uni_vaddps(b1, b1, Vmm(base_reg * 5 + 1));
                         }
@@ -858,6 +932,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void backward_diff_channels() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void backward_diff_channels() {" << std::endl;
         Label diff_channels;
         L(diff_channels); {
             uni_vmovups_maybe_tail(vmean, mean_ptr());
@@ -874,9 +949,12 @@ struct jit_bnorm_t: public jit_generator {
             uni_vdivps(vdiff_gamma, vdiff_gamma, vchan_size);
 
             auto compute = [=](bool output_is_aligned) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              auto compute = [=](bool output_is_aligned) {" << std::endl;
                 spat_loop(spat_size, unroll_blocks, unroll_regs,
-                        [=](size_t base_reg) {UNUSED(base_reg);},
+                        [=](size_t base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          [=](size_t base_reg) {" << std::endl;UNUSED(base_reg);},
                         [=](size_t base_reg, size_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          [=](size_t base_reg, size_t i) {" << std::endl;
                             Vmm v(base_reg * 2 + 0);
                             Vmm t(base_reg * 2 + 1);
                             Vmm t1(base_reg * 2 + 2);
@@ -884,6 +962,7 @@ struct jit_bnorm_t: public jit_generator {
                             uni_vmovups_spat_data(
                                     v, vmmword[reg_diff_dst + reg_soff + offt]);
                             if (with_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                              if (with_relu) {" << std::endl;
                                 if (isa == avx512_common)
                                     bwd_process_relu_avx512_common(v, offt);
                                 else if (isa == avx2)
@@ -892,6 +971,7 @@ struct jit_bnorm_t: public jit_generator {
                                     assert(false);
                             }
                             if (!bdesc_->use_global_stats()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                              if (!bdesc_->use_global_stats()) {" << std::endl;
                                 uni_vsubps(v, v, vdiff_beta);
                                 uni_vmovups_spat_data(
                                         t, vmmword[reg_src + reg_soff + offt]);
@@ -901,9 +981,11 @@ struct jit_bnorm_t: public jit_generator {
                             }
                             uni_vmulps(v, v, vsqrtvar);
                             if (bdesc_->use_scaleshift()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                              if (bdesc_->use_scaleshift()) {" << std::endl;
                                 uni_vmulps(v, v, vgamma);
                             }
                             if (output_is_aligned) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                              if (output_is_aligned) {" << std::endl;
                                 uni_vmovntps(
                                     vmmword[reg_diff_src + reg_soff + offt],
                                     v);
@@ -921,10 +1003,12 @@ struct jit_bnorm_t: public jit_generator {
                             mic_prefetcht1(ptr[reg_src + reg_soff + offt
                                     + t1_pf_offt]);
                         },
-                        [=](size_t base_reg) {UNUSED(base_reg);});
+                        [=](size_t base_reg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:                          [=](size_t base_reg) {" << std::endl;UNUSED(base_reg);});
             };
 
             if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (is_bf16_) {" << std::endl;
                 compute(false); // no mask-able NT store for BF16
             } else {
                 Label unaligned_store, end_store;
@@ -945,6 +1029,7 @@ struct jit_bnorm_t: public jit_generator {
     }
 
     void backward() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void backward() {" << std::endl;
         uni_vpxor(Vmm(0), Vmm(0), Vmm(0));
         xor_(reg_coff, reg_coff);
         Label zero_rbuf, sh_spatial;
@@ -960,6 +1045,7 @@ struct jit_bnorm_t: public jit_generator {
         mov(reg_src, ptr[rsp + stack_off_src]);
         mov(reg_diff_dst, ptr[rsp + stack_off_diff_dst]);
         if (with_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (with_relu) {" << std::endl;
             assert(isa == avx2 || isa == avx512_common);
             mov(reg_ws, ptr[rsp + stack_off_ws]);
         }
@@ -968,10 +1054,12 @@ struct jit_bnorm_t: public jit_generator {
         L(sh_spatial); {
             xor_(reg_coff, reg_coff);
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (isa == sse42) {" << std::endl;
                 mov(reg_tmp_off, reg_soff);
             }
             backward_sh_channels();
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (isa == sse42) {" << std::endl;
                 mov(reg_soff, reg_tmp_off);
                 add(reg_diff_dst, vlen / 2);
                 add(reg_src, vlen / 2);
@@ -1026,6 +1114,7 @@ struct jit_bnorm_t: public jit_generator {
 
         mov(reg_diff_src, ptr[rsp + stack_off_diff_src]);
         if (with_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (with_relu) {" << std::endl;
             assert(isa == avx2 || isa == avx512_common);
             mov(reg_ws, ptr[rsp + stack_off_ws]);
         }
@@ -1035,10 +1124,12 @@ struct jit_bnorm_t: public jit_generator {
         L(diff_spatial); {
             xor_(reg_coff, reg_coff);
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (isa == sse42) {" << std::endl;
                 mov(reg_tmp_off, reg_soff);
             }
             backward_diff_channels();
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (isa == sse42) {" << std::endl;
                 mov(reg_soff, reg_tmp_off);
                 add(reg_diff_dst, vlen / 2);
                 add(reg_diff_src, vlen / 2);
@@ -1057,6 +1148,7 @@ struct jit_bnorm_t: public jit_generator {
 
     jit_bnorm_t(const batch_normalization_pd_t *bdesc)
         : bdesc_(bdesc), bf16_emu_() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          : bdesc_(bdesc), bf16_emu_() {" << std::endl;
         static_assert(isa == sse42 || isa == avx2 || isa == avx512_common
                 || isa == avx512_mic, "unsupported isa");
 
@@ -1075,8 +1167,10 @@ struct jit_bnorm_t: public jit_generator {
         preamble();
 
         if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (is_bf16_) {" << std::endl;
             // init emulation of bfloat16 operations
             if (!mayiuse(avx512_core_bf16)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (!mayiuse(avx512_core_bf16)) {" << std::endl;
                 bf16_emu_ = new bf16_emulation_t(this, vcvt_bf16_one,
                         vcvt_bf16_eve, vcvt_bf16_sel, reg_bf16_tmp,
                         vcvt_bf16_tmp, vcvt_bf16_tmp);
@@ -1095,7 +1189,9 @@ struct jit_bnorm_t: public jit_generator {
         prepare_relu();
 
         if (bdesc_->is_fwd()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (bdesc_->is_fwd()) {" << std::endl;
             if (!bdesc_->stats_is_src()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (!bdesc_->stats_is_src()) {" << std::endl;
                 compute_mean_variance();
             }
             forward();
@@ -1109,13 +1205,15 @@ struct jit_bnorm_t: public jit_generator {
                     this->getCode()));
     }
 
-    ~jit_bnorm_t() { delete bf16_emu_; }
+    ~jit_bnorm_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      ~jit_bnorm_t() {" << std::endl; delete bf16_emu_; }
 };
 
 template <cpu_isa_t isa>
 struct uni_bnorm_driver_t: public c_compatible {
     uni_bnorm_driver_t(const batch_normalization_pd_t *bdesc)
         : bdesc_(bdesc), ker_(bdesc_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          : bdesc_(bdesc), ker_(bdesc_) {" << std::endl;
         const int nthrs = mkldnn_get_max_threads();
         const dim_t C_PADDED = get_c_padded(bdesc_);
 
@@ -1128,10 +1226,12 @@ struct uni_bnorm_driver_t: public c_compatible {
         do_blocking_ = (data_size >= l3_size_ / 2 && l3_size_ > 0);
     }
 
-    ~uni_bnorm_driver_t() {}
+    ~uni_bnorm_driver_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      ~uni_bnorm_driver_t() {" << std::endl;}
 
     static void init_scratchpad(memory_tracking::registrar_t &scratchpad,
             const batch_normalization_pd_t *bdesc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              const batch_normalization_pd_t *bdesc) {" << std::endl;
         int nthrs = mkldnn_get_max_threads();
         dim_t C_PADDED = get_c_padded(bdesc);
 
@@ -1144,6 +1244,7 @@ struct uni_bnorm_driver_t: public c_compatible {
         scratchpad.book(key_bnorm_reduction, sizeof(acc_data_t) * rbuf_sz);
 
         if (mkldnn_thr_syncable()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (mkldnn_thr_syncable()) {" << std::endl;
             int n_barriers = C_PADDED / simd_w;
             scratchpad.book(key_barrier, sizeof(barrier::ctx_t) * n_barriers);
         }
@@ -1154,6 +1255,7 @@ struct uni_bnorm_driver_t: public c_compatible {
             acc_data_t *diff_scale_shift, const acc_data_t *mean,
             const acc_data_t *var, const uint8_t *ws,
             const memory_tracking::grantor_t &scratchpad) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              const memory_tracking::grantor_t &scratchpad) {" << std::endl;
         auto sbuf = scratchpad.get<acc_data_t>(key_bnorm_tmp_stats);
         auto pbuf = scratchpad.get<acc_data_t>(key_bnorm_tmp_diff_ss);
         auto rbuf = scratchpad.get<acc_data_t>(key_bnorm_reduction);
@@ -1183,6 +1285,7 @@ struct uni_bnorm_driver_t: public c_compatible {
 
         int C_blks_per_iter{ 1 }, iters{ 1 };
         if (do_blocking_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (do_blocking_) {" << std::endl;
             int num_tensors = bdesc_->is_fwd() ? 1 : 2;
             size_t working_set_size
                     = dt_size_ * (N * D * H * W * simd_w) * num_tensors;
@@ -1207,7 +1310,9 @@ struct uni_bnorm_driver_t: public c_compatible {
         int global_barriers_per_iter = C_nthr;
 
         for (int it = 0; it < iters; it++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          for (int it = 0; it < iters; it++) {" << std::endl;
             if (it == iters - 1 && iters > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:              if (it == iters - 1 && iters > 1) {" << std::endl;
                 C_blk_s = C_blk_e = N_s = N_e = 0;
                 spatial_thr_allowed = bnorm_utils::thread_balance(do_blocking_,
                         spatial_thr_allowed, ithr, nthr, N, last_iter_blks, SP,
@@ -1267,8 +1372,10 @@ struct uni_bnorm_driver_t: public c_compatible {
     }
 
     void init_barriers(const memory_tracking::grantor_t &scratchpad) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      void init_barriers(const memory_tracking::grantor_t &scratchpad) {" << std::endl;
         auto barriers = scratchpad.get<barrier::ctx_t>(key_barrier);
         if (barriers) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          if (barriers) {" << std::endl;
             const int n_barriers = get_c_padded(bdesc_) / simd_w;
             for (int i = 0; i < n_barriers; ++i)
                 barrier::ctx_init(&barriers[i]);
@@ -1282,6 +1389,7 @@ private:
     };
 
     static bool use_tmp_stats(const batch_normalization_pd_t *bdesc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      static bool use_tmp_stats(const batch_normalization_pd_t *bdesc) {" << std::endl;
         return true
             && !bdesc->stats_is_src()
             && bdesc->desc()->prop_kind == prop_kind::forward_inference;
@@ -1289,13 +1397,15 @@ private:
 
     static bool use_tmp_diff_scale_shift(const batch_normalization_pd_t *bdesc)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      static bool use_tmp_diff_scale_shift(const batch_normalization_pd_t *bdesc)     {" << std::endl;
         return false
             || (bdesc->is_bwd() && !bdesc->use_scaleshift())
             || bdesc->desc()->prop_kind == prop_kind::backward_data;
     }
 
     static dim_t get_c_padded(const batch_normalization_pd_t *bdesc)
-    { return bdesc->src_pd()->desc()->layout_desc.blocking.padding_dims[1]; }
+    {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      static dim_t get_c_padded(const batch_normalization_pd_t *bdesc)     {" << std::endl; return bdesc->src_pd()->desc()->layout_desc.blocking.padding_dims[1]; }
 
     const batch_normalization_pd_t *bdesc_;
     jit_bnorm_t<isa> ker_;
@@ -1316,6 +1426,7 @@ using namespace utils;
 /* fwd */
 template <cpu_isa_t isa, data_type_t d_type>
 status_t jit_uni_batch_normalization_fwd_t<isa, d_type>::pd_t::init() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:  status_t jit_uni_batch_normalization_fwd_t<isa, d_type>::pd_t::init() {" << std::endl;
     assert(engine()->kind() == engine_kind::cpu);
     auto desired_fmt = (ndims() == 4)
         ? isa == avx512_common ? nChw16c : nChw8c
@@ -1335,6 +1446,7 @@ status_t jit_uni_batch_normalization_fwd_t<isa, d_type>::pd_t::init() {
     if (!ok) return status::unimplemented;
 
     if (is_training() && fuse_bn_relu()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      if (is_training() && fuse_bn_relu()) {" << std::endl;
         if (isa < avx2) return status::unimplemented;
         bn_init_default_ws(this, this->workspace_pd_, 1);
     }
@@ -1344,6 +1456,7 @@ status_t jit_uni_batch_normalization_fwd_t<isa, d_type>::pd_t::init() {
         return status::unimplemented;
 
     if (stats_is_src() || is_training()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      if (stats_is_src() || is_training()) {" << std::endl;
         memory_desc_t stats_d;
         dims_t stats_dims = { C() };
         mkldnn_memory_desc_init(&stats_d, 1, stats_dims, f32, x);
@@ -1362,6 +1475,7 @@ jit_uni_batch_normalization_fwd_t<isa,
         d_type>::jit_uni_batch_normalization_fwd_t(const pd_t *apd,
         const input_vector &inputs, const output_vector &outputs)
     : cpu_primitive_t(apd, inputs, outputs) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      : cpu_primitive_t(apd, inputs, outputs) {" << std::endl;
     bnorm_driver_ = new uni_bnorm_driver_t<isa>(pd());
 }
 
@@ -1386,6 +1500,7 @@ void jit_uni_batch_normalization_fwd_t<isa, d_type>::execute(event_t *e) const {
             this->input_memory(idx_scale_shift));
 
     parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {" << std::endl;
         bnorm_driver_->exec(ithr, nthr, src, nullptr, dst, nullptr,
                 scale_shift, nullptr, mean, var, ws, scratchpad);
     });
@@ -1395,11 +1510,13 @@ void jit_uni_batch_normalization_fwd_t<isa, d_type>::execute(event_t *e) const {
 template <cpu_isa_t isa, data_type_t d_type>
 jit_uni_batch_normalization_fwd_t<isa,
         d_type>::~jit_uni_batch_normalization_fwd_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          d_type>::~jit_uni_batch_normalization_fwd_t() {" << std::endl;
     delete bnorm_driver_;
 }
 
 template <cpu_isa_t isa, data_type_t d_type>
 status_t jit_uni_batch_normalization_bwd_t<isa, d_type>::pd_t::init() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:  status_t jit_uni_batch_normalization_bwd_t<isa, d_type>::pd_t::init() {" << std::endl;
     assert(engine()->kind() == engine_kind::cpu);
     auto desired_fmt = (ndims() == 4)
         ? one_of(isa, sse42, avx2) ? nChw8c : nChw16c
@@ -1426,6 +1543,7 @@ status_t jit_uni_batch_normalization_bwd_t<isa, d_type>::pd_t::init() {
         return status::unimplemented;
 
     if (fuse_bn_relu()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      if (fuse_bn_relu()) {" << std::endl;
         if (isa < avx2) return status::unimplemented;
         bn_init_default_ws(this, this->workspace_pd_, 1);
         size_t this_ws_sz = memory_desc_wrapper(this->workspace_pd()).size();
@@ -1449,6 +1567,7 @@ jit_uni_batch_normalization_bwd_t<isa,
         d_type>::jit_uni_batch_normalization_bwd_t(const pd_t *apd,
         const input_vector &inputs, const output_vector &outputs)
     : cpu_primitive_t(apd, inputs, outputs) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      : cpu_primitive_t(apd, inputs, outputs) {" << std::endl;
     bnorm_driver_ = new uni_bnorm_driver_t<isa>(pd());
 }
 
@@ -1470,6 +1589,7 @@ void jit_uni_batch_normalization_bwd_t<isa, d_type>::execute(event_t *e) const {
     bnorm_driver_->init_barriers(scratchpad);
 
     parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:      parallel(0, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {" << std::endl;
         bnorm_driver_->exec(ithr, nthr, src, diff_src, nullptr, diff_dst,
                 scale_shift, diff_scale_shift, mean, var, ws, scratchpad);
     });
@@ -1479,6 +1599,7 @@ void jit_uni_batch_normalization_bwd_t<isa, d_type>::execute(event_t *e) const {
 template <cpu_isa_t isa, data_type_t d_type>
 jit_uni_batch_normalization_bwd_t<isa,
         d_type>::~jit_uni_batch_normalization_bwd_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_batch_normalization.cpp:          d_type>::~jit_uni_batch_normalization_bwd_t() {" << std::endl;
     delete bnorm_driver_;
 }
 

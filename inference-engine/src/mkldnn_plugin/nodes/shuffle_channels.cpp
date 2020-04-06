@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,9 +20,11 @@ class ShuffleChannelsImpl: public ExtLayerBase {
 #define CNTR_SIZE 3
 
 __inline size_t initter(size_t start, size_t size, size_t* counters, size_t* own_dims, size_t* ownStrides) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:  __inline size_t initter(size_t start, size_t size, size_t* counters, size_t* own_dims, size_t* ownStrides) {" << std::endl;
     size_t i = start;
     size_t idx = 0;
     for (int j = size - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:      for (int j = size - 1; j >= 0; j--) {" << std::endl;
         counters[j] = i % own_dims[j];
         idx += counters[j] * ownStrides[j];
         i /= own_dims[j];
@@ -30,10 +33,13 @@ __inline size_t initter(size_t start, size_t size, size_t* counters, size_t* own
 }
 
 __inline size_t updater(size_t idx, size_t size, size_t* counters, size_t* own_dims, size_t* ownStrides) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:  __inline size_t updater(size_t idx, size_t size, size_t* counters, size_t* own_dims, size_t* ownStrides) {" << std::endl;
     size_t i = 1;
     for (int j = size - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:      for (int j = size - 1; j >= 0; j--) {" << std::endl;
         counters[j]++;
         if (counters[j] < own_dims[j]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:          if (counters[j] < own_dims[j]) {" << std::endl;
             idx += ownStrides[j];
             break;
         } else {
@@ -42,6 +48,7 @@ __inline size_t updater(size_t idx, size_t size, size_t* counters, size_t* own_d
         }
     }
     if (!i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:      if (!i) {" << std::endl;
         for (idx = 0; i < CNTR_SIZE; ++i)
             idx += counters[i] * ownStrides[i];
     }
@@ -50,6 +57,7 @@ __inline size_t updater(size_t idx, size_t size, size_t* counters, size_t* own_d
 
 public:
     explicit ShuffleChannelsImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:      explicit ShuffleChannelsImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -96,6 +104,7 @@ public:
 
             addConfig(layer, { DataConfigurator(ConfLayout::PLN) }, { DataConfigurator(ConfLayout::PLN) });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -107,13 +116,16 @@ public:
             outputs[0]->getTensorDesc().getBlockingDesc().getOffsetPadding();
 
         if (dataLength > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:          if (dataLength > 1) {" << std::endl;
             //  Vectorized & Parallel
             parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:              parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
                 size_t start = 0, end = 0, src_idx = 0;
                 size_t counters[CNTR_SIZE] = { 0 };
                 splitter(work_amount_dst, nthr, ithr, start, end);
                 src_idx = initter(start, CNTR_SIZE, counters, own_dims, ownStrides);
                 for (size_t iwork = start, dst_idx = start * dataLength; iwork < end; ++iwork, dst_idx += dataLength) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:                  for (size_t iwork = start, dst_idx = start * dataLength; iwork < end; ++iwork, dst_idx += dataLength) {" << std::endl;
                     memcpy(&dst_data[dst_idx], &src_data[dataLength * src_idx], sizeof(float) * dataLength);
                     src_idx = updater(src_idx, CNTR_SIZE, counters, own_dims, ownStrides);
                 }
@@ -121,11 +133,13 @@ public:
         } else {
             //  Parallel
             parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:              parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
                 size_t start = 0, end = 0, src_idx = 0;
                 size_t counters[CNTR_SIZE] = { 0 };
                 splitter(work_amount_dst, nthr, ithr, start, end);
                 src_idx = initter(start, CNTR_SIZE, counters, own_dims, ownStrides);
                 for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/shuffle_channels.cpp:                  for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
                     dst_data[iwork] = src_data[src_idx];
                     src_idx = updater(src_idx, CNTR_SIZE, counters, own_dims, ownStrides);
                 }

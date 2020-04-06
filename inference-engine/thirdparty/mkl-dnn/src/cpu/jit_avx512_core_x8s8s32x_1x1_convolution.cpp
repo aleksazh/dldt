@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -37,6 +38,7 @@ template <typename T, typename U>
 void balance2D(U nthr, U ithr, T ny, T &ny_start, T &ny_end,
     T nx, T &nx_start, T &nx_end, T nx_divider)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      T nx, T &nx_start, T &nx_end, T nx_divider) {" << std::endl;
     const T grp_size = utils::div_up(nthr, nx_divider);
     const T grp_count = utils::div_up(nthr, grp_size);
 
@@ -45,6 +47,7 @@ void balance2D(U nthr, U ithr, T ny, T &ny_start, T &ny_end,
     T grp_nthr = grp_size;
     T first_grps = nthr % grp_count;
     if (first_grps > 0 && grp >= first_grps) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      if (first_grps > 0 && grp >= first_grps) {" << std::endl;
         ithr -= first_grps * grp_size;
         grp_nthr--;
         grp = ithr / grp_nthr + first_grps;
@@ -69,12 +72,14 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t
     auto scratchpad = this->scratchpad();
 
     if (pd()->jcp_.signed_input && pd()->jcp_.ver != ver_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      if (pd()->jcp_.signed_input && pd()->jcp_.ver != ver_vnni) {" << std::endl;
         auto local_scales = scratchpad.template get<float>(
                 key_conv_adjusted_scales);
         auto scales = pd()->attr()->output_scales_.scales_;
         size_t count = pd()->attr()->output_scales_.count_;
         float factor = 1.f / pd()->jcp_.wei_adj_scale;
         if (count == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:          if (count == 1) {" << std::endl;
             utils::array_set(local_scales, scales[0] * factor, 16);
         } else {
             for (size_t c = 0; c < count; c++)
@@ -85,6 +90,7 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t
     const int work_amount = pd()->jcp_.mb * pd()->jcp_.ngroups * pd()->jcp_.nb_bcast * pd()->jcp_.nb_load;
 
     parallel(kernel_->jcp.nthr, (size_t)work_amount, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      parallel(kernel_->jcp.nthr, (size_t)work_amount, [&](const int ithr, const int nthr) {" << std::endl;
         execute_forward_thr(ithr, nthr, src, weights, bias, dst, scratchpad);
     });
 }
@@ -121,6 +127,7 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
                             (jcp.with_input_zp) ? pd()->attr()->output_compensations_.shifts_ : 0;
 
     auto step = [](int default_step, int remaining, int tail_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      auto step = [](int default_step, int remaining, int tail_step) {" << std::endl;
         assert(default_step <= tail_step);
         return remaining < tail_step ? remaining : default_step;
     };
@@ -136,6 +143,7 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
         jcp.nb_load / jcp.nb_load_chunk, ocb_start, ocb_end,
         jcp.load_grp_count);
     if (jcp.nb_load_chunk > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      if (jcp.nb_load_chunk > 1) {" << std::endl;
         ocb_start *= jcp.nb_load_chunk;
         ocb_end *= jcp.nb_load_chunk;
     }
@@ -143,6 +151,7 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
     auto init_bcast = [&](int iwork, int &n, int &g, int &bcast_step,
             int &oh, int &ow, int &ih, int &iw)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:              int &oh, int &ow, int &ih, int &iw)     {" << std::endl;
         int osb{0};
         nd_iterator_init(iwork, n, jcp.mb, g, jcp.ngroups, osb,
             jcp.nb_bcast);
@@ -165,6 +174,7 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
 
     auto init_load = [&](int ocb, int &load_step)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      auto init_load = [&](int ocb, int &load_step)     {" << std::endl;
         load_step = step(jcp.nb_load_blocking, ocb_end - ocb,
             jcp.nb_load_blocking_max);
         p.load_dim = this_block_size(ocb * jcp.oc_block,
@@ -179,6 +189,7 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
 
     auto init_reduce = [&]()
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      auto init_reduce = [&]()     {" << std::endl;
         p.reduce_dim = this_block_size(0, jcp.ic, jcp.ic);
         rp.icb = p.reduce_dim / jcp.reduce_block;
     };
@@ -186,6 +197,7 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
     auto inner_ker = [&](int ocb, int n, int g, int oh, int ow,
             int ih, int iw)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:              int ih, int iw)     {" << std::endl;
         const int icb = 0; // Start from the first IC block
         const int _ocb = g * nb_oc + ocb;
         const int _icb = g;
@@ -203,9 +215,11 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
             ? &local_scales[jcp.is_oc_scale * _ocb * jcp.oc_block]
             : &oscales.scales_[jcp.is_oc_scale * _ocb * jcp.oc_block];
         if (pd()->rtus_.reduce_src_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:          if (pd()->rtus_.reduce_src_) {" << std::endl;
             rp.ws = rtus_space + ithr * pd()->rtus_.space_per_thread_
                 + _icb * jcp.is * jcp.ic_block;
             if (ocb == ocb_start) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:              if (ocb == ocb_start) {" << std::endl;
                 rp.src = src + src_d.blk_off(n, _icb * jcp.ic_block, ih, iw);
                 rtus_driver_->ker_(&rp);
             }
@@ -219,13 +233,16 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
     };
 
     if (jcp.loop_order == loop_rlb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      if (jcp.loop_order == loop_rlb) {" << std::endl;
         init_reduce();
         int ocb = ocb_start;
         while (ocb < ocb_end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:          while (ocb < ocb_end) {" << std::endl;
             int load_step;
             init_load(ocb, load_step);
             int iwork = bcast_start;
             while (iwork < bcast_end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:              while (iwork < bcast_end) {" << std::endl;
                 int n, g, bcast_step, oh, ow, ih, iw;
                 init_bcast(iwork, n, g, bcast_step, oh, ow, ih, iw);
                 inner_ker(ocb, n, g, oh, ow, ih, iw);
@@ -234,12 +251,15 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
             ocb += load_step;
         }
     } else if (jcp.loop_order == loop_lbr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      } else if (jcp.loop_order == loop_lbr) {" << std::endl;
         int ocb = ocb_start;
         while (ocb < ocb_end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:          while (ocb < ocb_end) {" << std::endl;
             int load_step;
             init_load(ocb, load_step);
             int iwork = bcast_start;
             while (iwork < bcast_end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:              while (iwork < bcast_end) {" << std::endl;
                 int n, g, bcast_step, oh, ow, ih, iw;
                 init_bcast(iwork, n, g, bcast_step, oh, ow, ih, iw);
                 init_reduce();
@@ -249,13 +269,16 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
             ocb += load_step;
         }
     } else if (jcp.loop_order == loop_rbl) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      } else if (jcp.loop_order == loop_rbl) {" << std::endl;
         init_reduce();
         int iwork = bcast_start;
         while (iwork < bcast_end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:          while (iwork < bcast_end) {" << std::endl;
             int n, g, bcast_step, oh, ow, ih, iw;
             init_bcast(iwork, n, g, bcast_step, oh, ow, ih, iw);
             int ocb = ocb_start;
             while (ocb < ocb_end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:              while (ocb < ocb_end) {" << std::endl;
                 int load_step;
                 init_load(ocb, load_step);
                 inner_ker(ocb, n, g, oh, ow, ih, iw);
@@ -264,12 +287,15 @@ void jit_avx512_core_x8s8s32x_1x1_convolution_fwd_t<src_type, dst_type>
             iwork += bcast_step;
         }
     } else if (jcp.loop_order == loop_blr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:      } else if (jcp.loop_order == loop_blr) {" << std::endl;
         int iwork = bcast_start;
         while (iwork < bcast_end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:          while (iwork < bcast_end) {" << std::endl;
             int n, g, bcast_step, oh, ow, ih, iw;
             init_bcast(iwork, n, g, bcast_step, oh, ow, ih, iw);
             int ocb = ocb_start;
             while (ocb < ocb_end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_1x1_convolution.cpp:              while (ocb < ocb_end) {" << std::endl;
                 int load_step;
                 init_load(ocb, load_step);
                 init_reduce();

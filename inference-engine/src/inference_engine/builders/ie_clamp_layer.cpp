@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -10,6 +11,7 @@
 using namespace InferenceEngine;
 
 Builder::ClampLayer::ClampLayer(const std::string& name): LayerDecorator("Clamp", name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:  Builder::ClampLayer::ClampLayer(const std::string& name): LayerDecorator('Clamp', name) {" << std::endl;
     getLayer()->getOutputPorts().resize(1);
     getLayer()->getInputPorts().resize(1);
     setMinValue(0.0f);
@@ -17,14 +19,17 @@ Builder::ClampLayer::ClampLayer(const std::string& name): LayerDecorator("Clamp"
 }
 
 Builder::ClampLayer::ClampLayer(const Layer::Ptr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:  Builder::ClampLayer::ClampLayer(const Layer::Ptr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("Clamp");
 }
 
 Builder::ClampLayer::ClampLayer(const Layer::CPtr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:  Builder::ClampLayer::ClampLayer(const Layer::CPtr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("Clamp");
 }
 
 Builder::ClampLayer& Builder::ClampLayer::setName(const std::string& name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:  Builder::ClampLayer& Builder::ClampLayer::setName(const std::string& name) {" << std::endl;
     getLayer()->setName(name);
     return *this;
 }
@@ -34,6 +39,7 @@ const Port& Builder::ClampLayer::getPort() const {
 }
 
 Builder::ClampLayer& Builder::ClampLayer::setPort(const Port &port) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:  Builder::ClampLayer& Builder::ClampLayer::setPort(const Port &port) {" << std::endl;
     getLayer()->getOutputPorts()[0] = port;
     getLayer()->getInputPorts()[0] = port;
     return *this;
@@ -44,6 +50,7 @@ float Builder::ClampLayer::getMaxValue() const {
 }
 
 Builder::ClampLayer& Builder::ClampLayer::setMaxValue(float maxValue) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:  Builder::ClampLayer& Builder::ClampLayer::setMaxValue(float maxValue) {" << std::endl;
     getLayer()->getParameters()["max"] = maxValue;
     return *this;
 }
@@ -53,13 +60,16 @@ float Builder::ClampLayer::getMinValue() const {
 }
 
 Builder::ClampLayer& Builder::ClampLayer::setMinValue(float minValue) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:  Builder::ClampLayer& Builder::ClampLayer::setMinValue(float minValue) {" << std::endl;
     getLayer()->getParameters()["min"] = minValue;
     return *this;
 }
 
 REG_VALIDATOR_FOR(Clamp, [](const InferenceEngine::Builder::Layer::CPtr& input_layer, bool partial) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:  REG_VALIDATOR_FOR(Clamp, [](const InferenceEngine::Builder::Layer::CPtr& input_layer, bool partial) {" << std::endl;
     Builder::ClampLayer layer(input_layer);
     if (layer.getMinValue() > layer.getMaxValue()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:      if (layer.getMinValue() > layer.getMaxValue()) {" << std::endl;
         THROW_IE_EXCEPTION << "MinValue should be less or equal MaxValue";
     }
     if (!input_layer->getInputPorts().empty() &&
@@ -67,11 +77,13 @@ REG_VALIDATOR_FOR(Clamp, [](const InferenceEngine::Builder::Layer::CPtr& input_l
         !input_layer->getInputPorts()[0].shape().empty() &&
         !input_layer->getOutputPorts()[0].shape().empty() &&
         input_layer->getInputPorts()[0].shape() != input_layer->getOutputPorts()[0].shape()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:          input_layer->getInputPorts()[0].shape() != input_layer->getOutputPorts()[0].shape()) {" << std::endl;
         THROW_IE_EXCEPTION << "Input and output ports should be equal";
     }
 });
 
 REG_CONVERTER_FOR(Clamp, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_clamp_layer.cpp:  REG_CONVERTER_FOR(Clamp, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {" << std::endl;
     layer.getParameters()["max"] = cnnLayer->GetParamAsFloat("max", 0);
     layer.getParameters()["min"] = cnnLayer->GetParamAsFloat("min", 0);
 });

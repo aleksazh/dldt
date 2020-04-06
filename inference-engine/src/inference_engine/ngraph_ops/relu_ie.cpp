@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,6 +18,7 @@ constexpr NodeTypeInfo op::ReLUIE::type_info;
 
 op::ReLUIE::ReLUIE(const Output<Node>& data, const float& negative_slope)
     : Op(OutputVector {data}), m_negative_slope(negative_slope) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/relu_ie.cpp:      : Op(OutputVector {data}), m_negative_slope(negative_slope) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
@@ -26,5 +28,6 @@ std::shared_ptr<Node> op::ReLUIE::copy_with_new_args(const NodeVector& new_args)
 }
 
 void op::ReLUIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/relu_ie.cpp:  void op::ReLUIE::validate_and_infer_types() {" << std::endl;
     set_output_type(0, get_input_element_type(0), get_input_partial_shape(0));
 }

@@ -40,6 +40,7 @@ void ref_roi_pooling_fwd_t<data_type>::execute_forward_generic() const {
     memory_desc_wrapper src_roi_d = pd()->src_pd(roi_idx);
 
     if (src_roi_d.dims()[0] < src_data_d.dims()[0]) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:      if (src_roi_d.dims()[0] < src_data_d.dims()[0]) {" << std::endl;
         roi_idx = 0;
         data_idx = 1;
 
@@ -62,13 +63,16 @@ void ref_roi_pooling_fwd_t<data_type>::execute_forward_generic() const {
     int pooled_w = pd()->pooledW();
 
     for (size_t i = 0; i < dst_d.size() / sizeof(data_t); i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:      for (size_t i = 0; i < dst_d.size() / sizeof(data_t); i++) {" << std::endl;
         dst[i] = -FLT_MAX;
     }
 
     int real_rois = 0;
     for (; real_rois < ROIS; real_rois++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:      for (; real_rois < ROIS; real_rois++) {" << std::endl;
         int roi_off;
         if(src_roi_d.ndims() == 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:          if(src_roi_d.ndims() == 4) {" << std::endl;
             roi_off = src_roi_d.off(real_rois, 0, 0, 0);
         }
         else {
@@ -78,13 +82,16 @@ void ref_roi_pooling_fwd_t<data_type>::execute_forward_generic() const {
         const data_t* src_roi_ptr = &src_roi[roi_off];
         int roi_batch_ind = src_roi_ptr[0];
         if (roi_batch_ind == -1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:          if (roi_batch_ind == -1) {" << std::endl;
             break;
         }
     }
     int n = 0;
     for (; n < real_rois; ++n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:      for (; n < real_rois; ++n) {" << std::endl;
         int roi_off;
         if(src_roi_d.ndims() == 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:          if(src_roi_d.ndims() == 4) {" << std::endl;
             roi_off = src_roi_d.off(n, 0, 0, 0);
         }
         else {
@@ -95,6 +102,7 @@ void ref_roi_pooling_fwd_t<data_type>::execute_forward_generic() const {
         int roi_batch_ind = src_roi_ptr[0];
 
         if (pd()->desc()->alg_kind == mkldnn_roi_pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:          if (pd()->desc()->alg_kind == mkldnn_roi_pooling_max) {" << std::endl;
             int roi_start_w = round(src_roi_ptr[1] * spatial_scale);
             int roi_start_h = round(src_roi_ptr[2] * spatial_scale);
             int roi_end_w = round(src_roi_ptr[3] * spatial_scale);
@@ -105,25 +113,32 @@ void ref_roi_pooling_fwd_t<data_type>::execute_forward_generic() const {
 
 
             for (int c = 0; c < C; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:              for (int c = 0; c < C; ++c) {" << std::endl;
                 for (int ph = 0; ph < pooled_h; ++ph) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                  for (int ph = 0; ph < pooled_h; ++ph) {" << std::endl;
                     for (int pw = 0; pw < pooled_w; ++pw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                      for (int pw = 0; pw < pooled_w; ++pw) {" << std::endl;
                         int hstart = (ph * roi_height) / pooled_h;
                         if ((hstart * pooled_h) > (ph * roi_height)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                          if ((hstart * pooled_h) > (ph * roi_height)) {" << std::endl;
                             --hstart;
                         }
 
                         int wstart = (pw * roi_width) / pooled_w;
                         if ((wstart * pooled_w) > (pw * roi_width)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                          if ((wstart * pooled_w) > (pw * roi_width)) {" << std::endl;
                             --wstart;
                         }
 
                         int hend = ((ph + 1) * roi_height) / pooled_h;
                         if ((hend * pooled_h) < ((ph + 1) * roi_height)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                          if ((hend * pooled_h) < ((ph + 1) * roi_height)) {" << std::endl;
                             ++hend;
                         }
 
                         int wend = ((pw + 1) * roi_width) / pooled_w;
                         if ((wend * pooled_w) < ((pw + 1) * roi_width)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                          if ((wend * pooled_w) < ((pw + 1) * roi_width)) {" << std::endl;
                             ++wend;
                         }
 
@@ -137,14 +152,18 @@ void ref_roi_pooling_fwd_t<data_type>::execute_forward_generic() const {
                         const int pool_index = dst_d.off(n, c, ph, pw);
 
                         if (is_empty) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                          if (is_empty) {" << std::endl;
                             dst[pool_index] = 0;
                         }
 
                         for (int h = hstart; h < hend; ++h) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                          for (int h = hstart; h < hend; ++h) {" << std::endl;
                             for (int w = wstart; w < wend; ++w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                              for (int w = wstart; w < wend; ++w) {" << std::endl;
                                 data_t batch_data = src_data[src_data_d.off(roi_batch_ind, c, h, w)];
 
                                 if (batch_data > dst[pool_index]) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                                  if (batch_data > dst[pool_index]) {" << std::endl;
                                     dst[pool_index] = batch_data;
                                 }
                             }
@@ -153,6 +172,7 @@ void ref_roi_pooling_fwd_t<data_type>::execute_forward_generic() const {
                 }
             }
         } else if (pd()->desc()->alg_kind == mkldnn_roi_pooling_bilinear) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:          } else if (pd()->desc()->alg_kind == mkldnn_roi_pooling_bilinear) {" << std::endl;
             float roi_start_w_ = src_roi_ptr[1];
             float roi_start_h_ = src_roi_ptr[2];
             float roi_end_w_   = src_roi_ptr[3];
@@ -162,12 +182,16 @@ void ref_roi_pooling_fwd_t<data_type>::execute_forward_generic() const {
             float width_scale  = (roi_end_w_ - roi_start_w_) * (W - 1) / (pooled_w - 1);
 
             for (int c = 0; c < C; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:              for (int c = 0; c < C; ++c) {" << std::endl;
                 for (int ph = 0; ph < pooled_h; ++ph) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                  for (int ph = 0; ph < pooled_h; ++ph) {" << std::endl;
                     for (int pw = 0; pw < pooled_w; ++pw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                      for (int pw = 0; pw < pooled_w; ++pw) {" << std::endl;
                         float in_y = (ph * height_scale + roi_start_h_ * (H - 1));
                         float in_x = (pw * width_scale  + roi_start_w_ * (W - 1));
 
                         if (in_y < 0 || in_y > H - 1 || in_x < 0 || in_x > W - 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                          if (in_y < 0 || in_y > H - 1 || in_x < 0 || in_x > W - 1) {" << std::endl;
                             dst[dst_d.off(n, c, ph, pw)] = 0;
                         } else {
                             int top_y_index    = static_cast<int>(floorf(in_y));
@@ -198,9 +222,13 @@ void ref_roi_pooling_fwd_t<data_type>::execute_forward_generic() const {
     }
 
     for (; n < ROIS; ++n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:      for (; n < ROIS; ++n) {" << std::endl;
         for (int c = 0; c < C; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:          for (int c = 0; c < C; ++c) {" << std::endl;
             for (int ph = 0; ph < pooled_h; ++ph) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:              for (int ph = 0; ph < pooled_h; ++ph) {" << std::endl;
                 for (int pw = 0; pw < pooled_w; ++pw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_roi_pooling.cpp:                  for (int pw = 0; pw < pooled_w; ++pw) {" << std::endl;
                     dst[dst_d.off(n, c, ph, pw)] = 0;
                 }
             }

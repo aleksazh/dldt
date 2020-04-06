@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,80 +19,96 @@ using namespace InferenceEngine::details;
 // TODO: (ichuraev) I don't fully sure that names of types and parameters are correct for square, abs, sqrt, linear, bounded_relu and soft_relu
 caseless_map<std::string, std::function<void(GenericLayer*, mkldnn::algorithm&, float&, float&)>> MKLDNNActivationNode::initializers = {
         {"relu", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'relu', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = activationLayer->GetParamAsFloat("negative_slope", 0.0f);
             beta = 0.0f;
             algorithm = eltwise_relu;
         }},
         {"elu", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'elu', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = activationLayer->GetParamAsFloat("alpha", 1.0f);
             beta = 0.0f;
             algorithm = eltwise_elu;
         }},
         {"tanh", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'tanh', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = 0.0f;
             beta = 0.0f;
             algorithm = eltwise_tanh;
         }},
         {"logistic", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'logistic', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = 0.0f;
             beta = 0.0f;
             algorithm = eltwise_logistic;
         }},
         {"square", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'square', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = 0.0f;
             beta = 0.0f;
             algorithm = eltwise_square;
         }},
         {"abs", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'abs', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = 0.0f;
             beta = 0.0f;
             algorithm = eltwise_abs;
         }},
         {"sqrt", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'sqrt', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = 0.0f;
             beta = 0.0f;
             algorithm = eltwise_sqrt;
         }},
         {"linear", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'linear', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = activationLayer->GetParamAsFloat("alpha", 1.0f);
             beta = activationLayer->GetParamAsFloat("beta", 0.0f);
             algorithm = eltwise_linear;
         }},
         {"bounded_relu", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'bounded_relu', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = activationLayer->GetParamAsFloat("alpha", 0.0f);
             beta = 0.0f;
             algorithm = eltwise_bounded_relu;
         }},
         {"soft_relu", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'soft_relu', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = 0.0f;
             beta = 0.0f;
             algorithm = eltwise_soft_relu;
         }},
         {"relu6", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'relu6', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = activationLayer->GetParamAsFloat("n", 6.0f);
             beta = 0.0f;
             algorithm = eltwise_bounded_relu;
         }},
         {"clamp", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'clamp', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = activationLayer->GetParamAsFloat("max", 1.0f);
             beta = activationLayer->GetParamAsFloat("min", 0.0f);
             algorithm = eltwise_clamp;
         }},
         {"exp", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'exp', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = 0.0f;
             beta = 0.0f;
             algorithm = eltwise_exp;
         }},
         {"not", [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:          {'not', [](GenericLayer* activationLayer, mkldnn::algorithm& algorithm, float& alpha, float& beta) {" << std::endl;
             alpha = 0.0f;
             beta = 0.0f;
             algorithm = eltwise_not;
         }}
 };
 
-MKLDNNActivationNode::MKLDNNActivationNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) : MKLDNNNode(layer, eng, socket) {}
+MKLDNNActivationNode::MKLDNNActivationNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) : MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:  MKLDNNActivationNode::MKLDNNActivationNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) : MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNActivationNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:  void MKLDNNActivationNode::getSupportedDescriptors() {" << std::endl;
     if (!descs.empty())
         return;
 
@@ -108,12 +125,14 @@ void MKLDNNActivationNode::getSupportedDescriptors() {
     while (parentOutDims.ndims() < 4)
         parentOutDims.push_back(1);
     for (auto format : getAvailableFormatsForDims(parentOutDims)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:      for (auto format : getAvailableFormatsForDims(parentOutDims)) {" << std::endl;
         MKLDNNMemoryDesc in_candidate(parentOutDims, MKLDNNExtensionUtils::IEPrecisionToDataType(precision), format);
         createDescriptor({in_candidate}, {});
     }
 }
 
 void MKLDNNActivationNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:  void MKLDNNActivationNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
@@ -128,6 +147,7 @@ bool MKLDNNActivationNode::created() const {
 }
 
 void MKLDNNActivationNode::initValues() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:  void MKLDNNActivationNode::initValues() {" << std::endl;
     GenericLayer* activationLayer = getCnnLayer().get();
     if (activationLayer == nullptr)
         THROW_IE_EXCEPTION << "Cannot get CNNLayer.";
@@ -148,6 +168,7 @@ void MKLDNNActivationNode::initValues() {
 
 void MKLDNNActivationNode::createDescriptor(const std::vector<InferenceEngine::TensorDesc> &inputDesc,
                                             const std::vector<InferenceEngine::TensorDesc> &outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:                                              const std::vector<InferenceEngine::TensorDesc> &outputDesc) {" << std::endl;
     MKLDNNMemoryDesc inDesc(inputDesc[0]);
     MKLDNNDescriptor desc(std::shared_ptr<eltwise_forward::desc>(
             new eltwise_forward::desc(prop_kind::forward_scoring, getAlgorithm(), inDesc, getAlpha(), getBeta())));
@@ -155,6 +176,7 @@ void MKLDNNActivationNode::createDescriptor(const std::vector<InferenceEngine::T
 }
 
 void MKLDNNActivationNode::initOptimalPrimitiveDescriptor() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:  void MKLDNNActivationNode::initOptimalPrimitiveDescriptor() {" << std::endl;
     auto config = getSelectedPrimitiveDescriptor()->getConfig();
     if (isInitConfig(config))
         return;
@@ -165,8 +187,10 @@ void MKLDNNActivationNode::initOptimalPrimitiveDescriptor() {
         THROW_IE_EXCEPTION << "Layer " << getName() << " has incorrect selected config!";
 
     if (!isUninitTensorDesc(config.inConfs[0].desc)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:      if (!isUninitTensorDesc(config.inConfs[0].desc)) {" << std::endl;
         config.outConfs[0].desc = config.inConfs[0].desc;
     } else if (!isUninitTensorDesc(config.outConfs[0].desc)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:      } else if (!isUninitTensorDesc(config.outConfs[0].desc)) {" << std::endl;
         config.inConfs[0].desc = config.outConfs[0].desc;
     } else {
         config.outConfs[0].desc = config.inConfs[0].desc = getConfiguredInputDesc(config, 0);
@@ -176,6 +200,7 @@ void MKLDNNActivationNode::initOptimalPrimitiveDescriptor() {
 }
 
 MKLDNNMemoryDesc MKLDNNActivationNode::getSrcMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:  MKLDNNMemoryDesc MKLDNNActivationNode::getSrcMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {" << std::endl;
     InferenceEngine::TensorDesc desc = MKLDNNMemoryDesc(primitive_desc_it.src_primitive_desc(idx).desc());
 
     auto parentOutDims = getParentEdgeAt(idx)->getDims().ToSizeVector();
@@ -184,6 +209,7 @@ MKLDNNMemoryDesc MKLDNNActivationNode::getSrcMemDesc(mkldnn::primitive_desc_iter
     size_t offset = desc.getBlockingDesc().getOffsetPadding();
 
     for (size_t i = 0; i < desc.getBlockingDesc().getStrides().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:      for (size_t i = 0; i < desc.getBlockingDesc().getStrides().size(); i++) {" << std::endl;
         if (desc.getBlockingDesc().getOrder()[i] >= parentOutDims.size())
             continue;
 
@@ -203,6 +229,7 @@ MKLDNNMemoryDesc MKLDNNActivationNode::getSrcMemDesc(mkldnn::primitive_desc_iter
 }
 
 MKLDNNMemoryDesc MKLDNNActivationNode::getDstMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:  MKLDNNMemoryDesc MKLDNNActivationNode::getDstMemDesc(mkldnn::primitive_desc_iterator &primitive_desc_it, size_t idx) {" << std::endl;
     InferenceEngine::TensorDesc desc = MKLDNNMemoryDesc(primitive_desc_it.dst_primitive_desc(idx).desc());
 
     auto childInDims = getChildEdgeAt(idx)->getDims().ToSizeVector();
@@ -211,6 +238,7 @@ MKLDNNMemoryDesc MKLDNNActivationNode::getDstMemDesc(mkldnn::primitive_desc_iter
     size_t offset = desc.getBlockingDesc().getOffsetPadding();
 
     for (size_t i = 0; i < desc.getBlockingDesc().getStrides().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_activation_node.cpp:      for (size_t i = 0; i < desc.getBlockingDesc().getStrides().size(); i++) {" << std::endl;
         if (desc.getBlockingDesc().getOrder()[i] >= childInDims.size())
             continue;
 

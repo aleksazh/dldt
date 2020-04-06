@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -34,6 +35,7 @@ using namespace rnn_utils;
 
 template <>
 rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::lstm_postgemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:  rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::lstm_postgemm) {" << std::endl;
     ws_gates_aoc_t ws_gates(rnn, ws_gates_);
     bias_aoc_t bias(rnn, bias_);
     ws_states_aoc_t states_t_l(rnn, states_t_l_);
@@ -41,11 +43,13 @@ rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::lstm_postgemm) {
     ws_states_aoc_t c_states_tm1_l(rnn, c_states_tm1_l_);
 
     parallel_nd(rnn.mb, [&](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:      parallel_nd(rnn.mb, [&](int i) {" << std::endl;
 // WA. Loss of correctnes in case of simd loop unrolling with icc 18
 #if !defined(__INTEL_COMPILER)
         PRAGMA_OMP_SIMD()
 #endif
         for (int j = 0; j < rnn.dic; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:          for (int j = 0; j < rnn.dic; j++) {" << std::endl;
             ws_gates(i, 0, j) = logistic_fwd(ws_gates(i, 0, j) + bias(0, j));
             ws_gates(i, 1, j) = logistic_fwd(ws_gates(i, 1, j) + bias(1, j));
             ws_gates(i, 2, j) = tanh_fwd(ws_gates(i, 2, j) + bias(2, j));
@@ -61,6 +65,7 @@ rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::lstm_postgemm) {
 
 template <>
 rnn_postgemm_sig(rnn_postgemm_fwd_u8_t::lstm_postgemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:  rnn_postgemm_sig(rnn_postgemm_fwd_u8_t::lstm_postgemm) {" << std::endl;
     ws_gates_aoc_s32_t ws_gates_s32(rnn, ws_gates_);
     bias_aoc_t bias(rnn, bias_);
     ws_states_aoc_u8_t states_t_l(rnn, states_t_l_);
@@ -73,11 +78,13 @@ rnn_postgemm_sig(rnn_postgemm_fwd_u8_t::lstm_postgemm) {
     round_mode_t rmode = pd_->attr()->round_mode_;
 
     auto q_d = [&](float f) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:      auto q_d = [&](float f) {" << std::endl;
         float qf = f * data_scale + data_shift;
         return qz_a1b0<float, src_data_t>()(qf, rmode);
     };
 
     auto deq_w = [&](acc_data_t s, int gate, int j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:      auto deq_w = [&](acc_data_t s, int gate, int j) {" << std::endl;
         return pd_->attr()->rnn_weights_qparams_.mask_ == 0 ?
                 saturate<float>(s) * (1.f / (weights_scales[0] * data_scale)) :
                 saturate<float>(s) * (1.f / (weights_scales[gate * rnn.dic + j]
@@ -85,8 +92,10 @@ rnn_postgemm_sig(rnn_postgemm_fwd_u8_t::lstm_postgemm) {
     };
 
     parallel_nd(rnn.mb, [&](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:      parallel_nd(rnn.mb, [&](int i) {" << std::endl;
         PRAGMA_OMP_SIMD()
         for (int j = 0; j < rnn.dic; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:          for (int j = 0; j < rnn.dic; j++) {" << std::endl;
             float G0 = logistic_fwd<float>(
                     deq_w(ws_gates_s32(i, 0, j), 0, j) + bias(0, j));
             float G1 = logistic_fwd<float>(
@@ -104,6 +113,7 @@ rnn_postgemm_sig(rnn_postgemm_fwd_u8_t::lstm_postgemm) {
 
 template <>
 rnn_postgemm_sig(rnn_postgemm_bwd_f32_t::lstm_postgemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:  rnn_postgemm_sig(rnn_postgemm_bwd_f32_t::lstm_postgemm) {" << std::endl;
     ws_gates_aoc_t ws_gates(rnn, ws_gates_);
     bias_aoc_t bias(rnn, bias_);
     ws_states_aoc_t c_states_t_l(rnn, c_states_t_l_);
@@ -113,8 +123,10 @@ rnn_postgemm_sig(rnn_postgemm_bwd_f32_t::lstm_postgemm) {
     ws_diff_states_aoc_t diff_states_t_lp1(rnn, diff_states_t_lp1_);
 
     parallel_nd(rnn.mb, [&](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:      parallel_nd(rnn.mb, [&](int i) {" << std::endl;
         PRAGMA_OMP_SIMD()
         for (int j = 0; j < rnn.dic; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_lstm.cpp:          for (int j = 0; j < rnn.dic; j++) {" << std::endl;
             float Ct = c_states_t_l(i, j);
             /// @todo save it in the workspace in fwd pass or recompute it to
             /// save bw

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -24,6 +25,7 @@ namespace Cpu {
 class TopKImpl: public ExtLayerBase {
 public:
     explicit TopKImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:      explicit TopKImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 2)
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input edges!";
@@ -44,6 +46,7 @@ public:
                 THROW_IE_EXCEPTION << layer->name << " Incorrect input/output tensor dimension sizes";
 
             if (layer->outData.size() == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (layer->outData.size() == 2) {" << std::endl;
                 if (layer->outData[TOPK_VALUE]->getTensorDesc().getPrecision() != Precision::FP32)
                     THROW_IE_EXCEPTION << layer->name << " Incorrect output data tensor precision. Only FP32 is supported!";
 
@@ -52,6 +55,7 @@ public:
                     THROW_IE_EXCEPTION << layer->name << " Incorrect output tensor dimension sizes";
 
                 for (size_t i = 0; i < dst_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  for (size_t i = 0; i < dst_dims.size(); i++) {" << std::endl;
                     if (dst_dims[i] != dst_idx_dims[i])
                         THROW_IE_EXCEPTION << layer->name << " Input/output tensor dimension mismatch";
                 }
@@ -79,17 +83,20 @@ public:
 
             int j;
             for (j = src_dims.size() - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (j = src_dims.size() - 1; j >= 0; j--) {" << std::endl;
                 if (src_dims[j] != 1) break;
             }
             if (static_cast<size_t>(j) == axis) is_last_dim = true;
 
             for (size_t i = 0; i < axis; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (size_t i = 0; i < axis; i++) {" << std::endl;
                 axis_step *= src_dims[i];
                 if (src_data_dims[i] != dst_dims[i])
                     THROW_IE_EXCEPTION << layer->name << " Input/output tensor dimension mismatch";
             }
             axis_dim = src_dims[axis];
             for (size_t i = (axis + 1); i < src_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (size_t i = (axis + 1); i < src_dims.size(); i++) {" << std::endl;
                 axis_stride *= src_dims[i];
                 if (src_data_dims[i] != dst_dims[i])
                     THROW_IE_EXCEPTION << layer->name << " Input/output tensor dimension mismatch";
@@ -98,6 +105,7 @@ public:
             before_num = count(src_dims, 0, axis);
 
             if (layer->outData.size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (layer->outData.size() == 1) {" << std::endl;
                 addConfig(layer, { DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN) },
                     { DataConfigurator(ConfLayout::PLN) });
             } else {
@@ -111,6 +119,7 @@ public:
                 confs.back().outConfs[1].desc.setPrecision(Precision::I32);
             }
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -137,6 +146,7 @@ public:
 
     struct cmpgt_ps {
         static inline vmask_type cmp_ps(const vec_type_f _Left, const vec_type_f _Right) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          static inline vmask_type cmp_ps(const vec_type_f _Left, const vec_type_f _Right) {" << std::endl;
 #if defined(HAVE_SSE) || defined(HAVE_AVX2) || defined(HAVE_AVX512F)
             return _mm_uni_cmpgt_ps(_Left, _Right);
 #else
@@ -147,6 +157,7 @@ public:
 
     struct cmplt_ps {
         static inline vmask_type cmp_ps(const vec_type_f _Left, const vec_type_f _Right) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          static inline vmask_type cmp_ps(const vec_type_f _Left, const vec_type_f _Right) {" << std::endl;
 #if defined(HAVE_SSE) || defined(HAVE_AVX2) || defined(HAVE_AVX512F)
             return _mm_uni_cmpgt_ps(_Right, _Left);
 #else
@@ -157,15 +168,18 @@ public:
 
     template <class Compare1, template <typename> class Compare2>
     void top1_axis(const float* src_data, float* dst_data, int* dst_idx, SizeVector in_dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:      void top1_axis(const float* src_data, float* dst_data, int* dst_idx, SizeVector in_dims) {" << std::endl;
         int after_num = count(in_dims, axis + 1, in_dims.size());
         int first_index = 0;
 
 #if defined(HAVE_SSE) || defined(HAVE_AVX2) || defined(HAVE_AVX512F)
         parallel_for2d(before_num, after_num / block_size, [&](int i0, int ib1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          parallel_for2d(before_num, after_num / block_size, [&](int i0, int ib1) {" << std::endl;
             int s_index = i0 * dim * after_num + ib1 * block_size;
             vec_type_f vmax_val = _mm_uni_loadu_ps(src_data + s_index);
             vec_type_i vindex_max_val = _mm_uni_setzero_si();
             for (int i2 = 1; i2 < dim; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (int i2 = 1; i2 < dim; i2++) {" << std::endl;
                 s_index += after_num;
                 vec_type_f vsrc = _mm_uni_loadu_ps(src_data + s_index);
                 vmask_type vmask = Compare1::cmp_ps(vsrc, vmax_val);
@@ -187,12 +201,15 @@ public:
 #endif
         int rest = after_num - first_index;
         parallel_for2d(before_num, rest, [&](int i0, int i1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          parallel_for2d(before_num, rest, [&](int i0, int i1) {" << std::endl;
             int index_max_val = 0;
             int s_index = i0 * dim * after_num + first_index + i1;
             float max_val = src_data[s_index];
             for (int i2 = 1; i2 < dim; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (int i2 = 1; i2 < dim; i2++) {" << std::endl;
                 s_index += after_num;
                 if (Compare2<float>()(src_data[s_index], max_val)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  if (Compare2<float>()(src_data[s_index], max_val)) {" << std::endl;
                     max_val = src_data[s_index];
                     index_max_val = i2;
                 }
@@ -206,13 +223,17 @@ public:
 
     template <template <typename> class Compare>
     void top1(const float* src_data, float* dst_data, int* dst_idx, SizeVector in_dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:      void top1(const float* src_data, float* dst_data, int* dst_idx, SizeVector in_dims) {" << std::endl;
         parallel_for(before_num, [&](int i0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          parallel_for(before_num, [&](int i0) {" << std::endl;
             int index_max_val = 0;
             int s_index = i0 * dim;
             float max_val = src_data[s_index];
             for (int i1 = 1; i1 < dim; i1++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (int i1 = 1; i1 < dim; i1++) {" << std::endl;
                 s_index++;
                 if (Compare<float>()(src_data[s_index], max_val)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  if (Compare<float>()(src_data[s_index], max_val)) {" << std::endl;
                     max_val = src_data[s_index];
                     index_max_val = i1;
                 }
@@ -226,12 +247,15 @@ public:
 
     template <class Compare1, template <typename> class Compare2>
     void topk_axis(const float* src_data, float* dst_data, int* dst_idx, SizeVector in_dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:      void topk_axis(const float* src_data, float* dst_data, int* dst_idx, SizeVector in_dims) {" << std::endl;
         int after_num = count(in_dims, axis + 1, in_dims.size());
         int first_index = 0;
 
 #if defined(HAVE_SSE) || defined(HAVE_AVX2) || defined(HAVE_AVX512F)
         if (src_k < count_vec) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          if (src_k < count_vec) {" << std::endl;
             parallel_for2d(before_num, after_num / block_size, [&](int i0, int ib1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              parallel_for2d(before_num, after_num / block_size, [&](int i0, int ib1) {" << std::endl;
 #if defined(HAVE_AVX512F)
                 const int N = 32;
                 vec_type_f vmax_values[N];
@@ -247,6 +271,7 @@ public:
                 int s_index = i0 * dim * after_num + ib1 * block_size;
 
                 auto vswap_func = [&](int index1, int index2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  auto vswap_func = [&](int index1, int index2) {" << std::endl;
                     vtmp = vmax_values[index1];
                     vmax_values[index1] = _mm_uni_blendv_ps(vmax_values[index1], vmax_values[index2], vmask);
                     vmax_values[index2] = _mm_uni_blendv_ps(vmax_values[index2], vtmp, vmask);
@@ -262,12 +287,15 @@ public:
                 };
 
                 for (int i2 = 0; i2 < src_k; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  for (int i2 = 0; i2 < src_k; i2++) {" << std::endl;
                     vmax_values[i2] = _mm_uni_loadu_ps(src_data + s_index);
                     vmax_indexes[i2] = _mm_uni_set1_epi32(i2);
                     s_index += after_num;
                 }
                 for (int i2 = 0; i2 < src_k - 1; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  for (int i2 = 0; i2 < src_k - 1; i2++) {" << std::endl;
                     for (int i3 = src_k - 1; i3 > i2; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                      for (int i3 = src_k - 1; i3 > i2; i3--) {" << std::endl;
                         vmask = Compare1::cmp_ps(vmax_values[i3], vmax_values[i3 - 1]);
 #if defined(HAVE_AVX512F)
                         if (vmask)
@@ -280,9 +308,11 @@ public:
                     }
                 }
                 for (int i2 = src_k; i2 < dim; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  for (int i2 = src_k; i2 < dim; i2++) {" << std::endl;
                     vmax_values[src_k] = _mm_uni_loadu_ps(src_data + s_index);
                     vmax_indexes[src_k] = _mm_uni_set1_epi32(i2);
                     for (int i3 = src_k; i3 > 0; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                      for (int i3 = src_k; i3 > 0; i3--) {" << std::endl;
                         vmask = Compare1::cmp_ps(vmax_values[i3], vmax_values[i3 - 1]);
 #if defined(HAVE_AVX512F)
                         if (vmask)
@@ -300,8 +330,11 @@ public:
                     s_index += after_num;
                 }
                 if (!sort_value) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  if (!sort_value) {" << std::endl;
                     for (int i2 = 0; i2 < src_k - 1; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                      for (int i2 = 0; i2 < src_k - 1; i2++) {" << std::endl;
                         for (int i3 = src_k - 1; i3 > i2; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                          for (int i3 = src_k - 1; i3 > i2; i3--) {" << std::endl;
                             vmask = _mm_uni_cmpgt_i32(vmax_indexes[i3 - 1], vmax_indexes[i3]);
 #if defined(HAVE_AVX512F)
                             if (vmask)
@@ -319,10 +352,12 @@ public:
                     }
                 }
                 if (dst_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  if (dst_data) {" << std::endl;
                     for (int i2 = 0; i2 < src_k; i2++)
                         _mm_uni_storeu_ps(dst_data + (i0 * src_k + i2) * after_num + ib1 * block_size, vmax_values[i2]);
                 }
                 if (dst_idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  if (dst_idx) {" << std::endl;
                     for (int i2 = 0; i2 < src_k; i2++)
                         _mm_uni_storeu_si(reinterpret_cast<vec_type_i*>(dst_idx + (i0 * src_k + i2) * after_num + ib1 * block_size), vmax_indexes[i2]);
                 }
@@ -332,6 +367,7 @@ public:
 #endif
         int rest = after_num - first_index;
         parallel_for2d(before_num, rest, [&](int i0, int i1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          parallel_for2d(before_num, rest, [&](int i0, int i1) {" << std::endl;
             std::vector<float> max_values(src_k + 1);
             std::vector<int> max_indexes(src_k + 1);
             float tmp_value;
@@ -339,6 +375,7 @@ public:
             int s_index = i0 * dim * after_num + first_index + i1;
 
             auto swap_func = [&](int index1, int index2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              auto swap_func = [&](int index1, int index2) {" << std::endl;
                 tmp_value = max_values[index1];
                 max_values[index1] = max_values[index2];
                 max_values[index2] = tmp_value;
@@ -349,21 +386,27 @@ public:
             };
 
             for (int i2 = 0; i2 < src_k; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (int i2 = 0; i2 < src_k; i2++) {" << std::endl;
                 max_values[i2] = src_data[s_index];
                 max_indexes[i2] = i2;
                 s_index += after_num;
             }
             for (int i2 = 0; i2 < src_k - 1; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (int i2 = 0; i2 < src_k - 1; i2++) {" << std::endl;
                 for (int i3 = src_k - 1; i3 > i2; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  for (int i3 = src_k - 1; i3 > i2; i3--) {" << std::endl;
                     if (Compare2<float>()(max_values[i3], max_values[i3 - 1])) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                      if (Compare2<float>()(max_values[i3], max_values[i3 - 1])) {" << std::endl;
                         swap_func(i3, i3 - 1);
                     }
                 }
             }
             for (int i2 = src_k; i2 < dim; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (int i2 = src_k; i2 < dim; i2++) {" << std::endl;
                 max_values[src_k] = src_data[s_index];
                 max_indexes[src_k] = i2;
                 for (int i3 = src_k; i3 > 0; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  for (int i3 = src_k; i3 > 0; i3--) {" << std::endl;
                     if (Compare2<float>()(max_values[i3], max_values[i3 - 1]))
                         swap_func(i3, i3 - 1);
                     else
@@ -372,19 +415,25 @@ public:
                 s_index += after_num;
             }
             if (!sort_value) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (!sort_value) {" << std::endl;
                 for (int i2 = 0; i2 < src_k - 1; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  for (int i2 = 0; i2 < src_k - 1; i2++) {" << std::endl;
                     for (int i3 = src_k - 1; i3 > i2; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                      for (int i3 = src_k - 1; i3 > i2; i3--) {" << std::endl;
                         if (std::greater<int>()(max_indexes[i3 - 1], max_indexes[i3])) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                          if (std::greater<int>()(max_indexes[i3 - 1], max_indexes[i3])) {" << std::endl;
                             swap_func(i3, i3 - 1);
                         }
                     }
                 }
             }
             if (dst_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (dst_data) {" << std::endl;
                 for (int i2 = 0; i2 < src_k; i2++)
                     dst_data[i0 * src_k * after_num + i2 * after_num + first_index + i1] = max_values[i2];
             }
             if (dst_idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (dst_idx) {" << std::endl;
                 for (int i2 = 0; i2 < src_k; i2++)
                     dst_idx[i0 * src_k * after_num + i2 * after_num + first_index + i1] = max_indexes[i2];
             }
@@ -393,7 +442,9 @@ public:
 
     template <template <typename> class Compare>
     void topk(const float* src_data, float* dst_data, int* dst_idx, SizeVector in_dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:      void topk(const float* src_data, float* dst_data, int* dst_idx, SizeVector in_dims) {" << std::endl;
         parallel_for(before_num, [&](int i0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          parallel_for(before_num, [&](int i0) {" << std::endl;
             std::vector<float> max_values(src_k + 1);
             std::vector<int> max_indexes(src_k + 1);
             float tmp_value;
@@ -401,6 +452,7 @@ public:
             int s_index = i0 * dim;
 
             auto swap_func = [&](int index1, int index2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              auto swap_func = [&](int index1, int index2) {" << std::endl;
                 tmp_value = max_values[index1];
                 max_values[index1] = max_values[index2];
                 max_values[index2] = tmp_value;
@@ -411,21 +463,27 @@ public:
             };
 
             for (int i2 = 0; i2 < src_k; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (int i2 = 0; i2 < src_k; i2++) {" << std::endl;
                 max_values[i2] = src_data[s_index];
                 max_indexes[i2] = i2;
                 s_index++;
             }
             for (int i2 = 0; i2 < src_k - 1; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (int i2 = 0; i2 < src_k - 1; i2++) {" << std::endl;
                 for (int i3 = src_k - 1; i3 > i2; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  for (int i3 = src_k - 1; i3 > i2; i3--) {" << std::endl;
                     if (Compare<float>()(max_values[i3], max_values[i3 - 1])) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                      if (Compare<float>()(max_values[i3], max_values[i3 - 1])) {" << std::endl;
                         swap_func(i3, i3 - 1);
                     }
                 }
             }
             for (int i2 = src_k; i2 < dim; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              for (int i2 = src_k; i2 < dim; i2++) {" << std::endl;
                 max_values[src_k] = src_data[s_index];
                 max_indexes[src_k] = i2;
                 for (int i3 = src_k; i3 > 0; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  for (int i3 = src_k; i3 > 0; i3--) {" << std::endl;
                     if (Compare<float>()(max_values[i3], max_values[i3 - 1]))
                         swap_func(i3, i3 - 1);
                     else
@@ -434,19 +492,25 @@ public:
                 s_index++;
             }
             if (!sort_value) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (!sort_value) {" << std::endl;
                 for (int i2 = 0; i2 < src_k - 1; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  for (int i2 = 0; i2 < src_k - 1; i2++) {" << std::endl;
                     for (int i3 = src_k - 1; i3 > i2; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                      for (int i3 = src_k - 1; i3 > i2; i3--) {" << std::endl;
                         if (std::greater<int>()(max_indexes[i3 - 1], max_indexes[i3])) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                          if (std::greater<int>()(max_indexes[i3 - 1], max_indexes[i3])) {" << std::endl;
                             swap_func(i3, i3 - 1);
                         }
                     }
                 }
             }
             if (dst_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (dst_data) {" << std::endl;
                 for (int i2 = 0; i2 < src_k; i2++)
                     dst_data[i0 * src_k + i2] = max_values[i2];
             }
             if (dst_idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (dst_idx) {" << std::endl;
                 for (int i2 = 0; i2 < src_k; i2++)
                     dst_idx[i0 * src_k + i2] = max_indexes[i2];
             }
@@ -462,7 +526,9 @@ public:
         int* dst_idx = nullptr;
 
         if (outputs.size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          if (outputs.size() == 1) {" << std::endl;
             if (outputs[0]->getTensorDesc().getPrecision() == Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (outputs[0]->getTensorDesc().getPrecision() == Precision::FP32) {" << std::endl;
                 dst_data = outputs[0]->cbuffer().as<float *>() +
                     outputs[0]->getTensorDesc().getBlockingDesc().getOffsetPadding();
             } else {
@@ -472,13 +538,16 @@ public:
             SizeVector dst_dims = outputs[0]->getTensorDesc().getDims();
 
             if (dst_dims[axis] != static_cast<size_t>(src_k)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (dst_dims[axis] != static_cast<size_t>(src_k)) {" << std::endl;
                 if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  if (resp) {" << std::endl;
                     std::string errorMsg = "Output tensor dimension mismatch";
                     errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
                 }
                 return PARAMETER_MISMATCH;
             }
         } else if (outputs.size() == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          } else if (outputs.size() == 2) {" << std::endl;
             dst_data = outputs[TOPK_VALUE]->cbuffer().as<float *>() +
                 outputs[TOPK_VALUE]->getTensorDesc().getBlockingDesc().getOffsetPadding();
             SizeVector dst_data_dims = outputs[TOPK_VALUE]->getTensorDesc().getDims();
@@ -488,7 +557,9 @@ public:
             SizeVector dst_idx_dims = outputs[TOPK_INDEX]->getTensorDesc().getDims();
 
             if (dst_idx_dims[axis] != static_cast<size_t>(src_k) || dst_data_dims[axis] != static_cast<size_t>(src_k)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (dst_idx_dims[axis] != static_cast<size_t>(src_k) || dst_data_dims[axis] != static_cast<size_t>(src_k)) {" << std::endl;
                 if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:                  if (resp) {" << std::endl;
                     std::string errorMsg = "Output tensors dimension mismatch";
                     errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
                 }
@@ -496,6 +567,7 @@ public:
             }
         } else {
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Output tensors amount mismatch";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }
@@ -508,7 +580,9 @@ public:
         SizeVector in_dims = inputs[TOPK_DATA]->getTensorDesc().getDims();
 
         if (src_k == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:          if (src_k == 1) {" << std::endl;
             if (is_last_dim) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (is_last_dim) {" << std::endl;
                 if (mode_max)
                     top1<std::greater>(src, dst_data, dst_idx, in_dims);
                 else
@@ -521,6 +595,7 @@ public:
             }
         } else {
             if (is_last_dim) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:              if (is_last_dim) {" << std::endl;
                 if (mode_max)
                     topk<std::greater>(src, dst_data, dst_idx, in_dims);
                 else
@@ -562,6 +637,7 @@ private:
 #endif
 
     inline int count(SizeVector dims, size_t start_ind, size_t end_ind) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:      inline int count(SizeVector dims, size_t start_ind, size_t end_ind) {" << std::endl;
         size_t count = 1;
         for (size_t i = start_ind; i < end_ind; i++)
             count *= dims[i];
@@ -569,6 +645,7 @@ private:
     }
 
     inline int count(SizeVector dims, size_t start_ind = 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topk.cpp:      inline int count(SizeVector dims, size_t start_ind = 0) {" << std::endl;
         return count(dims, start_ind, dims.size());
     }
 };

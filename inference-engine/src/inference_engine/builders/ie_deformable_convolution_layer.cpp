@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -11,14 +12,17 @@
 using namespace InferenceEngine;
 
 Builder::DeformableConvolutionLayer::DeformableConvolutionLayer(const std::string& name): ConvolutionLayer(name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:  Builder::DeformableConvolutionLayer::DeformableConvolutionLayer(const std::string& name): ConvolutionLayer(name) {" << std::endl;
     getLayer()->setType("DeformableConvolution");
     setDeformableGroup(1);
 }
 Builder::DeformableConvolutionLayer::DeformableConvolutionLayer(const Layer::Ptr& layer): ConvolutionLayer(layer->getName()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:  Builder::DeformableConvolutionLayer::DeformableConvolutionLayer(const Layer::Ptr& layer): ConvolutionLayer(layer->getName()) {" << std::endl;
     this->getLayer() = layer;
     checkType("DeformableConvolution");
 }
 Builder::DeformableConvolutionLayer::DeformableConvolutionLayer(const Layer::CPtr& layer): ConvolutionLayer(layer->getName()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:  Builder::DeformableConvolutionLayer::DeformableConvolutionLayer(const Layer::CPtr& layer): ConvolutionLayer(layer->getName()) {" << std::endl;
     this->getLayer().reset();
     cLayer = layer;
     checkType("DeformableConvolution");
@@ -28,11 +32,13 @@ size_t Builder::DeformableConvolutionLayer::getDeformableGroup() const {
     return getLayer()->getParameters().at("deformable_group");
 }
 Builder::DeformableConvolutionLayer& Builder::DeformableConvolutionLayer::setDeformableGroup(size_t deformableGroup) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:  Builder::DeformableConvolutionLayer& Builder::DeformableConvolutionLayer::setDeformableGroup(size_t deformableGroup) {" << std::endl;
     getLayer()->getParameters()["deformable_group"] = deformableGroup;
     return *this;
 }
 
 REG_VALIDATOR_FOR(DeformableConvolution, [] (const InferenceEngine::Builder::Layer::CPtr& layer, bool partial) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:  REG_VALIDATOR_FOR(DeformableConvolution, [] (const InferenceEngine::Builder::Layer::CPtr& layer, bool partial) {" << std::endl;
     // WA for old IRs
     if (layer->getParameters().find("kernel") == layer->getParameters().end() &&
         layer->getParameters().find("kernel-x") != layer->getParameters().end() &&
@@ -55,42 +61,53 @@ REG_VALIDATOR_FOR(DeformableConvolution, [] (const InferenceEngine::Builder::Lay
         l_strides.resize(l_kernel.size(), 1);
 
     if (l_kernel.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      if (l_kernel.empty()) {" << std::endl;
         THROW_IE_EXCEPTION << "Kernel is empty!";
     }
 
     if (l_paddingBegin.size() != l_paddingEnd.size()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      if (l_paddingBegin.size() != l_paddingEnd.size()) {" << std::endl;
         THROW_IE_EXCEPTION << "Padding_begin dimension is not equal to padding_end dimension";
     }
 
     if (!l_paddingBegin.empty() && l_kernel.size() != l_paddingBegin.size()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      if (!l_paddingBegin.empty() && l_kernel.size() != l_paddingBegin.size()) {" << std::endl;
         THROW_IE_EXCEPTION << "Padding dimension is not equal to kernel dimension";
     }
 
     if (l_kernel.size() != l_strides.size()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      if (l_kernel.size() != l_strides.size()) {" << std::endl;
         THROW_IE_EXCEPTION << "Stride dimension is not equal to kernel dimension";
     }
 
     if (!l_dilation.empty() && l_kernel.size() != l_dilation.size()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      if (!l_dilation.empty() && l_kernel.size() != l_dilation.size()) {" << std::endl;
         THROW_IE_EXCEPTION << "Dilation dimension is not equal to kernel dimension";
     }
 
     if (deformableConvBuilder.getOutDepth() == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      if (deformableConvBuilder.getOutDepth() == 0) {" << std::endl;
         THROW_IE_EXCEPTION << "OutDepth parameter should be more than 0";
     }
 
     for (size_t kernel_dim : l_kernel) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      for (size_t kernel_dim : l_kernel) {" << std::endl;
         if (kernel_dim == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:          if (kernel_dim == 0) {" << std::endl;
             THROW_IE_EXCEPTION << "Kernel dimensions should be more than 0";
         }
     }
 
     for (size_t i_stride : l_strides) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      for (size_t i_stride : l_strides) {" << std::endl;
         if (i_stride == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:          if (i_stride == 0) {" << std::endl;
             THROW_IE_EXCEPTION << "Strides should be more than 0";
         }
     }
 
     for (size_t dil : l_dilation) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      for (size_t dil : l_dilation) {" << std::endl;
         if (dil == 0)
             THROW_IE_EXCEPTION << "Dilation should be more than 0";
     }
@@ -111,7 +128,9 @@ REG_VALIDATOR_FOR(DeformableConvolution, [] (const InferenceEngine::Builder::Lay
 
     size_t weight_size = deformableConvBuilder.getOutDepth() * IC / deformableConvBuilder.getGroup();
     for (size_t kernel_dim : l_kernel) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      for (size_t kernel_dim : l_kernel) {" << std::endl;
         if (static_cast<double>(weight_size) * kernel_dim > std::numeric_limits<size_t>::max()) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:          if (static_cast<double>(weight_size) * kernel_dim > std::numeric_limits<size_t>::max()) {" << std::endl;
             THROW_IE_EXCEPTION << "Weight size exceeds the size_t max";
         }
         weight_size *= kernel_dim;
@@ -122,6 +141,7 @@ REG_VALIDATOR_FOR(DeformableConvolution, [] (const InferenceEngine::Builder::Lay
 
     const auto weights = layer->getInputPorts()[1].getData()->getData();
     if (weights->size() != weight_size) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      if (weights->size() != weight_size) {" << std::endl;
         THROW_IE_EXCEPTION << "Weight size is not correct!";
     }
 
@@ -131,6 +151,7 @@ REG_VALIDATOR_FOR(DeformableConvolution, [] (const InferenceEngine::Builder::Lay
 });
 
 REG_CONVERTER_FOR(DeformableConvolution, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:  REG_CONVERTER_FOR(DeformableConvolution, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {" << std::endl;
     // WA for old IRs
     if (cnnLayer->params.find("kernel") == cnnLayer->params.end() &&
         cnnLayer->params.find("kernel-x") != cnnLayer->params.end() &&
@@ -139,6 +160,7 @@ REG_CONVERTER_FOR(DeformableConvolution, [](const CNNLayerPtr& cnnLayer, Builder
     std::vector<unsigned int> tmp = cnnLayer->GetParamAsUInts("kernel");
     std::vector<size_t> cur(tmp.size());
     for (size_t i = 0; i < tmp.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      for (size_t i = 0; i < tmp.size(); ++i) {" << std::endl;
         cur[i] = static_cast<size_t>(tmp[i]);
     }
     layer.getParameters()["kernel"] = cur;
@@ -146,6 +168,7 @@ REG_CONVERTER_FOR(DeformableConvolution, [](const CNNLayerPtr& cnnLayer, Builder
     tmp = cnnLayer->GetParamAsUInts("strides");
     cur.resize(tmp.size());
     for (size_t i = 0; i < tmp.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      for (size_t i = 0; i < tmp.size(); ++i) {" << std::endl;
         cur[i] = static_cast<size_t>(tmp[i]);
     }
     layer.getParameters()["strides"] = cur;
@@ -153,6 +176,7 @@ REG_CONVERTER_FOR(DeformableConvolution, [](const CNNLayerPtr& cnnLayer, Builder
     tmp = cnnLayer->GetParamAsUInts("dilations");
     cur.resize(tmp.size());
     for (size_t i = 0; i < tmp.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      for (size_t i = 0; i < tmp.size(); ++i) {" << std::endl;
         cur[i] = static_cast<size_t>(tmp[i]);
     }
     layer.getParameters()["dilations"] = cur;
@@ -160,6 +184,7 @@ REG_CONVERTER_FOR(DeformableConvolution, [](const CNNLayerPtr& cnnLayer, Builder
     tmp = cnnLayer->GetParamAsUInts("pads_begin");
     cur.resize(tmp.size());
     for (size_t i = 0; i < tmp.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      for (size_t i = 0; i < tmp.size(); ++i) {" << std::endl;
         cur[i] = static_cast<size_t>(tmp[i]);
     }
     layer.getParameters()["pads_begin"] = cur;
@@ -167,6 +192,7 @@ REG_CONVERTER_FOR(DeformableConvolution, [](const CNNLayerPtr& cnnLayer, Builder
     tmp = cnnLayer->GetParamAsUInts("pads_end");
     cur.resize(tmp.size());
     for (size_t i = 0; i < tmp.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_deformable_convolution_layer.cpp:      for (size_t i = 0; i < tmp.size(); ++i) {" << std::endl;
         cur[i] = static_cast<size_t>(tmp[i]);
     }
     layer.getParameters()["pads_end"] = cur;

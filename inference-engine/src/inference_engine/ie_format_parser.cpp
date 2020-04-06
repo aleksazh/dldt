@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -21,24 +22,29 @@ using namespace XMLParseUtils;
 using namespace std;
 
 void LayerParseParameters::addOutputPort(const LayerPortData& port) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:  void LayerParseParameters::addOutputPort(const LayerPortData& port) {" << std::endl;
     outputPorts.insert(std::upper_bound(outputPorts.begin(), outputPorts.end(), port,
                                         [=](const LayerParseParameters::LayerPortData& lhs,
                                             const LayerParseParameters::LayerPortData& rhs) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:                                              const LayerParseParameters::LayerPortData& rhs) {" << std::endl;
                                             return lhs.portId < rhs.portId;
                                         }),
                        port);
 }
 
 void LayerParseParameters::addInputPort(const LayerPortData& port) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:  void LayerParseParameters::addInputPort(const LayerPortData& port) {" << std::endl;
     inputPorts.insert(std::upper_bound(inputPorts.begin(), inputPorts.end(), port,
                                        [=](const LayerParseParameters::LayerPortData& lhs,
                                            const LayerParseParameters::LayerPortData& rhs) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:                                             const LayerParseParameters::LayerPortData& rhs) {" << std::endl;
                                            return lhs.portId < rhs.portId;
                                        }),
                       port);
 }
 
 inline void ParseSegment(LayerParseParameters& prms, const pugi::xml_node& blob) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:  inline void ParseSegment(LayerParseParameters& prms, const pugi::xml_node& blob) {" << std::endl;
     uint64_t size = GetUInt64Attr(blob, "size", 0);
     uint64_t start = GetUInt64Attr(blob, "offset", 0);
     if (!size) return;
@@ -73,13 +79,16 @@ void FormatParser::ParseGenericParams(pugi::xml_node& node, LayerParseParameters
     if (!preStr.empty()) prms.precision = Precision::FromStr(preStr);
 
     if (prms.precision == Precision::MIXED) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (prms.precision == Precision::MIXED) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer precision must not be MIXED, at layer name: " << prms.name
                            << ", offset: " << node.offset_debug();
     }
 
     auto outNode = node.child("output");
     if (!outNode.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (!outNode.empty()) {" << std::endl;
         FOREACH_CHILD(_cn, outNode, "port") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          FOREACH_CHILD(_cn, outNode, 'port') {" << std::endl;
             LayerParseParameters::LayerPortData port;
             port.precision = prms.precision;
             ParsePort(port, _cn);
@@ -89,7 +98,9 @@ void FormatParser::ParseGenericParams(pugi::xml_node& node, LayerParseParameters
     }
     auto inpNode = node.child("input");
     if (!inpNode.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (!inpNode.empty()) {" << std::endl;
         FOREACH_CHILD(_cn, inpNode, "port") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          FOREACH_CHILD(_cn, inpNode, 'port') {" << std::endl;
             LayerParseParameters::LayerPortData port;
             port.precision = prms.precision;
             ParsePort(port, _cn);
@@ -98,27 +109,33 @@ void FormatParser::ParseGenericParams(pugi::xml_node& node, LayerParseParameters
     }
     auto blob = node.child("biases");
     if (!blob.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (!blob.empty()) {" << std::endl;
         ParseSegment(layerParsePrms, blob);
     }
     blob = node.child("weights");
     if (!blob.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (!blob.empty()) {" << std::endl;
         ParseSegment(layerParsePrms, blob);
     }
     auto blobs = node.child("blobs");
     if (!blobs.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (!blobs.empty()) {" << std::endl;
         for (blob = blobs.first_child(); !blob.empty(); blob = blob.next_sibling()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          for (blob = blobs.first_child(); !blob.empty(); blob = blob.next_sibling()) {" << std::endl;
             ParseSegment(layerParsePrms, blob);
         }
     }
 }
 
 static inline std::string gen_id(int layer_id, int port_id) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:  static inline std::string gen_id(int layer_id, int port_id) {" << std::endl;
     return (std::to_string(layer_id) + '.' + std::to_string(port_id));
 }
 
 InferenceEngine::CNNLayer::Ptr FormatParser::CreateLayer(pugi::xml_node& node,
                                                          LayerParseParameters& layerParsePrms) const {
     for (auto& creator : creators) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (auto& creator : creators) {" << std::endl;
         if (!creator->shouldCreate(layerParsePrms.prms.type)) continue;
         return creator->CreateLayer(node, layerParsePrms);
     }
@@ -128,6 +145,7 @@ InferenceEngine::CNNLayer::Ptr FormatParser::CreateLayer(pugi::xml_node& node,
 
 void FormatParser::SetLayerInput(CNNNetworkImpl& network, const std::string& dataId, CNNLayerPtr& targetLayer,
                                  int inputPort) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:                                   int inputPort) {" << std::endl;
     DataPtr& dataPtr = _portsToData[dataId];
     if (!dataPtr)
         THROW_IE_EXCEPTION << "in Layer " << targetLayer->name
@@ -136,12 +154,16 @@ void FormatParser::SetLayerInput(CNNNetworkImpl& network, const std::string& dat
     dataPtr->getInputTo()[targetLayer->name] = targetLayer;
     const LayerParseParameters& parseInfo = layersParseInfo[targetLayer->name];
     if (targetLayer->insData.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (targetLayer->insData.empty()) {" << std::endl;
         targetLayer->insData.resize(parseInfo.inputPorts.size());
     }
     for (unsigned i = 0; i < parseInfo.inputPorts.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (unsigned i = 0; i < parseInfo.inputPorts.size(); i++) {" << std::endl;
         if (parseInfo.inputPorts[i].portId != inputPort) continue;
         if (parseInfo.inputPorts[i].precision != dataPtr->getPrecision()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (parseInfo.inputPorts[i].precision != dataPtr->getPrecision()) {" << std::endl;
             if (dataPtr->getPrecision() == Precision::UNSPECIFIED) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (dataPtr->getPrecision() == Precision::UNSPECIFIED) {" << std::endl;
                 dataPtr->setPrecision(parseInfo.inputPorts[i].precision);
             } else {
                 // TODO: Make a correct exception
@@ -165,6 +187,7 @@ void FormatParser::SetLayerInput(CNNNetworkImpl& network, const std::string& dat
 }
 
 FormatParser::FormatParser(size_t version): _version(version) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:  FormatParser::FormatParser(size_t version): _version(version) {" << std::endl;
     // there should be unique_ptr but it cant be used with initializer lists
     creators = {std::make_shared<LayerCreator<PowerLayer>>("Power"),
                 std::make_shared<LayerCreator<ConvolutionLayer>>("Convolution"),
@@ -267,6 +290,7 @@ FormatParser::FormatParser(size_t version): _version(version) {
 }
 
 CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:  CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {" << std::endl;
     _network.reset(new CNNNetworkImpl());
     _network->setName(GetStrAttr(root, "name", ""));
     _defPrecision = Precision::FromStr(GetStrAttr(root, "precision", "UNSPECIFIED"));
@@ -280,6 +304,7 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
     std::map<int, CNNLayer::Ptr> layerById;
     bool identifyNetworkPrecision = _defPrecision == Precision::UNSPECIFIED;
     for (auto node = allLayersNode.child("layer"); !node.empty(); node = node.next_sibling("layer")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (auto node = allLayersNode.child('layer'); !node.empty(); node = node.next_sibling('layer')) {" << std::endl;
         LayerParseParameters lprms;
         ParseGenericParams(node, lprms);
 
@@ -291,26 +316,32 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
         layerById[lprms.layerId] = layer;
 
         if (equal(layer->type, "input")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (equal(layer->type, 'input')) {" << std::endl;
             inputLayers.push_back(layer);
         }
 
         if (identifyNetworkPrecision) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (identifyNetworkPrecision) {" << std::endl;
             if (!_network->getPrecision()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (!_network->getPrecision()) {" << std::endl;
                 _network->setPrecision(lprms.prms.precision);
             }
             if (_network->getPrecision() != lprms.prms.precision) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (_network->getPrecision() != lprms.prms.precision) {" << std::endl;
                 _network->setPrecision(Precision::MIXED);
                 identifyNetworkPrecision = false;
             }
         }
 
         for (int i = 0; i < lprms.outputPorts.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          for (int i = 0; i < lprms.outputPorts.size(); i++) {" << std::endl;
             const auto& outPort = lprms.outputPorts[i];
             const auto outId = gen_id(lprms.layerId, outPort.portId);
             const std::string outName =
                 lprms.outputPorts.size() == 1 ? lprms.prms.name : lprms.prms.name + "." + std::to_string(i);
             DataPtr& ptr = _network->getData(outName.c_str());
             if (!ptr) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (!ptr) {" << std::endl;
                 ptr.reset(
                     new Data(outName, {outPort.precision, outPort.dims, TensorDesc::getLayoutByDims(outPort.dims)}));
             }
@@ -330,6 +361,7 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
     pugi::xml_node edges = root.child("edges");
 
     FOREACH_CHILD(_ec, edges, "edge") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      FOREACH_CHILD(_ec, edges, 'edge') {" << std::endl;
         int fromLayer = GetIntAttr(_ec, "from-layer");
         int fromPort = GetIntAttr(_ec, "from-port");
         int toLayer = GetIntAttr(_ec, "to-layer");
@@ -345,6 +377,7 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
     }
 
     auto keep_input_info = [&](DataPtr& in_data) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      auto keep_input_info = [&](DataPtr& in_data) {" << std::endl;
         InputInfo::Ptr info(new InputInfo());
         info->setInputData(in_data);
         Precision prc = info->getPrecision();
@@ -360,6 +393,7 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
 
     // Keep all data from InputLayers
     for (auto inLayer : inputLayers) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (auto inLayer : inputLayers) {" << std::endl;
         if (inLayer->outData.size() != 1)
             THROW_IE_EXCEPTION << "Input layer must have 1 output. "
                                   "See documentation for details.";
@@ -368,13 +402,16 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
 
     // Keep all data which has no creator layer
     for (auto& kvp : _network->allLayers()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (auto& kvp : _network->allLayers()) {" << std::endl;
         const CNNLayer::Ptr& layer = kvp.second;
         auto pars_info = layersParseInfo[layer->name];
 
         if (layer->insData.empty()) layer->insData.resize(pars_info.inputPorts.size());
 
         for (int i = 0; i < layer->insData.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          for (int i = 0; i < layer->insData.size(); i++) {" << std::endl;
             if (!layer->insData[i].lock()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (!layer->insData[i].lock()) {" << std::endl;
                 std::string data_name =
                     (layer->insData.size() == 1) ? layer->name : layer->name + "." + std::to_string(i);
 
@@ -398,8 +435,10 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
          *       and v10.
          */
         if (layer->type == "TensorIterator") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (layer->type == 'TensorIterator') {" << std::endl;
             auto ti = dynamic_cast<TensorIterator*>(layer.get());
             for (auto &in_map_rule : ti->input_port_map) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              for (auto &in_map_rule : ti->input_port_map) {" << std::endl;
                 auto exter_data = ti->insData[in_map_rule.from].lock();
                 auto inter_data = ti->body.inputs[in_map_rule.to];
 
@@ -417,6 +456,7 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
     size_t inputLayersNum(0);
     CaselessEq<std::string> cmp;
     for (const auto& kvp : _network->allLayers()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (const auto& kvp : _network->allLayers()) {" << std::endl;
         const CNNLayer::Ptr& layer = kvp.second;
         if (cmp(layer->type, "Input") || cmp(layer->type, "Const")) inputLayersNum++;
     }
@@ -426,6 +466,7 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
 
     // check all input ports are occupied
     for (const auto& kvp : _network->allLayers()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (const auto& kvp : _network->allLayers()) {" << std::endl;
         const CNNLayer::Ptr& layer = kvp.second;
         const LayerParseParameters& parseInfo = layersParseInfo[layer->name];
         size_t inSize = layer->insData.size();
@@ -433,7 +474,9 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
             THROW_IE_EXCEPTION << "Layer " << layer->name << " does not have any edge connected to it";
 
         for (unsigned i = 0; i < inSize; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          for (unsigned i = 0; i < inSize; i++) {" << std::endl;
             if (!layer->insData[i].lock()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (!layer->insData[i].lock()) {" << std::endl;
                 THROW_IE_EXCEPTION << "Layer " << layer->name.c_str() << " input port "
                                    << parseInfo.inputPorts[i].portId << " is not connected to any data";
             }
@@ -448,8 +491,10 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
     OutputsDataMap outputsInfo;
     _network->getOutputsInfo(outputsInfo);
     for (auto outputInfo : outputsInfo) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (auto outputInfo : outputsInfo) {" << std::endl;
         if (outputInfo.second->getPrecision() != Precision::FP32 &&
             outputInfo.second->getPrecision() != Precision::I32) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              outputInfo.second->getPrecision() != Precision::I32) {" << std::endl;
             outputInfo.second->setPrecision(Precision::FP32);
         }
     }
@@ -459,6 +504,7 @@ CNNNetworkImplPtr FormatParser::Parse(pugi::xml_node& root) {
 
 template <typename BlobType>
 inline Blob::Ptr GetTypedBlobFromSegment(const TBlob<uint8_t>::Ptr& weights, const WeightSegment& segment) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:  inline Blob::Ptr GetTypedBlobFromSegment(const TBlob<uint8_t>::Ptr& weights, const WeightSegment& segment) {" << std::endl;
     if (segment.getEnd() > weights->size())
         THROW_IE_EXCEPTION << "segment exceeds given buffer limits. Please, validate weights file";
 
@@ -482,17 +528,23 @@ inline Blob::Ptr GetTypedBlobFromSegment(const TBlob<uint8_t>::Ptr& weights, con
 
 Blob::Ptr FormatParser::GetBlobFromSegment(const TBlob<uint8_t>::Ptr& weights, const WeightSegment& segment) const {
     if (segment.precision == Precision::FP32) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (segment.precision == Precision::FP32) {" << std::endl;
         return GetTypedBlobFromSegment<float>(weights, segment);
     } else if (segment.precision == Precision::I64) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      } else if (segment.precision == Precision::I64) {" << std::endl;
         return GetTypedBlobFromSegment<int64_t>(weights, segment);
     } else if (segment.precision == Precision::I32) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      } else if (segment.precision == Precision::I32) {" << std::endl;
         return GetTypedBlobFromSegment<int32_t>(weights, segment);
     } else if (segment.precision == Precision::I16 || segment.precision == Precision::Q78 ||
                segment.precision == Precision::FP16) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:                 segment.precision == Precision::FP16) {" << std::endl;
         return GetTypedBlobFromSegment<short>(weights, segment);
     } else if (segment.precision == Precision::U8 || segment.precision == Precision::BOOL) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      } else if (segment.precision == Precision::U8 || segment.precision == Precision::BOOL) {" << std::endl;
         return GetTypedBlobFromSegment<uint8_t>(weights, segment);
     } else if (segment.precision == Precision::I8 || segment.precision == Precision::BIN) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      } else if (segment.precision == Precision::I8 || segment.precision == Precision::BIN) {" << std::endl;
         return GetTypedBlobFromSegment<int8_t>(weights, segment);
     } else {
         THROW_IE_EXCEPTION << "precision " << segment.precision << " is not supported...";
@@ -500,8 +552,10 @@ Blob::Ptr FormatParser::GetBlobFromSegment(const TBlob<uint8_t>::Ptr& weights, c
 }
 
 void FormatParser::SetWeights(const TBlob<uint8_t>::Ptr& weights) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:  void FormatParser::SetWeights(const TBlob<uint8_t>::Ptr& weights) {" << std::endl;
 
     for (auto& kvp : _network->allLayers()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (auto& kvp : _network->allLayers()) {" << std::endl;
         auto fit = layersParseInfo.find(kvp.second->name);
         // todo: may check that earlier - while parsing...
         if (fit == layersParseInfo.end())
@@ -510,8 +564,11 @@ void FormatParser::SetWeights(const TBlob<uint8_t>::Ptr& weights) {
 
         WeightableLayer* pWL = dynamic_cast<WeightableLayer*>(kvp.second.get());
         if (pWL != nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (pWL != nullptr) {" << std::endl;
             if (lprms.blobs.find("weights") != lprms.blobs.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (lprms.blobs.find('weights') != lprms.blobs.end()) {" << std::endl;
                 if (lprms.prms.type == "BinaryConvolution") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:                  if (lprms.prms.type == 'BinaryConvolution') {" << std::endl;
                     auto segment = lprms.blobs["weights"];
                     if (segment.getEnd() > weights->size())
                         THROW_IE_EXCEPTION << "segment exceeds given buffer limits. Please, validate weights file";
@@ -527,6 +584,7 @@ void FormatParser::SetWeights(const TBlob<uint8_t>::Ptr& weights) {
                 pWL->blobs["weights"] = pWL->_weights;
             }
             if (lprms.blobs.find("biases") != lprms.blobs.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (lprms.blobs.find('biases') != lprms.blobs.end()) {" << std::endl;
                 pWL->_biases = GetBlobFromSegment(weights, lprms.blobs["biases"]);
                 pWL->blobs["biases"] = pWL->_biases;
             }
@@ -534,8 +592,10 @@ void FormatParser::SetWeights(const TBlob<uint8_t>::Ptr& weights) {
         auto pGL = kvp.second.get();
         if (pGL == nullptr) continue;
         for (auto s : lprms.blobs) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          for (auto s : lprms.blobs) {" << std::endl;
             pGL->blobs[s.first] = GetBlobFromSegment(weights, s.second);
             if (pGL->type == "Const") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (pGL->type == 'Const') {" << std::endl;
                 auto shapes = pGL->outData[0]->getTensorDesc().getDims();
                 pGL->blobs[s.first]->getTensorDesc().reshape(shapes, TensorDesc::getLayoutByDims(shapes));
             }
@@ -545,6 +605,7 @@ void FormatParser::SetWeights(const TBlob<uint8_t>::Ptr& weights) {
         if (fit->second.internalWeightSet) fit->second.internalWeightSet(weights);
     }
     for (auto& kvp : _preProcessSegments) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (auto& kvp : _preProcessSegments) {" << std::endl;
         const std::string& inputName = kvp.first;
         auto& segments = kvp.second;
         auto inputInfo = _network->getInput(inputName);
@@ -554,12 +615,15 @@ void FormatParser::SetWeights(const TBlob<uint8_t>::Ptr& weights) {
         size_t width = 0ul, height = 0ul;
 
         if (dims.size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (dims.size() == 3) {" << std::endl;
             height = dims.at(1);
             width = dims.at(2);
         } else if (dims.size() == 4) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          } else if (dims.size() == 4) {" << std::endl;
             height = dims.at(2);
             width = dims.at(3);
         } else if (dims.size() == 5) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          } else if (dims.size() == 5) {" << std::endl;
             height = dims.at(3);
             width = dims.at(4);
         } else {
@@ -569,6 +633,7 @@ void FormatParser::SetWeights(const TBlob<uint8_t>::Ptr& weights) {
         PreProcessInfo& pp = inputInfo->getPreProcess();
 
         for (size_t c = 0; c < segments.size(); c++) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          for (size_t c = 0; c < segments.size(); c++) {" << std::endl;
             if (segments[c].size == 0) continue;
             Blob::Ptr blob = GetBlobFromSegment(weights, segments[c]);
             blob->getTensorDesc().reshape({height, width},
@@ -580,10 +645,12 @@ void FormatParser::SetWeights(const TBlob<uint8_t>::Ptr& weights) {
 
 void FormatParser::ParseDims(SizeVector& dims, const pugi::xml_node& parentNode) const {
     for (auto node = parentNode.child("dim"); !node.empty(); node = node.next_sibling("dim")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (auto node = parentNode.child('dim'); !node.empty(); node = node.next_sibling('dim')) {" << std::endl;
         unsigned int dim = 0;
         const pugi::char_t* dimVal = node.child_value();
         stringstream ss(dimVal);
         if (!(ss >> dim) || dim == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (!(ss >> dim) || dim == 0) {" << std::endl;
             THROW_IE_EXCEPTION << "dimension (" << dimVal << ") in node " << node.name()
                                << " must be a positive integer: at offset " << node.offset_debug();
         }
@@ -602,6 +669,7 @@ const DataPtr& FormatParser::GetDataBy(int layer_id, int port_id) const {
 DataPtr FormatParser::ParseInputData(pugi::xml_node& root) const {
     auto inputNode = root.child("input");
     if (inputNode.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (inputNode.empty()) {" << std::endl;
         THROW_IE_EXCEPTION << "No input node in network, missing <input>";
     }
 
@@ -616,6 +684,7 @@ DataPtr FormatParser::ParseInputData(pugi::xml_node& root) const {
 }
 
 void FormatParser::ParsePreProcess(pugi::xml_node& root) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:  void FormatParser::ParsePreProcess(pugi::xml_node& root) {" << std::endl;
     /*
        <pre-process mean-precision="FP32">
        <channel id = ”0”>
@@ -629,6 +698,7 @@ void FormatParser::ParsePreProcess(pugi::xml_node& root) {
 
     auto ppNode = root.child("pre-process");
     if (ppNode.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (ppNode.empty()) {" << std::endl;
         return;
     }
     // find out to what input this belongs to
@@ -638,6 +708,7 @@ void FormatParser::ParsePreProcess(pugi::xml_node& root) {
     inputName = GetStrAttr(ppNode, "reference-layer-name", "");
     inputName = trim(inputName);
     if (inputName.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (inputName.empty()) {" << std::endl;
         // fallback (old format), look for the picture in the inputs
         InputsDataMap inputs;
         _network->getInputsInfo(inputs);
@@ -645,12 +716,15 @@ void FormatParser::ParsePreProcess(pugi::xml_node& root) {
         if (inputs.empty()) THROW_IE_EXCEPTION << "network has no input";
 
         for (auto i : inputs) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          for (auto i : inputs) {" << std::endl;
             if (i.second->getTensorDesc().getDims().size() == 4) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (i.second->getTensorDesc().getDims().size() == 4) {" << std::endl;
                 preProcessInput = i.second;
                 break;
             }
         }
         if (!preProcessInput) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (!preProcessInput) {" << std::endl;
             preProcessInput = inputs.begin()->second;
         }
 
@@ -666,20 +740,25 @@ void FormatParser::ParsePreProcess(pugi::xml_node& root) {
     size_t noOfChannels = 0, width = 0, height = 0;
 
     if (inputDims.size() < 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (inputDims.size() < 2) {" << std::endl;
         THROW_IE_EXCEPTION << "network did not define input dimensions properly";
-    } else if (inputDims.size() == 2) {  // NC
+    } else if (inputDims.size() == 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      } else if (inputDims.size() == 2) {" << std::endl;  // NC
         noOfChannels = inputDims[1];
         width = inputDims[1];
         height = inputDims[0];
     } else if (inputDims.size() == 3) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      } else if (inputDims.size() == 3) {" << std::endl;
         width = inputDims[2];
         height = inputDims[1];
         noOfChannels = inputDims[0];
     } else if (inputDims.size() == 4) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      } else if (inputDims.size() == 4) {" << std::endl;
         width = inputDims[3];
         height = inputDims[2];
         noOfChannels = inputDims[1];
     } else if (inputDims.size() == 5) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      } else if (inputDims.size() == 5) {" << std::endl;
         width = inputDims[4];
         height = inputDims[3];
         noOfChannels = inputDims[2];
@@ -702,8 +781,10 @@ void FormatParser::ParsePreProcess(pugi::xml_node& root) {
     std::unordered_set<int> idsForMeanImage;
 
     FOREACH_CHILD(chan, ppNode, "channel") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      FOREACH_CHILD(chan, ppNode, 'channel') {" << std::endl;
         int chanNo = GetIntAttr(chan, "id", lastChanNo + 1);
         if (chanNo >= static_cast<int>(noOfChannels) || chanNo < 0) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (chanNo >= static_cast<int>(noOfChannels) || chanNo < 0) {" << std::endl;
             THROW_IE_EXCEPTION << "Pre-process channel id invalid: " << chanNo;
         }
         lastChanNo = chanNo;
@@ -712,19 +793,24 @@ void FormatParser::ParsePreProcess(pugi::xml_node& root) {
 
         auto meanNode = chan.child("mean");
         if (!meanNode.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (!meanNode.empty()) {" << std::endl;
             if (!meanNode.attribute("value") && (!meanNode.attribute("size"))) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (!meanNode.attribute('value') && (!meanNode.attribute('size'))) {" << std::endl;
                 THROW_IE_EXCEPTION << "mean should have at least one of the following attribute: value, size";
             }
             if (meanNode.attribute("value")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (meanNode.attribute('value')) {" << std::endl;
                 preProcessChannel->meanValue = GetFloatAttr(meanNode, "value");
                 idsForMeanValue.insert(chanNo);
             }
             if (meanNode.attribute("size")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:              if (meanNode.attribute('size')) {" << std::endl;
                 idsForMeanImage.insert(chanNo);
                 preProcessSegment.size = static_cast<size_t>(GetIntAttr(meanNode, "size"));
                 preProcessSegment.start = static_cast<size_t>(GetIntAttr(meanNode, "offset"));
                 preProcessSegment.precision = meanSegmentPrecision;
                 if (width * height * meanSegmentPrecision.size() != preProcessSegment.size) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:                  if (width * height * meanSegmentPrecision.size() != preProcessSegment.size) {" << std::endl;
                     THROW_IE_EXCEPTION << "mean blob size mismatch expected input, got: " << preProcessSegment.size
                                        << " extpecting " << width << " x " << height << " x "
                                        << meanSegmentPrecision.size();
@@ -735,23 +821,29 @@ void FormatParser::ParsePreProcess(pugi::xml_node& root) {
         }
         auto scaleNode = chan.child("scale");
         if (!scaleNode.empty() && scaleNode.attribute("value")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          if (!scaleNode.empty() && scaleNode.attribute('value')) {" << std::endl;
             preProcessChannel->stdScale = GetFloatAttr(scaleNode, "value");
         }
     }
 
     if (idsForMeanImage.size() == noOfChannels) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (idsForMeanImage.size() == noOfChannels) {" << std::endl;
         pp.setVariant(MEAN_IMAGE);
     } else if (idsForMeanValue.size() == noOfChannels) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      } else if (idsForMeanValue.size() == noOfChannels) {" << std::endl;
         pp.setVariant(MEAN_VALUE);
     } else if ((idsForMeanImage.size() == 0) && (idsForMeanValue.size() == 0)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      } else if ((idsForMeanImage.size() == 0) && (idsForMeanValue.size() == 0)) {" << std::endl;
         pp.setVariant(NONE);
     } else {
         std::string validMeanValuesIds = "";
         std::string validMeanImageIds = "";
         for (auto id : idsForMeanValue) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          for (auto id : idsForMeanValue) {" << std::endl;
             validMeanValuesIds += std::to_string(id) + " ";
         }
         for (auto id : idsForMeanImage) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          for (auto id : idsForMeanImage) {" << std::endl;
             validMeanImageIds += std::to_string(id) + " ";
         }
         THROW_IE_EXCEPTION << "mean is not provided for all channels\n"
@@ -764,6 +856,7 @@ void FormatParser::ParsePreProcess(pugi::xml_node& root) {
 }
 
 void FormatParser::ParseStatisticSection(const pugi::xml_node& statNode) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:  void FormatParser::ParseStatisticSection(const pugi::xml_node& statNode) {" << std::endl;
     auto splitParseCommas = [&](const string& s) -> vector<float> {
         vector<float> res;
         stringstream ss(s);
@@ -771,6 +864,7 @@ void FormatParser::ParseStatisticSection(const pugi::xml_node& statNode) {
         float val;
 
         while (ss >> val) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:          while (ss >> val) {" << std::endl;
             res.push_back(val);
 
             if (ss.peek() == ',') ss.ignore();
@@ -782,6 +876,7 @@ void FormatParser::ParseStatisticSection(const pugi::xml_node& statNode) {
     map<string, NetworkNodeStatsPtr> newNetNodesStats;
 
     for (auto layer : statNode.children("layer")) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      for (auto layer : statNode.children('layer')) {" << std::endl;
         NetworkNodeStatsPtr nodeStats = NetworkNodeStatsPtr(new NetworkNodeStats());
 
         string name = layer.child("name").text().get();
@@ -795,6 +890,7 @@ void FormatParser::ParseStatisticSection(const pugi::xml_node& statNode) {
     ICNNNetworkStats* pstats = nullptr;
     StatusCode s = _network->getStats(&pstats, nullptr);
     if (s == StatusCode::OK && pstats) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_format_parser.cpp:      if (s == StatusCode::OK && pstats) {" << std::endl;
         pstats->setNodesStats(newNetNodesStats);
     }
 }

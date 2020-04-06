@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -49,6 +50,7 @@ namespace {
                           const int _h, const size_t _sh,
                           const int _w, const size_t _sw)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:                            const int _w, const size_t _sw)     {" << std::endl;
         return   _n * _sn
                + _d * _sd
                + _h * _sh
@@ -100,13 +102,16 @@ void nhwc_pooling_fwd_t<d_type>::execute_forward() const {
     DECLARE_READ_STRIDES(dst);
 
     auto apply_offset = [=](int index, int offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:      auto apply_offset = [=](int index, int offset) {" << std::endl;
         return (index > offset) ? index - offset : 0;
     };
 
     auto ker_max = [=](data_t *d, const data_t *s, int mb, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:      auto ker_max = [=](data_t *d, const data_t *s, int mb, int od, int oh, int ow) {" << std::endl;
         size_t ws_offset_init = 0;
         if (ws)
         {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          if (ws)         {" << std::endl;
             DECLARE_READ_STRIDES(ws);
             ws_offset_init = strided_offset(mb, ws_n_stride,
                                             od, ws_d_stride,
@@ -123,6 +128,7 @@ void nhwc_pooling_fwd_t<d_type>::execute_forward() const {
         for (int kd = 0; kd < KD; ++kd)
         for (int kh = 0; kh < KH; ++kh)
         for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          for (int kw = 0; kw < KW; ++kw) {" << std::endl;
             const int id = od * SD - padF + kd;
             const int ih = oh * SH - padT + kh;
             const int iw = ow * SW - padL + kw;
@@ -149,6 +155,7 @@ void nhwc_pooling_fwd_t<d_type>::execute_forward() const {
 
     auto ker_avg = [=](data_t *d, const data_t *s,
             int mb, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:              int mb, int od, int oh, int ow) {" << std::endl;
         utils::array_set(d, 0, C);
 
         auto id_start = apply_offset(od * SD, padF);
@@ -168,6 +175,7 @@ void nhwc_pooling_fwd_t<d_type>::execute_forward() const {
         for (int id = id_start; id < id_end; ++id)
         for (int ih = ih_start; ih < ih_end; ++ih)
         for (int iw = iw_start; iw < iw_end; ++iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          for (int iw = iw_start; iw < iw_end; ++iw) {" << std::endl;
             size_t src_offset_init = strided_offset(mb, src_n_stride,
                                                     id, src_d_stride,
                                                     ih, src_h_stride,
@@ -184,6 +192,7 @@ void nhwc_pooling_fwd_t<d_type>::execute_forward() const {
 
     parallel_nd(MB, OD, OH, OW,
         [&](int mb, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          [&](int mb, int od, int oh, int ow) {" << std::endl;
         size_t dst_offset_init = strided_offset(mb, dst_n_stride,
                                                 od, dst_d_stride,
                                                 oh, dst_h_stride,
@@ -191,6 +200,7 @@ void nhwc_pooling_fwd_t<d_type>::execute_forward() const {
         data_t *d = reinterpret_cast<data_t*>(&dst[dst_offset_init]);
 
         if (alg == pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          if (alg == pooling_max) {" << std::endl;
             ker_max(d, src, mb, od, oh, ow);
 
         } else {
@@ -246,14 +256,17 @@ void nhwc_pooling_fwd_t<data_type::bf16>::execute_forward() const {
     DECLARE_READ_STRIDES(dst);
 
     auto apply_offset = [=](int index, int offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:      auto apply_offset = [=](int index, int offset) {" << std::endl;
         return (index > offset) ? index - offset : 0;
     };
 
     auto ker_max = [=](mkldnn_bfloat16_t *d, const mkldnn_bfloat16_t *s,
         int mb, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          int mb, int od, int oh, int ow) {" << std::endl;
         size_t ws_offset_init = 0;
         if (ws)
         {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          if (ws)         {" << std::endl;
             DECLARE_READ_STRIDES(ws);
             ws_offset_init = strided_offset(mb, ws_n_stride,
                                             od, ws_d_stride,
@@ -273,6 +286,7 @@ void nhwc_pooling_fwd_t<data_type::bf16>::execute_forward() const {
         for (int kd = 0; kd < KD; ++kd)
         for (int kh = 0; kh < KH; ++kh)
         for (int kw = 0; kw < KW; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          for (int kw = 0; kw < KW; ++kw) {" << std::endl;
             const int id = od * SD - padF + kd;
             const int ih = oh * SH - padT + kh;
             const int iw = ow * SW - padL + kw;
@@ -301,6 +315,7 @@ void nhwc_pooling_fwd_t<data_type::bf16>::execute_forward() const {
 
     auto ker_avg = [=](mkldnn_bfloat16_t *d, const mkldnn_bfloat16_t *s,
             int mb, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:              int mb, int od, int oh, int ow) {" << std::endl;
         size_t ithr = mkldnn_get_thread_num();
         float *dst_f32_ = &bf16cvt_dst_wsp[ithr * C];
         float *src_f32_ = &bf16cvt_src_wsp[ithr * C];
@@ -323,6 +338,7 @@ void nhwc_pooling_fwd_t<data_type::bf16>::execute_forward() const {
         for (int id = id_start; id < id_end; ++id)
         for (int ih = ih_start; ih < ih_end; ++ih)
         for (int iw = iw_start; iw < iw_end; ++iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          for (int iw = iw_start; iw < iw_end; ++iw) {" << std::endl;
             size_t src_offset_init = strided_offset(mb, src_n_stride,
                                                     id, src_d_stride,
                                                     ih, src_h_stride,
@@ -342,6 +358,7 @@ void nhwc_pooling_fwd_t<data_type::bf16>::execute_forward() const {
 
     parallel_nd(MB, OD, OH, OW,
         [&](int mb, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          [&](int mb, int od, int oh, int ow) {" << std::endl;
         size_t dst_offset_init = strided_offset(mb, dst_n_stride,
                                                 od, dst_d_stride,
                                                 oh, dst_h_stride,
@@ -393,12 +410,14 @@ void nhwc_pooling_bwd_t<d_type>::execute_backward() const {
     DECLARE_READ_STRIDES(diff_dst);
 
     auto apply_offset = [=](int index, int offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:      auto apply_offset = [=](int index, int offset) {" << std::endl;
         return (index > offset) ? index - offset : 0;
     };
 
     auto ker_max = [=](data_t *ds, const data_t *dd,
             int mb, int od, int oh, int ow,
             int kd, int kh, int kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:              int kd, int kh, int kw) {" << std::endl;
         const memory_desc_wrapper MEM_D(ws)(pd()->workspace_pd());
         DECLARE_READ_STRIDES(ws);
         size_t ws_offset_init = strided_offset(mb, ws_n_stride,
@@ -410,6 +429,7 @@ void nhwc_pooling_bwd_t<d_type>::execute_backward() const {
 
         PRAGMA_OMP_SIMD()
         for (int c = 0; c < C; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          for (int c = 0; c < C; ++c) {" << std::endl;
             const int index_from_ws =
                             (MEM_D(ws).data_type() == data_type::u8)
                             ? (int)ws[ws_offset_init + c]
@@ -431,6 +451,7 @@ void nhwc_pooling_bwd_t<d_type>::execute_backward() const {
 
     auto ker_avg = [=](data_t *ds, const data_t *dd,
             int mb, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:              int mb, int od, int oh, int ow) {" << std::endl;
         auto id_start = apply_offset(od * SD, padF);
         auto ih_start = apply_offset(oh * SH, padT);
         auto iw_start = apply_offset(ow * SW, padL);
@@ -447,6 +468,7 @@ void nhwc_pooling_bwd_t<d_type>::execute_backward() const {
 
         PRAGMA_OMP_SIMD()
         for (int c = 0; c < C; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          for (int c = 0; c < C; ++c) {" << std::endl;
             const data_t d = dd[c];
             // Check if kernel windows are disjoint, in this case
             // there's no update needed and we just write there once
@@ -461,6 +483,7 @@ void nhwc_pooling_bwd_t<d_type>::execute_backward() const {
 
     parallel_nd(MB, ID, IH, IW,
         [&](int mb, int id, int ih, int iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          [&](int mb, int id, int ih, int iw) {" << std::endl;
         size_t src_offset_init = strided_offset(mb, diff_src_n_stride,
                                                 id, diff_src_d_stride,
                                                 ih, diff_src_h_stride,
@@ -499,6 +522,7 @@ void nhwc_pooling_bwd_t<d_type>::execute_backward() const {
         for (int od = od_left; od < od_right; ++od)
         for (int oh = oh_left; oh < oh_right; ++oh)
         for (int ow = ow_left; ow < ow_right; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          for (int ow = ow_left; ow < ow_right; ++ow) {" << std::endl;
             const int kd = id - od * SD + padF;
             const int kh = ih - oh * SH + padT;
             const int kw = iw - ow * SW + padL;
@@ -515,6 +539,7 @@ void nhwc_pooling_bwd_t<d_type>::execute_backward() const {
                                                     oh, diff_dst_h_stride,
                                                     ow, diff_dst_w_stride);
             if (alg == pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:              if (alg == pooling_max) {" << std::endl;
                 ker_max(&diff_src[src_offset_init], &diff_dst[dst_offset_init],
                         mb, od, oh, ow, kd, kh, kw);
             } else {
@@ -567,12 +592,14 @@ void nhwc_pooling_bwd_t<data_type::bf16>::execute_backward() const {
     DECLARE_READ_STRIDES(diff_dst);
 
     auto apply_offset = [=](int index, int offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:      auto apply_offset = [=](int index, int offset) {" << std::endl;
         return (index > offset) ? index - offset : 0;
     };
 
     auto ker_max = [=](float *ds, const float *dd,
             int mb, int od, int oh, int ow,
             int kd, int kh, int kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:              int kd, int kh, int kw) {" << std::endl;
         const memory_desc_wrapper MEM_D(ws)(pd()->workspace_pd());
         DECLARE_READ_STRIDES(ws);
         size_t ws_offset_init = strided_offset(mb, ws_n_stride,
@@ -584,6 +611,7 @@ void nhwc_pooling_bwd_t<data_type::bf16>::execute_backward() const {
 
         PRAGMA_OMP_SIMD()
         for (int c = 0; c < C; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          for (int c = 0; c < C; ++c) {" << std::endl;
             const int index_from_ws =
                             (MEM_D(ws).data_type() == data_type::u8)
                             ? (int)ws[ws_offset_init + c]
@@ -605,6 +633,7 @@ void nhwc_pooling_bwd_t<data_type::bf16>::execute_backward() const {
 
     auto ker_avg = [=](float *ds, const float *dd,
             int mb, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:              int mb, int od, int oh, int ow) {" << std::endl;
         auto id_start = apply_offset(od * SD, padF);
         auto ih_start = apply_offset(oh * SH, padT);
         auto iw_start = apply_offset(ow * SW, padL);
@@ -621,6 +650,7 @@ void nhwc_pooling_bwd_t<data_type::bf16>::execute_backward() const {
 
         PRAGMA_OMP_SIMD()
         for (int c = 0; c < C; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          for (int c = 0; c < C; ++c) {" << std::endl;
             // Check if kernel windows are disjoint, in this case
             // there's no update needed and we just write there once
             // otherwise we add value to the contents.
@@ -634,6 +664,7 @@ void nhwc_pooling_bwd_t<data_type::bf16>::execute_backward() const {
 
     parallel_nd(MB, ID, IH, IW,
         [&](int mb, int id, int ih, int iw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          [&](int mb, int id, int ih, int iw) {" << std::endl;
         size_t src_offset_init = strided_offset(mb, diff_src_n_stride,
                                                 id, diff_src_d_stride,
                                                 ih, diff_src_h_stride,
@@ -674,6 +705,7 @@ void nhwc_pooling_bwd_t<data_type::bf16>::execute_backward() const {
         for (int od = od_left; od < od_right; ++od)
         for (int oh = oh_left; oh < oh_right; ++oh)
         for (int ow = ow_left; ow < ow_right; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:          for (int ow = ow_left; ow < ow_right; ++ow) {" << std::endl;
             const int kd = id - od * SD + padF;
             const int kh = ih - oh * SH + padT;
             const int kw = iw - ow * SW + padL;
@@ -691,6 +723,7 @@ void nhwc_pooling_bwd_t<data_type::bf16>::execute_backward() const {
                                                     ow, diff_dst_w_stride);
             cvt_bfloat16_to_float(ddst_fp32_, &diff_dst[dst_offset_init], C);
             if (alg == pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/nhwc_pooling.cpp:              if (alg == pooling_max) {" << std::endl;
                 ker_max(dsrc_fp32_, ddst_fp32_,
                         mb, od, oh, ow, kd, kh, kw);
             } else {

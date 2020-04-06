@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -30,22 +31,27 @@ namespace cpu {
 using namespace alg_kind;
 
 template <typename T> inline T scale_shift_fwd(T s_val, T w_val, T b_val) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_depthwise.cpp:  template <typename T> inline T scale_shift_fwd(T s_val, T w_val, T b_val) {" << std::endl;
     return s_val*w_val + b_val;
 }
 
 template <typename T> inline T prelu_fwd(T s_val, T w_val) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_depthwise.cpp:  template <typename T> inline T prelu_fwd(T s_val, T w_val) {" << std::endl;
     return s_val >= 0 ? s_val : s_val*w_val;
 }
 
 ref_depthwise_scalar_fwd_t::ref_depthwise_scalar_fwd_t(const alg_kind_t alg_)
         : alg(alg_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_depthwise.cpp:          : alg(alg_) {" << std::endl;
     using namespace alg_kind;
 
     assert(utils::one_of(alg, depthwise_scale_shift, depthwise_prelu));
 }
 
 float ref_depthwise_scalar_fwd_t::compute_scalar(float s, const float* weights, const float* bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_depthwise.cpp:  float ref_depthwise_scalar_fwd_t::compute_scalar(float s, const float* weights, const float* bias) {" << std::endl;
     switch (alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_depthwise.cpp:      switch (alg) {" << std::endl;
         case depthwise_scale_shift: return scale_shift_fwd(s, *weights, *bias);
         case depthwise_prelu: return prelu_fwd(s, *weights);
         default: assert(!"unknown depthwise alg_kind");
@@ -74,6 +80,7 @@ void ref_depthwise_fwd_t<data_type>::execute_forward() const {
 
     parallel_nd(MB, C, D, H, W,
         [&](int n, int c, int d, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_depthwise.cpp:          [&](int n, int c, int d, int h, int w) {" << std::endl;
         size_t data_off = data_d.ndims() == 3
                         ? data_d.off(n, c, h)
                         : data_d.ndims() == 4
@@ -88,6 +95,7 @@ void ref_depthwise_fwd_t<data_type>::execute_forward() const {
         data_t &d_val = dst[data_off];
 
         switch (alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_depthwise.cpp:          switch (alg_kind) {" << std::endl;
             case depthwise_scale_shift: d_val = scale_shift_fwd(s_val, w_val, b_val); break;
             case depthwise_prelu: d_val = prelu_fwd(s_val, w_val); break;
             default: assert(!"unknown depthwise alg_kind");

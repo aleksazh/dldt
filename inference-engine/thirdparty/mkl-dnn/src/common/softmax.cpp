@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -31,6 +32,7 @@ using namespace mkldnn::impl::types;
 namespace {
 status_t softmax_desc_init(softmax_desc_t *softmax_desc, prop_kind_t prop_kind,
         const memory_desc_t *data_desc, const memory_desc_t *diff_desc, int softmax_axis) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/softmax.cpp:          const memory_desc_t *data_desc, const memory_desc_t *diff_desc, int softmax_axis) {" << std::endl;
     bool args_ok = true
         && !any_null(softmax_desc, data_desc)
         && 0 <= softmax_axis
@@ -54,6 +56,7 @@ status_t softmax_desc_init(softmax_desc_t *softmax_desc, prop_kind_t prop_kind,
 status_t mkldnn_softmax_forward_desc_init(softmax_desc_t *softmax_desc,
         prop_kind_t prop_kind, const memory_desc_t *data_desc,
         int softmax_axis) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/softmax.cpp:          int softmax_axis) {" << std::endl;
     if (!one_of(prop_kind, forward_inference, forward_training))
         return invalid_arguments;
     return softmax_desc_init(softmax_desc, prop_kind, data_desc, nullptr, softmax_axis);
@@ -62,6 +65,7 @@ status_t mkldnn_softmax_forward_desc_init(softmax_desc_t *softmax_desc,
 status_t mkldnn_softmax_backward_desc_init(softmax_desc_t *softmax_desc,
         const memory_desc_t *diff_desc, const mkldnn_memory_desc_t *data_desc,
         int softmax_axis) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/softmax.cpp:          int softmax_axis) {" << std::endl;
     return softmax_desc_init(softmax_desc, prop_kind::backward_data,
             data_desc, diff_desc, softmax_axis);
 }

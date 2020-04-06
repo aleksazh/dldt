@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,9 +17,11 @@ using namespace MKLDNNPlugin;
 using namespace InferenceEngine;
 
 MKLDNNPowerNode::MKLDNNPowerNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket)
-        : MKLDNNNode(layer, eng, socket), scale(1.0f), shift(1.0f), power(1.0f) {}
+        : MKLDNNNode(layer, eng, socket), scale(1.0f), shift(1.0f), power(1.0f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:          : MKLDNNNode(layer, eng, socket), scale(1.0f), shift(1.0f), power(1.0f) {" << std::endl;}
 
 void MKLDNNPowerNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:  void MKLDNNPowerNode::getSupportedDescriptors() {" << std::endl;
     auto * powerLayer = dynamic_cast<PowerLayer*>(getCnnLayer().get());
 
     if (powerLayer == nullptr)
@@ -34,6 +37,7 @@ void MKLDNNPowerNode::getSupportedDescriptors() {
 }
 
 void MKLDNNPowerNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:  void MKLDNNPowerNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -55,9 +59,11 @@ void MKLDNNPowerNode::initSupportedPrimitiveDescriptors() {
     config.outConfs[0].inPlace = -1;
     config.outConfs[0].constant = false;
     for (auto format : getAvailableFormatsForDims(getParentEdgeAt(0)->getDims())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:      for (auto format : getAvailableFormatsForDims(getParentEdgeAt(0)->getDims())) {" << std::endl;
         config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, format);
         config.outConfs[0].desc = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, format);
         if (format != memory::any) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:          if (format != memory::any) {" << std::endl;
             config.inConfs[0].desc = InferenceEngine::TensorDesc(config.inConfs[0].desc.getPrecision(),
                                                                  config.inConfs[0].desc.getDims(), {
                                                                          config.inConfs[0].desc.getBlockingDesc().getBlockDims(),
@@ -76,6 +82,7 @@ void MKLDNNPowerNode::initSupportedPrimitiveDescriptors() {
 }
 
 void MKLDNNPowerNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:  void MKLDNNPowerNode::createPrimitive() {" << std::endl;
     auto& dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
     auto& srcMemPtr = getParentEdgeAt(0)->getMemoryPtr();
     if (!dstMemPtr || !dstMemPtr->GetPrimitivePtr())
@@ -87,6 +94,7 @@ void MKLDNNPowerNode::createPrimitive() {
 }
 
 void MKLDNNPowerNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:  void MKLDNNPowerNode::execute(mkldnn::stream strm) {" << std::endl;
     auto& srcMemory = getParentEdgeAt(0)->getMemory();
     auto& dstMemory = getChildEdgeAt(0)->getMemory();
     const size_t data_size = srcMemory.GetSize() / sizeof(float) / srcMemory.GetDims()[0] * batchToProcess();
@@ -97,21 +105,28 @@ void MKLDNNPowerNode::execute(mkldnn::stream strm) {
             dstMemory.GetDescriptor().data.layout_desc.blocking.offset_padding;
 
     if (power == 1.0f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:      if (power == 1.0f) {" << std::endl;
         parallel_for(data_size, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:          parallel_for(data_size, [&](size_t i) {" << std::endl;
             dst_ptr[i] = src_ptr[i] * scale + shift;
         });
     } else if (power == 2.0f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:      } else if (power == 2.0f) {" << std::endl;
         parallel_for(data_size, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:          parallel_for(data_size, [&](size_t i) {" << std::endl;
             float val = src_ptr[i] * scale + shift;
             dst_ptr[i] = val * val;
         });
     } else if (power == 3.0f) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:      } else if (power == 3.0f) {" << std::endl;
         parallel_for(data_size, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:          parallel_for(data_size, [&](size_t i) {" << std::endl;
             float val = src_ptr[i] * scale + shift;
             dst_ptr[i] = val * val * val;
         });
     } else {
         parallel_for(data_size, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_power_node.cpp:          parallel_for(data_size, [&](size_t i) {" << std::endl;
             dst_ptr[i] = pow(src_ptr[i] * scale + shift, power);
         });
     }

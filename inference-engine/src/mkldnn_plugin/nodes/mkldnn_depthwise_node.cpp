@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,6 +19,7 @@ using namespace InferenceEngine::details;
 
 MKLDNNDepthwiseNode::MKLDNNDepthwiseNode(InferenceEngine::CNNLayerPtr layer, const mkldnn::engine& eng, int socket)
         : MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:          : MKLDNNNode(layer, eng, socket) {" << std::endl;
     internalBlobDesc.emplace_back([&](primitive_desc_iterator &primitive_desc_it, size_t idx) -> MKLDNNMemoryDesc {
         return MKLDNNMemoryDesc(primitive_desc_it.weights_primitive_desc(0).desc());
     });
@@ -29,6 +31,7 @@ MKLDNNDepthwiseNode::MKLDNNDepthwiseNode(InferenceEngine::CNNLayerPtr layer, con
 }
 
 void MKLDNNDepthwiseNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:  void MKLDNNDepthwiseNode::getSupportedDescriptors() {" << std::endl;
     InferenceEngine::Precision precision = getCnnLayer()->insData[0].lock()->getPrecision();
     if (precision != InferenceEngine::Precision::FP32)
         precision = InferenceEngine::Precision::FP32;
@@ -53,6 +56,7 @@ void MKLDNNDepthwiseNode::getSupportedDescriptors() {
         realWeightSize = blb->size();
     internalBlobs.push_back(createInternalBlob(weightDims, true));
     if (isWithBiases()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:      if (isWithBiases()) {" << std::endl;
         InferenceEngine::Blob::Ptr blb = wLayer->_biases;
         if (blb)
             realBiasSize = blb->size();
@@ -60,12 +64,14 @@ void MKLDNNDepthwiseNode::getSupportedDescriptors() {
     }
 
     for (auto format : getAvailableFormatsForDims(parentOutDims)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:      for (auto format : getAvailableFormatsForDims(parentOutDims)) {" << std::endl;
         MKLDNNMemoryDesc in_candidate{parentOutDims, inputDataType, format};
         createDescriptor({in_candidate}, {});
     }
 }
 
 void MKLDNNDepthwiseNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:  void MKLDNNDepthwiseNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
@@ -81,16 +87,20 @@ void MKLDNNDepthwiseNode::createPrimitive() {
     auto prim_desc = createPrimitiveDescriptor<depthwise_forward::primitive_desc, depthwise_forward::desc>();
 
     if (isBroadcast()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:      if (isBroadcast()) {" << std::endl;
         float broadcastValue = static_cast<float*>(internalBlobMemory[0]->GetData())[0];
         size_t blbSize = internalBlobMemory[0]->GetPrimitiveDescriptor().desc().data.dims[0];
         for (int i = 1; i < blbSize && realWeightSize != blbSize; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:          for (int i = 1; i < blbSize && realWeightSize != blbSize; i++) {" << std::endl;
             static_cast<float*>(internalBlobMemory[0]->GetData())[i] = broadcastValue;
         }
 
         if (isWithBiases()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:          if (isWithBiases()) {" << std::endl;
             blbSize = internalBlobMemory[1]->GetPrimitiveDescriptor().desc().data.dims[0];
             broadcastValue = static_cast<float*>(internalBlobMemory[1]->GetData())[0];
             for (int i = 1; i < blbSize && realBiasSize != blbSize; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:              for (int i = 1; i < blbSize && realBiasSize != blbSize; i++) {" << std::endl;
                 static_cast<float*>(internalBlobMemory[1]->GetData())[i] = broadcastValue;
             }
         }
@@ -99,6 +109,7 @@ void MKLDNNDepthwiseNode::createPrimitive() {
         if (realWeightSize != blbSize)
             THROW_IE_EXCEPTION << "Cannot create layer " << getName() << ": Incorrect weights!";
         if (isWithBiases()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:          if (isWithBiases()) {" << std::endl;
             blbSize = internalBlobMemory[1]->GetPrimitiveDescriptor().desc().data.dims[0];
             if (realBiasSize != blbSize)
                 THROW_IE_EXCEPTION << "Cannot create layer " << getName() << ": Incorrect biases!";
@@ -106,6 +117,7 @@ void MKLDNNDepthwiseNode::createPrimitive() {
     }
 
     if (isWithBiases()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:      if (isWithBiases()) {" << std::endl;
         prim.reset(new depthwise_forward(prim_desc, getParentEdgeAt(0)->getMemory().GetPrimitive(),
                                          internalBlobMemory[0]->GetPrimitive(),
                                          internalBlobMemory[1]->GetPrimitive(),
@@ -122,12 +134,14 @@ bool MKLDNNDepthwiseNode::created() const {
 }
 
 void MKLDNNDepthwiseNode::initValues() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:  void MKLDNNDepthwiseNode::initValues() {" << std::endl;
     GenericLayer* depthwiseLayer = getCnnLayer().get();
     if (depthwiseLayer == nullptr)
         THROW_IE_EXCEPTION << "Cannot get CNNLayer.";
 
     CaselessEq<std::string> comparator;
     if (comparator(depthwiseLayer->type, "ScaleShift")) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:      if (comparator(depthwiseLayer->type, 'ScaleShift')) {" << std::endl;
         auto *scshLayer = dynamic_cast<ScaleShiftLayer*>(getCnnLayer().get());
         if (scshLayer == nullptr)
             THROW_IE_EXCEPTION << "Cannot get scale shift layer " << getName();
@@ -138,6 +152,7 @@ void MKLDNNDepthwiseNode::initValues() {
         withBiases = scshLayer->_biases != nullptr;
         broadcast = static_cast<bool>(scshLayer->_broadcast);
     } else if (comparator(depthwiseLayer->type, "PReLU")) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:      } else if (comparator(depthwiseLayer->type, 'PReLU')) {" << std::endl;
         auto *preluLayer = dynamic_cast<PReLULayer*>(getCnnLayer().get());
         if (preluLayer == nullptr)
             THROW_IE_EXCEPTION << "Cannot get PReLU layer " << getName();
@@ -156,6 +171,7 @@ void MKLDNNDepthwiseNode::initValues() {
 
 void MKLDNNDepthwiseNode::createDescriptor(const std::vector<InferenceEngine::TensorDesc> &inputDesc,
                                            const std::vector<InferenceEngine::TensorDesc> &outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:                                             const std::vector<InferenceEngine::TensorDesc> &outputDesc) {" << std::endl;
     MKLDNNMemoryDesc in_candidate(inputDesc[0]);
     MKLDNNMemoryDesc out_candidate(inputDesc[0]);
     MKLDNNDims weightDims({in_candidate.getDims()[1]});
@@ -163,6 +179,7 @@ void MKLDNNDepthwiseNode::createDescriptor(const std::vector<InferenceEngine::Te
     MKLDNNMemoryDesc wgh_candidate{weightDims, in_candidate.getDataType(), memory::x};
 
     if (isWithBiases()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:      if (isWithBiases()) {" << std::endl;
         MKLDNNMemoryDesc bias_candidate{weightDims, in_candidate.getDataType(), memory::x};
         MKLDNNDescriptor desc(std::shared_ptr<depthwise_forward::desc>(
                 new depthwise_forward::desc(prop_kind::forward_scoring, getAlgorithm(), in_candidate, out_candidate, wgh_candidate, bias_candidate)));
@@ -175,6 +192,7 @@ void MKLDNNDepthwiseNode::createDescriptor(const std::vector<InferenceEngine::Te
 }
 
 void MKLDNNDepthwiseNode::initOptimalPrimitiveDescriptor() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:  void MKLDNNDepthwiseNode::initOptimalPrimitiveDescriptor() {" << std::endl;
     auto selected_pd = getSelectedPrimitiveDescriptor();
     if (selected_pd == nullptr)
         THROW_IE_EXCEPTION << "Preferable primitive descriptor is not set.";
@@ -187,8 +205,10 @@ void MKLDNNDepthwiseNode::initOptimalPrimitiveDescriptor() {
         THROW_IE_EXCEPTION << "Layer " << getName() << " has incorrect selected config!";
 
     if (!isUninitTensorDesc(config.inConfs[0].desc)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:      if (!isUninitTensorDesc(config.inConfs[0].desc)) {" << std::endl;
         config.outConfs[0].desc = config.inConfs[0].desc;
     } else if (!isUninitTensorDesc(config.outConfs[0].desc)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_depthwise_node.cpp:      } else if (!isUninitTensorDesc(config.outConfs[0].desc)) {" << std::endl;
         config.inConfs[0].desc = config.outConfs[0].desc;
     } else {
         config.outConfs[0].desc = config.inConfs[0].desc = getConfiguredInputDesc(config, 0);

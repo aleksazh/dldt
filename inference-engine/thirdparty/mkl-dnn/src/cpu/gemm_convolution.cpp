@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -63,12 +64,14 @@ void gemm_convolution_fwd_t::execute_forward() const {
 
     if (jcp.im2col_sz && jcp.id != 1)
         parallel_nd(jcp.im2col_sz * jcp.nthr,
-                [&](ptrdiff_t i) { col[i] = (data_t)0; });
+                [&](ptrdiff_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                  [&](ptrdiff_t i) {" << std::endl; col[i] = (data_t)0; });
 
     const int nb_oh = div_up(jcp.oh, jcp.oh_block);
     const int nb_ow = div_up(jcp.ow, jcp.ow_block);
     const size_t work_amount = jcp.ngroups * MB * jcp.od * nb_oh * nb_ow;
     parallel(jcp.nthr, work_amount, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:      parallel(jcp.nthr, work_amount, [&](const int ithr, const int nthr) {" << std::endl;
         data_t *_col = col + (ptrdiff_t)ithr * jcp.im2col_sz;
 
         int g{ 0 }, n{ 0 }, od{ 0 }, ohb{ 0 }, owb{ 0 };
@@ -78,6 +81,7 @@ void gemm_convolution_fwd_t::execute_forward() const {
         nd_iterator_init(start, g, jcp.ngroups, n, MB, od, jcp.od, ohb,
                 nb_oh, owb, nb_ow);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int oh = ohb * jcp.oh_block;
             int ow = owb * jcp.ow_block;
             const data_t *_src = src + (n * jcp.ngroups + g) * src_step;
@@ -86,6 +90,7 @@ void gemm_convolution_fwd_t::execute_forward() const {
             const int h_step = nstl::min(jcp.oh_block, jcp.oh - oh);
             const int w_step = nstl::min(jcp.ow_block, jcp.ow - ow);
             if (jcp.im2col_sz) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              if (jcp.im2col_sz) {" << std::endl;
                 if (jcp.id == 1)
                     jit_gemm_convolution_utils::im2col<float>(
                             jcp, _src, _col, oh, h_step, ow, w_step);
@@ -107,11 +112,14 @@ void gemm_convolution_fwd_t::execute_forward() const {
             const auto &p = pd()->attr()->post_ops_;
             bool need_bias = jcp.with_bias;
             if (use_fast_relu) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              if (use_fast_relu) {" << std::endl;
                 parallel_nd(jcp.oc, [&](const int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                  parallel_nd(jcp.oc, [&](const int oc) {" << std::endl;
                     data_t b = need_bias ? bias[g * jcp.oc + oc] : 0;
                     data_t *d_ = d + oc * M;
                     PRAGMA_OMP_SIMD()
                     for (int oS = 0; oS < m; ++oS) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                      for (int oS = 0; oS < m; ++oS) {" << std::endl;
                         d_[oS] += b;
                         if (d_[oS] < 0) d_[oS] *= fast_relu_ns;
                     }
@@ -119,17 +127,22 @@ void gemm_convolution_fwd_t::execute_forward() const {
 
                 need_bias = false;
             } else if (p.len_ > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              } else if (p.len_ > 0) {" << std::endl;
                 int eltwise_inj_idx = 0;
                 int depthwise_inj_idx = 0;
 
                 for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                  for (int i = 0; i < p.len_; i++) {" << std::endl;
                     auto& post_op = p.entry_[i];
                     if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                      if (post_op.is_eltwise()) {" << std::endl;
                         parallel_nd(jcp.oc, [&](const int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                          parallel_nd(jcp.oc, [&](const int oc) {" << std::endl;
                             data_t b = need_bias ? bias[g * jcp.oc + oc] : 0;
                             data_t *d_ = d + oc * M;
                             PRAGMA_OMP_SIMD()
                             for (int oS = 0; oS < m; ++oS) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                              for (int oS = 0; oS < m; ++oS) {" << std::endl;
                                 d_[oS] += b;
                                 d_[oS] = eltwise_injectors[eltwise_inj_idx]->compute_scalar(d_[oS]);
                             }
@@ -138,14 +151,17 @@ void gemm_convolution_fwd_t::execute_forward() const {
                         eltwise_inj_idx++;
                         need_bias = false;
                     } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                      } else if (post_op.is_depthwise()) {" << std::endl;
                         auto depthwise_weights = post_op.depthwise.weights_data;
                         auto depthwise_bias = post_op.depthwise.biases_data;
 
                         parallel_nd(jcp.oc, [&](const int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                          parallel_nd(jcp.oc, [&](const int oc) {" << std::endl;
                             data_t b = need_bias ? bias[g * jcp.oc + oc] : 0;
                             data_t *d_ = d + oc * M;
                             PRAGMA_OMP_SIMD()
                             for (int oS = 0; oS < m; ++oS) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                              for (int oS = 0; oS < m; ++oS) {" << std::endl;
                                 d_[oS] += b;
                                 d_[oS] = depthwise_injectors[depthwise_inj_idx]->compute_scalar(d_[oS],
                                                                   depthwise_weights + g * jcp.oc + oc,
@@ -156,6 +172,7 @@ void gemm_convolution_fwd_t::execute_forward() const {
                         depthwise_inj_idx++;
                         need_bias = false;
                     } else if (post_op.is_quantization()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                      } else if (post_op.is_quantization()) {" << std::endl;
                         auto pcl = post_op.quantization.crop_low_data;
                         auto pch = post_op.quantization.crop_high_data;
                         auto pisc = post_op.quantization.input_scale_data;
@@ -164,6 +181,7 @@ void gemm_convolution_fwd_t::execute_forward() const {
                         auto posh = post_op.quantization.output_shift_data;
 
                         parallel_nd(jcp.oc, [&](const int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                          parallel_nd(jcp.oc, [&](const int oc) {" << std::endl;
                             data_t b = need_bias ? bias[g * jcp.oc + oc] : 0;
                             data_t *d_ = d + oc * M;
 
@@ -171,6 +189,7 @@ void gemm_convolution_fwd_t::execute_forward() const {
 
                             PRAGMA_OMP_SIMD()
                             for (int oS = 0; oS < m; ++oS) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                              for (int oS = 0; oS < m; ++oS) {" << std::endl;
                                 d_[oS] += b;
 
                                 d_[oS] = nstl::min(pch[idx], nstl::max(pcl[idx], d_[oS]));
@@ -186,11 +205,14 @@ void gemm_convolution_fwd_t::execute_forward() const {
             }
 
             if (need_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              if (need_bias) {" << std::endl;
                 parallel_nd(jcp.oc, [&](const int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                  parallel_nd(jcp.oc, [&](const int oc) {" << std::endl;
                     data_t b = bias[g * jcp.oc + oc];
                     data_t *d_ = d + oc * M;
                     PRAGMA_OMP_SIMD()
                     for (int oS = 0; oS < m; ++oS) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                      for (int oS = 0; oS < m; ++oS) {" << std::endl;
                         d_[oS] += b;
                     }
                 });
@@ -228,14 +250,18 @@ void gemm_convolution_bwd_data_t::execute_backward_data() const {
     const size_t work_amount = (size_t)jcp.ngroups * MB;
 
     if (jcp.id > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:      if (jcp.id > 1) {" << std::endl;
         for (size_t j = 0; j < work_amount; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:          for (size_t j = 0; j < work_amount; j++) {" << std::endl;
             int j_step = src_step * j;
             const ptrdiff_t diff_src_sz = (ptrdiff_t)(src_step_to_clean);
-            parallel_nd(diff_src_sz, [&](ptrdiff_t i) { diff_src[j_step + i] = (data_t)0; });
+            parallel_nd(diff_src_sz, [&](ptrdiff_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              parallel_nd(diff_src_sz, [&](ptrdiff_t i) {" << std::endl; diff_src[j_step + i] = (data_t)0; });
         }
     }
 
     parallel(jcp.nthr, work_amount, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:      parallel(jcp.nthr, work_amount, [&](const int ithr, const int nthr) {" << std::endl;
         data_t *_col = col + (ptrdiff_t)ithr * jcp.im2col_sz;
 
         int g{0}, n{0};
@@ -243,10 +269,12 @@ void gemm_convolution_bwd_data_t::execute_backward_data() const {
         balance211(work_amount, nthr, ithr, start, end);
         nd_iterator_init(start, g, jcp.ngroups, n, MB);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
 
             data_t *_diff_src = diff_src + (n * jcp.ngroups + g) * src_step;
             const data_t *_weights = weights + g * weights_g_size;
             for (int od = 0; od < jcp.od; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              for (int od = 0; od < jcp.od; ++od) {" << std::endl;
                 const data_t *_diff_dst = diff_dst + (n * jcp.ngroups + g)
                     *dst_step + od * m;
 
@@ -256,6 +284,7 @@ void gemm_convolution_bwd_data_t::execute_backward_data() const {
                     jcp.im2col_sz ? _col:_diff_src + od * m, &LDC);
 
                 if (jcp.im2col_sz) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                  if (jcp.im2col_sz) {" << std::endl;
                     if (jcp.id == 1)
                         jit_gemm_convolution_utils::col2im(jcp, _col,
                             _diff_src);
@@ -291,9 +320,11 @@ void gemm_convolution_bwd_weights_t::execute_backward_weights() const {
     const int LDA = jcp.im2col_sz ? k : K;
 
     parallel_nd(jcp.im2col_sz * jcp.nthr,
-            [&](ptrdiff_t i) { col[i] = (data_t)0; });
+            [&](ptrdiff_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              [&](ptrdiff_t i) {" << std::endl; col[i] = (data_t)0; });
 
     parallel(jcp.nthr, jcp.nthr, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:      parallel(jcp.nthr, jcp.nthr, [&](const int ithr, const int nthr) {" << std::endl;
         int ithr_g, nthr_g, ithr_mb, nthr_mb;
         size_t g_start{0}, g_end{0}, mb_start{0}, mb_end{0};
 
@@ -305,6 +336,7 @@ void gemm_convolution_bwd_weights_t::execute_backward_weights() const {
         const int need_reduction = nthr_mb != 1;
 
         if (ithr_g != -1 && ithr_mb != -1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:          if (ithr_g != -1 && ithr_mb != -1) {" << std::endl;
             balance211((size_t)jcp.ngroups, nthr_g, ithr_g, g_start, g_end);
             balance211((size_t)jcp.mb, nthr_mb, ithr_mb, mb_start, mb_end);
 
@@ -317,15 +349,19 @@ void gemm_convolution_bwd_weights_t::execute_backward_weights() const {
                     + ithr_mb * weights_g_size;
 
             for (size_t g = g_start; g < g_end; ++g) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              for (size_t g = g_start; g < g_end; ++g) {" << std::endl;
                 data_t *_diff_weights = need_reduction
                         ? weights_reduce : (diff_weights + g * weights_g_size);
                 for (size_t mb = mb_start; mb < mb_end; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                  for (size_t mb = mb_start; mb < mb_end; ++mb) {" << std::endl;
                     const data_t *_src = src + (mb*jcp.ngroups+g)*src_step;
                     for (int od = 0; od < jcp.od; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                      for (int od = 0; od < jcp.od; ++od) {" << std::endl;
                     const data_t *_diff_dst = diff_dst
                             + (mb*jcp.ngroups+g)*dst_step + od * k;
 
                     if (jcp.im2col_sz) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                      if (jcp.im2col_sz) {" << std::endl;
                         if (jcp.id == 1)
                             jit_gemm_convolution_utils::im2col<float>(
                                     jcp, _src, _col, 0, jcp.oh, 0, jcp.ow);
@@ -345,26 +381,32 @@ void gemm_convolution_bwd_weights_t::execute_backward_weights() const {
                 }
             }
             if (need_reduction) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              if (need_reduction) {" << std::endl;
                 mkldnn_thr_barrier();
                 data_t *weights_base = diff_weights + g_start * weights_g_size;
                 jit_gemm_convolution_utils::bwd_weights_reduction_par(
                     ithr_mb, nthr_mb, jcp, weights_reduce_base, weights_base);
             }
         } else
-            if (need_reduction) { mkldnn_thr_barrier(); }
+            if (need_reduction) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              if (need_reduction) {" << std::endl; mkldnn_thr_barrier(); }
     });
 
     if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:      if (jcp.with_bias) {" << std::endl;
         parallel_nd(jcp.ngroups, jcp.oc, [&](int g, int oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:          parallel_nd(jcp.ngroups, jcp.oc, [&](int g, int oc) {" << std::endl;
             data_t db = 0;
             size_t offset_ = (size_t)g * dst_step + (size_t)oc * K;
             for (int mb = 0; mb < jcp.mb; ++mb)
             {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:              for (int mb = 0; mb < jcp.mb; ++mb)             {" << std::endl;
                 size_t offset = offset_ + (size_t)mb * jcp.ngroups * dst_step;
                 for (int od = 0; od < jcp.od; ++od)
                 for (int oh = 0; oh < jcp.oh; ++oh)
                 PRAGMA_OMP_SIMD(reduction(+:db))
                 for (int ow = 0; ow < jcp.ow; ++ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_convolution.cpp:                  for (int ow = 0; ow < jcp.ow; ++ow) {" << std::endl;
                     db += diff_dst[offset];
                     offset++;
                 }

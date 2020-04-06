@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -23,6 +24,7 @@ namespace cpu {
 
 jit_avx2_f32_copy_bn_kern::jit_avx2_f32_copy_bn_kern() :
     jit_generator(nullptr, F32_COPY_KERNEL_CODE_SIZE) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_f32_copy_bn_kern.cpp:      jit_generator(nullptr, F32_COPY_KERNEL_CODE_SIZE) {" << std::endl;
 
 #ifndef _WIN32
 #define M	rdi

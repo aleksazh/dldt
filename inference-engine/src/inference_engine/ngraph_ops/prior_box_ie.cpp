@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -15,10 +16,12 @@ constexpr NodeTypeInfo op::PriorBoxIE::type_info;
 
 op::PriorBoxIE::PriorBoxIE(const Output<Node>& input, const Output<Node>& image, const PriorBoxAttrs& attrs)
     : Op({input, image}), m_attrs(attrs) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/prior_box_ie.cpp:      : Op({input, image}), m_attrs(attrs) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 void op::PriorBoxIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/prior_box_ie.cpp:  void op::PriorBoxIE::validate_and_infer_types() {" << std::endl;
     auto input_shape = get_input_shape(0);
     auto image_shape = get_input_shape(1);
 

@@ -240,6 +240,7 @@ class Error : public std::exception {
 public:
 	explicit Error(int err) : err_(err)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	explicit Error(int err) : err_(err) 	{" << std::endl;
 		if (err_ < 0 || err_ > ERR_INTERNAL) {
 			fprintf(stderr, "bad err=%d in Xbyak::Error\n", err_);
 			exit(1);
@@ -248,6 +249,7 @@ public:
 	operator int() const { return err_; }
 	const char *what() const throw()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	const char *what() const throw() 	{" << std::endl;
 		static const char *errTbl[] = {
 			"none",
 			"bad addressing",
@@ -303,11 +305,13 @@ public:
 
 inline const char *ConvertErrorToString(const Error& err)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline const char *ConvertErrorToString(const Error& err) {" << std::endl;
 	return err.what();
 }
 
 inline void *AlignedMalloc(size_t size, size_t alignment)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline void *AlignedMalloc(size_t size, size_t alignment) {" << std::endl;
 #ifdef __MINGW32__
 	return __mingw_aligned_malloc(size, alignment);
 #elif defined(_WIN32)
@@ -321,6 +325,7 @@ inline void *AlignedMalloc(size_t size, size_t alignment)
 
 inline void AlignedFree(void *p)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline void AlignedFree(void *p) {" << std::endl;
 #ifdef __MINGW32__
 	__mingw_aligned_free(p);
 #elif defined(_MSC_VER)
@@ -333,6 +338,7 @@ inline void AlignedFree(void *p)
 template<class To, class From>
 inline const To CastTo(From p) throw()
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline const To CastTo(From p) throw() {" << std::endl;
 	return (const To)(size_t)(p);
 }
 namespace inner {
@@ -344,8 +350,9 @@ inline bool IsInInt32(uint64 x) { return ~uint64(0x7fffffffu) <= x || x <= 0x7FF
 
 inline uint32 VerifyInInt32(uint64 x)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline uint32 VerifyInInt32(uint64 x) {, x: " << x << std::endl;
 #ifdef XBYAK64
-	if (!IsInInt32(x)) throw Error(ERR_OFFSET_IS_TOO_BIG);
+	//if (!IsInInt32(x)) throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
 	return static_cast<uint32>(x);
 }
@@ -376,6 +383,7 @@ class MmapAllocator : Allocator {
 public:
 	uint8 *alloc(size_t size)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	uint8 *alloc(size_t size) 	{" << std::endl;
 		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
 		size = (size + alignedSizeM1) & ~alignedSizeM1;
 #ifdef MAP_ANONYMOUS
@@ -393,6 +401,7 @@ public:
 	}
 	void free(uint8 *p)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void free(uint8 *p) 	{" << std::endl;
 		if (p == 0) return;
 		SizeList::iterator i = sizeList_.find((uintptr_t)p);
 		if (i == sizeList_.end()) throw Error(ERR_BAD_PARAMETER);
@@ -474,6 +483,7 @@ public:
 	int getRounding() const { return rounding_; }
 	void setKind(Kind kind)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void setKind(Kind kind) 	{" << std::endl;
 		if ((kind & (XMM|YMM|ZMM)) == 0) return;
 		kind_ = kind;
 		bit_ = kind == XMM ? 128 : kind == YMM ? 256 : 512;
@@ -481,12 +491,14 @@ public:
 	void setBit(int bit) { bit_ = bit; }
 	void setOpmaskIdx(int idx, bool ignore_idx0 = false)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void setOpmaskIdx(int idx, bool ignore_idx0 = false) 	{" << std::endl;
 		if (!ignore_idx0 && idx == 0) throw Error(ERR_K0_IS_INVALID);
 		if (mask_) throw Error(ERR_OPMASK_IS_ALREADY_SET);
 		mask_ = idx;
 	}
 	void setRounding(int idx)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void setRounding(int idx) 	{" << std::endl;
 		if (rounding_) throw Error(ERR_ROUNDING_IS_ALREADY_SET);
 		rounding_ = idx;
 	}
@@ -760,6 +772,7 @@ public:
 		: scale_(scale)
 		, disp_(0)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  		, disp_(0) 	{" << std::endl;
 		if (!r.isREG(i32e) && !r.is(Reg::XMM|Reg::YMM|Reg::ZMM)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
 		if (scale == 0) return;
 		if (scale != 1 && scale != 2 && scale != 4 && scale != 8) throw Error(ERR_BAD_SCALE);
@@ -816,6 +829,7 @@ private:
 
 inline RegExp operator+(const RegExp& a, const RegExp& b)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline RegExp operator+(const RegExp& a, const RegExp& b) {" << std::endl;
 	if (a.index_.getBit() && b.index_.getBit()) throw Error(ERR_BAD_ADDRESSING);
 	RegExp ret = a;
 	if (!ret.index_.getBit()) { ret.index_ = b.index_; ret.scale_ = b.scale_; }
@@ -836,10 +850,12 @@ inline RegExp operator+(const RegExp& a, const RegExp& b)
 }
 inline RegExp operator*(const Reg& r, int scale)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline RegExp operator*(const Reg& r, int scale) {" << std::endl;
 	return RegExp(r, scale);
 }
 inline RegExp operator-(const RegExp& e, size_t disp)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline RegExp operator-(const RegExp& e, size_t disp) {" << std::endl;
 	RegExp ret = e;
 	ret.disp_ -= disp;
 	return ret;
@@ -893,6 +909,7 @@ protected:
 	*/
 	void growMemory()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void growMemory() 	{" << std::endl;
 		const size_t newSize = (std::max<size_t>)(DEFAULT_MAX_CODE_SIZE, maxSize_ * 2);
 		uint8 *newTop = alloc_->alloc(newSize);
 		if (newTop == 0) throw Error(ERR_CANT_ALLOC);
@@ -906,6 +923,7 @@ protected:
 	*/
 	void calcJmpAddress()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void calcJmpAddress() 	{" << std::endl;
 		if (isCalledCalcJmpAddress_) return;
 		for (AddrInfoList::const_iterator i = addrInfoList_.begin(), ie = addrInfoList_.end(); i != ie; ++i) {
 			uint64 disp = i->getVal(top_);
@@ -927,6 +945,7 @@ public:
 		, size_(0)
 		, isCalledCalcJmpAddress_(false)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  		, isCalledCalcJmpAddress_(false) 	{" << std::endl;
 		if (maxSize_ > 0 && top_ == 0) throw Error(ERR_CANT_ALLOC);
 		if ((type_ == ALLOC_BUF && userPtr != DontSetProtectRWE && useProtect()) && !setProtectMode(PROTECT_RWE, false)) {
 			alloc_->free(top_);
@@ -935,6 +954,7 @@ public:
 	}
 	virtual ~CodeArray()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	virtual ~CodeArray() 	{" << std::endl;
 		if (isAllocType()) {
 			if (useProtect()) setProtectModeRW(false);
 			alloc_->free(top_);
@@ -942,6 +962,7 @@ public:
 	}
 	bool setProtectMode(ProtectMode mode, bool throwException = true)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	bool setProtectMode(ProtectMode mode, bool throwException = true) 	{" << std::endl;
 		bool isOK = protect(top_, maxSize_, mode);
 		if (isOK) return true;
 		if (throwException) throw Error(ERR_CANT_PROTECT);
@@ -951,12 +972,14 @@ public:
 	bool setProtectModeRW(bool throwException = true) { return setProtectMode(PROTECT_RW, throwException); }
 	void resetSize()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void resetSize() 	{" << std::endl;
 		size_ = 0;
 		addrInfoList_.clear();
 		isCalledCalcJmpAddress_ = false;
 	}
 	void db(int code)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void db(int code) 	{" << std::endl;
 		if (size_ >= maxSize_) {
 			if (type_ == AUTO_GROW) {
 				growMemory();
@@ -968,10 +991,12 @@ public:
 	}
 	void db(const uint8 *code, size_t codeSize)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void db(const uint8 *code, size_t codeSize) 	{" << std::endl;
 		for (size_t i = 0; i < codeSize; i++) db(code[i]);
 	}
 	void db(uint64 code, size_t codeSize)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void db(uint64 code, size_t codeSize) 	{" << std::endl;
 		if (codeSize > 8) throw Error(ERR_BAD_PARAMETER);
 		for (size_t i = 0; i < codeSize; i++) db(static_cast<uint8>(code >> (i * 8)));
 	}
@@ -987,6 +1012,7 @@ public:
 	size_t getSize() const { return size_; }
 	void setSize(size_t size)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void setSize(size_t size) 	{" << std::endl;
 		if (size > maxSize_) throw Error(ERR_OFFSET_IS_TOO_BIG);
 		size_ = size;
 	}
@@ -1019,6 +1045,7 @@ public:
 	*/
 	void rewrite(size_t offset, uint64 disp, size_t size)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void rewrite(size_t offset, uint64 disp, size_t size) 	{" << std::endl;
 		assert(offset < maxSize_);
 		if (size != 1 && size != 2 && size != 4 && size != 8) throw Error(ERR_BAD_PARAMETER);
 		uint8 *const data = top_ + offset;
@@ -1028,6 +1055,7 @@ public:
 	}
 	void save(size_t offset, size_t val, int size, inner::LabelMode mode)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void save(size_t offset, size_t val, int size, inner::LabelMode mode) 	{" << std::endl;
 		addrInfoList_.push_back(AddrInfo(offset, val, size, mode));
 	}
 	bool isAutoGrow() const { return type_ == AUTO_GROW; }
@@ -1041,6 +1069,7 @@ public:
 	*/
 	static inline bool protect(const void *addr, size_t size, int protectMode)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	static inline bool protect(const void *addr, size_t size, int protectMode) 	{" << std::endl;
 #if defined(_WIN32)
 		const DWORD c_rw = PAGE_READWRITE;
 		const DWORD c_rwe = PAGE_EXECUTE_READWRITE;
@@ -1082,6 +1111,7 @@ public:
 	*/
 	static inline uint8 *getAlignedAddress(uint8 *addr, size_t alignedSize = 16)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	static inline uint8 *getAlignedAddress(uint8 *addr, size_t alignedSize = 16) 	{" << std::endl;
 		return reinterpret_cast<uint8*>((reinterpret_cast<size_t>(addr) + alignedSize - 1) & ~(alignedSize - static_cast<size_t>(1)));
 	}
 };
@@ -1097,6 +1127,7 @@ public:
 	Address(uint32 sizeBit, bool broadcast, const RegExp& e)
 		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), broadcast_(broadcast)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  		: Operand(0, MEM, sizeBit), e_(e), label_(0), mode_(M_ModRM), broadcast_(broadcast) 	{" << std::endl;
 		e_.verify();
 	}
 #ifdef XBYAK64
@@ -1175,6 +1206,7 @@ struct JmpLabel {
 	explicit JmpLabel(size_t endOfJmp = 0, int jmpSize = 0, inner::LabelMode mode = inner::LasIs, size_t disp = 0)
 		: endOfJmp(endOfJmp), jmpSize(jmpSize), mode(mode), disp(disp)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  		: endOfJmp(endOfJmp), jmpSize(jmpSize), mode(mode), disp(disp) 	{" << std::endl;
 	}
 };
 
@@ -1196,6 +1228,7 @@ public:
 	// backward compatibility
 	static inline std::string toStr(int num)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	static inline std::string toStr(int num) 	{" << std::endl;
 		char buf[16];
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 		_snprintf_s
@@ -1246,6 +1279,7 @@ class LabelManager {
 	template<class DefList, class UndefList, class T>
 	void define_inner(DefList& defList, UndefList& undefList, const T& labelId, size_t addrOffset)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void define_inner(DefList& defList, UndefList& undefList, const T& labelId, size_t addrOffset) 	{" << std::endl;
 		// add label
 		typename DefList::value_type item(labelId, addrOffset);
 		std::pair<typename DefList::iterator, bool> ret = defList.insert(item);
@@ -1287,11 +1321,13 @@ class LabelManager {
 	friend class Label;
 	void incRefCount(int id, Label *label)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void incRefCount(int id, Label *label) 	{" << std::endl;
 		clabelDefList_[id].refCount++;
 		labelPtrList_.insert(label);
 	}
 	void decRefCount(int id, Label *label)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void decRefCount(int id, Label *label) 	{" << std::endl;
 		labelPtrList_.erase(label);
 		ClabelDefList::iterator i = clabelDefList_.find(id);
 		if (i == clabelDefList_.end()) return;
@@ -1314,6 +1350,7 @@ class LabelManager {
 	// detach all labels linked to LabelManager
 	void resetLabelPtrList()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void resetLabelPtrList() 	{" << std::endl;
 		for (LabelPtrList::iterator i = labelPtrList_.begin(), ie = labelPtrList_.end(); i != ie; ++i) {
 			(*i)->clear();
 		}
@@ -1322,14 +1359,17 @@ class LabelManager {
 public:
 	LabelManager()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	LabelManager() 	{" << std::endl;
 		reset();
 	}
 	~LabelManager()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	~LabelManager() 	{" << std::endl;
 		resetLabelPtrList();
 	}
 	void reset()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void reset() 	{" << std::endl;
 		base_ = 0;
 		labelId_ = 1;
 		stateList_.clear();
@@ -1341,10 +1381,12 @@ public:
 	}
 	void enterLocal()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void enterLocal() 	{" << std::endl;
 		stateList_.push_back(SlabelState());
 	}
 	void leaveLocal()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void leaveLocal() 	{" << std::endl;
 		if (stateList_.size() <= 2) throw Error(ERR_UNDER_LOCAL_LABEL);
 		if (hasUndefinedLabel_inner(stateList_.back().undefList)) throw Error(ERR_LABEL_IS_NOT_FOUND);
 		stateList_.pop_back();
@@ -1352,6 +1394,7 @@ public:
 	void set(CodeArray *base) { base_ = base; }
 	void defineSlabel(std::string label)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void defineSlabel(std::string label) 	{" << std::endl;
 		if (label == "@b" || label == "@f") throw Error(ERR_BAD_LABEL_STR);
 		if (label == "@@") {
 			SlabelDefList& defList = stateList_.front().defList;
@@ -1372,12 +1415,14 @@ public:
 	}
 	void defineClabel(Label& label)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void defineClabel(Label& label) 	{" << std::endl;
 		define_inner(clabelDefList_, clabelUndefList_, getId(label), base_->getSize());
 		label.mgr = this;
 		labelPtrList_.insert(&label);
 	}
 	void assign(Label& dst, const Label& src)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void assign(Label& dst, const Label& src) 	{" << std::endl;
 		ClabelDefList::const_iterator i = clabelDefList_.find(src.id);
 		if (i == clabelDefList_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
 		define_inner(clabelDefList_, clabelUndefList_, dst.id, i->second.offset);
@@ -1407,11 +1452,13 @@ public:
 	}
 	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void addUndefinedLabel(const std::string& label, const JmpLabel& jmp) 	{" << std::endl;
 		SlabelState& st = *label.c_str() == '.' ? stateList_.back() : stateList_.front();
 		st.undefList.insert(SlabelUndefList::value_type(label, jmp));
 	}
 	void addUndefinedLabel(const Label& label, const JmpLabel& jmp)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void addUndefinedLabel(const Label& label, const JmpLabel& jmp) 	{" << std::endl;
 		clabelUndefList_.insert(ClabelUndefList::value_type(label.id, jmp));
 	}
 	bool hasUndefSlabel() const
@@ -1428,12 +1475,14 @@ public:
 
 inline Label::Label(const Label& rhs)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline Label::Label(const Label& rhs) {" << std::endl;
 	id = rhs.id;
 	mgr = rhs.mgr;
 	if (mgr) mgr->incRefCount(id, this);
 }
 inline Label& Label::operator=(const Label& rhs)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline Label& Label::operator=(const Label& rhs) {" << std::endl;
 	if (id) throw Error(ERR_LABEL_IS_ALREADY_SET_BY_L);
 	id = rhs.id;
 	mgr = rhs.mgr;
@@ -1442,6 +1491,7 @@ inline Label& Label::operator=(const Label& rhs)
 }
 inline Label::~Label()
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  inline Label::~Label() {" << std::endl;
 	if (id && mgr) mgr->decRefCount(id, this);
 }
 inline const uint8* Label::getAddress() const
@@ -1473,40 +1523,48 @@ private:
 	// (XMM, XMM|MEM)
 	static inline bool isXMM_XMMorMEM(const Operand& op1, const Operand& op2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	static inline bool isXMM_XMMorMEM(const Operand& op1, const Operand& op2) 	{" << std::endl;
 		return op1.isXMM() && (op2.isXMM() || op2.isMEM());
 	}
 	// (MMX, MMX|MEM) or (XMM, XMM|MEM)
 	static inline bool isXMMorMMX_MEM(const Operand& op1, const Operand& op2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	static inline bool isXMMorMMX_MEM(const Operand& op1, const Operand& op2) 	{" << std::endl;
 		return (op1.isMMX() && (op2.isMMX() || op2.isMEM())) || isXMM_XMMorMEM(op1, op2);
 	}
 	// (XMM, MMX|MEM)
 	static inline bool isXMM_MMXorMEM(const Operand& op1, const Operand& op2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	static inline bool isXMM_MMXorMEM(const Operand& op1, const Operand& op2) 	{" << std::endl;
 		return op1.isXMM() && (op2.isMMX() || op2.isMEM());
 	}
 	// (MMX, XMM|MEM)
 	static inline bool isMMX_XMMorMEM(const Operand& op1, const Operand& op2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	static inline bool isMMX_XMMorMEM(const Operand& op1, const Operand& op2) 	{" << std::endl;
 		return op1.isMMX() && (op2.isXMM() || op2.isMEM());
 	}
 	// (XMM, REG32|MEM)
 	static inline bool isXMM_REG32orMEM(const Operand& op1, const Operand& op2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	static inline bool isXMM_REG32orMEM(const Operand& op1, const Operand& op2) 	{" << std::endl;
 		return op1.isXMM() && (op2.isREG(i32e) || op2.isMEM());
 	}
 	// (REG32, XMM|MEM)
 	static inline bool isREG32_XMMorMEM(const Operand& op1, const Operand& op2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	static inline bool isREG32_XMMorMEM(const Operand& op1, const Operand& op2) 	{" << std::endl;
 		return op1.isREG(i32e) && (op2.isXMM() || op2.isMEM());
 	}
 	// (REG32, REG32|MEM)
 	static inline bool isREG32_REG32orMEM(const Operand& op1, const Operand& op2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	static inline bool isREG32_REG32orMEM(const Operand& op1, const Operand& op2) 	{" << std::endl;
 		return op1.isREG(i32e) && ((op2.isREG(i32e) && op1.getBit() == op2.getBit()) || op2.isMEM());
 	}
 	void rex(const Operand& op1, const Operand& op2 = Operand())
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void rex(const Operand& op1, const Operand& op2 = Operand()) 	{" << std::endl;
 		uint8 rex = 0;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM()) std::swap(p1, p2);
@@ -1565,6 +1623,7 @@ private:
 	};
 	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void vex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false) 	{" << std::endl;
 		int w = (type & T_W1) ? 1 : 0;
 		bool is256 = (type & T_L1) ? true : (type & T_L0) ? false : reg.isYMM();
 		bool r = reg.isExtIdx();
@@ -1594,12 +1653,14 @@ private:
 	// (a, b, c) contains non zero two or three values then err
 	int verifyDuplicate(int a, int b, int c, int err)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	int verifyDuplicate(int a, int b, int c, int err) 	{" << std::endl;
 		int v = a | b | c;
 		if ((a > 0 && a != v) + (b > 0 && b != v) + (c > 0 && c != v) > 0) return Error(err);
 		return v;
 	}
 	int evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0, uint32 VL = 0, bool Hi16Vidx = false)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	int evex(const Reg& reg, const Reg& base, const Operand *v, int type, int code, bool x = false, bool b = false, int aaa = 0, uint32 VL = 0, bool Hi16Vidx = false) 	{" << std::endl;
 		if (!(type & (T_EVEX | T_MUST_EVEX))) throw Error(ERR_EVEX_IS_INVALID);
 		int w = (type & T_EW1) ? 1 : 0;
 		uint32 mm = (type & T_0F) ? 1 : (type & T_0F38) ? 2 : (type & T_0F3A) ? 3 : 0;
@@ -1653,10 +1714,12 @@ private:
 	}
 	void setModRM(int mod, int r1, int r2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void setModRM(int mod, int r1, int r2) 	{" << std::endl;
 		db(static_cast<uint8>((mod << 6) | ((r1 & 7) << 3) | (r2 & 7)));
 	}
 	void setSIB(const RegExp& e, int reg, int disp8N = 0)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void setSIB(const RegExp& e, int reg, int disp8N = 0) 	{" << std::endl;
 		size_t disp64 = e.getDisp();
 #ifdef XBYAK64
 		//size_t high = disp64 >> 32;
@@ -1714,12 +1777,14 @@ private:
 	bool isInDisp16(uint32 x) const { return 0xFFFF8000 <= x || x <= 0x7FFF; }
 	void opModR(const Reg& reg1, const Reg& reg2, int code0, int code1 = NONE, int code2 = NONE)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opModR(const Reg& reg1, const Reg& reg2, int code0, int code1 = NONE, int code2 = NONE) 	{" << std::endl;
 		rex(reg2, reg1);
 		db(code0 | (reg1.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
 		setModRM(3, reg1.getIdx(), reg2.getIdx());
 	}
 	void opModM(const Address& addr, const Reg& reg, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opModM(const Address& addr, const Reg& reg, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0) 	{" << std::endl;
 		if (addr.is64bitDisp()) throw Error(ERR_CANT_USE_64BIT_DISP);
 		rex(addr, reg);
 		db(code0 | (reg.isBit(8) ? 0 : 1)); if (code1 != NONE) db(code1); if (code2 != NONE) db(code2);
@@ -1727,6 +1792,7 @@ private:
 	}
 	void opMIB(const Address& addr, const Reg& reg, int code0, int code1)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opMIB(const Address& addr, const Reg& reg, int code0, int code1) 	{" << std::endl;
 		if (addr.is64bitDisp()) throw Error(ERR_CANT_USE_64BIT_DISP);
 		if (addr.getMode() != Address::M_ModRM) throw Error(ERR_INVALID_MIB_ADDRESS);
 		if (BIT == 64 && addr.is32bit()) db(0x67);
@@ -1738,6 +1804,7 @@ private:
 	}
 	void makeJmp(uint32 disp, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void makeJmp(uint32 disp, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref) 	{" << std::endl;
 		const int shortJmpSize = 2;
 		const int longHeaderSize = longPref ? 2 : 1;
 		const int longJmpSize = longHeaderSize + 4;
@@ -1752,6 +1819,7 @@ private:
 	template<class T>
 	void opJmp(T& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opJmp(T& label, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref) 	{" << std::endl;
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory(); /* avoid splitting code of jmp */
 		size_t offset = 0;
 		if (labelMgr_.getOffset(&offset, label)) { /* label exists */
@@ -1772,6 +1840,7 @@ private:
 	}
 	void opJmpAbs(const void *addr, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref = 0)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opJmpAbs(const void *addr, LabelType type, uint8 shortCode, uint8 longCode, uint8 longPref = 0) 	{" << std::endl;
 		if (isAutoGrow()) {
 			if (type != T_NEAR) throw Error(ERR_ONLY_T_NEAR_IS_SUPPORTED_IN_AUTO_GROW);
 			if (size_ + 16 >= maxSize_) growMemory();
@@ -1789,6 +1858,7 @@ private:
 	// disp8N = 0(normal), disp8N = 1(force disp32), disp8N = {2, 4, 8} ; compressed displacement
 	void opAddr(const Address &addr, int reg, int immSize = 0, int disp8N = 0, bool permitVisb = false)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opAddr(const Address &addr, int reg, int immSize = 0, int disp8N = 0, bool permitVisb = false) 	{" << std::endl;
 		if (!permitVisb && addr.isVsib()) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		if (addr.getMode() == Address::M_ModRM) {
 			setSIB(addr.getRegExp(), reg, disp8N);
@@ -1809,6 +1879,7 @@ private:
 	/* preCode is for SSSE3/SSE4 */
 	void opGen(const Operand& reg, const Operand& op, int code, int pref, bool isValid(const Operand&, const Operand&), int imm8 = NONE, int preCode = NONE)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opGen(const Operand& reg, const Operand& op, int code, int pref, bool isValid(const Operand&, const Operand&), int imm8 = NONE, int preCode = NONE) 	{" << std::endl;
 		if (isValid && !isValid(reg, op)) throw Error(ERR_BAD_COMBINATION);
 		if (pref != NONE) db(pref);
 		if (op.isMEM()) {
@@ -1820,16 +1891,19 @@ private:
 	}
 	void opMMX_IMM(const Mmx& mmx, int imm8, int code, int ext)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opMMX_IMM(const Mmx& mmx, int imm8, int code, int ext) 	{" << std::endl;
 		if (mmx.isXMM()) db(0x66);
 		opModR(Reg32(ext), mmx, 0x0F, code);
 		db(imm8);
 	}
 	void opMMX(const Mmx& mmx, const Operand& op, int code, int pref = 0x66, int imm8 = NONE, int preCode = NONE)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opMMX(const Mmx& mmx, const Operand& op, int code, int pref = 0x66, int imm8 = NONE, int preCode = NONE) 	{" << std::endl;
 		opGen(mmx, op, code, mmx.isXMM() ? pref : NONE, isXMMorMMX_MEM, imm8, preCode);
 	}
 	void opMovXMM(const Operand& op1, const Operand& op2, int code, int pref)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opMovXMM(const Operand& op1, const Operand& op2, int code, int pref) 	{" << std::endl;
 		if (pref != NONE) db(pref);
 		if (op1.isXMM() && op2.isMEM()) {
 			opModM(op2.getAddress(), op1.getReg(), 0x0F, code);
@@ -1841,6 +1915,7 @@ private:
 	}
 	void opExt(const Operand& op, const Mmx& mmx, int code, int imm, bool hasMMX2 = false)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opExt(const Operand& op, const Mmx& mmx, int code, int imm, bool hasMMX2 = false) 	{" << std::endl;
 		if (hasMMX2 && op.isREG(i32e)) { /* pextrw is special */
 			if (mmx.isXMM()) db(0x66);
 			opModR(op.getReg(), mmx, 0x0F, 0xC5); db(imm);
@@ -1850,6 +1925,7 @@ private:
 	}
 	void opR_ModM(const Operand& op, int bit, int ext, int code0, int code1 = NONE, int code2 = NONE, bool disableRex = false, int immSize = 0)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opR_ModM(const Operand& op, int bit, int ext, int code0, int code1 = NONE, int code2 = NONE, bool disableRex = false, int immSize = 0) 	{" << std::endl;
 		int opBit = op.getBit();
 		if (disableRex && opBit == 64) opBit = 32;
 		if (op.isREG(bit)) {
@@ -1862,17 +1938,20 @@ private:
 	}
 	void opShift(const Operand& op, int imm, int ext)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opShift(const Operand& op, int imm, int ext) 	{" << std::endl;
 		verifyMemHasSize(op);
 		opR_ModM(op, 0, ext, (0xC0 | ((imm == 1 ? 1 : 0) << 4)), NONE, NONE, false, (imm != 1) ? 1 : 0);
 		if (imm != 1) db(imm);
 	}
 	void opShift(const Operand& op, const Reg8& _cl, int ext)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opShift(const Operand& op, const Reg8& _cl, int ext) 	{" << std::endl;
 		if (_cl.getIdx() != Operand::CL) throw Error(ERR_BAD_COMBINATION);
 		opR_ModM(op, 0, ext, 0xD2);
 	}
 	void opModRM(const Operand& op1, const Operand& op2, bool condR, bool condM, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opModRM(const Operand& op1, const Operand& op2, bool condR, bool condM, int code0, int code1 = NONE, int code2 = NONE, int immSize = 0) 	{" << std::endl;
 		if (condR) {
 			opModR(op1.getReg(), op2.getReg(), code0, code1, code2);
 		} else if (condM) {
@@ -1883,6 +1962,7 @@ private:
 	}
 	void opShxd(const Operand& op, const Reg& reg, uint8 imm, int code, const Reg8 *_cl = 0)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opShxd(const Operand& op, const Reg& reg, uint8 imm, int code, const Reg8 *_cl = 0) 	{" << std::endl;
 		if (_cl && _cl->getIdx() != Operand::CL) throw Error(ERR_BAD_COMBINATION);
 		opModRM(reg, op, (op.isREG(16 | i32e) && op.getBit() == reg.getBit()), op.isMEM() && (reg.isREG(16 | i32e)), 0x0F, code | (_cl ? 1 : 0), NONE, _cl ? 0 : 1);
 		if (!_cl) db(imm);
@@ -1890,6 +1970,7 @@ private:
 	// (REG, REG|MEM), (MEM, REG)
 	void opRM_RM(const Operand& op1, const Operand& op2, int code)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opRM_RM(const Operand& op1, const Operand& op2, int code) 	{" << std::endl;
 		if (op1.isREG() && op2.isMEM()) {
 			opModM(op2.getAddress(), op1.getReg(), code | 2);
 		} else {
@@ -1899,6 +1980,7 @@ private:
 	// (REG|MEM, IMM)
 	void opRM_I(const Operand& op, uint32 imm, int code, int ext)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opRM_I(const Operand& op, uint32 imm, int code, int ext) 	{" << std::endl;
 		verifyMemHasSize(op);
 		uint32 immBit = inner::IsInDisp8(imm) ? 8 : isInDisp16(imm) ? 16 : 32;
 		if (op.isBit(8)) immBit = 8;
@@ -1915,6 +1997,7 @@ private:
 	}
 	void opIncDec(const Operand& op, int code, int ext)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opIncDec(const Operand& op, int code, int ext) 	{" << std::endl;
 		verifyMemHasSize(op);
 #ifndef XBYAK64
 		if (op.isREG() && !op.isBit(8)) {
@@ -1931,6 +2014,7 @@ private:
 	}
 	void opPushPop(const Operand& op, int code, int ext, int alt)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opPushPop(const Operand& op, int code, int ext, int alt) 	{" << std::endl;
 		int bit = op.getBit();
 		if (bit == 16 || bit == BIT) {
 			if (bit == 16) db(0x66);
@@ -1955,6 +2039,7 @@ private:
 	*/
 	int mov_imm(const Reg& reg, size_t imm)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	int mov_imm(const Reg& reg, size_t imm) 	{" << std::endl;
 		int bit = reg.getBit();
 		const int idx = reg.getIdx();
 		int code = 0xB0 | ((bit == 8 ? 0 : 1) << 3);
@@ -1975,6 +2060,7 @@ private:
 	template<class T>
 	void putL_inner(T& label, bool relative = false, size_t disp = 0)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void putL_inner(T& label, bool relative = false, size_t disp = 0) 	{" << std::endl;
 		const int jmpSize = relative ? 4 : (int)sizeof(size_t);
 		if (isAutoGrow() && size_ + 16 >= maxSize_) growMemory();
 		size_t offset = 0;
@@ -1995,6 +2081,7 @@ private:
 	}
 	void opMovxx(const Reg& reg, const Operand& op, uint8 code)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opMovxx(const Reg& reg, const Operand& op, uint8 code) 	{" << std::endl;
 		if (op.isBit(32)) throw Error(ERR_BAD_COMBINATION);
 		int w = op.isBit(16);
 #ifdef XBYAK64
@@ -2005,6 +2092,7 @@ private:
 	}
 	void opFpuMem(const Address& addr, uint8 m16, uint8 m32, uint8 m64, uint8 ext, uint8 m64ext)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opFpuMem(const Address& addr, uint8 m16, uint8 m32, uint8 m64, uint8 ext, uint8 m64ext) 	{" << std::endl;
 		if (addr.is64bitDisp()) throw Error(ERR_CANT_USE_64BIT_DISP);
 		uint8 code = addr.isBit(16) ? m16 : addr.isBit(32) ? m32 : addr.isBit(64) ? m64 : 0;
 		if (!code) throw Error(ERR_BAD_MEM_SIZE);
@@ -2018,6 +2106,7 @@ private:
 	// use code2 if reg1 != st0 && reg2 == st0
 	void opFpuFpu(const Fpu& reg1, const Fpu& reg2, uint32 code1, uint32 code2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opFpuFpu(const Fpu& reg1, const Fpu& reg2, uint32 code1, uint32 code2) 	{" << std::endl;
 		uint32 code = reg1.getIdx() == 0 ? code1 : reg2.getIdx() == 0 ? code2 : 0;
 		if (!code) throw Error(ERR_BAD_ST_COMBINATION);
 		db(uint8(code >> 8));
@@ -2025,10 +2114,12 @@ private:
 	}
 	void opFpu(const Fpu& reg, uint8 code1, uint8 code2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opFpu(const Fpu& reg, uint8 code1, uint8 code2) 	{" << std::endl;
 		db(code1); db(code2 | reg.getIdx());
 	}
 	void opVex(const Reg& r, const Operand *p1, const Operand& op2, int type, int code, int imm8 = NONE)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opVex(const Reg& r, const Operand *p1, const Operand& op2, int type, int code, int imm8 = NONE) 	{" << std::endl;
 		if (op2.isMEM()) {
 			const Address& addr = op2.getAddress();
 			const RegExp& regExp = addr.getRegExp();
@@ -2066,6 +2157,7 @@ private:
 	// (r, r/m, r)
 	void opGpr(const Reg32e& r, const Operand& op1, const Operand& op2, int type, uint8 code, bool isR_R_RM, int imm8 = NONE)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opGpr(const Reg32e& r, const Operand& op1, const Operand& op2, int type, uint8 code, bool isR_R_RM, int imm8 = NONE) 	{" << std::endl;
 		const Operand *p1 = &op1;
 		const Operand *p2 = &op2;
 		if (!isR_R_RM) std::swap(p1, p2);
@@ -2076,6 +2168,7 @@ private:
 	}
 	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, int imm8 = NONE)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opAVX_X_X_XM(const Xmm& x1, const Operand& op1, const Operand& op2, int type, int code0, int imm8 = NONE) 	{" << std::endl;
 		const Xmm *x2 = static_cast<const Xmm*>(&op1);
 		const Operand *op = &op2;
 		if (op2.isNone()) { // (x1, op1) -> (x1, x1, op1)
@@ -2088,6 +2181,7 @@ private:
 	}
 	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, int type, int code0, int imm8 = NONE)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opAVX_K_X_XM(const Opmask& k, const Xmm& x2, const Operand& op3, int type, int code0, int imm8 = NONE) 	{" << std::endl;
 		if (!op3.isMEM() && (x2.getKind() != op3.getKind())) throw Error(ERR_BAD_COMBINATION);
 		opVex(k, &x2, op3, type, code0, imm8);
 	}
@@ -2103,12 +2197,14 @@ private:
 	}
 	void opCvt2(const Xmm& x, const Operand& op, int type, int code)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opCvt2(const Xmm& x, const Operand& op, int type, int code) 	{" << std::endl;
 		checkCvt2(x, op);
 		Operand::Kind kind = x.isXMM() ? (op.isBit(256) ? Operand::YMM : Operand::XMM) : Operand::ZMM;
 		opVex(x.copyAndSetKind(kind), &xm0, op, type, code);
 	}
 	void opCvt3(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int type64, int type32, uint8 code)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opCvt3(const Xmm& x1, const Xmm& x2, const Operand& op, int type, int type64, int type32, uint8 code) 	{" << std::endl;
 		if (!(x1.isXMM() && x2.isXMM() && (op.isREG(i32e) || op.isMEM()))) throw Error(ERR_BAD_SIZE_OF_REGISTER);
 		Xmm x(op.getIdx());
 		const Operand *p = op.isREG() ? &x : &op;
@@ -2121,11 +2217,13 @@ private:
 	// support (x, x/m, imm), (y, y/m, imm)
 	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, int imm8 = NONE)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opAVX_X_XM_IMM(const Xmm& x, const Operand& op, int type, int code, int imm8 = NONE) 	{" << std::endl;
 		opAVX_X_X_XM(x, cvtIdx0(x), op, type, code, imm8);
 	}
 	// QQQ:need to refactor
 	void opSp1(const Reg& reg, const Operand& op, uint8 pref, uint8 code0, uint8 code1)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opSp1(const Reg& reg, const Operand& op, uint8 pref, uint8 code0, uint8 code1) 	{" << std::endl;
 		if (reg.isBit(8)) throw Error(ERR_BAD_SIZE_OF_REGISTER);
 		bool is16bit = reg.isREG(16) && (op.isREG(16) || op.isMEM());
 		if (!is16bit && !(reg.isREG(i32e) && (op.isREG(reg.getBit()) || op.isMEM()))) throw Error(ERR_BAD_COMBINATION);
@@ -2134,6 +2232,7 @@ private:
 	}
 	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8 code, int mode)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opGather(const Xmm& x1, const Address& addr, const Xmm& x2, int type, uint8 code, int mode) 	{" << std::endl;
 		const RegExp& regExp = addr.getRegExp();
 		if (!regExp.isVsib(128 | 256)) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		const int y_vx_y = 0;
@@ -2173,6 +2272,7 @@ private:
 	}
 	void opGather2(const Xmm& x, const Address& addr, int type, uint8 code, int mode)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opGather2(const Xmm& x, const Address& addr, int type, uint8 code, int mode) 	{" << std::endl;
 		if (x.hasZero()) throw Error(ERR_INVALID_ZERO);
 		checkGather2(x, addr.getRegExp().getIndex(), mode);
 		opVex(x, 0, addr, type, code);
@@ -2183,6 +2283,7 @@ private:
 	*/
 	void opVmov(const Operand& op, const Xmm& x, int type, uint8 code, bool mode)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opVmov(const Operand& op, const Xmm& x, int type, uint8 code, bool mode) 	{" << std::endl;
 		if (mode) {
 			if (!op.isMEM() && !((op.isXMM() && x.isXMM()) || (op.isXMM() && x.isYMM()) || (op.isYMM() && x.isZMM())))  throw Error(ERR_BAD_COMBINATION);
 		} else {
@@ -2192,6 +2293,7 @@ private:
 	}
 	void opGatherFetch(const Address& addr, const Xmm& x, int type, uint8 code, Operand::Kind kind)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void opGatherFetch(const Address& addr, const Xmm& x, int type, uint8 code, Operand::Kind kind) 	{" << std::endl;
 		if (addr.hasZero()) throw Error(ERR_INVALID_ZERO);
 		if (addr.getRegExp().getIndex().getKind() != kind) throw Error(ERR_BAD_VSIB_ADDRESSING);
 		opVex(x, 0, addr, type, code);
@@ -2284,10 +2386,12 @@ public:
 
 	void test(const Operand& op, const Reg& reg)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void test(const Operand& op, const Reg& reg) 	{" << std::endl;
 		opModRM(reg, op, op.isREG() && (op.getKind() == reg.getKind()), op.isMEM(), 0x84);
 	}
 	void test(const Operand& op, uint32 imm)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void test(const Operand& op, uint32 imm) 	{" << std::endl;
 		verifyMemHasSize(op);
         int immSize = (std::min)(op.getBit() / 8, 4U);
 		if (op.isREG() && op.getIdx() == 0) { // al, ax, eax
@@ -2300,10 +2404,12 @@ public:
 	}
 	void imul(const Reg& reg, const Operand& op)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void imul(const Reg& reg, const Operand& op) 	{" << std::endl;
 		opModRM(reg, op, op.isREG() && (reg.getKind() == op.getKind()), op.isMEM(), 0x0F, 0xAF);
 	}
 	void imul(const Reg& reg, const Operand& op, int imm)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void imul(const Reg& reg, const Operand& op, int imm) 	{" << std::endl;
 		int s = inner::IsInDisp8(imm) ? 1 : 0;
         int immSize = s ? 1 : reg.isREG(16) ? 2 : 4;
 		opModRM(reg, op, op.isREG() && (reg.getKind() == op.getKind()), op.isMEM(), 0x69 | (s << 1), NONE, NONE, immSize);
@@ -2313,6 +2419,7 @@ public:
 	void pop(const Operand& op) { opPushPop(op, 0x8F, 0, 0x58); }
 	void push(const AddressFrame& af, uint32 imm)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void push(const AddressFrame& af, uint32 imm) 	{" << std::endl;
 		if (af.bit_ == 8 && inner::IsInDisp8(imm)) {
 			db(0x6A); db(imm);
 		} else if (af.bit_ == 16 && isInDisp16(imm)) {
@@ -2324,6 +2431,7 @@ public:
 	/* use "push(word, 4)" if you want "push word 4" */
 	void push(uint32 imm)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void push(uint32 imm) 	{" << std::endl;
 		if (inner::IsInDisp8(imm)) {
 			push(byte, imm);
 		} else {
@@ -2332,6 +2440,7 @@ public:
 	}
 	void mov(const Operand& reg1, const Operand& reg2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void mov(const Operand& reg1, const Operand& reg2) 	{" << std::endl;
 		const Reg *reg = 0;
 		const Address *addr = 0;
 		uint8 code = 0;
@@ -2368,6 +2477,7 @@ public:
 	}
 	void mov(const Operand& op, size_t imm)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void mov(const Operand& op, size_t imm) 	{" << std::endl;
 		if (op.isREG()) {
 			const int size = mov_imm(op.getReg(), imm);
 			db(imm, size);
@@ -2398,11 +2508,13 @@ public:
 	}
 	void mov(const NativeReg& reg, const Label& label)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void mov(const NativeReg& reg, const Label& label) 	{" << std::endl;
 		mov_imm(reg, dummyAddr);
 		putL(label);
 	}
 	void xchg(const Operand& op1, const Operand& op2)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void xchg(const Operand& op1, const Operand& op2) 	{" << std::endl;
 		const Operand *p1 = &op1, *p2 = &op2;
 		if (p1->isMEM() || (p2->isREG(16 | i32e) && p2->getIdx() == 0)) {
 			p1 = &op2; p2 = &op1;
@@ -2422,6 +2534,7 @@ public:
 #ifndef XBYAK_DISABLE_SEGMENT
 	void push(const Segment& seg)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void push(const Segment& seg) 	{" << std::endl;
 		switch (seg.getIdx()) {
 		case Segment::es: db(0x06); break;
 		case Segment::cs: db(0x0E); break;
@@ -2435,6 +2548,7 @@ public:
 	}
 	void pop(const Segment& seg)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void pop(const Segment& seg) 	{" << std::endl;
 		switch (seg.getIdx()) {
 		case Segment::es: db(0x07); break;
 		case Segment::cs: throw Error(ERR_BAD_COMBINATION);
@@ -2448,6 +2562,7 @@ public:
 	}
 	void putSeg(const Segment& seg)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void putSeg(const Segment& seg) 	{" << std::endl;
 		switch (seg.getIdx()) {
 		case Segment::es: db(0x2E); break;
 		case Segment::cs: db(0x36); break;
@@ -2461,10 +2576,12 @@ public:
 	}
 	void mov(const Operand& op, const Segment& seg)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void mov(const Operand& op, const Segment& seg) 	{" << std::endl;
 		opModRM(Reg8(seg.getIdx()), op, op.isREG(16|i32e), op.isMEM(), 0x8C);
 	}
 	void mov(const Segment& seg, const Operand& op)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void mov(const Segment& seg, const Operand& op) 	{" << std::endl;
 		opModRM(Reg8(seg.getIdx()), op.isREG(16|i32e) ? static_cast<const Operand&>(op.getReg().cvt32()) : op, op.isREG(16|i32e), op.isMEM(), 0x8E);
 	}
 #endif
@@ -2527,6 +2644,7 @@ public:
 	}
 	void reset()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void reset() 	{" << std::endl;
 		resetSize();
 		labelMgr_.reset();
 		labelMgr_.set(this);
@@ -2538,6 +2656,7 @@ public:
 	*/
 	void ready(ProtectMode mode = PROTECT_RWE)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void ready(ProtectMode mode = PROTECT_RWE) 	{" << std::endl;
 		if (hasUndefinedLabel()) throw Error(ERR_LABEL_IS_NOT_FOUND);
 		if (isAutoGrow()) {
 			calcJmpAddress();
@@ -2549,6 +2668,7 @@ public:
 #ifdef XBYAK_TEST
 	void dump(bool doClear = true)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void dump(bool doClear = true) 	{" << std::endl;
 		CodeArray::dump();
 		if (doClear) size_ = 0;
 	}
@@ -2563,6 +2683,7 @@ public:
 	*/
 	void nop(size_t size = 1, bool useMultiByteNop = true)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void nop(size_t size = 1, bool useMultiByteNop = true) 	{" << std::endl;
 		if (!useMultiByteNop) {
 			for (size_t i = 0; i < size; i++) {
 				db(0x90);
@@ -2602,6 +2723,7 @@ public:
 	*/
 	void align(size_t x = 16, bool useMultiByteNop = true)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak.h:  	void align(size_t x = 16, bool useMultiByteNop = true) 	{" << std::endl;
 		if (x == 1) return;
 		if (x < 1 || (x & (x - 1))) throw Error(ERR_BAD_ALIGN);
 		if (isAutoGrow() && x > inner::ALIGN_PAGE_SIZE) fprintf(stderr, "warning:autoGrow mode does not support %d align\n", (int)x);

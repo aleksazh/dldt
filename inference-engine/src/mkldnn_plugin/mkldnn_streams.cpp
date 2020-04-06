@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -27,6 +28,7 @@ namespace MKLDNNPlugin {
 thread_local MultiWorkerTaskContext MultiWorkerTaskExecutor::ptrContext;
 
 bool check_env_variables() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  bool check_env_variables() {" << std::endl;
 #if IE_THREAD == IE_THREAD_OMP
     return MKLDNNPlugin::cpu::checkOpenMpEnvVars(false);
 #else
@@ -37,7 +39,9 @@ bool check_env_variables() {
 #if !(defined(__APPLE__) || defined(_WIN32))
 /* Get the cores affinity mask for the current process */
 bool get_process_mask(int& ncpus, cpu_set_t*& mask) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  bool get_process_mask(int& ncpus, cpu_set_t*& mask) {" << std::endl;
     for (ncpus = sizeof(cpu_set_t) / CHAR_BIT; ncpus < 32768 /* reasonable limit of #cores*/; ncpus <<= 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      for (ncpus = sizeof(cpu_set_t) / CHAR_BIT; ncpus < 32768 /* reasonable limit of #cores*/; ncpus <<= 1) {" << std::endl;
         mask = CPU_ALLOC(ncpus);
         if (!mask) return false;
 
@@ -53,17 +57,20 @@ bool get_process_mask(int& ncpus, cpu_set_t*& mask) {
         if (errno != EINVAL) break;
     }
     if (!mask) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      if (!mask) {" << std::endl;
         return false;
     }
     return true;
 }
 /* Pin current thread to a set of cores determined by the mask. */
 bool pin_current_thread_by_mask(int ncores, const cpu_set_t* proc_mask) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  bool pin_current_thread_by_mask(int ncores, const cpu_set_t* proc_mask) {" << std::endl;
     return 0 == sched_setaffinity(0, ncores, proc_mask);
 }
 /* Pin thread to a spare core in the round-robin scheme, while respecting the given process mask.
  * The function can also handle the hyper-threading (by populating the physical cores first) */
 bool pin_thread_to_vacant_core(int thr_idx, int hyperthreads, int ncores, const cpu_set_t* proc_mask) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  bool pin_thread_to_vacant_core(int thr_idx, int hyperthreads, int ncores, const cpu_set_t* proc_mask) {" << std::endl;
     if (proc_mask == nullptr)
         return false;
     const size_t size = CPU_ALLOC_SIZE(ncores);
@@ -72,6 +79,7 @@ bool pin_thread_to_vacant_core(int thr_idx, int hyperthreads, int ncores, const 
     // Place threads with specified step
     int cpu_idx = 0;
     for (int i = 0, offset = 0; i < thr_idx; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      for (int i = 0, offset = 0; i < thr_idx; ++i) {" << std::endl;
         cpu_idx += hyperthreads;
         if (cpu_idx >= num_cpus)
             cpu_idx = ++offset;
@@ -80,6 +88,7 @@ bool pin_thread_to_vacant_core(int thr_idx, int hyperthreads, int ncores, const 
     // Find index of 'cpu_idx'-th bit that equals to 1
     int mapped_idx = -1;
     while (cpu_idx >= 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      while (cpu_idx >= 0) {" << std::endl;
         ++mapped_idx;
         if (CPU_ISSET_S(mapped_idx, size, proc_mask))
             --cpu_idx;
@@ -93,6 +102,7 @@ bool pin_thread_to_vacant_core(int thr_idx, int hyperthreads, int ncores, const 
     return res;
 }
 bool pin_current_thread_to_socket(int socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  bool pin_current_thread_to_socket(int socket) {" << std::endl;
     const int numa_nodes_num = MKLDNNPlugin::cpu::getAvailableNUMANodes().size();
     const int cores = MKLDNNPlugin::cpu::getNumberOfCPUCores();
     const int cores_per_socket = cores/numa_nodes_num;
@@ -106,6 +116,7 @@ bool pin_current_thread_to_socket(int socket) {
     CPU_ZERO_S(size, target_mask);
 
     for (int core = socket*cores_per_socket; core < (socket+1)*cores_per_socket; core++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      for (int core = socket*cores_per_socket; core < (socket+1)*cores_per_socket; core++) {" << std::endl;
         CPU_SET_S(core, size, target_mask);
     }
     // respect the user-defined mask for the entire process
@@ -119,40 +130,50 @@ bool pin_current_thread_to_socket(int socket) {
 }
 #else   // no threads pinning/binding on Win/MacOS
 bool get_process_mask(int& ncpus, cpu_set_t*& mask) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  bool get_process_mask(int& ncpus, cpu_set_t*& mask) {" << std::endl;
     ncpus = 0;
     mask =  nullptr;
     return false;
 }
 bool pin_thread_to_vacant_core(int thr_idx, int hyperthreads, int ncores, const cpu_set_t* proc_mask) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  bool pin_thread_to_vacant_core(int thr_idx, int hyperthreads, int ncores, const cpu_set_t* proc_mask) {" << std::endl;
     return false;
 }
 bool pin_current_thread_by_mask(int ncores, const cpu_set_t* proc_mask) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  bool pin_current_thread_by_mask(int ncores, const cpu_set_t* proc_mask) {" << std::endl;
     return false;
 }
 bool pin_current_thread_to_socket(int socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  bool pin_current_thread_to_socket(int socket) {" << std::endl;
     return false;
 }
 #endif  // !(defined(__APPLE__) || defined(_WIN32))
 
 MultiWorkerTaskExecutor::MultiWorkerTaskExecutor(const std::vector<Task>& init_tasks, std::string name) :
         _isStopped(false), _name(name) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          _isStopped(false), _name(name) {" << std::endl;
     std::vector<std::packaged_task<void()>> initTasks;
     std::vector<std::future<void>> futures;
     for (int t = 0; t < init_tasks.size(); t++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      for (int t = 0; t < init_tasks.size(); t++) {" << std::endl;
         initTasks.emplace_back([&init_tasks, t] {init_tasks[t]();});
         futures.emplace_back(initTasks.back().get_future());
     }
     for (int t = 0; t < init_tasks.size(); t++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      for (int t = 0; t < init_tasks.size(); t++) {" << std::endl;
         _threads.emplace_back(std::thread([&, t] {
             // initialization (no contention, every worker thread is doing it's own task)
             initTasks[t]();
 
             while (!_isStopped) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:              while (!_isStopped) {" << std::endl;
                 Task currentTask = nullptr;
                 {  // waiting for the new task or for stop signal
                     std::unique_lock<std::mutex> lock(_queueMutex);
-                    _queueCondVar.wait(lock, [&]() { return !_taskQueue.empty() || _isStopped; });
+                    _queueCondVar.wait(lock, [&]() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:                      _queueCondVar.wait(lock, [&]() {" << std::endl; return !_taskQueue.empty() || _isStopped; });
                     if (!_taskQueue.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:                      if (!_taskQueue.empty()) {" << std::endl;
                         currentTask = std::move(_taskQueue.front());
                         _taskQueue.pop();
                     }
@@ -165,9 +186,11 @@ MultiWorkerTaskExecutor::MultiWorkerTaskExecutor(const std::vector<Task>& init_t
     for (auto&& f : futures)
         f.wait();
     for (auto&& f : futures) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      for (auto&& f : futures) {" << std::endl;
         try {
             f.get();
         } catch(...) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          } catch(...) {" << std::endl;
             stop();
             throw;
         }
@@ -175,20 +198,25 @@ MultiWorkerTaskExecutor::MultiWorkerTaskExecutor(const std::vector<Task>& init_t
 }
 
 void MultiWorkerTaskExecutor::stop() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  void MultiWorkerTaskExecutor::stop() {" << std::endl;
     _isStopped = true;
     _queueCondVar.notify_all();
     for (auto& thread : _threads) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      for (auto& thread : _threads) {" << std::endl;
         if (thread.joinable()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          if (thread.joinable()) {" << std::endl;
             thread.join();
         }
     }
 }
 
 MultiWorkerTaskExecutor::~MultiWorkerTaskExecutor() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  MultiWorkerTaskExecutor::~MultiWorkerTaskExecutor() {" << std::endl;
     stop();
 }
 
 void MultiWorkerTaskExecutor::run(Task task) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  void MultiWorkerTaskExecutor::run(Task task) {" << std::endl;
     {
         std::lock_guard<std::mutex> lock(_queueMutex);
         _taskQueue.push(std::move(task));
@@ -199,13 +227,16 @@ void MultiWorkerTaskExecutor::run(Task task) {
 MKLDNNPlugin::MKLDNNGraphlessInferRequest::MKLDNNGraphlessInferRequest(InferenceEngine::InputsDataMap networkInputs,
                                                                        InferenceEngine::OutputsDataMap networkOutputs)
         : InferRequestInternal(networkInputs, networkOutputs), m_curBatch(-1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          : InferRequestInternal(networkInputs, networkOutputs), m_curBatch(-1) {" << std::endl;
     // Allocate all input blobs
     for (const auto& it : networkInputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      for (const auto& it : networkInputs) {" << std::endl;
         InferenceEngine::Blob::Ptr blob;
         GetBlob(it.first.c_str(), blob);
     }
     // Allocate all output blobs
     for (const auto& it : networkOutputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      for (const auto& it : networkOutputs) {" << std::endl;
         InferenceEngine::Blob::Ptr blob;
         GetBlob(it.first.c_str(), blob);
     }
@@ -213,6 +244,7 @@ MKLDNNPlugin::MKLDNNGraphlessInferRequest::MKLDNNGraphlessInferRequest(Inference
 
 
 void MKLDNNPlugin::MKLDNNGraphlessInferRequest::InferImpl() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  void MKLDNNPlugin::MKLDNNGraphlessInferRequest::InferImpl() {" << std::endl;
     IE_PROFILING_AUTO_SCOPE(MKLDNN_INFER)
 
     auto infer = [this] {
@@ -233,7 +265,9 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::InferImpl() {
         // need to retain converted blobs until infer finish
         std::vector<InferenceEngine::Blob::Ptr> convertedInputs;
         for (auto input : _inputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          for (auto input : _inputs) {" << std::endl;
             if (!_networkInputs[input.first]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:              if (!_networkInputs[input.first]) {" << std::endl;
                 THROW_IE_EXCEPTION <<
                                    "input blobs map contains not registered during IInferencePlugin::LoadNetwork blob with name "
                                    << input.first;
@@ -241,6 +275,7 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::InferImpl() {
             InferenceEngine::Blob::Ptr iconv;
             InferenceEngine::TBlob<float> *in_f = nullptr;
             switch (input.second->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:              switch (input.second->getTensorDesc().getPrecision()) {" << std::endl;
                 case InferenceEngine::Precision::FP32:
                 case InferenceEngine::Precision::I32:
                 case InferenceEngine::Precision::I8:
@@ -263,6 +298,7 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::InferImpl() {
                     break;
                 case InferenceEngine::Precision::I16:
                     if (graph->hasMeanImageFor(input.first)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:                      if (graph->hasMeanImageFor(input.first)) {" << std::endl;
                         // If a mean image exists, we convert the blob and send FP32
                         iconv = InferenceEngine::make_shared_blob<float>({InferenceEngine::Precision::FP32,
                                                                           input.second->getTensorDesc().getDims(),
@@ -283,6 +319,7 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::InferImpl() {
                     break;
                 case InferenceEngine::Precision::U8:
                     if (graph->hasMeanImageFor(input.first)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:                      if (graph->hasMeanImageFor(input.first)) {" << std::endl;
                         // If a mean image exists, we convert the blob and send FP32
                         iconv = InferenceEngine::make_shared_blob<float>({InferenceEngine::Precision::FP32,
                                                                           input.second->getTensorDesc().getDims(),
@@ -308,6 +345,7 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::InferImpl() {
         graph->Infer(m_curBatch);
         graph->PullOutputData(_outputs);
         if (graph->getProperty().collectPerfCounters) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          if (graph->getProperty().collectPerfCounters) {" << std::endl;
             m_perfMap.clear();
             graph->GetPerfData(m_perfMap);
         }
@@ -327,18 +365,22 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::GetPerformanceCounts(
 }
 
 void MKLDNNPlugin::MKLDNNGraphlessInferRequest::GetBlob(const char *name, InferenceEngine::Blob::Ptr &data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  void MKLDNNPlugin::MKLDNNGraphlessInferRequest::GetBlob(const char *name, InferenceEngine::Blob::Ptr &data) {" << std::endl;
     // ROI blob is returned only if it was set previously.
     auto it = _preProcData.find(name);
     if (it != _preProcData.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      if (it != _preProcData.end()) {" << std::endl;
         data = it->second->getRoiBlob();
         return;
     }
 
     if (_inputs.find(name) != _inputs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      if (_inputs.find(name) != _inputs.end()) {" << std::endl;
         data = _inputs[name];
         checkBlob(data, name, true);
         return;
     } else if (_networkInputs.find(name) != _networkInputs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      } else if (_networkInputs.find(name) != _networkInputs.end()) {" << std::endl;
         InferenceEngine::Layout l = _networkInputs[name]->getLayout();
         InferenceEngine::Precision p = _networkInputs[name]->getPrecision();
         InferenceEngine::SizeVector dims = _networkInputs[name]->getTensorDesc().getDims();
@@ -351,10 +393,12 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::GetBlob(const char *name, Infere
     }
 
     if (_outputs.find(name) != _outputs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      if (_outputs.find(name) != _outputs.end()) {" << std::endl;
         data = _outputs[name];
         checkBlob(data, name, false);
         return;
     } else if (_networkOutputs.find(name) != _networkOutputs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      } else if (_networkOutputs.find(name) != _networkOutputs.end()) {" << std::endl;
         InferenceEngine::Layout l = _networkOutputs[name]->getLayout();
         InferenceEngine::Precision p = _networkOutputs[name]->getPrecision();
         InferenceEngine::SizeVector dims = _networkOutputs[name]->getTensorDesc().getDims();
@@ -370,7 +414,9 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::GetBlob(const char *name, Infere
 }
 
 void MKLDNNPlugin::MKLDNNGraphlessInferRequest::SetBlob(const char *name, const InferenceEngine::Blob::Ptr &data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  void MKLDNNPlugin::MKLDNNGraphlessInferRequest::SetBlob(const char *name, const InferenceEngine::Blob::Ptr &data) {" << std::endl;
     if (name == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      if (name == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << NOT_FOUND_str + "Failed to set blob with empty name";
     }
     if (!data)
@@ -379,6 +425,7 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::SetBlob(const char *name, const 
     if (!compoundBlobPassed && data->buffer() == nullptr)
         THROW_IE_EXCEPTION << "Input data was not allocated. Input name: \'" << name << "\'";
     if (data->size() == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      if (data->size() == 0) {" << std::endl;
         THROW_IE_EXCEPTION << "Input data is empty. Input name: \'" << name << "\'";
     }
 
@@ -386,19 +433,24 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::SetBlob(const char *name, const 
     InferenceEngine::DataPtr foundOutput;
     size_t dataSize = data->size();
     if (findInputAndOutputBlobByName(name, foundInput, foundOutput)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      if (findInputAndOutputBlobByName(name, foundInput, foundOutput)) {" << std::endl;
         if (foundInput->getPrecision() != data->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          if (foundInput->getPrecision() != data->getTensorDesc().getPrecision()) {" << std::endl;
             THROW_IE_EXCEPTION << PARAMETER_MISMATCH_str << "Failed to set Blob with precision "
                                << data->getTensorDesc().getPrecision();
         }
 
         const bool preProcRequired = preProcessingRequired(foundInput, data);
         if (compoundBlobPassed && !preProcRequired) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          if (compoundBlobPassed && !preProcRequired) {" << std::endl;
             THROW_IE_EXCEPTION << NOT_IMPLEMENTED_str
                                << "cannot set compound blob: supported only for input pre-processing";
         }
 
         if (preProcRequired) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          if (preProcRequired) {" << std::endl;
             if (_preProcData.find(name) == _preProcData.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:              if (_preProcData.find(name) == _preProcData.end()) {" << std::endl;
                 _preProcData.emplace(name, CreatePreprocDataHelper());
             }
             _preProcData[name]->isApplicable(data, _inputs[name]);
@@ -408,6 +460,7 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::SetBlob(const char *name, const 
         } else {
             size_t inputSize = InferenceEngine::details::product(foundInput->getTensorDesc().getDims());
             if (dataSize != inputSize) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:              if (dataSize != inputSize) {" << std::endl;
                 THROW_IE_EXCEPTION << "Input blob size is not equal network input size ("
                                    << dataSize << "!=" << inputSize << ").";
             }
@@ -415,15 +468,18 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::SetBlob(const char *name, const 
         }
     } else {
         if (compoundBlobPassed) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          if (compoundBlobPassed) {" << std::endl;
             THROW_IE_EXCEPTION << NOT_IMPLEMENTED_str
                                << "cannot set compound blob: supported only for input pre-processing";
         }
         size_t outputSize = InferenceEngine::details::product(foundOutput->getDims());
         if (dataSize != outputSize) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          if (dataSize != outputSize) {" << std::endl;
             THROW_IE_EXCEPTION << "Output blob size is not equal network output size ("
                                << dataSize << "!=" << outputSize << ").";
         }
         if (foundOutput->getPrecision() != data->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:          if (foundOutput->getPrecision() != data->getTensorDesc().getPrecision()) {" << std::endl;
             THROW_IE_EXCEPTION << PARAMETER_MISMATCH_str
                                << "Failed to set Blob with precision not corresponding to user output precision";
         }
@@ -432,7 +488,9 @@ void MKLDNNPlugin::MKLDNNGraphlessInferRequest::SetBlob(const char *name, const 
 }
 
 void MKLDNNPlugin::MKLDNNGraphlessInferRequest::SetBatch(int new_batch) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:  void MKLDNNPlugin::MKLDNNGraphlessInferRequest::SetBatch(int new_batch) {" << std::endl;
     if (new_batch < 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_streams.cpp:      if (new_batch < 1) {" << std::endl;
         THROW_IE_EXCEPTION << "Invalid dynamic batch size " << new_batch <<
                            " for this request.";
     }

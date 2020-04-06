@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -16,10 +17,12 @@ constexpr NodeTypeInfo op::PriorBoxClusteredIE::type_info;
 op::PriorBoxClusteredIE::PriorBoxClusteredIE(const shared_ptr<Node>& input, const shared_ptr<Node>& image,
                                              const PriorBoxClusteredAttrs& attrs)
     : Op("PriorBoxClusteredIE", check_single_output_args({input, image})), m_attrs(attrs) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/prior_box_clustered_ie.cpp:      : Op('PriorBoxClusteredIE', check_single_output_args({input, image})), m_attrs(attrs) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 void op::PriorBoxClusteredIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/prior_box_clustered_ie.cpp:  void op::PriorBoxClusteredIE::validate_and_infer_types() {" << std::endl;
     auto input_shape = get_input_shape(0);
     auto image_shape = get_input_shape(1);
 

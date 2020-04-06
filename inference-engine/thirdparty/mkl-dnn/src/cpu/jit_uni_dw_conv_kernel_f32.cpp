@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -35,10 +36,14 @@ using namespace Xbyak;
 
 template <cpu_isa_t isa>
 void jit_uni_dw_conv_fwd_kernel_f32<isa>::load_src(int ur_ch_blocks, int ur_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  void jit_uni_dw_conv_fwd_kernel_f32<isa>::load_src(int ur_ch_blocks, int ur_w) {" << std::endl;
     int repeats = isa == sse42 ? 2 : 1;
     for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int i = 0; i < repeats; i++) {" << std::endl;
         for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
             for (int ow = 0; ow < ur_w; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int ow = 0; ow < ur_w; ow++) {" << std::endl;
                 Vmm vmm_acc = get_acc_reg(i*ur_ch_blocks*ur_w + ch*ur_w + ow);
 
                 int b_off = ch*jcp.ch_block + i*4;
@@ -61,6 +66,7 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::load_src(int ur_ch_blocks, int ur_w) {
 template <cpu_isa_t isa>
 void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_filter(
         int ur_ch_blocks, int ur_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          int ur_ch_blocks, int ur_w) {" << std::endl;
     int ch_blk = jcp.ch_block;
     int dilate_h = jcp.dilate_h + 1;
     int dilate_w = jcp.dilate_w + 1;
@@ -84,13 +90,16 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_filter(
         L(kw_label); {
             int repeats = isa == sse42 ? 2 : 1;
             for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int i = 0; i < repeats; i++) {" << std::endl;
                 for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                  for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
                     int ker_off = ch*jcp.kh*jcp.kw*ch_blk + i*4;
                     Vmm vmm_ker = get_ker_reg(0);
                     uni_vmovups(vmm_ker, ptr[aux1_reg_kernel
                         + ker_off*sizeof(float)]);
 
                     for (int ow = 0; ow < ur_w; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                      for (int ow = 0; ow < ur_w; ow++) {" << std::endl;
                         int inp_off = ch*jcp.ih*jcp.iw*ch_blk
                             + ow*stride_w*ch_blk + i*4;
                         Vmm vmm_src = get_src_reg(0);
@@ -124,6 +133,7 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_filter(
 template <cpu_isa_t isa>
 void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_filter_unrolled(
         int ur_ch_blocks, int ur_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          int ur_ch_blocks, int ur_w) {" << std::endl;
     int ch_blk = jcp.ch_block;
     int dilate_h = jcp.dilate_h + 1;
     int dilate_w = jcp.dilate_w + 1;
@@ -139,8 +149,11 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_filter_unrolled(
     L(kh_label); {
         int repeats = isa == sse42 ? 2 : 1;
         for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          for (int i = 0; i < repeats; i++) {" << std::endl;
             for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
                 for (int kw = 0; kw < jcp.kw; kw++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                  for (int kw = 0; kw < jcp.kw; kw++) {" << std::endl;
                     int ker_off = ch*jcp.kh*jcp.kw*ch_blk + kw*ch_blk + i*4;
 
                     Vmm vmm_ker = get_ker_reg(0);
@@ -148,6 +161,7 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_filter_unrolled(
                         + ker_off*sizeof(float)]);
 
                     for (int ow = 0; ow < ur_w; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                      for (int ow = 0; ow < ur_w; ow++) {" << std::endl;
                         int inp_off = ch*jcp.ih*jcp.iw*ch_blk
                             + ow*stride_w*ch_blk + kw*ch_blk*dilate_w + i*4;
 
@@ -176,6 +190,7 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_filter_unrolled(
 
 template <cpu_isa_t isa>
 void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_postprocess(int ur_ch_blocks, int ur_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_postprocess(int ur_ch_blocks, int ur_w) {" << std::endl;
     int repeats = isa == sse42 ? 2 : 1;
 
     int eltwise_inj_idx = 0;
@@ -183,14 +198,17 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_postprocess(int ur_ch_blocks, in
     const auto &p = attr_.post_ops_;
 
     for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int i = 0; i < p.len_; i++) {" << std::endl;
         auto& post_op = p.entry_[i];
         if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          if (post_op.is_eltwise()) {" << std::endl;
             int start_idx = get_acc_reg(0).getIdx();
             int end_idx = get_acc_reg(repeats * ur_w * ur_ch_blocks).getIdx();
 
             eltwise_injectors[eltwise_inj_idx]->compute_vector_range(start_idx, end_idx);
             eltwise_inj_idx++;
         } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          } else if (post_op.is_depthwise()) {" << std::endl;
             mov(reg_d_weights, reinterpret_cast<size_t>(post_op.depthwise.weights_data));
             mov(reg_d_bias, reinterpret_cast<size_t>(post_op.depthwise.biases_data));
 
@@ -198,7 +216,9 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_postprocess(int ur_ch_blocks, in
             add(reg_d_bias, ptr[this->param1 + GET_OFF(oc_off)]);
 
             for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
                 for (int k = 0; k < repeats; k++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                  for (int k = 0; k < repeats; k++) {" << std::endl;
                     int start_idx = get_acc_reg(k*ur_ch_blocks*ur_w + ur_w * ch).getIdx();
                     int end_idx = get_acc_reg(k*ur_ch_blocks*ur_w + ur_w * ch + ur_w).getIdx();
 
@@ -212,6 +232,7 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_postprocess(int ur_ch_blocks, in
 
             depthwise_inj_idx++;
         } else if (post_op.is_quantization()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          } else if (post_op.is_quantization()) {" << std::endl;
             mov(reg_d_weights, reinterpret_cast<size_t>(post_op.quantization.crop_low_data));
             mov(reg_d_bias, reinterpret_cast<size_t>(post_op.quantization.crop_high_data));
 
@@ -219,10 +240,12 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_postprocess(int ur_ch_blocks, in
             add(reg_d_bias, ptr[this->param1 + GET_OFF(oc_off)]);
 
             for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
                 uni_vmovups(vmm_d_weights, ptr[reg_d_weights + ch * jcp.ch_block * sizeof(float)]);
                 uni_vmovups(vmm_d_bias, ptr[reg_d_bias + ch * jcp.ch_block * sizeof(float)]);
 
                 for (int ow = 0; ow < ur_w; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                  for (int ow = 0; ow < ur_w; ow++) {" << std::endl;
                     Vmm vmm_dst = get_acc_reg(ch*ur_w + ow);
 
                     uni_vmaxps(vmm_dst, vmm_dst, vmm_d_weights);
@@ -237,10 +260,12 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_postprocess(int ur_ch_blocks, in
             add(reg_d_bias, ptr[this->param1 + GET_OFF(oc_off)]);
 
             for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
                 uni_vmovups(vmm_d_weights, ptr[reg_d_weights + ch * jcp.ch_block * sizeof(float)]);
                 uni_vmovups(vmm_d_bias, ptr[reg_d_bias + ch * jcp.ch_block * sizeof(float)]);
 
                 for (int ow = 0; ow < ur_w; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                  for (int ow = 0; ow < ur_w; ow++) {" << std::endl;
                     Vmm vmm_dst = get_acc_reg(ch*ur_w + ow);
 
                     uni_vfmadd213ps(vmm_dst, vmm_d_weights, vmm_d_bias);
@@ -255,10 +280,12 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_postprocess(int ur_ch_blocks, in
             add(reg_d_bias, ptr[this->param1 + GET_OFF(oc_off)]);
 
             for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
                 uni_vmovups(vmm_d_weights, ptr[reg_d_weights + ch * jcp.ch_block * sizeof(float)]);
                 uni_vmovups(vmm_d_bias, ptr[reg_d_bias + ch * jcp.ch_block * sizeof(float)]);
 
                 for (int ow = 0; ow < ur_w; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                  for (int ow = 0; ow < ur_w; ow++) {" << std::endl;
                     Vmm vmm_dst = get_acc_reg(ch*ur_w + ow);
 
                     uni_vfmadd213ps(vmm_dst, vmm_d_weights, vmm_d_bias);
@@ -271,12 +298,16 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::apply_postprocess(int ur_ch_blocks, in
 template <cpu_isa_t isa>
 void jit_uni_dw_conv_fwd_kernel_f32<isa>::store_dst(
         int ur_ch_blocks, int ur_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          int ur_ch_blocks, int ur_w) {" << std::endl;
     int ch_blk = jcp.ch_block;
 
     int repeats = isa == sse42 ? 2 : 1;
     for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int i = 0; i < repeats; i++) {" << std::endl;
         for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
             for (int ow = 0; ow < ur_w; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int ow = 0; ow < ur_w; ow++) {" << std::endl;
                 int o_off = ch*jcp.oh*jcp.ow*ch_blk + ow*ch_blk + i*4;
                 Vmm vmm_dst = get_acc_reg(i*ur_ch_blocks*ur_w + ch*ur_w + ow);
 
@@ -288,6 +319,7 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::store_dst(
 
 template <cpu_isa_t isa>
 void jit_uni_dw_conv_fwd_kernel_f32<isa>::loop_body(int ur_ch_blocks) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  void jit_uni_dw_conv_fwd_kernel_f32<isa>::loop_body(int ur_ch_blocks) {" << std::endl;
     Label unrolled_w_label;
     Label tail_w_label;
     Label exit_label;
@@ -339,10 +371,13 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::loop_body(int ur_ch_blocks) {
 
 template <cpu_isa_t isa>
 void jit_uni_dw_conv_fwd_kernel_f32<isa>::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  void jit_uni_dw_conv_fwd_kernel_f32<isa>::generate() {" << std::endl;
     const auto &p = attr_.post_ops_;
     for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int i = 0; i < p.len_; i++) {" << std::endl;
         auto &post_op = p.entry_[i];
         if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          if (post_op.is_eltwise()) {" << std::endl;
             eltwise_injectors.push_back(new jit_uni_eltwise_injector_f32<isa>(
                     this,
                     post_op.eltwise.alg,
@@ -350,6 +385,7 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::generate() {
                     post_op.eltwise.beta
             ));
         } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          } else if (post_op.is_depthwise()) {" << std::endl;
             depthwise_injectors.push_back(new jit_uni_depthwise_injector_f32<isa>(
                     this,
                     post_op.depthwise.alg
@@ -380,6 +416,7 @@ void jit_uni_dw_conv_fwd_kernel_f32<isa>::generate() {
     loop_body(jcp.nb_ch_blocking); // channel main loop
 
     if (ch_blocks_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      if (ch_blocks_tail) {" << std::endl;
         L(ch_blocks_tail_label);
 
         cmp(reg_ch_blocks, ch_blocks_tail);
@@ -403,10 +440,14 @@ template struct jit_uni_dw_conv_fwd_kernel_f32<sse42>;
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::load_ddst(
         int ur_ch_blocks, int ur_str_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          int ur_ch_blocks, int ur_str_w) {" << std::endl;
     int repeats = isa == sse42 ? 2 : 1;
     for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int i = 0; i < repeats; i++) {" << std::endl;
         for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
             for (int w = 0; w < ur_str_w; w++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int w = 0; w < ur_str_w; w++) {" << std::endl;
                 Vmm vmm_acc = get_acc_reg(i*ur_ch_blocks*ur_str_w
                     + ch*ur_str_w + w);
                 uni_vpxor(vmm_acc, vmm_acc, vmm_acc);
@@ -418,6 +459,7 @@ inline void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::load_ddst(
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::apply_filter(
         int ur_ch_blocks, int ur_str_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          int ur_ch_blocks, int ur_str_w) {" << std::endl;
     int kw = jcp.kw;
     int kh = jcp.kh;
     int ow = jcp.ow;
@@ -446,13 +488,16 @@ inline void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::apply_filter(
         L(kw_label); {
             int repeats = isa == sse42 ? 2 : 1;
             for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int i = 0; i < repeats; i++) {" << std::endl;
                 for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                  for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
                     int ker_off = ch*kh*kw*ch_blk + i*4;
                     Vmm vmm_ker = get_ker_reg(0);
                     uni_vmovups(vmm_ker, ptr[aux1_reg_kernel
                         + ker_off*sizeof(float)]);
 
                     for (int w = 0; w < ur_str_w; w++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                      for (int w = 0; w < ur_str_w; w++) {" << std::endl;
                         int ddst_off = (ch*oh*ow + w)*ch_blk + i*4;
 
                         Vmm vmm_src = get_src_reg(0);
@@ -488,6 +533,7 @@ inline void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::apply_filter(
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::store_dsrc(
         int ur_ch_blocks, int ur_str_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          int ur_ch_blocks, int ur_str_w) {" << std::endl;
     int ch_blk = jcp.ch_block;
     int iw = jcp.iw;
     int ih = jcp.ih;
@@ -495,8 +541,11 @@ inline void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::store_dsrc(
 
     int repeats = isa == sse42 ? 2 : 1;
     for (int i = 0; i < repeats; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int i = 0; i < repeats; i++) {" << std::endl;
         for (int ch = 0; ch < ur_ch_blocks; ch++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          for (int ch = 0; ch < ur_ch_blocks; ch++) {" << std::endl;
             for (int w = 0; w < ur_str_w; w++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int w = 0; w < ur_str_w; w++) {" << std::endl;
                 int dsrc_off = (ch*ih*iw + w*stride_w)*ch_blk + i*4;
                 Vmm vmm_acc = get_acc_reg(i*ur_ch_blocks*ur_str_w
                     + ch*ur_str_w + w);
@@ -510,6 +559,7 @@ inline void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::store_dsrc(
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::loop_body(
         int ur_ch_blocks) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          int ur_ch_blocks) {" << std::endl;
     Label unrolled_w_label;
     Label tail_w_label;
     Label exit_label;
@@ -559,6 +609,7 @@ inline void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::loop_body(
 
 template <cpu_isa_t isa>
 void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::generate() {" << std::endl;
     preamble();
 
     mov(reg_dsrc, ptr[this->param1 + GET_OFF(src)]);
@@ -580,6 +631,7 @@ void jit_uni_dw_conv_bwd_data_kernel_f32<isa>::generate() {
     loop_body(jcp.nb_ch_blocking); // channel main loop
 
     if (ch_blocks_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      if (ch_blocks_tail) {" << std::endl;
         L(ch_blocks_tail_label);
 
         cmp(reg_ch_blocks, ch_blocks_tail);
@@ -599,8 +651,11 @@ template struct jit_uni_dw_conv_bwd_data_kernel_f32<sse42>;
 
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::zero_filter() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::zero_filter() {" << std::endl;
     for (int r = 0; r < reg_repeats; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int r = 0; r < reg_repeats; ++r) {" << std::endl;
         for (int i = 0; i < jcp.kw; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          for (int i = 0; i < jcp.kw; ++i) {" << std::endl;
             Vmm vmm_acc = get_acc_reg(r * jcp.kw + i);
             uni_vpxor(vmm_acc, vmm_acc, vmm_acc);
         }
@@ -609,9 +664,12 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::zero_filter() {
 
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::load_filter() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::load_filter() {" << std::endl;
     for (int r = 0; r < reg_repeats; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int r = 0; r < reg_repeats; ++r) {" << std::endl;
         const int reg_set = r * jcp.kw;
         for (int i = 0; i < jcp.kw; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          for (int i = 0; i < jcp.kw; ++i) {" << std::endl;
             int off_filter = (reg_set + i) * simd_w;
             Vmm vmm_acc = get_acc_reg(reg_set + i);
             uni_vmovups(vmm_acc,
@@ -622,7 +680,9 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::load_filter() {
 
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::zero_bias() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::zero_bias() {" << std::endl;
     for (int r = 0; r < reg_repeats; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int r = 0; r < reg_repeats; ++r) {" << std::endl;
         Vmm vmm_bias = get_bias_reg(r);
         uni_vpxor(vmm_bias, vmm_bias, vmm_bias);
     }
@@ -630,7 +690,9 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::zero_bias() {
 
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::load_bias() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::load_bias() {" << std::endl;
     for (int r = 0; r < reg_repeats; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int r = 0; r < reg_repeats; ++r) {" << std::endl;
         Vmm vmm_bias = get_bias_reg(r);
         uni_vmovups(
                 vmm_bias, vmmword[reg_bias_baddr + r * simd_w * sizeof(float)]);
@@ -640,6 +702,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::load_bias() {
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_step_unroll(
         int unroll_w, int l_pad, int pad_offset, int ow_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          int unroll_w, int l_pad, int pad_offset, int ow_block) {" << std::endl;
 
     const int iw_block = ow_block * jcp.stride_w;
     const int right_border = jcp.iw - iw_block;
@@ -651,13 +714,17 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_step_unroll(
 
     /* LOAD initial input registers, then cascade LOADs and FMAs*/
     for (int r = 0; r < reg_repeats; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int r = 0; r < reg_repeats; ++r) {" << std::endl;
         for (int i_ur = 0; i_ur < unroll_w; ++i_ur) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          for (int i_ur = 0; i_ur < unroll_w; ++i_ur) {" << std::endl;
             int off_output = (i_ur * reg_repeats + r) * simd_w;
             Vmm vmm_output = get_output_reg(r);
             uni_vmovups(vmm_output,
                     ptr[reg_tmp_output + off_output * sizeof(float)]);
             if (i_ur == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              if (i_ur == 0) {" << std::endl;
                 for (int c = 0; c < input_overlap; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                  for (int c = 0; c < input_overlap; ++c) {" << std::endl;
                     int off_input
                             = ((c - pad_offset) * reg_repeats + r) * simd_w;
                     Vmm vmm_input
@@ -667,6 +734,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_step_unroll(
                 }
             } else {
                 for (int c = 0; c < cascade_input; ++c) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                  for (int c = 0; c < cascade_input; ++c) {" << std::endl;
                     int overlap = (i_ur - 1) * jcp.stride_w + input_overlap;
                     int off_input
                             = ((overlap + c - pad_offset) * reg_repeats + r)
@@ -679,6 +747,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_step_unroll(
             }
 
             for (int i_kw = 0; i_kw < jcp.kw; ++i_kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              for (int i_kw = 0; i_kw < jcp.kw; ++i_kw) {" << std::endl;
                 int io_overlap = i_kw + (i_ur * jcp.stride_w);
 
                 /* Don't apply FMAs that fall into the padded region */
@@ -702,11 +771,15 @@ template <cpu_isa_t isa>
 inline void
 jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_bias_step_unroll(
         const int unroll_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          const int unroll_w) {" << std::endl;
     for (int r = 0; r < reg_repeats; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int r = 0; r < reg_repeats; ++r) {" << std::endl;
         for (int i = 0; i < unroll_w; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          for (int i = 0; i < unroll_w; ++i) {" << std::endl;
             Vmm vmm_bias = get_bias_reg(r);
             int off_output = (i * reg_repeats + r) * simd_w;
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              if (isa == sse42) {" << std::endl;
                 /* Need to support unaligned address loads for SSE42*/
                 Vmm vmm_output = get_output_reg(1 + r);
                 uni_vmovups(vmm_output,
@@ -722,9 +795,12 @@ jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_bias_step_unroll(
 
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::store_filter() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::store_filter() {" << std::endl;
     for (int r = 0; r < reg_repeats; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int r = 0; r < reg_repeats; ++r) {" << std::endl;
         const int reg_set = r * jcp.kw;
         for (int i = 0; i < jcp.kw; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          for (int i = 0; i < jcp.kw; ++i) {" << std::endl;
             int off_filter = (i + reg_set) * simd_w;
             Vmm vmm_acc = get_acc_reg(i + reg_set);
             uni_vmovups(vmmword[reg_tmp_filter + off_filter * sizeof(float)],
@@ -735,7 +811,9 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::store_filter() {
 
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::store_bias() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::store_bias() {" << std::endl;
     for (int r = 0; r < reg_repeats; ++r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      for (int r = 0; r < reg_repeats; ++r) {" << std::endl;
         Vmm vmm_bias = get_bias_reg(r);
         uni_vmovups(
                 vmmword[reg_bias_baddr + r * simd_w * sizeof(float)], vmm_bias);
@@ -745,6 +823,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::store_bias() {
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_bias_loop(
         const int block_size) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          const int block_size) {" << std::endl;
     Label oh_label;
     Label ow_blk_label;
 
@@ -775,6 +854,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_bias_loop(
         }
 
         if (tail_w > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          if (tail_w > 0) {" << std::endl;
             compute_bias_step_unroll(tail_w);
             add(reg_tmp_output, tail_w * ch_offset * sizeof(float));
         }
@@ -787,6 +867,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_bias_loop(
 
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_zero_filter() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_zero_filter() {" << std::endl;
 
     const int ch_offset = jcp.ch_block;
 
@@ -821,6 +902,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_zero_filter() {
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_h_step(
         int unroll_w, int l_pad, int pad_offset, int ow_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          int unroll_w, int l_pad, int pad_offset, int ow_block) {" << std::endl;
 
     const int ch_offset = jcp.ch_block;
 
@@ -861,6 +943,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_h_step(
 template <cpu_isa_t isa>
 inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_h_loop(
         int unroll_w, int l_pad, int pad_offset, int ow_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          int unroll_w, int l_pad, int pad_offset, int ow_block) {" << std::endl;
 
     const size_t io_overlap = jcp.ih / jcp.stride_h < jcp.oh ?
             jcp.ih / jcp.stride_h - 1 :
@@ -891,6 +974,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_h_loop(
 
         /* If within the top_pad region */
         if (jcp.t_pad > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:          if (jcp.t_pad > 0) {" << std::endl;
             /* Skip t_pad area if no longer in initial h_block */
             cmp(reg_oh, jcp.t_pad);
             jg(skip_tpad_label, T_NEAR);
@@ -904,6 +988,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_h_loop(
 
             /* kernel has moved beyond padding (adjust for stride effects) */
             if (jcp.t_pad % jcp.stride_h != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              if (jcp.t_pad % jcp.stride_h != 0) {" << std::endl;
                 int inp_corr = jcp.stride_h - jcp.t_pad % jcp.stride_h;
                 add(reg_tmp_input,
                         inp_corr * jcp.iw * ch_offset * sizeof(float));
@@ -936,6 +1021,7 @@ inline void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_h_loop(
 template <cpu_isa_t isa>
 inline void
 jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_block_unroll() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_block_unroll() {" << std::endl;
 
     const int ch_offset = jcp.ch_block;
     int ow = jcp.ow;
@@ -958,6 +1044,7 @@ jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_block_unroll() {
     int unroll_w_trips = 0;
 
     if (jcp.ow > max_unroll_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      if (jcp.ow > max_unroll_w) {" << std::endl;
         unroll_w = nstl::min(block_size, jcp.ow);
         unroll_w_trips = ow / unroll_w;
         /* calculate tail */
@@ -965,7 +1052,9 @@ jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_block_unroll() {
         /* Perform some rebalancing if tail too small*/
         if ((unroll_w_tail == 0 && r_pad != 0)
                 || (r_pad > 0 && r_pad >= unroll_w_tail)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:                  || (r_pad > 0 && r_pad >= unroll_w_tail)) {" << std::endl;
             if (unroll_w_trips > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:              if (unroll_w_trips > 1) {" << std::endl;
                 unroll_w_tail += unroll_w;
                 unroll_w_trips--;
             } else {
@@ -979,6 +1068,7 @@ jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_block_unroll() {
         unroll_w_trips = nstl::max(1, ow / unroll_w);
     }
     if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      if (jcp.with_bias) {" << std::endl;
         Label skip_load_bias;
         mov(reg_bias_baddr,
                 ptr[this->param1 + offsetof(jit_dw_conv_call_s, bias)]);
@@ -1007,6 +1097,7 @@ jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_block_unroll() {
 
     /* compute left padded block */
     if (l_pad) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      if (l_pad) {" << std::endl;
         compute_h_loop(unroll_w, l_pad, 0, 0);
         add(reg_output_baddr, unroll_w * ch_offset * sizeof(float));
         add(reg_input_baddr,
@@ -1023,16 +1114,19 @@ jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_block_unroll() {
      * than once */
     bool do_ow_blk_loop = unroll_w_trips > 1;
     if (do_ow_blk_loop) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      if (do_ow_blk_loop) {" << std::endl;
         mov(iter_ow_blk, unroll_w_trips);
         L(ow_blk_label);
     }
     if (unroll_w_trips > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      if (unroll_w_trips > 0) {" << std::endl;
         compute_h_loop(unroll_w, l_pad, pad_offset, 0);
         add(reg_output_baddr, unroll_w * ch_offset * sizeof(float));
         add(reg_input_baddr,
                 unroll_w * jcp.stride_w * ch_offset * sizeof(float));
     }
     if (do_ow_blk_loop) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      if (do_ow_blk_loop) {" << std::endl;
         dec(iter_ow_blk);
         cmp(iter_ow_blk, 0);
         jg(ow_blk_label, T_NEAR);
@@ -1040,12 +1134,14 @@ jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::compute_ow_block_unroll() {
 
     /* compute right padded block */
     if (unroll_w_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:      if (unroll_w_tail) {" << std::endl;
         compute_h_loop(unroll_w_tail, 0, pad_offset, jcp.ow - unroll_w_tail);
     }
 }
 
 template <cpu_isa_t isa>
 void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_conv_kernel_f32.cpp:  void jit_uni_dw_conv_bwd_weights_kernel_f32<isa>::generate() {" << std::endl;
     preamble();
 
     mov(reg_input_baddr,

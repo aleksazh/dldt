@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -57,6 +58,7 @@ typedef enum {
 // TODO: move this somewhere else? Although this is only used by jit kernels
 // (Roma)
 static inline int float2int(float x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:  static inline int float2int(float x) {" << std::endl;
     union {
         float vfloat;
         int vint;
@@ -109,15 +111,18 @@ static const Xbyak::Reg64 abi_param1(Xbyak::Operand::RDI),
 #endif
 
 inline unsigned int get_cache_size(int level, bool per_core = true){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:  inline unsigned int get_cache_size(int level, bool per_core = true){" << std::endl;
     unsigned int l = level - 1;
     // Currently, if XByak is not able to fetch the cache topology
     // we default to 32KB of L1, 512KB of L2 and 1MB of L3 per core.
     if (cpu.getDataCacheLevels() == 0){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      if (cpu.getDataCacheLevels() == 0){" << std::endl;
         const int L1_cache_per_core = 32000;
         const int L2_cache_per_core = 512000;
         const int L3_cache_per_core = 1024000;
         int num_cores = per_core ? 1 : mkldnn_get_max_threads();
         switch(l){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          switch(l){" << std::endl;
         case(0): return L1_cache_per_core * num_cores;
         case(1): return L2_cache_per_core * num_cores;
         case(2): return L3_cache_per_core * num_cores;
@@ -125,6 +130,7 @@ inline unsigned int get_cache_size(int level, bool per_core = true){
         }
     }
     if (l < cpu.getDataCacheLevels()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      if (l < cpu.getDataCacheLevels()) {" << std::endl;
         return cpu.getDataCacheSize(l)
             / (per_core ? cpu.getCoresSharingDataCache(l) : 1);
     } else
@@ -169,11 +175,14 @@ public:
     const Xbyak::Reg64 reg_EVEX_max_8b_offt = rbp;
 
     inline size_t get_size_of_abi_save_regs() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      inline size_t get_size_of_abi_save_regs() {" << std::endl;
         return size_of_abi_save_regs;
     }
 
     void preamble() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void preamble() {" << std::endl;
         if (xmm_to_preserve) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (xmm_to_preserve) {" << std::endl;
             sub(rsp, xmm_to_preserve * xmm_len);
             for (size_t i = 0; i < xmm_to_preserve; ++i)
                 movdqu(ptr[rsp + i * xmm_len], Xbyak::Xmm(xmm_to_preserve_start + i));
@@ -181,34 +190,41 @@ public:
         for (size_t i = 0; i < num_abi_save_gpr_regs; ++i)
             push(Xbyak::Reg64(abi_save_gpr_regs[i]));
         if (mayiuse(avx512_common)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (mayiuse(avx512_common)) {" << std::endl;
             mov(reg_EVEX_max_8b_offt, 2 * EVEX_max_8b_offt);
         }
     }
 
     void mic_prefetcht0(Xbyak::Address a) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void mic_prefetcht0(Xbyak::Address a) {" << std::endl;
         if (mayiuse(avx512_mic))
             prefetcht0(a);
     }
 
     void mic_prefetcht1(Xbyak::Address a) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void mic_prefetcht1(Xbyak::Address a) {" << std::endl;
         if (mayiuse(avx512_mic))
             prefetcht1(a);
     }
 
     void mic_prefetcht2(Xbyak::Address a) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void mic_prefetcht2(Xbyak::Address a) {" << std::endl;
         if (mayiuse(avx512_mic))
             prefetcht2(a);
     }
 
     void uni_vzeroupper() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vzeroupper() {" << std::endl;
         if (mayiuse(avx) && !mayiuse(avx512_mic))
             vzeroupper();
     }
 
     void postamble() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void postamble() {" << std::endl;
         for (size_t i = 0; i < num_abi_save_gpr_regs; ++i)
             pop(Xbyak::Reg64(abi_save_gpr_regs[num_abi_save_gpr_regs - 1 - i]));
         if (xmm_to_preserve) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (xmm_to_preserve) {" << std::endl;
             for (size_t i = 0; i < xmm_to_preserve; ++i)
                 movdqu(Xbyak::Xmm(xmm_to_preserve_start + i), ptr[rsp + i * xmm_len]);
             add(rsp, xmm_to_preserve * xmm_len);
@@ -221,6 +237,7 @@ public:
     Xbyak::Address EVEX_compress_addr(Xbyak::Reg64 base,
             T raw_offt, bool bcast = false)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:              T raw_offt, bool bcast = false)     {" << std::endl;
         using Xbyak::Zmm;
         using Xbyak::Reg64;
         using Xbyak::Address;
@@ -232,9 +249,11 @@ public:
         int scale = 0;
 
         if (EVEX_max_8b_offt <= offt && offt < 3 * EVEX_max_8b_offt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (EVEX_max_8b_offt <= offt && offt < 3 * EVEX_max_8b_offt) {" << std::endl;
             offt = offt - 2 * EVEX_max_8b_offt;
             scale = 1;
         } else if (3 * EVEX_max_8b_offt <= offt && offt < 5 * EVEX_max_8b_offt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          } else if (3 * EVEX_max_8b_offt <= offt && offt < 5 * EVEX_max_8b_offt) {" << std::endl;
             offt = offt - 4 * EVEX_max_8b_offt;
             scale = 2;
         }
@@ -251,7 +270,9 @@ public:
 
     Xbyak::Address make_safe_addr(const Xbyak::Reg64 &reg_out, size_t offt,
         const Xbyak::Reg64 &tmp_reg, bool bcast = false) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          const Xbyak::Reg64 &tmp_reg, bool bcast = false) {" << std::endl;
         if (offt > INT_MAX) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (offt > INT_MAX) {" << std::endl;
             mov(tmp_reg, offt);
             return bcast ? ptr_b[reg_out + tmp_reg] : ptr[reg_out + tmp_reg];
         } else {
@@ -261,7 +282,9 @@ public:
 
     Xbyak::Address EVEX_compress_addr_safe(const Xbyak::Reg64 &base,
         size_t raw_offt, const Xbyak::Reg64 &reg_offt, bool bcast = false) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          size_t raw_offt, const Xbyak::Reg64 &reg_offt, bool bcast = false) {" << std::endl;
         if (raw_offt > INT_MAX) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (raw_offt > INT_MAX) {" << std::endl;
             return make_safe_addr(base, raw_offt, reg_offt, bcast);
         } else {
             return EVEX_compress_addr(base, raw_offt, bcast);
@@ -270,7 +293,9 @@ public:
 
     void safe_add(const Xbyak::Reg64 &base, size_t raw_offt,
         const Xbyak::Reg64 &reg_offt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          const Xbyak::Reg64 &reg_offt) {" << std::endl;
         if (raw_offt > INT_MAX) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (raw_offt > INT_MAX) {" << std::endl;
             mov(reg_offt, raw_offt);
             add(base, reg_offt);
         } else {
@@ -280,7 +305,9 @@ public:
 
     void safe_sub(const Xbyak::Reg64 &base, size_t raw_offt,
         const Xbyak::Reg64 &reg_offt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          const Xbyak::Reg64 &reg_offt) {" << std::endl;
         if (raw_offt > INT_MAX) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (raw_offt > INT_MAX) {" << std::endl;
             mov(reg_offt, raw_offt);
             sub(base, reg_offt);
         } else {
@@ -290,21 +317,27 @@ public:
 
     // Disallow char-based labels completely
     void L(const char *label) = delete;
-    void L(Xbyak::Label& label) { Xbyak::CodeGenerator::L(label); }
+    void L(Xbyak::Label& label) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void L(Xbyak::Label& label) {" << std::endl; 
+    Xbyak::CodeGenerator::L(label); }
 
     void L_aligned(Xbyak::Label &label, int alignment = 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void L_aligned(Xbyak::Label &label, int alignment = 16) {" << std::endl;
         align(alignment);
         L(label);
     }
 
     void uni_vpxor(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                    const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                     const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pxor(x2, op);
     }
     void uni_vpxor(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                    const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                     const Xbyak::Operand &op) {" << std::endl;
         if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (mayiuse(avx2)) {" << std::endl;
             vpxor(x1, x2, op);
         } else {
             vxorps(x1, x2, op);
@@ -312,82 +345,106 @@ public:
     }
     void uni_vpxor(const Xbyak::Zmm &x1, const Xbyak::Zmm &x2,
                    const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                     const Xbyak::Operand &op) {" << std::endl;
         vpxord(x1, x2, op);
     }
 
     void uni_vmovss(const Xbyak::Address& addr, const Xbyak::Xmm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovss(const Xbyak::Address& addr, const Xbyak::Xmm &x) {" << std::endl;
         movss(addr, x);
     }
     void uni_vmovss(const Xbyak::Address& addr, const Xbyak::Ymm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovss(const Xbyak::Address& addr, const Xbyak::Ymm &x) {" << std::endl;
         vmovss(addr, x);
     }
     void uni_vmovss(const Xbyak::Xmm &x, const Xbyak::Address& addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovss(const Xbyak::Xmm &x, const Xbyak::Address& addr) {" << std::endl;
         movss(x, addr);
     }
     void uni_vmovss(const Xbyak::Ymm &x, const Xbyak::Address& addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovss(const Xbyak::Ymm &x, const Xbyak::Address& addr) {" << std::endl;
         vmovss(x, addr);
     }
 
     void uni_vmovsd(const Xbyak::Address& addr, const Xbyak::Xmm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovsd(const Xbyak::Address& addr, const Xbyak::Xmm &x) {" << std::endl;
         movsd(addr, x);
     }
     void uni_vmovsd(const Xbyak::Address& addr, const Xbyak::Ymm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovsd(const Xbyak::Address& addr, const Xbyak::Ymm &x) {" << std::endl;
         vmovsd(addr, x);
     }
     void uni_vmovsd(const Xbyak::Xmm &x, const Xbyak::Address& addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovsd(const Xbyak::Xmm &x, const Xbyak::Address& addr) {" << std::endl;
         movsd(x, addr);
     }
     void uni_vmovsd(const Xbyak::Ymm &x, const Xbyak::Address& addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovsd(const Xbyak::Ymm &x, const Xbyak::Address& addr) {" << std::endl;
         vmovsd(x, addr);
     }
 
     void uni_vmovdqu(const Xbyak::Address &addr, const Xbyak::Xmm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovdqu(const Xbyak::Address &addr, const Xbyak::Xmm &x) {" << std::endl;
         movdqu(addr, x);
     }
     void uni_vmovdqu(const Xbyak::Address &addr, const Xbyak::Ymm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovdqu(const Xbyak::Address &addr, const Xbyak::Ymm &x) {" << std::endl;
         vmovdqu(addr, x);
     }
     void uni_vmovdqu(const Xbyak::Address &addr, const Xbyak::Zmm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovdqu(const Xbyak::Address &addr, const Xbyak::Zmm &x) {" << std::endl;
         vmovdqu32(addr, x);
     }
 
     void uni_vmovdqu(const Xbyak::Xmm &x, const Xbyak::Address &addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovdqu(const Xbyak::Xmm &x, const Xbyak::Address &addr) {" << std::endl;
         movdqu(x, addr);
     }
     void uni_vmovdqu(const Xbyak::Ymm &x, const Xbyak::Address &addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovdqu(const Xbyak::Ymm &x, const Xbyak::Address &addr) {" << std::endl;
         vmovdqu(x, addr);
     }
     void uni_vmovdqu(const Xbyak::Zmm &x, const Xbyak::Address &addr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovdqu(const Xbyak::Zmm &x, const Xbyak::Address &addr) {" << std::endl;
         vmovdqu32(x, addr);
     }
 
     void uni_vmovups(const Xbyak::Address &addr, const Xbyak::Xmm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovups(const Xbyak::Address &addr, const Xbyak::Xmm &x) {" << std::endl;
         movups(addr, x);
     }
     void uni_vmovups(const Xbyak::Address &addr, const Xbyak::Ymm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovups(const Xbyak::Address &addr, const Xbyak::Ymm &x) {" << std::endl;
         vmovups(addr, x);
     }
 
     void uni_vmovups(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovups(const Xbyak::Xmm &x, const Xbyak::Operand &op) {" << std::endl;
         movups(x, op);
     }
     void uni_vmovups(const Xbyak::Ymm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovups(const Xbyak::Ymm &x, const Xbyak::Operand &op) {" << std::endl;
         vmovups(x, op);
     }
 
     void uni_vmovntps(const Xbyak::Address &addr, const Xbyak::Xmm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovntps(const Xbyak::Address &addr, const Xbyak::Xmm &x) {" << std::endl;
         movntps(addr, x);
     }
     void uni_vmovntps(const Xbyak::Address &addr, const Xbyak::Ymm &x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovntps(const Xbyak::Address &addr, const Xbyak::Ymm &x) {" << std::endl;
         vmovntps(addr, x);
     }
 
     void uni_vbroadcastss(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vbroadcastss(const Xbyak::Xmm &x, const Xbyak::Operand &op) {" << std::endl;
         movss(x, op);
         shufps(x, x, 0x0);
     }
     void uni_vbroadcastss(const Xbyak::Ymm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vbroadcastss(const Xbyak::Ymm &x, const Xbyak::Operand &op) {" << std::endl;
         if (op.isMEM() || mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (op.isMEM() || mayiuse(avx2)) {" << std::endl;
             vbroadcastss(x, op);
         } else {
             Xbyak::Xmm t(x.getIdx());
@@ -398,11 +455,14 @@ public:
     }
 
     void uni_vpbroadcastd(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpbroadcastd(const Xbyak::Xmm &x, const Xbyak::Operand &op) {" << std::endl;
         movsd(x, op);
         pshufd(x, x, 0x0);
     }
     void uni_vpbroadcastd(const Xbyak::Ymm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpbroadcastd(const Xbyak::Ymm &x, const Xbyak::Operand &op) {" << std::endl;
         if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (mayiuse(avx2)) {" << std::endl;
             vpbroadcastd(x, op);
         } else {
             Xbyak::Xmm t(x.getIdx());
@@ -413,223 +473,270 @@ public:
     }
 
     void uni_vrcpss(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vrcpss(const Xbyak::Xmm &x, const Xbyak::Operand &op) {" << std::endl;
         rcpss(x, op);
     }
     void uni_vrcpss(const Xbyak::Ymm &x1, const Xbyak::Xmm &x2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vrcpss(const Xbyak::Ymm &x1, const Xbyak::Xmm &x2) {" << std::endl;
         Xbyak::Xmm x1_(x1.getIdx());
         Xbyak::Xmm x2_(x2.getIdx());
         vrcpss(x1_, x1_, x2_);
     }
     void uni_vrcpss(const Xbyak::Ymm &x, const Xbyak::Address &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vrcpss(const Xbyak::Ymm &x, const Xbyak::Address &op) {" << std::endl;
         Xbyak::Xmm x_(x.getIdx());
         vrcpss(x_, x_, op);
     }
 
     void uni_vrcpps(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vrcpps(const Xbyak::Xmm &x, const Xbyak::Operand &op) {" << std::endl;
         rcpps(x, op);
     }
     void uni_vrcpps(const Xbyak::Ymm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vrcpps(const Xbyak::Ymm &x, const Xbyak::Operand &op) {" << std::endl;
         vrcpps(x, op);
     }
     void uni_vrcpps(const Xbyak::Zmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vrcpps(const Xbyak::Zmm &x, const Xbyak::Operand &op) {" << std::endl;
         vrcp14ps(x, op);
     }
 
     void uni_vdivps(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         assert(x.getIdx() == op1.getIdx());
         divps(x, op2);
     }
     void uni_vdivps(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         vdivps(x, op1, op2);
     }
 
     void uni_vdivps(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2, const Xbyak::Xmm &buf) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2, const Xbyak::Xmm &buf) {" << std::endl;
         movups(buf, op1);
         divps(buf, op2);
         if (x.getIdx() != buf.getIdx()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (x.getIdx() != buf.getIdx()) {" << std::endl;
             movups(x, buf);
         }
     }
 
     void uni_vdivps(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2, const Xbyak::Ymm &buf) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2, const Xbyak::Ymm &buf) {" << std::endl;
         vdivps(x, op1, op2);
     }
 
     void uni_vaddps(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         assert(x.getIdx() == op1.getIdx());
         addps(x, op2);
     }
     void uni_vaddps(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         vaddps(x, op1, op2);
     }
     void uni_vaddss(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         assert(x.getIdx() == op1.getIdx());
         addss(x, op2);
     }
     void uni_vaddss(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         vaddss(x, op1, op2);
     }
 
     void uni_vpsignd(const Xbyak::Xmm& x1, const Xbyak::Xmm& x2,
                      const Xbyak::Operand& op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                       const Xbyak::Operand& op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         psignd(x1, op);
     }
     void uni_vpsignd(const Xbyak::Ymm& x1, const Xbyak::Ymm& x2,
                      const Xbyak::Operand& op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                       const Xbyak::Operand& op) {" << std::endl;
         vpsignd(x1, x2, op);
     }
 
     void uni_vsubss(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         assert(x.getIdx() == op1.getIdx());
         subps(x, op2);
     }
     void uni_vsubss(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         vsubss(x, Xbyak::Xmm(op1.getIdx()), Xbyak::Xmm(op2.getIdx()));
     }
 
     void uni_vsubps(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         assert(x.getIdx() == op1.getIdx());
         subps(x, op2);
     }
     void uni_vsubps(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         vsubps(x, op1, op2);
     }
 
     void uni_vsubps(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2, const Xbyak::Xmm &buf) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2, const Xbyak::Xmm &buf) {" << std::endl;
         movups(buf, op1);
         subps(buf, op2);
         if (x.getIdx() != buf.getIdx()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (x.getIdx() != buf.getIdx()) {" << std::endl;
             movups(x, buf);
         }
     }
 
     void uni_vsubps(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2, const Xbyak::Ymm &buf) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2, const Xbyak::Ymm &buf) {" << std::endl;
         vsubps(x, op1, op2);
     }
 
     void uni_vmulps(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         assert(x.getIdx() == op1.getIdx());
         mulps(x, op2);
     }
     void uni_vmulps(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         vmulps(x, op1, op2);
     }
 
     void uni_vmulss(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         assert(x.getIdx() == op1.getIdx());
         mulss(x, op2);
     }
     void uni_vmulss(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Address &op2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Address &op2) {" << std::endl;
         vmulss(x, Xbyak::Xmm(op1.getIdx()), op2);
     }
     void uni_vmulss(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Ymm &op2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Ymm &op2) {" << std::endl;
         vmulss(x, Xbyak::Xmm(op1.getIdx()), Xbyak::Xmm(op2.getIdx()));
     }
 
     void uni_vfmadd213ps(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                          const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                           const Xbyak::Operand &op) {" << std::endl;
         mulps(x1, x2);
         addps(x1, op);
     }
     void uni_vfmadd213ps(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                          const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                           const Xbyak::Operand &op) {" << std::endl;
         vfmadd213ps(x1, x2, op);
     }
 
     void uni_vfmadd213ss(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                          const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                           const Xbyak::Operand &op) {" << std::endl;
         mulss(x1, x2);
         addss(x1, op);
     }
     void uni_vfmadd213ss(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                          const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                           const Xbyak::Operand &op) {" << std::endl;
         vfmadd213ss(x1, x2, op);
     }
 
     void uni_vfmadd231ps(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                          const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                           const Xbyak::Operand &op) {" << std::endl;
         mulps(x2, op);
         addps(x1, x2);
     }
     void uni_vfmadd231ps(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                          const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                           const Xbyak::Operand &op) {" << std::endl;
         vfmadd231ps(x1, x2, op);
     }
     void uni_vfmadd231ss(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                          const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                           const Xbyak::Operand &op) {" << std::endl;
         mulss(x2, op);
         addss(x1, x2);
     }
     void uni_vfmadd231ss(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                          const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                           const Xbyak::Operand &op) {" << std::endl;
         vfmadd231ss(Xbyak::Xmm(x1.getIdx()), Xbyak::Xmm(x2.getIdx()), op);
     }
 
     void uni_vfnmadd231ps(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                            const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                             const Xbyak::Operand &op) {" << std::endl;
         mulps(x2, op);
         subps(x1, x2);
     }
 
     void uni_vfnmadd231ps(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                            const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                             const Xbyak::Operand &op) {" << std::endl;
         vfnmadd231ps(x1, x2, op);
     }
 
     void uni_vsqrtps(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vsqrtps(const Xbyak::Xmm &x, const Xbyak::Operand &op) {" << std::endl;
         sqrtps(x, op);
     }
     void uni_vsqrtps(const Xbyak::Ymm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vsqrtps(const Xbyak::Ymm &x, const Xbyak::Operand &op) {" << std::endl;
         vsqrtps(x, op);
     }
 
     void uni_vpaddd(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                     const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         paddd(x2, op);
     }
     void uni_vpaddd(const Xbyak::Ymm &x1, const Xbyak::Xmm &x2,
                     const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op) {" << std::endl;
         vpaddd(x1, x2, op);
     }
 
     void uni_vpsubd(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                     const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         psubd(x2, op);
     }
     void uni_vpsubd(const Xbyak::Ymm &x1, const Xbyak::Xmm &x2,
                     const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op) {" << std::endl;
         vpsubd(x1, x2, op);
     }
 
     void uni_vandps(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                     const Xbyak::Operand &op = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op = Xbyak::Operand()) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         andps(x1, op);
     }
     void uni_vandps(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                     const Xbyak::Operand &op = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op = Xbyak::Operand()) {" << std::endl;
         if (!mayiuse(avx512_common) || x1.getBit() < 512)
             vandps(x1, x2, op);
         else
@@ -638,11 +745,13 @@ public:
 
     void uni_vorps(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                     const Xbyak::Operand &op = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op = Xbyak::Operand()) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         orps(x1, op);
     }
     void uni_vorps(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                     const Xbyak::Operand &op = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op = Xbyak::Operand()) {" << std::endl;
         if (!mayiuse(avx512_common) || x1.getBit() < 512)
             vorps(x1, x2, op);
         else
@@ -651,284 +760,348 @@ public:
 
     void uni_vpslld(const Xbyak::Xmm &x, const Xbyak::Operand &op,
                     const int imm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const int imm) {" << std::endl;
         assert(x.getIdx() == op.getIdx());
         pslld(x, imm);
     }
     void uni_vpslld(const Xbyak::Ymm &x, const Xbyak::Operand &op,
                     const int imm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const int imm) {" << std::endl;
         vpslld(x, op, imm);
     }
 
     void uni_vpsrld(const Xbyak::Xmm &x, const Xbyak::Operand &op,
                     const int imm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const int imm) {" << std::endl;
         assert(x.getIdx() == op.getIdx());
         psrld(x, imm);
     }
     void uni_vpsrld(const Xbyak::Ymm &x, const Xbyak::Operand &op,
                     const int imm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const int imm) {" << std::endl;
         vpsrld(x, op, imm);
     }
 
     void uni_vpsrldq(const Xbyak::Xmm &x, const Xbyak::Operand &op,
                     const int imm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const int imm) {" << std::endl;
         assert(x.getIdx() == op.getIdx());
         psrldq(x, imm);
     }
     void uni_vpsrldq(const Xbyak::Ymm &x, const Xbyak::Operand &op,
                     const int imm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const int imm) {" << std::endl;
         vpsrldq(x, op, imm);
     }
 
     void uni_vmaxps(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         assert(x.getIdx() == op1.getIdx());
         maxps(x, op2);
     }
     void uni_vmaxps(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         vmaxps(x, op1, op2);
     }
 
     void uni_vminps(const Xbyak::Xmm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         assert(x.getIdx() == op1.getIdx());
         minps(x, op2);
     }
     void uni_vminps(const Xbyak::Ymm &x, const Xbyak::Operand &op1,
                     const Xbyak::Operand &op2 = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op2 = Xbyak::Operand()) {" << std::endl;
         vminps(x, op1, op2);
     }
 
     void uni_vcmpgtps(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                       const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                        const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         cmpps(x1, op, _cmp_nle_us);
     }
 
     void uni_vcmpgtps(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                       const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                        const Xbyak::Operand &op) {" << std::endl;
         vcmpgtps(x1, x2, op);
     }
 
     void uni_vcmpgeps(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                       const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                        const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         cmpps(x1, op, _cmp_nlt_us);
     }
 
     void uni_vcmpgeps(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                       const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                        const Xbyak::Operand &op) {" << std::endl;
         vcmpps(x1, x2, op, _cmp_nlt_us);
     }
 
     void uni_vtestps(const Xbyak::Xmm &x1, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vtestps(const Xbyak::Xmm &x1, const Xbyak::Operand &op) {" << std::endl;
         ptest(x1, op);
     }
 
     void uni_vtestps(const Xbyak::Ymm &x1, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vtestps(const Xbyak::Ymm &x1, const Xbyak::Operand &op) {" << std::endl;
         assert(!(x1.isZMM() || op.isZMM()));
         vtestps(x1, op);
     }
 
     void uni_vblendvps(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                        const Xbyak::Operand &op, const Xbyak::Xmm &msk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                         const Xbyak::Operand &op, const Xbyak::Xmm &msk) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         assert(msk.getIdx() == 0);
         blendvps(x1, op);
     }
     void uni_vblendvps(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                        const Xbyak::Operand &op, const Xbyak::Ymm &msk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                         const Xbyak::Operand &op, const Xbyak::Ymm &msk) {" << std::endl;
         vblendvps(x1, x2, op, msk);
     }
 
     void uni_vroundps(const Xbyak::Xmm &x, const Xbyak::Operand &op,
                       const int imm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                        const int imm) {" << std::endl;
         roundps(x, op, imm);
     }
     void uni_vroundps(const Xbyak::Ymm &x, const Xbyak::Operand &op,
                       const int imm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                        const int imm) {" << std::endl;
         vroundps(x, op, imm);
     }
     void uni_vroundps(const Xbyak::Zmm &x, const Xbyak::Operand &op,
                       const int imm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                        const int imm) {" << std::endl;
         vrndscaleps(x, op, imm & 0x3);
     }
 
     void uni_vcvtps2dq(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vcvtps2dq(const Xbyak::Xmm &x, const Xbyak::Operand &op) {" << std::endl;
         cvtps2dq(x, op);
     }
     void uni_vcvtps2dq(const Xbyak::Ymm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vcvtps2dq(const Xbyak::Ymm &x, const Xbyak::Operand &op) {" << std::endl;
         vcvtps2dq(x, op);
     }
 
     void uni_vcvtdq2ps(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vcvtdq2ps(const Xbyak::Xmm &x, const Xbyak::Operand &op) {" << std::endl;
         cvtdq2ps(x, op);
     }
     void uni_vcvtdq2ps(const Xbyak::Ymm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vcvtdq2ps(const Xbyak::Ymm &x, const Xbyak::Operand &op) {" << std::endl;
         vcvtdq2ps(x, op);
     }
 
     void uni_vmovmskps(const Xbyak::Reg &x1, const Xbyak::Xmm &x2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovmskps(const Xbyak::Reg &x1, const Xbyak::Xmm &x2) {" << std::endl;
         movmskps(x1.cvt64(), x2);
     }
     void uni_vmovmskps(const Xbyak::Reg &x1, const Xbyak::Ymm &x2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vmovmskps(const Xbyak::Reg &x1, const Xbyak::Ymm &x2) {" << std::endl;
         vmovmskps(x1, x2);
     }
 
     void uni_vpackssdw(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpackssdw(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op){" << std::endl;
         assert(x1.getIdx() == x1.getIdx());
         packssdw(x1, op);
     }
     void uni_vpackssdw(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpackssdw(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op){" << std::endl;
         vpackssdw(x1, x2, op);
     }
 
     void uni_vpackuswb(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpackuswb(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op){" << std::endl;
         assert(x1.getIdx() == x1.getIdx());
         packuswb(x1, op);
     }
     void uni_vpackuswb(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpackuswb(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op){" << std::endl;
         vpackuswb(x1, x2, op);
     }
 
     void uni_vpmovsxbd(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmovsxbd(const Xbyak::Xmm &x, const Xbyak::Operand &op) {" << std::endl;
         pmovsxbd(x, op);
     }
     void uni_vpmovsxbd(const Xbyak::Ymm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmovsxbd(const Xbyak::Ymm &x, const Xbyak::Operand &op) {" << std::endl;
         vpmovsxbd(x, op);
     }
 
     void uni_vpmovzxbd(const Xbyak::Xmm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmovzxbd(const Xbyak::Xmm &x, const Xbyak::Operand &op) {" << std::endl;
         pmovzxbd(x, op);
     }
     void uni_vpmovzxbd(const Xbyak::Ymm &x, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmovzxbd(const Xbyak::Ymm &x, const Xbyak::Operand &op) {" << std::endl;
         vpmovzxbd(x, op);
     }
 
     void uni_vpackusdw(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpackusdw(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         packusdw(x1, op);
     }
     void uni_vpackusdw(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpackusdw(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {" << std::endl;
         vpackusdw(x1, x2, op);
     }
 
     void uni_vpacksswb(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpacksswb(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         packsswb(x1, op);
     }
     void uni_vpacksswb(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpacksswb(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {" << std::endl;
         vpacksswb(x1, x2, op);
     }
 
     void uni_vpmaxsd(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmaxsd(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pmaxsd(x1, op);
     }
     void uni_vpmaxsd(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmaxsd(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {" << std::endl;
         vpmaxsd(x1, x2, op);
     }
 
     void uni_vpmaxsb(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmaxsb(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pmaxsb(x1, op);
     }
     void uni_vpmaxsb(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmaxsb(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {" << std::endl;
         vpmaxsb(x1, x2, op);
     }
 
     void uni_vpmaxub(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmaxub(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pmaxub(x1, op);
     }
     void uni_vpmaxub(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmaxub(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {" << std::endl;
         vpmaxub(x1, x2, op);
     }
 
     void uni_vpmaddubsw(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmaddubsw(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pmaddubsw(x1, op);
     }
     void uni_vpmaddubsw(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmaddubsw(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {" << std::endl;
         vpmaddubsw(x1, x2, op);
     }
 
     void uni_vpmaddwd(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmaddwd(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pmaddwd(x1, op);
     }
     void uni_vpmaddwd(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmaddwd(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {" << std::endl;
         vpmaddwd(x1, x2, op);
     }
 
     void uni_vpmulld(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmulld(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pmulld(x1, op);
     }
     void uni_vpmulld(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpmulld(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {" << std::endl;
         vpmulld(x1, x2, op);
     }
 
     void uni_vpsubb(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpsubb(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         psubb(x1, op);
     }
     void uni_vpsubb(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpsubb(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::Operand &op) {" << std::endl;
         vpsubb(x1, x2, op);
     }
 
     void uni_vpslldq(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::uint8 &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpslldq(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2, const Xbyak::uint8 &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pslldq(x1, op);
     }
     void uni_vpslldq(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::uint8 &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      void uni_vpslldq(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2, const Xbyak::uint8 &op) {" << std::endl;
         vpslldq(x1, x2, op);
     }
 
     void uni_vpand(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                    const Xbyak::Operand &op = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                     const Xbyak::Operand &op = Xbyak::Operand()) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pand(x1, op);
     }
     void uni_vpand(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                     const Xbyak::Operand &op = Xbyak::Operand()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op = Xbyak::Operand()) {" << std::endl;
         vpand(x1, x2, op);
     }
 
     void uni_vpaddb(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                     const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         paddb(x2, op);
     }
     void uni_vpaddb(const Xbyak::Ymm &x1, const Xbyak::Xmm &x2,
                     const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                      const Xbyak::Operand &op) {" << std::endl;
         vpaddb(x1, x2, op);
     }
 
     void uni_vpshufb(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                      const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                       const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pshufb(x1, op);
     }
 
     void uni_vpshufb(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                      const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                       const Xbyak::Operand &op) {" << std::endl;
         vpshufb(x1, x2, op);
     }
 
     void uni_vpcmpeqd(const Xbyak::Xmm &x1, const Xbyak::Xmm &x2,
                       const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                        const Xbyak::Operand &op) {" << std::endl;
         assert(x1.getIdx() == x2.getIdx());
         pcmpeqd(x1, op);
     }
 
     void uni_vpcmpeqd(const Xbyak::Ymm &x1, const Xbyak::Ymm &x2,
                       const Xbyak::Operand &op) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                        const Xbyak::Operand &op) {" << std::endl;
         vpcmpeqd(x1, x2, op);
     }
 
     void mul_by_const(const Xbyak::Reg &out,
             const Xbyak::Reg64 &tmp, int value) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:              const Xbyak::Reg64 &tmp, int value) {" << std::endl;
         // Generates a shift + add sequence for multiplicating contents of the
         // out register by a known JIT-time value. Clobbers the tmp register.
         //
@@ -946,9 +1119,12 @@ public:
 
         xor_(tmp, tmp);
         while (value) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          while (value) {" << std::endl;
             if (value & 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:              if (value & 1) {" << std::endl;
                 int shift = p - old_p;
                 if (shift) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:                  if (shift) {" << std::endl;
                     shl(out, shift);
                     old_p = p;
                 }
@@ -962,6 +1138,7 @@ public:
 
     void dump_code(const Xbyak::uint8 *code) const {
         if (code) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (code) {" << std::endl;
             static int counter = 0;
 #define MAX_FNAME_LEN 256
             char fname[MAX_FNAME_LEN + 1];
@@ -972,6 +1149,7 @@ public:
             FILE *fp = mkldnn_fopen(fname, "w+");
             // Failure to dump code is not fatal
             if (fp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:              if (fp) {" << std::endl;
                 size_t unused = fwrite(code, getSize(), 1, fp);
                 UNUSED(unused);
                 fclose(fp);
@@ -983,6 +1161,7 @@ public:
     void register_code(const Xbyak::uint8 *code) const {
 #ifdef JIT_PROFILING_VTUNE
         if (iJIT_IsProfilingActive() == iJIT_SAMPLING_ON) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          if (iJIT_IsProfilingActive() == iJIT_SAMPLING_ON) {" << std::endl;
             auto jmethod = iJIT_Method_Load();
             jmethod.method_id = iJIT_GetNewMethodID();
             jmethod.method_name = (char *)name();
@@ -1003,14 +1182,17 @@ public:
         size_t code_size = 256 * 1024
         ) : Xbyak::CodeGenerator(code_size, code_ptr)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:          ) : Xbyak::CodeGenerator(code_size, code_ptr)     {" << std::endl;
     }
-    virtual ~jit_generator() {}
+    virtual ~jit_generator() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      virtual ~jit_generator() {" << std::endl;}
 
     virtual const char *name() const = 0;
     virtual const char *source_file() const = 0;
 
     // XXX: use normal_case name and update all callees (?)
     const Xbyak::uint8 *getCode() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      const Xbyak::uint8 *getCode() {" << std::endl;
         const Xbyak::uint8 *code = CodeGenerator::getCode();
         register_code(code);
 
@@ -1021,6 +1203,7 @@ public:
     }
 
     template<typename F> const F getCode() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      template<typename F> const F getCode() {" << std::endl;
         // XXX (Roma): Xbyak code probably has a bug here
         return (const F)getCode();
     }

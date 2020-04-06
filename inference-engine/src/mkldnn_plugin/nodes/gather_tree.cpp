@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -21,6 +22,7 @@ namespace Cpu {
 class GatherTreeImpl: public ExtLayerBase {
 public:
     explicit GatherTreeImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:      explicit GatherTreeImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges.";
@@ -54,6 +56,7 @@ public:
                                DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN) },
                              { DataConfigurator(ConfLayout::PLN) });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -93,7 +96,9 @@ public:
         if (max_time != static_cast<int32_t>(parent_idx_dims[0]) || max_time != static_cast<int32_t>(final_idx_dims[0]) ||
             batch_size != parent_idx_dims[1] || batch_size != final_idx_dims[1] || batch_size != max_seq_len_dims[0] ||
             beam_width != parent_idx_dims[2] || beam_width != final_idx_dims[2]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:              beam_width != parent_idx_dims[2] || beam_width != final_idx_dims[2]) {" << std::endl;
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Input/Output tensors dimensions mismatch";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }
@@ -102,16 +107,20 @@ public:
 
         bool incorrect_result = false;
         parallel_for2d(batch_size, beam_width, [&](size_t batch, size_t beam) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:          parallel_for2d(batch_size, beam_width, [&](size_t batch, size_t beam) {" << std::endl;
             int32_t max_sequence_in_beam = std::min<int32_t>(max_time, static_cast<int32_t>(max_seq_len[batch]));
             if (max_sequence_in_beam > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:              if (max_sequence_in_beam > 0) {" << std::endl;
                 int32_t time, idx = (max_time - 1) * bb_size + batch * beam_width;
                 for (time = (max_time - 1); time >= max_sequence_in_beam; time--, idx -= bb_size)
                     final_idx[idx + beam] = end_token;
 
                 for (int32_t parent = static_cast<int32_t>(beam); time >= 0; time--, idx -= bb_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:                  for (int32_t parent = static_cast<int32_t>(beam); time >= 0; time--, idx -= bb_size) {" << std::endl;
                     if (parent < 0
                             || parent >= static_cast<int32_t>(beam_width)
                             || idx + parent >= parent_idx_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:                              || idx + parent >= parent_idx_size) {" << std::endl;
                         incorrect_result = true;
                         break;
                     }
@@ -122,6 +131,7 @@ public:
                 bool finished = false;
                 auto *final = &final_idx[batch * beam_width + beam];
                 for (time = 0; time < max_sequence_in_beam; time++, final += bb_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:                  for (time = 0; time < max_sequence_in_beam; time++, final += bb_size) {" << std::endl;
                     if (finished)
                         (*final) = end_token;
                     else if ((*final) == end_token)
@@ -131,7 +141,9 @@ public:
         });
 
         if (incorrect_result) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:          if (incorrect_result) {" << std::endl;
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/gather_tree.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Wrong parent index, result is incorrect";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }

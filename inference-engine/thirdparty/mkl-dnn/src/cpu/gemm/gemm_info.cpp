@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -42,6 +43,7 @@ gemm_info_t<a_type, b_type, c_type>::gemm_info_t(const char *transA,
         const a_type *oa, const b_type *b, const int *ldb, const a_type *ob,
         const float *beta, c_type *c, const int *ldc, const c_type *oc,
         const bool force_nocopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          const bool force_nocopy) {" << std::endl;
 
     char transa = *transA;
     char transb = *transB;
@@ -71,16 +73,20 @@ gemm_info_t<a_type, b_type, c_type>::gemm_info_t(const char *transA,
     this->offsetc = NO_OFFSET;
 
     if (data_traits<a_type>::data_type == data_type::s8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:      if (data_traits<a_type>::data_type == data_type::s8) {" << std::endl;
         this->ao = *oa;
         this->bo = *ob;
     }
 
 
     if (offsetC != NULL) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:      if (offsetC != NULL) {" << std::endl;
         char offsetc = *offsetC;
         if (offsetc == 'F' || offsetc == 'f') {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          if (offsetc == 'F' || offsetc == 'f') {" << std::endl;
             this->offsetc = FIX_OFFSET;
         } else if (offsetc == 'R' || offsetc == 'r') {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          } else if (offsetc == 'R' || offsetc == 'r') {" << std::endl;
             this->offsetc = ROW_OFFSET;
         } else { // offsetc == 'C' || offsetc == 'c'
             this->offsetc = COL_OFFSET;
@@ -96,12 +102,14 @@ gemm_info_t<a_type, b_type, c_type>::gemm_info_t(const char *transA,
         (force_nocopy || has_bias || (mayiuse(avx) && !mayiuse(avx2)));
 
     if (!this->force_nocopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:      if (!this->force_nocopy) {" << std::endl;
         this->jit_init();
     }
 }
 
 template<typename a_type, typename b_type, typename c_type>
 void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:  void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {" << std::endl;
 
     static void (*copyA[2][2])(const dim_t *m, const dim_t *n,
             const a_type *src, const dim_t *ldsrc, const float *alpha,
@@ -127,8 +135,10 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
             int32_t *) = {NULL};
 
     switch (data_traits<a_type>::data_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:      switch (data_traits<a_type>::data_type) {" << std::endl;
     case data_type::s8:
         if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          if (mayiuse(avx512_core)) {" << std::endl;
             this->um = 48;
             this->un = 8;
             this->uk = 1;
@@ -144,6 +154,7 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
 
     case data_type::bf16:
         if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          if (mayiuse(avx512_core)) {" << std::endl;
             this->um = 48;
             this->un = 8;
             this->uk = 1;
@@ -159,6 +170,7 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
 
     case data_type::f32:
         if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          if (mayiuse(avx512_core)) {" << std::endl;
             this->um = 48;
             this->un = 8;
             this->uk = 1;
@@ -171,6 +183,7 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
             this->bn_small_k =  24;
 
         } else if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          } else if (mayiuse(avx2)) {" << std::endl;
             this->um = 24;
             this->un = 4;
             this->uk = 1;
@@ -192,8 +205,10 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
         static jit_generator *copy_b[2][2] = {{NULL}};
 
         switch (data_traits<a_type>::data_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          switch (data_traits<a_type>::data_type) {" << std::endl;
         case data_type::s8:
             if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:              if (mayiuse(avx512_core)) {" << std::endl;
                 copy_a[no_trans][no_sum] =
                     new jit_avx512_core_u8_copy_an_kern();
                 copy_a[do_trans][no_sum] =
@@ -218,6 +233,7 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
 
         case data_type::bf16:
             if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:              if (mayiuse(avx512_core)) {" << std::endl;
                 copy_a[no_trans][no_sum] =
                     new jit_avx512_core_s16_copy_an_kern();
                 copy_a[do_trans][no_sum] =
@@ -232,6 +248,7 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
 
         case data_type::f32:
             if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:              if (mayiuse(avx512_core)) {" << std::endl;
                 copy_a[no_trans][no_sum] =
                     new jit_avx512_core_f32_copy_an_kern();
                 copy_a[do_trans][no_sum] =
@@ -242,6 +259,7 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
                 copy_b[do_trans][no_sum] =
                     new jit_avx512_core_f32_copy_bt_kern();
             } else if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:              } else if (mayiuse(avx2)) {" << std::endl;
                 copy_a[no_trans][no_sum] = new jit_avx2_f32_copy_an_kern();
                 copy_a[do_trans][no_sum] = new jit_avx2_f32_copy_at_kern();
 
@@ -253,11 +271,14 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
 
         static jit_generator *kernel[2][2][2] = {{{NULL}}};
         switch (data_traits<a_type>::data_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          switch (data_traits<a_type>::data_type) {" << std::endl;
         case data_type::s8:
             if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:              if (mayiuse(avx512_core)) {" << std::endl;
                 for (int isBeta0 : {no_beta0, do_beta0})
                     for (int isColOffset : {no_col_offset, do_col_offset})
                         for (int isRowOffset : {no_row_offset, do_row_offset}) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:                          for (int isRowOffset : {no_row_offset, do_row_offset}) {" << std::endl;
                             kernel[isBeta0][isColOffset][isRowOffset] =
                                 new jit_avx512_core_gemm_s8u8s32_kern(isBeta0,
                                         isColOffset, isRowOffset);
@@ -267,7 +288,9 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
 
         case data_type::bf16:
             if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:              if (mayiuse(avx512_core)) {" << std::endl;
                 for (int isBeta0 : {no_beta0, do_beta0}) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:                  for (int isBeta0 : {no_beta0, do_beta0}) {" << std::endl;
                     kernel[isBeta0][no_col_offset][no_row_offset] =
                         new jit_avx512_core_gemm_bf16bf16f32_kern(isBeta0);
                 }
@@ -276,7 +299,9 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
 
         case data_type::f32:
             if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:              if (mayiuse(avx2)) {" << std::endl;
                 for (int isBeta0 : {no_beta0, do_beta0}) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:                  for (int isBeta0 : {no_beta0, do_beta0}) {" << std::endl;
                     kernel[isBeta0][no_col_offset][no_row_offset] =
                         new jit_avx2_kernel_sgemm_kern(isBeta0);
                 }
@@ -287,7 +312,9 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
         static jit_avx512_core_gemv_s8u8s32_kern *gemv_s8u8s32_kernel = NULL;
         static jit_avx512_core_gemv_s8u8s32_kern *gemv_u8s8s32_kernel = NULL;
         if (data_traits<a_type>::data_type == data_type::s8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          if (data_traits<a_type>::data_type == data_type::s8) {" << std::endl;
             if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:              if (mayiuse(avx512_core)) {" << std::endl;
                 gemv_s8u8s32_kernel = new jit_avx512_core_gemv_s8u8s32_kern();
                 gemv_u8s8s32_kernel = new jit_avx512_core_gemv_s8u8s32_kern();
             }
@@ -296,6 +323,7 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
         // Set copy kernels function pointer table
         for (int isTrans : {no_trans, do_trans})
             for (int isSum : {no_sum, do_sum}) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:              for (int isSum : {no_sum, do_sum}) {" << std::endl;
                 auto *p_copy_a = copy_a[isTrans][isSum];
                 if (p_copy_a != NULL)
                     copyA[isTrans][isSum] = p_copy_a->getCode<
@@ -314,6 +342,7 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
         for (int isBeta0 : {no_beta0, do_beta0})
             for (int isColOffset : {no_col_offset, do_col_offset})
                 for (int isRowOffset : {no_row_offset, do_row_offset}) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:                  for (int isRowOffset : {no_row_offset, do_row_offset}) {" << std::endl;
                     auto *p_kernel = kernel[isBeta0][isColOffset][isRowOffset];
                     if (p_kernel != NULL)
                         kern[isBeta0][isColOffset][isRowOffset] =
@@ -327,6 +356,7 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
 
         // Set gemv integer gemm kernels
         if (data_traits<a_type>::data_type == data_type::s8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          if (data_traits<a_type>::data_type == data_type::s8) {" << std::endl;
             gemv_s8u8s32_kern = gemv_s8u8s32_kernel->generate<
                 jit_avx512_core_gemv_s8u8s32_kern::gemv_s8u8s32_kernel_t>(
                         mayiuse(avx512_core_vnni));
@@ -352,6 +382,7 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
     this->gemv_s8u8s32_kernel = NULL;
     this->gemv_u8s8s32_kernel = NULL;
     if (data_traits<a_type>::data_type == data_type::s8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:      if (data_traits<a_type>::data_type == data_type::s8) {" << std::endl;
         this->gemv_s8u8s32_kernel = gemv_s8u8s32_kern;
         this->gemv_u8s8s32_kernel = gemv_u8s8s32_kern;
     }
@@ -364,9 +395,12 @@ void gemm_info_t<a_type, b_type, c_type>::jit_init(void) {
 //      f32  : avx2, avx512_core
 template <typename a_type, typename b_type, typename c_type>
 bool gemm_info_t<a_type, b_type, c_type>::hasKernels(void) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:  bool gemm_info_t<a_type, b_type, c_type>::hasKernels(void) {" << std::endl;
     switch (data_traits<a_type>::data_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:      switch (data_traits<a_type>::data_type) {" << std::endl;
     case data_type::s8:
         if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          if (mayiuse(avx512_core)) {" << std::endl;
             for (int isBeta0 : {no_beta0, do_beta0})
                 for (int isColOffset : {no_col_offset, do_col_offset})
                     for (int isRowOffset : {no_row_offset, do_row_offset})
@@ -383,6 +417,7 @@ bool gemm_info_t<a_type, b_type, c_type>::hasKernels(void) {
 
     case data_type::bf16:
         if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          if (mayiuse(avx512_core)) {" << std::endl;
             for (int isBeta0 : {no_beta0, do_beta0})
                 if (!this->kernel[isBeta0][no_col_offset][no_row_offset])
                     return false;
@@ -395,6 +430,7 @@ bool gemm_info_t<a_type, b_type, c_type>::hasKernels(void) {
 
     case data_type::f32:
         if (mayiuse(avx2) && !this->force_nocopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/gemm_info.cpp:          if (mayiuse(avx2) && !this->force_nocopy) {" << std::endl;
             for (int isBeta0 : {no_beta0, do_beta0})
                 if (!this->kernel[isBeta0][no_col_offset][no_row_offset])
                     return false;

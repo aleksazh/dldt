@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -190,6 +191,7 @@ using ngraph::Function;
 static std::shared_ptr<ngraph::Function> copyFunction(const std::shared_ptr<ngraph::Function>& func,
                                                       bool constFolding,
                                                       const std::map<std::string, std::vector<size_t>>& inputShapes) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                                                        const std::map<std::string, std::vector<size_t>>& inputShapes) {" << std::endl;
     ::ngraph::op::GenericIE::DisableReshape noReshape(func);
     auto original_parameters = func->get_parameters();
 
@@ -197,7 +199,9 @@ static std::shared_ptr<ngraph::Function> copyFunction(const std::shared_ptr<ngra
     std::vector<::ngraph::PartialShape> new_shapes;
 
     for (const auto &parameter : original_parameters) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (const auto &parameter : original_parameters) {" << std::endl;
         if (inputShapes.find(parameter->get_friendly_name()) != inputShapes.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          if (inputShapes.find(parameter->get_friendly_name()) != inputShapes.end()) {" << std::endl;
             new_shapes.emplace_back(inputShapes.at(parameter->get_friendly_name()));
         } else {
             new_shapes.emplace_back(parameter->get_shape());
@@ -212,6 +216,7 @@ static std::shared_ptr<ngraph::Function> copyFunction(const std::shared_ptr<ngra
     // TODO: remove this code after the fix on the nGraph side
     ::ngraph::pass::GetOutputElementElimination goe_elimination;
     for (auto n : specialized_function->get_ops()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (auto n : specialized_function->get_ops()) {" << std::endl;
         goe_elimination.run_on_node(n);
     }
     return specialized_function;
@@ -219,11 +224,13 @@ static std::shared_ptr<ngraph::Function> copyFunction(const std::shared_ptr<ngra
 
 // WA: for cnnNetwork ngraph constructor
 CNNNetwork::CNNNetwork(const std::shared_ptr<ngraph::Function>& graph) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  CNNNetwork::CNNNetwork(const std::shared_ptr<ngraph::Function>& graph) {" << std::endl;
 #if defined(ENABLE_NGRAPH)
     // Copy nGraph function
     network = std::make_shared<CNNNetworkNGraphImpl>(copyFunction(graph, false, {}));
     actual = network.get();
     if (actual == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (actual == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "CNNNetwork was not initialized.";
     }
 #else
@@ -233,16 +240,20 @@ CNNNetwork::CNNNetwork(const std::shared_ptr<ngraph::Function>& graph) {
 
 void CNNNetworkNGraphImpl::createDataForResult(const ::ngraph::Output<::ngraph::Node>& output, const std::string& outName,
                                                DataPtr& ptr) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                                                 DataPtr& ptr) {" << std::endl;
     // query shape from ngraph::Parameter output shape and check there are no zeros in it
     SizeVector dims;
     if (output.get_partial_shape().is_static()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (output.get_partial_shape().is_static()) {" << std::endl;
         dims = output.get_shape();
     }
     for (const auto& dim : dims) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (const auto& dim : dims) {" << std::endl;
         if (!dim) THROW_IE_EXCEPTION << outName << " has zero dimension that is not allowable";
     }
 
     if (ptr) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (ptr) {" << std::endl;
         ptr->reshape(dims, ptr->getTensorDesc().getLayout());
     } else {
         const auto precision = details::ngraph::convertPrecision(output.get_element_type());
@@ -252,6 +263,7 @@ void CNNNetworkNGraphImpl::createDataForResult(const ::ngraph::Output<::ngraph::
 }
 
 std::shared_ptr<ICNNNetwork> CNNNetworkNGraphImpl::getCNNNetwork() {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  std::shared_ptr<ICNNNetwork> CNNNetworkNGraphImpl::getCNNNetwork() {" << std::endl;
     if (!cnnNetwork)
         convertToCNNNetworkImpl();
     return cnnNetwork;
@@ -259,8 +271,10 @@ std::shared_ptr<ICNNNetwork> CNNNetworkNGraphImpl::getCNNNetwork() {
 
 CNNNetworkNGraphImpl::CNNNetworkNGraphImpl(const std::shared_ptr<Function>& nGraph)
     : _ngraph_function(nGraph), _stats(new CNNNetworkStatsImpl()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      : _ngraph_function(nGraph), _stats(new CNNNetworkStatsImpl()) {" << std::endl;
     // Restore usual attributes for ICNNNetwork
     auto keep_input_info = [](CNNNetworkNGraphImpl& network, const DataPtr& inData) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      auto keep_input_info = [](CNNNetworkNGraphImpl& network, const DataPtr& inData) {" << std::endl;
         InputInfo::Ptr info(new InputInfo());
         info->setInputData(inData);
         Precision prc = info->getPrecision();
@@ -277,6 +291,7 @@ CNNNetworkNGraphImpl::CNNNetworkNGraphImpl(const std::shared_ptr<Function>& nGra
 
     reshape();
     for (const auto& layer : _ngraph_function->get_parameters()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (const auto& layer : _ngraph_function->get_parameters()) {" << std::endl;
         std::string outName = layer->get_friendly_name();
         IE_ASSERT(layer->get_output_size() == 1);  // Parameter as only singly output port
 
@@ -286,24 +301,30 @@ CNNNetworkNGraphImpl::CNNNetworkNGraphImpl(const std::shared_ptr<Function>& nGra
         keep_input_info(*this, ptr);
     }
     for (auto& output : _outputData) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (auto& output : _outputData) {" << std::endl;
         // Convert precision into native format. Be consistent with possible convertation to CNNNetwork later.
         if (output.second->getPrecision() != Precision::FP32 &&
             output.second->getPrecision() != Precision::I32) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              output.second->getPrecision() != Precision::I32) {" << std::endl;
             output.second->setPrecision(Precision::FP32);
         }
     }
 }
 
 CNNNetworkNGraphImpl::~CNNNetworkNGraphImpl() {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  CNNNetworkNGraphImpl::~CNNNetworkNGraphImpl() {" << std::endl;
     for (auto& data : _data) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (auto& data : _data) {" << std::endl;
         if (!data.second) continue;
         if (auto nData = std::dynamic_pointer_cast<NGraphData>(data.second)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          if (auto nData = std::dynamic_pointer_cast<NGraphData>(data.second)) {" << std::endl;
             nData->reset();
         }
     }
 }
 
 void CNNNetworkNGraphImpl::setInputInfo(InputInfo::Ptr data) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  void CNNNetworkNGraphImpl::setInputInfo(InputInfo::Ptr data) {" << std::endl;
     if (cnnNetwork && !networksEqual) cnnNetwork->setInputInfo(data);
     _inputData[data->name()] = data;
 }
@@ -311,12 +332,14 @@ void CNNNetworkNGraphImpl::setInputInfo(InputInfo::Ptr data) {
 DataPtr& CNNNetworkNGraphImpl::getData(const char* name) noexcept {
     if (cnnNetwork) return cnnNetwork->getData(name);
     if (_data.find(name) != _data.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (_data.find(name) != _data.end()) {" << std::endl;
         return _data[name];
     } else {
         try {
             convertToCNNNetworkImpl();
             return cnnNetwork->getData(name);
         } catch (...) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          } catch (...) {" << std::endl;
             return _data[name];
         }
     }
@@ -324,6 +347,7 @@ DataPtr& CNNNetworkNGraphImpl::getData(const char* name) noexcept {
 
 void CNNNetworkNGraphImpl::getName(char* pName, size_t len) const noexcept {
     if (cnnNetwork) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (cnnNetwork) {" << std::endl;
         cnnNetwork->getName(pName, len);
         return;
     }
@@ -335,6 +359,7 @@ void CNNNetworkNGraphImpl::getName(char* pName, size_t len) const noexcept {
 
 const std::string& CNNNetworkNGraphImpl::getName() const noexcept {
     if (cnnNetwork) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (cnnNetwork) {" << std::endl;
         return cnnNetwork->getName();
     }
     return _ngraph_function->get_name();
@@ -344,6 +369,7 @@ InputInfo::Ptr CNNNetworkNGraphImpl::getInput(const std::string& inputName) cons
     if (cnnNetwork) return cnnNetwork->getInput(inputName);
     auto it = _inputData.find(inputName);
     if (it == _inputData.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (it == _inputData.end()) {" << std::endl;
         return nullptr;
     }
     return it->second;
@@ -355,6 +381,7 @@ Precision CNNNetworkNGraphImpl::getPrecision() const noexcept {
 
 void CNNNetworkNGraphImpl::getOutputsInfo(OutputsDataMap& out) const noexcept {
     if (cnnNetwork) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (cnnNetwork) {" << std::endl;
         cnnNetwork->getOutputsInfo(out);
         return;
     }
@@ -363,6 +390,7 @@ void CNNNetworkNGraphImpl::getOutputsInfo(OutputsDataMap& out) const noexcept {
 
 void CNNNetworkNGraphImpl::getInputsInfo(InputsDataMap& inputs) const noexcept {
     if (cnnNetwork) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (cnnNetwork) {" << std::endl;
         cnnNetwork->getInputsInfo(inputs);
         return;
     }
@@ -377,17 +405,20 @@ size_t CNNNetworkNGraphImpl::layerCount() const noexcept {
 void CNNNetworkNGraphImpl::addLayer(const CNNLayerPtr& layer) noexcept {
     try {
         if (!cnnNetwork) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          if (!cnnNetwork) {" << std::endl;
             convertToCNNNetworkImpl();
         }
         cnnNetwork->addLayer(layer);
         if (layer)
             networksEqual = false;
     } catch (...) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      } catch (...) {" << std::endl;
         return;
     }
 }
 
 void CNNNetworkNGraphImpl::validate(int version) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  void CNNNetworkNGraphImpl::validate(int version) {" << std::endl;
     if (cnnNetwork)
         cnnNetwork->validate();
     else
@@ -400,6 +431,7 @@ StatusCode CNNNetworkNGraphImpl::getLayerByName(const char* layerName, CNNLayerP
     std::shared_ptr<::ngraph::Function> converted_function;
 
     if (!network) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (!network) {" << std::endl;
         converted_function = cloneFunction();
         convertFunctionToICNNNetwork(converted_function, network);
     }
@@ -411,21 +443,26 @@ StatusCode CNNNetworkNGraphImpl::addOutput(const std::string& layerName, size_t 
                                            ResponseDesc* resp) noexcept {
     IE_PROFILING_AUTO_SCOPE(addOutput)
     if (cnnNetwork && !networksEqual) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (cnnNetwork && !networksEqual) {" << std::endl;
         return cnnNetwork->addOutput(layerName, outputIndex, resp);
     }
 
     try {
         for (const auto layer : _ngraph_function->get_ops()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (const auto layer : _ngraph_function->get_ops()) {" << std::endl;
             if (layer->get_friendly_name() == layerName) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              if (layer->get_friendly_name() == layerName) {" << std::endl;
                 auto& results = const_cast<::ngraph::ResultVector&>(_ngraph_function->get_results());
                 auto result = make_shared<::ngraph::op::Result>(layer->output(outputIndex));
                 results.push_back(result);
 
                 std::string outputName = layerName;
                 if (layer->outputs().size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                  if (layer->outputs().size() != 1) {" << std::endl;
                     outputName += "." + std::to_string(outputIndex);
                 }
                 if (_data.find(outputName) != _data.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                  if (_data.find(outputName) != _data.end()) {" << std::endl;
                     addOutput(outputName);
                     if (cnnNetwork)
                         return cnnNetwork->addOutput(layerName, outputIndex, resp);
@@ -437,14 +474,17 @@ StatusCode CNNNetworkNGraphImpl::addOutput(const std::string& layerName, size_t 
             }
         }
     } catch (...) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      } catch (...) {" << std::endl;
         return GENERAL_ERROR;
     }
     return DescriptionBuffer(NOT_FOUND, resp) << "Cannot add output! Layer " << layerName << " wasn't found!";
 }
 
 void CNNNetworkNGraphImpl::addOutput(const string& dataName) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  void CNNNetworkNGraphImpl::addOutput(const string& dataName) {" << std::endl;
     auto it = _data.find(dataName);
     if (it == _data.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (it == _data.end()) {" << std::endl;
         THROW_IE_EXCEPTION << "data [" << dataName << "] doesn't exist";
     }
     auto data = it->second;
@@ -458,6 +498,7 @@ size_t CNNNetworkNGraphImpl::getBatchSize() const noexcept {
     // This is not correct in general. We can follow the same semantics, but order of inputs should be
     // guaranteed to be the same.
     if (cnnNetwork) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (cnnNetwork) {" << std::endl;
         return cnnNetwork->getBatchSize();
     }
     auto params = _ngraph_function->get_parameters();
@@ -467,6 +508,7 @@ size_t CNNNetworkNGraphImpl::getBatchSize() const noexcept {
 
     // WA: for speech recognition layouts (copy-past from CNNNetwork)
     if (shape.size() == 3 || shape.size() == 1) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (shape.size() == 3 || shape.size() == 1) {" << std::endl;
         return 1;
     }
     return shape[0];
@@ -477,6 +519,7 @@ std::shared_ptr<ngraph::Function> CNNNetworkNGraphImpl::cloneFunction(bool const
 }
 
 void CNNNetworkNGraphImpl::reshape() {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  void CNNNetworkNGraphImpl::reshape() {" << std::endl;
     ResponseDesc desc;
 
     // Disable reshape for generic nodes
@@ -496,6 +539,7 @@ CNNNetworkNGraphImpl::reshape(const std::map<std::string, std::vector<size_t>>& 
         auto params = _ngraph_function->get_parameters();
 
         for (size_t i = 0; i < params.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (size_t i = 0; i < params.size(); i++) {" << std::endl;
             const auto& param = params[i];
             if (inputShapes.find(param->get_friendly_name()) == inputShapes.end())
                 continue;
@@ -507,6 +551,7 @@ CNNNetworkNGraphImpl::reshape(const std::map<std::string, std::vector<size_t>>& 
         _ngraph_function->validate_nodes_and_infer_types();
 
         if (cnnNetwork) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          if (cnnNetwork) {" << std::endl;
             convertToCNNNetworkImpl();
         } else {
             auto specialized_ngraph_function = cloneFunction(true, inputShapes);
@@ -520,10 +565,12 @@ CNNNetworkNGraphImpl::reshape(const std::map<std::string, std::vector<size_t>>& 
             std::unordered_set<std::string> opName;
 
             for (const auto & layer : specialized_ngraph_function->get_ordered_ops()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              for (const auto & layer : specialized_ngraph_function->get_ordered_ops()) {" << std::endl;
                 if (opName.find(layer->get_friendly_name()) != opName.end())
                     THROW_IE_EXCEPTION << "All operations in nGraph function should have unique friendly names!";
                 opName.insert(layer->get_friendly_name());
                 if (std::dynamic_pointer_cast<::ngraph::op::Result>(layer)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                  if (std::dynamic_pointer_cast<::ngraph::op::Result>(layer)) {" << std::endl;
                     IE_ASSERT(layer->get_inputs().size() == 1);
                     const auto& input = layer->get_inputs()[0];
                     std::string outName = input.get_output().get_node()->get_friendly_name();
@@ -532,6 +579,7 @@ CNNNetworkNGraphImpl::reshape(const std::map<std::string, std::vector<size_t>>& 
                     addOutput(outName);
                 }
                 for (const auto& output : layer->outputs()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                  for (const auto& output : layer->outputs()) {" << std::endl;
                     std::string outName = layer->get_friendly_name();
                     if (layer->outputs().size() != 1)
                         outName += "." + std::to_string(output.get_index());
@@ -540,22 +588,28 @@ CNNNetworkNGraphImpl::reshape(const std::map<std::string, std::vector<size_t>>& 
             }
         }
     } catch (std::exception& ex) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      } catch (std::exception& ex) {" << std::endl;
 #if 0
         for (const auto& op : _ngraph_function->get_ordered_ops()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (const auto& op : _ngraph_function->get_ordered_ops()) {" << std::endl;
             std::cout << op->get_friendly_name() << " " << op->description() << std::endl << "    Inputs: ";
             for (const auto& in : op->inputs()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              for (const auto& in : op->inputs()) {" << std::endl;
                 auto shape = in.get_shape();
                 std::cout << " {";
                 for (auto i : shape) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                  for (auto i : shape) {" << std::endl;
                     std::cout << i << " ";
                 }
                 std::cout << "} ";
             }
             std::cout << std::endl << "    Outputs: ";
             for (const auto& in : op->outputs()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              for (const auto& in : op->outputs()) {" << std::endl;
                 auto shape = in.get_shape();
                 std::cout << " {";
                 for (auto i : shape) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                  for (auto i : shape) {" << std::endl;
                     std::cout << i << " ";
                 }
                 std::cout << "} ";
@@ -573,6 +627,7 @@ CNNNetworkNGraphImpl::reshape(const std::map<std::string, std::vector<size_t>>& 
 StatusCode CNNNetworkNGraphImpl::AddExtension(const InferenceEngine::IShapeInferExtensionPtr& extension,
                                               InferenceEngine::ResponseDesc* resp) noexcept {
     if (!cnnNetwork || networksEqual) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (!cnnNetwork || networksEqual) {" << std::endl;
         ::ngraph::op::GenericIE::addExtension(extension);
     }
     return cnnNetwork ? cnnNetwork->AddExtension(extension, resp) : OK;
@@ -584,6 +639,7 @@ StatusCode CNNNetworkNGraphImpl::serialize(const std::string& xmlPath, const std
     std::shared_ptr<::ngraph::Function> converted_function;
 
     if (!network) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (!network) {" << std::endl;
         converted_function = cloneFunction();
         convertFunctionToICNNNetwork(converted_function, network);
     }
@@ -598,6 +654,7 @@ StatusCode CNNNetworkNGraphImpl::setBatchSize(size_t size, ResponseDesc* respons
         networksEqual = false;
         return cnnNetwork->setBatchSize(size, responseDesc);
     } catch (std::exception& ex) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      } catch (std::exception& ex) {" << std::endl;
         return DescriptionBuffer(GENERAL_ERROR, responseDesc) << ex.what();
     }
 }
@@ -611,6 +668,7 @@ StatusCode CNNNetworkNGraphImpl::setBatchSizeReshape(size_t size, ResponseDesc* 
         std::map<std::string, std::vector<size_t>> origShapes;
         std::map<std::string, std::vector<size_t>> inShapes;
         for (const auto &parameter : original_parameters) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (const auto &parameter : original_parameters) {" << std::endl;
             if (parameter->get_partial_shape().is_dynamic())
                 THROW_IE_EXCEPTION << "Cannot setBatch! Network contains inputs with dynamic shapes!";
             std::vector<size_t> shape = parameter->get_shape();
@@ -621,6 +679,7 @@ StatusCode CNNNetworkNGraphImpl::setBatchSizeReshape(size_t size, ResponseDesc* 
         auto sts = reshape(inShapes, responseDesc);
         if (sts == OK) return OK;
         for (size_t i = 0; i < original_parameters.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (size_t i = 0; i < original_parameters.size(); i++) {" << std::endl;
             const auto& param = original_parameters[i];
             if (origShapes.find(param->get_friendly_name()) == origShapes.end())
                 continue;
@@ -633,11 +692,13 @@ StatusCode CNNNetworkNGraphImpl::setBatchSizeReshape(size_t size, ResponseDesc* 
         convertToCNNNetworkImpl();
         return cnnNetwork->setBatchSize(size, responseDesc);
     } catch (std::exception& ex) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      } catch (std::exception& ex) {" << std::endl;
         return DescriptionBuffer(GENERAL_ERROR, responseDesc) << ex.what();
     }
 }
 
 void CNNNetworkNGraphImpl::convertToCNNNetworkImpl() {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  void CNNNetworkNGraphImpl::convertToCNNNetworkImpl() {" << std::endl;
     if (cnnNetwork && !networksEqual)
         return;
     IE_PROFILING_AUTO_SCOPE(convertToCNNNetworkImpl)
@@ -654,6 +715,7 @@ void CNNNetworkNGraphImpl::convertToCNNNetworkImpl() {
     cnnNetwork->getInputsInfo(resultInputDataMap);
     IE_ASSERT(resultInputDataMap.size() == thisInputDataMap.size());
     for (auto i : resultInputDataMap) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (auto i : resultInputDataMap) {" << std::endl;
         auto& thisInputData = *thisInputDataMap[i.first];
         i.second->setPrecision(thisInputData.getPrecision());
         i.second->setLayout(thisInputData.getLayout());
@@ -661,6 +723,7 @@ void CNNNetworkNGraphImpl::convertToCNNNetworkImpl() {
     }
 
     for (const auto& ext : ::ngraph::op::GenericIE::getExtensions()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (const auto& ext : ::ngraph::op::GenericIE::getExtensions()) {" << std::endl;
         cnnNetwork->AddExtension(ext, nullptr);
     }
 }
@@ -783,6 +846,7 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
         if (node->visit_attributes(visitor)) return visitor.create();
 
         for (auto& convertor : convertors) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (auto& convertor : convertors) {" << std::endl;
             if (!convertor->canCreate(node)) continue;
             return convertor->createLayer(node);
         }
@@ -804,19 +868,25 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
             ::ngraph::as_type_ptr<::ngraph::op::VariadicSplit>(consumerLayer) ||
             ::ngraph::as_type_ptr<::ngraph::op::ScaleShiftIE>(consumerLayer) ||
             ::ngraph::as_type_ptr<::ngraph::op::Transpose>(consumerLayer)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              ::ngraph::as_type_ptr<::ngraph::op::Transpose>(consumerLayer)) {" << std::endl;
             // Check that all input nodes except zero input are Constants for all ops except DeformableConvolutions
             // for which the input with index 1 is also dynamic
             size_t inputID = ::ngraph::as_type_ptr<::ngraph::op::v1::DeformableConvolution>(consumerLayer) ? 2 : 1;
             for (; inputID < consumerLayer->inputs().size(); ++inputID) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              for (; inputID < consumerLayer->inputs().size(); ++inputID) {" << std::endl;
                 auto inputLayer = consumerLayer->input(inputID).get_source_output().get_node_shared_ptr();
                 if (inputLayer == constLayer) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                  if (inputLayer == constLayer) {" << std::endl;
                     return true;
                 }
             }
         } else if (::ngraph::as_type_ptr<::ngraph::op::LSTMCellIE>(consumerLayer)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          } else if (::ngraph::as_type_ptr<::ngraph::op::LSTMCellIE>(consumerLayer)) {" << std::endl;
             for (size_t inputID = 3; inputID < consumerLayer->inputs().size(); ++inputID) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              for (size_t inputID = 3; inputID < consumerLayer->inputs().size(); ++inputID) {" << std::endl;
                 auto inputLayer = consumerLayer->input(inputID).get_source_output().get_node_shared_ptr();
                 if (inputLayer == constLayer) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                  if (inputLayer == constLayer) {" << std::endl;
                     return true;
                 }
             }
@@ -829,7 +899,9 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
                                      const std::unordered_set<std::string>& names,
                                      bool keep_constant) -> bool {
         if (auto constantNode = ::ngraph::as_type_ptr<::ngraph::op::Constant>(node)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          if (auto constantNode = ::ngraph::as_type_ptr<::ngraph::op::Constant>(node)) {" << std::endl;
             for (const auto& consumerInputPort : constantNode->get_outputs()[0].get_inputs()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              for (const auto& consumerInputPort : constantNode->get_outputs()[0].get_inputs()) {" << std::endl;
                 const auto& consumerLayer = consumerInputPort->get_node();
                 if (names.find(consumerLayer->get_name()) == names.end())
                     continue;
@@ -843,6 +915,7 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
     };
 
     const auto keep_input_info = [](std::shared_ptr<details::CNNNetworkImpl>& network, const DataPtr& inData) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      const auto keep_input_info = [](std::shared_ptr<details::CNNNetworkImpl>& network, const DataPtr& inData) {" << std::endl;
         InputInfo::Ptr info(new InputInfo());
         info->setInputData(inData);
         network->setInputInfo(info);
@@ -1084,7 +1157,9 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
 
     bool keep_constants(false);
     for (auto & layer : graph->get_ops()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (auto & layer : graph->get_ops()) {" << std::endl;
         if (std::dynamic_pointer_cast<::ngraph::op::FakeQuantize>(layer)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          if (std::dynamic_pointer_cast<::ngraph::op::FakeQuantize>(layer)) {" << std::endl;
             keep_constants = true;
             break;
         }
@@ -1092,6 +1167,7 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
 
     // Create layers and output data
     for (const auto& layer : graph->get_ops()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (const auto& layer : graph->get_ops()) {" << std::endl;
         if (isInternalLayer(layer, op_names, keep_constants)) continue;
 
         // TODO: remove this rt info when all blobs will be inputs
@@ -1101,22 +1177,27 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
 
         CNNLayerPtr cnnLayer = createCNNLayer(layer);
         for (const auto& rt : layer->get_rt_info()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (const auto& rt : layer->get_rt_info()) {" << std::endl;
             Parameter param(rt.second);
             if (param.empty()) continue;
             if (details::CaselessEq<std::string>()(rt.first, "affinity")) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              if (details::CaselessEq<std::string>()(rt.first, 'affinity')) {" << std::endl;
                 cnnLayer->affinity = param.as<std::string>();
             } else if (param.is<std::string>()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (param.is<std::string>()) {" << std::endl;
                 cnnLayer->params[rt.first] = param.as<std::string>();
             }
         }
         size_t inputCount(0);
         for (size_t i = 0; i < layer->get_input_size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (size_t i = 0; i < layer->get_input_size(); i++) {" << std::endl;
             const auto& input = layer->get_inputs()[i];
             if (isInternalLayer(input.get_output().get_node(), op_names, keep_constants)) continue;
             inputCount++;
         }
         cnnLayer->insData.resize(inputCount);
         for (size_t i = 0; i < layer->get_output_size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (size_t i = 0; i < layer->get_output_size(); i++) {" << std::endl;
             std::string outName = layer->get_friendly_name();
             if (layer->get_output_size() != 1) outName += "." + std::to_string(i);
             DataPtr& ptr = cnnNetworkImpl->getData(outName.c_str());
@@ -1124,13 +1205,16 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
             SizeVector dims;
             dims = layer->get_output_shape(i);
             for (const auto& dim : dims) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              for (const auto& dim : dims) {" << std::endl;
                 if (!dim)
                     THROW_IE_EXCEPTION << cnnLayer->type << " layer " << cnnLayer->name << " has incorrect dimensions in the output data " << i;
             }
 
             if (!ptr && _data.find(outName) != _data.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              if (!ptr && _data.find(outName) != _data.end()) {" << std::endl;
                 ptr = _data.at(outName);
                 if (auto nData = std::dynamic_pointer_cast<NGraphData>(ptr)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                  if (auto nData = std::dynamic_pointer_cast<NGraphData>(ptr)) {" << std::endl;
                     const auto layout =
                             dims.size() == nData->getTensorDesc().getDims().size() ?
                                 nData->getTensorDesc().getLayout() :
@@ -1142,6 +1226,7 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
                 cnnNetworkImpl->addData(outName.c_str(), ptr);
             }
             if (!ptr) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              if (!ptr) {" << std::endl;
                 ptr.reset(new Data(outName, {details::ngraph::convertPrecision(layer->get_output_element_type(i)), dims,
                                              TensorDesc::getLayoutByDims(dims)}));
             }
@@ -1149,6 +1234,7 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
             ptr->getCreatorLayer() = cnnLayer;
             cnnLayer->outData.push_back(ptr);
             if (std::dynamic_pointer_cast<::ngraph::op::Parameter>(layer)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              if (std::dynamic_pointer_cast<::ngraph::op::Parameter>(layer)) {" << std::endl;
                 keep_input_info(cnnNetworkImpl, ptr);
             }
         }
@@ -1157,7 +1243,9 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
 
     // Set input data
     for (const auto& layer : graph->get_ordered_ops()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (const auto& layer : graph->get_ordered_ops()) {" << std::endl;
         if (std::dynamic_pointer_cast<::ngraph::op::Result>(layer)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          if (std::dynamic_pointer_cast<::ngraph::op::Result>(layer)) {" << std::endl;
             IE_ASSERT(layer->get_inputs().size() == 1);
             const auto &input = layer->get_inputs()[0];
             std::string outName = input.get_output().get_node()->get_friendly_name();
@@ -1169,8 +1257,10 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
 
         uint64_t count_of_skipped = 0;
         for (size_t i = 0; i < layer->get_input_size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (size_t i = 0; i < layer->get_input_size(); i++) {" << std::endl;
             const auto& input = layer->get_inputs()[i];
             if (isInternalConstLayer(input.get_output().get_node(), layer, keep_constants)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              if (isInternalConstLayer(input.get_output().get_node(), layer, keep_constants)) {" << std::endl;
                 count_of_skipped++;
                 continue;
             }
@@ -1200,11 +1290,14 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
 
     // check all input ports are occupied
     for (const auto& kvp : cnnNetworkImpl->allLayers()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (const auto& kvp : cnnNetworkImpl->allLayers()) {" << std::endl;
         const CNNLayer::Ptr& layer = kvp.second;
         size_t inSize = layer->insData.size();
 
         for (unsigned i = 0; i < inSize; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (unsigned i = 0; i < inSize; i++) {" << std::endl;
             if (!layer->insData[i].lock()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              if (!layer->insData[i].lock()) {" << std::endl;
                 THROW_IE_EXCEPTION << "Layer " << layer->name.c_str() << " input port " << i
                                    << " is not connected to any data";
             }
@@ -1217,10 +1310,12 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
     ResponseDesc response;
     StatusCode sts = this->getStats(&pstats, &response);
     if (sts != StatusCode::OK) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (sts != StatusCode::OK) {" << std::endl;
         THROW_IE_EXCEPTION << response.msg;
     }
     sts = cnnNetworkImpl->getStats(&lstats, &response);
     if (sts != StatusCode::OK) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (sts != StatusCode::OK) {" << std::endl;
         THROW_IE_EXCEPTION << response.msg;
     }
     lstats->setNodesStats(pstats->getNodesStats());
@@ -1229,10 +1324,12 @@ void CNNNetworkNGraphImpl::convertFunctionToICNNNetwork(std::shared_ptr<::ngraph
 std::shared_ptr<CNNNetworkNGraphImpl> CNNNetworkNGraphImpl::cloneNGraphImpl() const {
     auto result = std::make_shared<CNNNetworkNGraphImpl>(cloneFunction());
     for (const auto& outputInfo : _outputData) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (const auto& outputInfo : _outputData) {" << std::endl;
         result->_outputData[outputInfo.first]->setPrecision(outputInfo.second->getPrecision());
         result->_outputData[outputInfo.first]->setLayout(outputInfo.second->getLayout());
     }
     for (const auto& inputInfo : _inputData) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (const auto& inputInfo : _inputData) {" << std::endl;
         result->_inputData[inputInfo.first]->setPrecision(inputInfo.second->getPrecision());
         result->_inputData[inputInfo.first]->setLayout(inputInfo.second->getLayout());
         result->_inputData[inputInfo.first]->getPreProcess() = inputInfo.second->getPreProcess();
@@ -1245,6 +1342,7 @@ std::shared_ptr<CNNNetworkNGraphImpl> CNNNetworkNGraphImpl::cloneNGraphImpl() co
 }
 
 void CNNNetworkNGraphImpl::transformConstants() {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  void CNNNetworkNGraphImpl::transformConstants() {" << std::endl;
     if (!cnnNetwork)
         convertToCNNNetworkImpl();
     // Remove all redundant constant and convert unsupported precisions
@@ -1254,7 +1352,9 @@ void CNNNetworkNGraphImpl::transformConstants() {
 
 bool details::CNNNetworkNGraphImpl::has_f16_constants(const std::shared_ptr<::ngraph::Function> &function) const {
     for (auto & layer : function->get_ops()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      for (auto & layer : function->get_ops()) {" << std::endl;
         if (std::dynamic_pointer_cast<::ngraph::op::Constant>(layer) && layer->output(0).get_element_type() == ::ngraph::element::f16) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          if (std::dynamic_pointer_cast<::ngraph::op::Constant>(layer) && layer->output(0).get_element_type() == ::ngraph::element::f16) {" << std::endl;
             return true;
         }
     }
@@ -1263,29 +1363,37 @@ bool details::CNNNetworkNGraphImpl::has_f16_constants(const std::shared_ptr<::ng
 
 void InferenceEngine::details::CNNLayerCreator::on_adapter(const std::string& name,
                                                            ::ngraph::ValueAccessor<void>& adapter) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                                                             ::ngraph::ValueAccessor<void>& adapter) {" << std::endl;
     if (auto a = ::ngraph::as_type<::ngraph::AttributeAdapter<::ngraph::element::Type>>(&adapter)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      if (auto a = ::ngraph::as_type<::ngraph::AttributeAdapter<::ngraph::element::Type>>(&adapter)) {" << std::endl;
         auto type = static_cast<::ngraph::element::Type&>(*a);
         params[name] = details::ngraph::convertPrecision(type).name();
     } else if (auto a = ::ngraph::as_type<::ngraph::AttributeAdapter<::ngraph::PartialShape>>(&adapter)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      } else if (auto a = ::ngraph::as_type<::ngraph::AttributeAdapter<::ngraph::PartialShape>>(&adapter)) {" << std::endl;
         std::string dims;
         auto shape = static_cast<::ngraph::PartialShape&>(*a);
         for (size_t i = 0; i < static_cast<size_t>(shape.rank()); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (size_t i = 0; i < static_cast<size_t>(shape.rank()); i++) {" << std::endl;
             if (!dims.empty()) dims += ",";
             dims += std::to_string(static_cast<size_t>(shape[i]));
         }
         params[name] = dims;
     } else if (auto a = ::ngraph::as_type<::ngraph::AttributeAdapter<::ngraph::Shape>>(&adapter)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      } else if (auto a = ::ngraph::as_type<::ngraph::AttributeAdapter<::ngraph::Shape>>(&adapter)) {" << std::endl;
         std::string dims;
         auto shape = static_cast<::ngraph::Shape&>(*a);
         for (size_t i = 0; i < shape.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (size_t i = 0; i < shape.size(); i++) {" << std::endl;
             if (!dims.empty()) dims += ",";
             dims += std::to_string(static_cast<size_t>(shape[i]));
         }
         params[name] = dims;
     } else if (auto a = ::ngraph::as_type<::ngraph::AttributeAdapter<::ngraph::Strides>>(&adapter)) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:      } else if (auto a = ::ngraph::as_type<::ngraph::AttributeAdapter<::ngraph::Strides>>(&adapter)) {" << std::endl;
         std::string dims;
         auto shape = static_cast<::ngraph::Strides&>(*a);
         for (size_t i = 0; i < shape.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (size_t i = 0; i < shape.size(); i++) {" << std::endl;
             if (!dims.empty()) dims += ",";
             dims += std::to_string(static_cast<size_t>(shape[i]));
         }
@@ -1294,6 +1402,7 @@ void InferenceEngine::details::CNNLayerCreator::on_adapter(const std::string& na
 }
 
 InferenceEngine::details::CNNLayerCreator::CNNLayerCreator(const std::shared_ptr<::ngraph::Node>& node): node(node) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  InferenceEngine::details::CNNLayerCreator::CNNLayerCreator(const std::shared_ptr<::ngraph::Node>& node): node(node) {" << std::endl;
     addSpecificCreator({"Parameter"}, [](const std::shared_ptr<::ngraph::Node>& node,
                                          const std::map<std::string, std::string> params) -> CNNLayerPtr {
         LayerParams attrs = {node->get_friendly_name(), "Input",
@@ -1310,44 +1419,63 @@ InferenceEngine::details::CNNLayerCreator::CNNLayerCreator(const std::shared_ptr
             auto res = std::make_shared<EltwiseLayer>(attrs);
             res->params = params;
             if (node->description() == "Maximum") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              if (node->description() == 'Maximum') {" << std::endl;
                 res->params["operation"] = "max";
             } else if (node->description() == "Power") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'Power') {" << std::endl;
                 res->params["operation"] = "pow";
             } else if (node->description() == "Subtract") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'Subtract') {" << std::endl;
                 res->params["operation"] = "sub";
             } else if (node->description() == "Divide") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'Divide') {" << std::endl;
                 res->params["operation"] = "div";
             } else if (node->description() == "LessEqual") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'LessEqual') {" << std::endl;
                 res->params["operation"] = "less_equal";
             } else if (node->description() == "Less") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'Less') {" << std::endl;
                 res->params["operation"] = "less";
             } else if (node->description() == "Equal") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'Equal') {" << std::endl;
                 res->params["operation"] = "equal";
             } else if (node->description() == "NotEqual") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'NotEqual') {" << std::endl;
                 res->params["operation"] = "not_equal";
             } else if (node->description() == "FloorMod") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'FloorMod') {" << std::endl;
                 res->params["operation"] = "floor_mod";
             } else if (node->description() == "Multiply") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'Multiply') {" << std::endl;
                 res->params["operation"] = "prod";
             } else if (node->description() == "Add") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'Add') {" << std::endl;
                 res->params["operation"] = "sum";
             } else if (node->description() == "Greater") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'Greater') {" << std::endl;
                 res->params["operation"] = "greater";
             } else if (node->description() == "GreaterEq") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'GreaterEq') {" << std::endl;
                 res->params["operation"] = "greater_equal";
             } else if (node->description() == "GreaterEqual") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'GreaterEqual') {" << std::endl;
                 res->params["operation"] = "greater_equal";
             } else if (node->description() == "LogicalOr") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'LogicalOr') {" << std::endl;
                 res->params["operation"] = "logical_or";
             } else if (node->description() == "LogicalAnd") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'LogicalAnd') {" << std::endl;
                 res->params["operation"] = "logical_and";
             } else if (node->description() == "LogicalXor") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'LogicalXor') {" << std::endl;
                 res->params["operation"] = "logical_xor";
             } else if (node->description() == "Eltwise") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:              } else if (node->description() == 'Eltwise') {" << std::endl;
                 auto castedLayer = std::dynamic_pointer_cast<::ngraph::op::Eltwise>(node);
                 if (castedLayer == nullptr) THROW_IE_EXCEPTION << "Cannot get " << attrs.type << " layer " << attrs.name;
                 std::string type;
                 switch (castedLayer->eltwise_type) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:                  switch (castedLayer->eltwise_type) {" << std::endl;
                 case ELTWISE_TYPE::Sum:
                     type = "sum";
                     break;
@@ -1381,13 +1509,16 @@ InferenceEngine::details::CNNLayerCreator::CNNLayerCreator(const std::shared_ptr
             res->params.erase("auto_pad");
 
         if (res->params.find("exclude_pad") != res->params.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          if (res->params.find('exclude_pad') != res->params.end()) {" << std::endl;
             res->params["exclude-pad"] = res->params["exclude_pad"];
             res->params.erase("exclude_pad");
         }
 
         if (node->description() == "MaxPool") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          if (node->description() == 'MaxPool') {" << std::endl;
             res->params["pool-method"] = "max";
         } else if (node->description() == "AvgPool") {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          } else if (node->description() == 'AvgPool') {" << std::endl;
             res->params["pool-method"] = "avg";
         }
         return res;
@@ -1403,8 +1534,10 @@ InferenceEngine::details::CNNLayerCreator::CNNLayerCreator(const std::shared_ptr
 }
 
 CNNLayerPtr InferenceEngine::details::CNNLayerCreator::create() {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:  CNNLayerPtr InferenceEngine::details::CNNLayerCreator::create() {" << std::endl;
     auto one_from = [](const std::string& desc, const std::vector<std::string>& descs) -> bool {
         for (const auto& d : descs) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_ngraph_impl.cpp:          for (const auto& d : descs) {" << std::endl;
             if (details::CaselessEq<std::string>()(d, desc)) return true;
         }
         return false;

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2019 Intel Corporation
 *
@@ -50,8 +51,10 @@ execute_forward() const {
     const jit_gemm_conv_conf_t &jcp = this->pd()->jcp_;
 
     if (jcp.with_input_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      if (jcp.with_input_zp) {" << std::endl;
         auto output_compensation = scratchpad.get<int32_t>(key_conv_padded_compensation);
         for (int i = 0; i < this->pd()->attr()->output_compensations_.count_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          for (int i = 0; i < this->pd()->attr()->output_compensations_.count_; i++) {" << std::endl;
             output_compensation[i] = (int32_t)this->pd()->attr()->output_compensations_.shifts_[i];
         }
     }
@@ -64,6 +67,7 @@ execute_forward() const {
     const int nb_ow = div_up(jcp.ow, jcp.ow_block);
     const size_t work_amount = jcp.ngroups * jcp.mb * nb_oh * nb_ow;
     parallel(jcp.nthr, work_amount, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      parallel(jcp.nthr, work_amount, [&](const int ithr, const int nthr) {" << std::endl;
         execute_forward_thr(ithr, nthr, src_base, wei_base, bia_base, dst_base,
                 scratchpad);
     });
@@ -87,6 +91,7 @@ _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::pp_ker_t(
     , use_fast_post_processing(false)
     , with_weights_zp(false)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      , with_weights_zp(false) {" << std::endl;
     using namespace types;
 
     const auto dst_md = memory_desc_wrapper(pd->dst_pd());
@@ -102,8 +107,10 @@ _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::pp_ker_t(
 
     int entry_idx = -1;
     for (int idx = 0; idx < post_ops.len_; ++idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      for (int idx = 0; idx < post_ops.len_; ++idx) {" << std::endl;
         const auto &e = post_ops.entry_[idx];
         if (e.is_relu(true, false)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (e.is_relu(true, false)) {" << std::endl;
             entry_idx = idx;
             break;
         }
@@ -114,9 +121,12 @@ _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::pp_ker_t(
 
     do_sum_ = post_ops.contain(primitive_kind::sum, 0);
     if (do_sum_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      if (do_sum_) {" << std::endl;
         for (int i = 0; i < post_ops.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          for (int i = 0; i < post_ops.len_; i++) {" << std::endl;
             auto &post_op = post_ops.entry_[i];
             if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              if (post_op.is_eltwise()) {" << std::endl;
                 sum_data_type_ = post_op.sum.data_type;
             }
         }
@@ -124,6 +134,7 @@ _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::pp_ker_t(
     do_bias_ = pd->with_bias();
     bias_data_type_ = pd->desc()->bias_desc.data_type;
     if (do_bias_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      if (do_bias_) {" << std::endl;
         assert(bias_data_type_ != data_type::undef);
         bias_data_type_size_ = data_type_size(bias_data_type_);
     }
@@ -131,7 +142,9 @@ _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::pp_ker_t(
             = cpu_isa_traits<avx512_common>::vlen / sizeof(float);
 
     for (size_t i = vlen_start; i > 0; i--) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      for (size_t i = vlen_start; i > 0; i--) {" << std::endl;
         if (OC_ % i == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (OC_ % i == 0) {" << std::endl;
             vlen_ = i;
             break;
         }
@@ -140,9 +153,11 @@ _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::pp_ker_t(
     with_weights_zp = !pd->attr()->weights_zero_points_.has_default_values();
 
     auto is_relu = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      auto is_relu = [&](int idx) {" << std::endl;
         return post_ops.entry_[idx].is_relu(true, false);
     };
     switch (post_ops.len_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      switch (post_ops.len_) {" << std::endl;
         case 0: use_fast_post_processing = true; break;
         case 1: use_fast_post_processing = is_relu(0) || post_ops.contain(mkldnn::impl::primitive_kind::sum, 0); break;
         case 2: use_fast_post_processing = post_ops.contain(mkldnn::impl::primitive_kind::sum, 0) && is_relu(1); break;
@@ -150,19 +165,24 @@ _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::pp_ker_t(
     };
 
     if (mayiuse(avx512_core) && use_fast_post_processing && !with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      if (mayiuse(avx512_core) && use_fast_post_processing && !with_weights_zp) {" << std::endl;
         generate();
     } else {
         // use fallback code for unsupported cases
         if (!use_fast_post_processing) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (!use_fast_post_processing) {" << std::endl;
             for (int i = 0; i < post_ops.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              for (int i = 0; i < post_ops.len_; i++) {" << std::endl;
                 auto &post_op = post_ops.entry_[i];
                 if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                  if (post_op.is_eltwise()) {" << std::endl;
                     eltwise_injectors.push_back(new ref_eltwise_scalar_fwd_t(
                             post_op.eltwise.alg,
                             post_op.eltwise.alpha,
                             post_op.eltwise.beta
                     ));
                 } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                  } else if (post_op.is_depthwise()) {" << std::endl;
                     depthwise_injectors.push_back(new ref_depthwise_scalar_fwd_t(
                             post_op.depthwise.alg
                     ));
@@ -175,6 +195,7 @@ _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::pp_ker_t(
 template <data_type_t src_type, data_type_t dst_type>
 void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:  void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate() {" << std::endl;
     using namespace Xbyak;
     using namespace utils;
     using namespace round_mode;
@@ -207,17 +228,21 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
     size_t max_unroll = 12;
     size_t zmm_step = 2;
     if (do_sum_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      if (do_sum_) {" << std::endl;
         max_unroll = 8;
         zmm_step = 3;
     }
 
     auto vreg_dst = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      auto vreg_dst = [&](int idx) {" << std::endl;
         return Zmm(5 + idx * zmm_step + 0);
     };
     auto vreg_bias = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      auto vreg_bias = [&](int idx) {" << std::endl;
         return Zmm(5 + idx * zmm_step + 1);
     };
     auto vreg_prev_dst = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      auto vreg_prev_dst = [&](int idx) {" << std::endl;
         return Zmm(5 + idx * zmm_step + 2);
     };
 
@@ -250,9 +275,11 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
     // bias (if any), scaling, and relu (if any);
     // then convert to destination type and store
     auto compute = [&](size_t offset, int idx, bool apply_mask) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      auto compute = [&](size_t offset, int idx, bool apply_mask) {" << std::endl;
         auto acc_addr = ptr[reg_acc + offset * sizeof(acc_data_t)];
 
         if (scale_idx_mult_ > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (scale_idx_mult_ > 0) {" << std::endl;
             assert(scale_idx_mult_ == 1);
             auto scale_addr = ptr[reg_scales + offset * sizeof(float)];
             auto vreg_scale_ = vreg_scale;
@@ -274,6 +301,7 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
             vmulps(vreg_dst(idx), vreg_dst(idx), vreg_signed_scale);
 
         if (do_bias_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (do_bias_) {" << std::endl;
             auto bias_addr = ptr[reg_bias + offset * bias_data_type_size_];
             auto vreg_bias_ = vreg_bias(idx);
             if (apply_mask)
@@ -282,6 +310,7 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
                 vreg_bias_ = vreg_bias_ | kreg_rem_mask_vlen;
 
             switch (bias_data_type_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              switch (bias_data_type_) {" << std::endl;
             case data_type::s8:
                 vpmovsxbd(vreg_bias_, bias_addr);
                 break;
@@ -305,6 +334,7 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
 
         if (do_sum_)
         {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (do_sum_)         {" << std::endl;
             auto vreg_prev_dst_ = vreg_prev_dst(idx);
             if (apply_mask)
                 vreg_prev_dst_ = vreg_prev_dst_ | kreg_rem_mask_short;
@@ -312,6 +342,7 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
                 vreg_prev_dst_ = vreg_prev_dst_ | kreg_rem_mask_vlen;
 
             switch (sum_data_type_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              switch (sum_data_type_) {" << std::endl;
             case data_type::f32:
             case data_type::s32: vmovups(vreg_prev_dst_, dst_addr); break;
             case data_type::s8: vpmovsxbd(vreg_prev_dst_, dst_addr); break;
@@ -325,11 +356,13 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
         }
 
         if (do_relu_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (do_relu_) {" << std::endl;
             vcmpps(kreg_relu_cmp, vreg_dst(idx), vreg_zero, _cmp_lt_os);
             vmulps(vreg_dst(idx) | kreg_relu_cmp, vreg_dst(idx), vreg_nslope);
         }
 
         if (dst_type != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (dst_type != data_type::f32) {" << std::endl;
             auto rmode_control = (rmode_ == nearest ? T_rn_sae : T_rd_sae);
             vcvtps2dq(vreg_dst(idx) | rmode_control, vreg_dst(idx));
         }
@@ -338,6 +371,7 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
             vpmaxsd(vreg_dst(idx), vreg_dst(idx), vreg_zero);
 
         switch (dst_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          switch (dst_type) {" << std::endl;
         case data_type::s8:
             vpmovsdb(dst_addr, vreg_dst_);
             break;
@@ -354,9 +388,11 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
 
     // Advance all pointers by an immediate
     auto advance_ptrs_imm = [&](size_t offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      auto advance_ptrs_imm = [&](size_t offset) {" << std::endl;
         add(reg_dst, offset * sizeof(dst_data_t));
         add(reg_acc, offset * sizeof(acc_data_t));
         if (scale_idx_mult_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (scale_idx_mult_) {" << std::endl;
             assert(scale_idx_mult_ == 1);
             add(reg_scales, offset * sizeof(float));
         }
@@ -366,9 +402,11 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
 
     // Advance all pointers by a value stored in a register
     auto advance_ptrs_reg = [&](Reg64 offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      auto advance_ptrs_reg = [&](Reg64 offset) {" << std::endl;
         lea(reg_dst, ptr[reg_dst + offset * sizeof(dst_data_t)]);
         lea(reg_acc, ptr[reg_acc + offset * sizeof(acc_data_t)]);
         if (scale_idx_mult_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (scale_idx_mult_) {" << std::endl;
             assert(scale_idx_mult_ == 1);
             lea(reg_scales, ptr[reg_scales + offset * sizeof(float)]);
         }
@@ -379,9 +417,11 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
     // Rewind pointers that point to data that is indexed by output channel
     // (bias or per-oc scaling factors)
     auto rewind_ptrs = [&]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      auto rewind_ptrs = [&]() {" << std::endl;
         if (do_bias_)
             sub(reg_bias, OC_ * bias_data_type_size_);
         if (scale_idx_mult_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (scale_idx_mult_) {" << std::endl;
             assert(scale_idx_mult_ == 1);
             sub(reg_scales, OC_ * sizeof(float));
         }
@@ -449,6 +489,7 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
         L(main_loop); {
             size_t OC_loop, OC_tail;
             if (OC_ < max_unroll * vlen) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              if (OC_ < max_unroll * vlen) {" << std::endl;
                 // Fully unroll small loops
                 OC_loop = 0;
                 OC_tail = OC_;
@@ -461,6 +502,7 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
             assert(!!OC_loop || !!OC_tail);
 
             if (OC_tail % vlen) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              if (OC_tail % vlen) {" << std::endl;
                 int vlen_tail = OC_tail % vlen;
                 unsigned tail_mask = (1 << vlen_tail) - 1;
                 mov(reg_tmp, tail_mask);
@@ -468,6 +510,7 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
             }
 
             if (OC_loop) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              if (OC_loop) {" << std::endl;
                 mov(reg_tmp, rnd_dn(OC_, OC_loop));
                 Label oc_loop;
                 L(oc_loop); {
@@ -480,7 +523,9 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::generate()
             }
 
             if (OC_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              if (OC_tail) {" << std::endl;
                 for (size_t offset = 0; offset < OC_tail; offset += vlen) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                  for (size_t offset = 0; offset < OC_tail; offset += vlen) {" << std::endl;
                     bool use_mask = (offset + vlen) > OC_tail;
                     compute(offset, offset / vlen, use_mask);
                 }
@@ -535,12 +580,14 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::operator ()
         const float *scales, float nslope, float sum_scale, float signed_scale,
         int g, size_t start, size_t end, const post_ops_t& p, float* weights_zp, int32_t* weights_zp_compensation)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          int g, size_t start, size_t end, const post_ops_t& p, float* weights_zp, int32_t* weights_zp_compensation) {" << std::endl;
     using math::get_bias;
 
     if (end <= start)
         return;
 
     if (ker_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      if (ker_) {" << std::endl;
         // JIT
         ker_args args;
         size_t oc_offset = start % OC_;
@@ -563,10 +610,13 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::operator ()
         const size_t last_os = (end - 1) / OC_;
         // Fallback
         if (use_fast_post_processing) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (use_fast_post_processing) {" << std::endl;
             for (size_t os = first_os; os <= last_os; os++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              for (size_t os = first_os; os <= last_os; os++) {" << std::endl;
                 const size_t start_oc = (os == first_os) ? first_oc : 0;
                 const size_t end_oc = (os == last_os) ? last_oc : OC_ - 1;
                 for (size_t oc = start_oc; oc <= end_oc; oc++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                  for (size_t oc = start_oc; oc <= end_oc; oc++) {" << std::endl;
                     const size_t acc_off = os * jcp_.oc + oc;
                     const size_t dst_off = os * dst_os_stride_ + oc;
 
@@ -593,8 +643,10 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::operator ()
             float* acc_fp = reinterpret_cast<float*>(acc);
 
             auto load = [&](int idx, size_t oc, size_t os, size_t acc_off, size_t dst_off) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              auto load = [&](int idx, size_t oc, size_t os, size_t acc_off, size_t dst_off) {" << std::endl;
                 float d;
                 if (idx == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                  if (idx == 0) {" << std::endl;
                     d = (float) (acc[acc_off]);
 
                     if (jcp_.signed_input)
@@ -616,6 +668,7 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::operator ()
             };
 
             auto store = [&](int idx, float d, size_t acc_off, size_t dst_off) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              auto store = [&](int idx, float d, size_t acc_off, size_t dst_off) {" << std::endl;
                 if (idx == p.len_ - 1)
                     dst[dst_off] = qz_a1b0<float, dst_data_t>()(d, rmode_);
                 else
@@ -625,12 +678,16 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::operator ()
             int eltwise_inj_idx = 0;
             int depthwise_inj_idx = 0;
             for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:              for (int i = 0; i < p.len_; i++) {" << std::endl;
                 auto &post_op = p.entry_[i];
                 if (post_op.is_eltwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                  if (post_op.is_eltwise()) {" << std::endl;
                     for (size_t os = first_os; os <= last_os; os++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                      for (size_t os = first_os; os <= last_os; os++) {" << std::endl;
                         const size_t start_oc = (os == first_os) ? first_oc : 0;
                         const size_t end_oc = (os == last_os) ? last_oc : OC_ - 1;
                         for (size_t oc = start_oc; oc <= end_oc; oc++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                          for (size_t oc = start_oc; oc <= end_oc; oc++) {" << std::endl;
                             const size_t acc_off = os * jcp_.oc + oc;
                             const size_t dst_off = os * dst_os_stride_ + oc;
 
@@ -643,10 +700,13 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::operator ()
                     }
                     eltwise_inj_idx++;
                 } else if (post_op.is_depthwise()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                  } else if (post_op.is_depthwise()) {" << std::endl;
                     for (size_t os = first_os; os <= last_os; os++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                      for (size_t os = first_os; os <= last_os; os++) {" << std::endl;
                         const size_t start_oc = (os == first_os) ? first_oc : 0;
                         const size_t end_oc = (os == last_os) ? last_oc : OC_ - 1;
                         for (size_t oc = start_oc; oc <= end_oc; oc++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                          for (size_t oc = start_oc; oc <= end_oc; oc++) {" << std::endl;
                             const size_t acc_off = os * jcp_.oc + oc;
                             const size_t dst_off = os * dst_os_stride_ + oc;
 
@@ -663,10 +723,13 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::operator ()
                     }
                     depthwise_inj_idx++;
                 } else if (post_op.is_quantization()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                  } else if (post_op.is_quantization()) {" << std::endl;
                     for (size_t os = first_os; os <= last_os; os++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                      for (size_t os = first_os; os <= last_os; os++) {" << std::endl;
                         const size_t start_oc = (os == first_os) ? first_oc : 0;
                         const size_t end_oc = (os == last_os) ? last_oc : OC_ - 1;
                         for (size_t oc = start_oc; oc <= end_oc; oc++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                          for (size_t oc = start_oc; oc <= end_oc; oc++) {" << std::endl;
                             const size_t acc_off = os * jcp_.oc + oc;
                             const size_t dst_off = os * dst_os_stride_ + oc;
 
@@ -689,10 +752,13 @@ void _gemm_x8s8s32x_convolution_fwd_t<src_type, dst_type>::pp_ker_t::operator ()
                         }
                     }
                 } else if (post_op.is_sum()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                  } else if (post_op.is_sum()) {" << std::endl;
                     for (size_t os = first_os; os <= last_os; os++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                      for (size_t os = first_os; os <= last_os; os++) {" << std::endl;
                         const size_t start_oc = (os == first_os) ? first_oc : 0;
                         const size_t end_oc = (os == last_os) ? last_oc : OC_ - 1;
                         for (size_t oc = start_oc; oc <= end_oc; oc++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:                          for (size_t oc = start_oc; oc <= end_oc; oc++) {" << std::endl;
                             const size_t acc_off = os * jcp_.oc + oc;
                             const size_t dst_off = os * dst_os_stride_ + oc;
 
@@ -731,18 +797,21 @@ execute_forward_thr(const int ithr, const int nthr, const src_data_t *src_base,
 
     const uint8_t *input_zp_base = nullptr;
     if (jcp.with_input_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      if (jcp.with_input_zp) {" << std::endl;
         input_zp_base = pd()->attr()->input_zero_points_.zero_points_;
     }
 
     float *weights_zp = nullptr;
     int32_t *weights_zp_compensation = nullptr;
     if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      if (jcp.with_weights_zp) {" << std::endl;
         weights_zp = pd()->attr()->weights_zero_points_.zero_points_;
         weights_zp_compensation = scratchpad.get<int32_t>(key_weights_zp_compensation) + ithr * jcp.oh * jcp.ow;
     }
 
     int32_t *output_compensation = nullptr;
     if (jcp.with_input_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      if (jcp.with_input_zp) {" << std::endl;
         output_compensation = scratchpad.get<int32_t>(key_conv_padded_compensation);
     }
 
@@ -752,8 +821,10 @@ execute_forward_thr(const int ithr, const int nthr, const src_data_t *src_base,
 
     float nslope = 0;
     for (int idx = 0; idx < post_ops.len_; ++idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      for (int idx = 0; idx < post_ops.len_; ++idx) {" << std::endl;
         const auto &e = post_ops.entry_[idx];
         if (e.is_relu(true, false)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (e.is_relu(true, false)) {" << std::endl;
             nslope = e.eltwise.alpha;
             break;
         }
@@ -781,6 +852,7 @@ execute_forward_thr(const int ithr, const int nthr, const src_data_t *src_base,
                 nb_oh, owb, nb_ow);
 
     for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
         int oh = ohb * jcp.oh_block;
         int ow = owb * jcp.ow_block;
         const src_data_t *__restrict src = src_base + n * src_mb_stride
@@ -798,6 +870,7 @@ execute_forward_thr(const int ithr, const int nthr, const src_data_t *src_base,
             input_zp = input_zp_base + g * jcp.ic;
 
         if (jcp.im2col_sz || jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          if (jcp.im2col_sz || jcp.with_weights_zp) {" << std::endl;
             if (jcp.id == 1)
                 jit_gemm_convolution_utils::im2col_u8<src_data_t>(
                         jcp, src, imtr, col, oh, h_step, ow, w_step, input_zp, weights_zp_compensation);
@@ -821,6 +894,7 @@ execute_forward_thr(const int ithr, const int nthr, const src_data_t *src_base,
 
 
         parallel(0, (size_t)jcp.os * jcp.oc, [&](int ithr, int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          parallel(0, (size_t)jcp.os * jcp.oc, [&](int ithr, int nthr) {" << std::endl;
             size_t start, end;
             balance211((size_t)N * jcp.oc, nthr, ithr, start, end);
             (*pp_ker_)(dst + (od * jcp.oh * jcp.ow + oh * jcp.ow + ow) * pp_ker_->dst_os_stride_,
@@ -849,6 +923,7 @@ execute_backward_data() const {
 
     const size_t work_amount = jcp.ngroups * jcp.mb;
     parallel(jcp.nthr, work_amount, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      parallel(jcp.nthr, work_amount, [&](const int ithr, const int nthr) {" << std::endl;
         execute_backward_data_thr(ithr, nthr, diff_dst_base, wei_base,
                 bia_base, diff_src_base, scratchpad);
     });
@@ -893,6 +968,7 @@ execute_backward_data_thr(const int ithr, const int nthr,
     nd_iterator_init(start, n, jcp.mb, g, jcp.ngroups);
 
     for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:      for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
         const diff_dst_data_t *diff_dst = diff_dst_base
             + n * diff_dst_mb_stride + g * diff_dst_g_stride;
         const wei_data_t *wei = wei_base + g * wei_g_stride;
@@ -915,6 +991,7 @@ execute_backward_data_thr(const int ithr, const int nthr,
             jit_gemm_convolution_utils::col2im_s32(jcp, col, acc);
 
         parallel_nd(jcp.is, jcp.ic, [&](int is, int ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_x8s8s32x_convolution.cpp:          parallel_nd(jcp.is, jcp.ic, [&](int is, int ic) {" << std::endl;
             float d = (float)acc[is * jcp.ic + ic];
             if (jcp.with_bias)
                 d += get_bias(bia_base, g * jcp.ic + ic,

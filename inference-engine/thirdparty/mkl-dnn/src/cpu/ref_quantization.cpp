@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -45,6 +46,7 @@ void ref_quantization_fwd_t<src_type, dst_type>::execute_forward() const {
     const int W = pd()->W();
 
     if (pd()->is_binarization()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_quantization.cpp:      if (pd()->is_binarization()) {" << std::endl;
         auto dst = reinterpret_cast<uint8_t *>(this->memory());
 
         const int nbits = 8;
@@ -58,8 +60,10 @@ void ref_quantization_fwd_t<src_type, dst_type>::execute_forward() const {
 
         parallel_nd(MB, CB, D, H, W,
             [&](int n, int cb, int d, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_quantization.cpp:              [&](int n, int cb, int d, int h, int w) {" << std::endl;
                 uint8_t bin_val = 0x00;
                 for (int c = cb * nbits, shift = 0; c < std::min(C, (cb + 1) * nbits); c++, shift++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_quantization.cpp:                  for (int c = cb * nbits, shift = 0; c < std::min(C, (cb + 1) * nbits); c++, shift++) {" << std::endl;
                     size_t src_off = src_d.ndims() == 4
                                      ? src_d.off(n, c, h, w)
                                      : src_d.ndims() == 5
@@ -106,6 +110,7 @@ void ref_quantization_fwd_t<src_type, dst_type>::execute_forward() const {
 
         parallel_nd(MB, C, D, H, W,
             [&](int n, int c, int d, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/ref_quantization.cpp:              [&](int n, int c, int d, int h, int w) {" << std::endl;
                 size_t src_off = src_d.ndims() == 5 ? src_d.off(n, c, d, h, w) :
                                  src_d.ndims() == 4 ? src_d.off(n, c, h, w) :
                                  src_d.ndims() == 3 ? src_d.off(n, c, h) :

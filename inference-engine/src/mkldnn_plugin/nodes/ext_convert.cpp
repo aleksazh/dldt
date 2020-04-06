@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,6 +19,7 @@ namespace Cpu {
 class ConvertImpl: public ExtLayerBase {
     template<typename src_d, typename dst_d>
     void exec_cast(const Blob::CPtr& inputs, Blob::Ptr& outputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/ext_convert.cpp:      void exec_cast(const Blob::CPtr& inputs, Blob::Ptr& outputs) {" << std::endl;
         const src_d *src_data = inputs->cbuffer().as<src_d *>() +
                                 inputs->getTensorDesc().getBlockingDesc().getOffsetPadding();
         dst_d* dst_data = outputs->buffer().as<dst_d *>() +
@@ -25,12 +27,14 @@ class ConvertImpl: public ExtLayerBase {
         if (inputs->size() != outputs->size())
             THROW_IE_EXCEPTION << "Input and output buffers have different sizes!";
         parallel_for(inputs->size(), [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/ext_convert.cpp:          parallel_for(inputs->size(), [&](size_t i) {" << std::endl;
             dst_data[i] = static_cast<dst_d>(src_data[i]);
         });
     }
 
 public:
     explicit ConvertImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/ext_convert.cpp:      explicit ConvertImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 1 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -39,6 +43,7 @@ public:
 
             addConfig(layer, {{ConfLayout::PLN, false, 0}}, {{ConfLayout::PLN, false, 0}});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/ext_convert.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -48,6 +53,7 @@ public:
         try {
             auto compare = getPrecisionMask(inputs[0]->getTensorDesc().getPrecision(), outputs[0]->getTensorDesc().getPrecision());
             switch (compare) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/ext_convert.cpp:              switch (compare) {" << std::endl;
                 case getPrecisionMask(Precision::I32, Precision::I32):
                     exec_cast<PrecisionTrait<Precision::I32>::value_type, PrecisionTrait<Precision::I32>::value_type>(inputs[0], outputs[0]);
                     break;
@@ -73,6 +79,7 @@ public:
                     THROW_IE_EXCEPTION << "Unsupported precisions!";
             }
         } catch(...) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/ext_convert.cpp:          } catch(...) {" << std::endl;
             return GENERAL_ERROR;
         }
         return OK;

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,6 +20,7 @@ namespace Cpu {
 class ReverseSequenceImpl: public ExtLayerBase {
 public:
     explicit ReverseSequenceImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:      explicit ReverseSequenceImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 2 || layer->outData.size() != 1)
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -36,6 +38,7 @@ public:
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output sizes!";
 
             for (size_t i = 0; i < dst_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:              for (size_t i = 0; i < dst_dims.size(); i++) {" << std::endl;
                 if (src_dims[i] != dst_dims[i])
                     THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output dimension!";
             }
@@ -62,6 +65,7 @@ public:
 
             addConfig(layer, { DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN) }, { DataConfigurator(ConfLayout::PLN) });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -74,12 +78,16 @@ public:
                           outputs[0]->getTensorDesc().getBlockingDesc().getOffsetPadding();
 
         switch (inputs[REVERSESEQUENCE_LENGTHS]->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:          switch (inputs[REVERSESEQUENCE_LENGTHS]->getTensorDesc().getPrecision()) {" << std::endl;
             case Precision::FP32: {
                 float *seq_lengths_data = inputs[REVERSESEQUENCE_LENGTHS]->cbuffer().as<float *>() +
                                           inputs[REVERSESEQUENCE_LENGTHS]->getTensorDesc().getBlockingDesc().getOffsetPadding();
                 for (i = 0; i < src_dims[batch_axis]; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                  for (i = 0; i < src_dims[batch_axis]; i++) {" << std::endl;
                     if (static_cast<int32_t>(seq_lengths_data[i]) > static_cast<int>(src_dims[seq_axis])) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                      if (static_cast<int32_t>(seq_lengths_data[i]) > static_cast<int>(src_dims[seq_axis])) {" << std::endl;
                         if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                          if (resp) {" << std::endl;
                             std::string errorMsg = "Incorrect input 'seq_lengths' values!";
                             errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
                         }
@@ -88,25 +96,31 @@ public:
                 }
 
                 parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                  parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
                     size_t i, start = 0, end = 0, src_idx = 0;
                     SizeVector counters(src_dims.size(), 0);
                     splitter(work_amount_dst, nthr, ithr, start, end);
                     for (int j = src_dims.size() - 1, i = start; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                      for (int j = src_dims.size() - 1, i = start; j >= 0; j--) {" << std::endl;
                         counters[j] = i % src_dims[j];
                         i /= src_dims[j];
                     }
 
                     for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                      for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
                         for (i = 0, src_idx = 0; i < src_dims.size(); ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                          for (i = 0, src_idx = 0; i < src_dims.size(); ++i) {" << std::endl;
                             size_t idx = counters[i];
                             if (static_cast<int>(i) == seq_axis &&
                                     static_cast<int>(idx) < static_cast<int32_t>(seq_lengths_data[counters[batch_axis]])) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                                      static_cast<int>(idx) < static_cast<int32_t>(seq_lengths_data[counters[batch_axis]])) {" << std::endl;
                                 idx = static_cast<int32_t>(seq_lengths_data[counters[batch_axis]]) - idx - 1;
                             }
                             src_idx += idx * srcStrides[i];
                         }
                         dst_data[iwork] = src_data[src_idx];
                         for (int j = src_dims.size() - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                          for (int j = src_dims.size() - 1; j >= 0; j--) {" << std::endl;
                             counters[j] = (counters[j] + 1) % src_dims[j];
                             if (counters[j] != 0) break;
                         }
@@ -118,8 +132,11 @@ public:
                 int32_t *seq_lengths_data = inputs[REVERSESEQUENCE_LENGTHS]->cbuffer().as<int32_t *>() +
                                             inputs[REVERSESEQUENCE_LENGTHS]->getTensorDesc().getBlockingDesc().getOffsetPadding();
                 for (i = 0; i < src_dims[batch_axis]; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                  for (i = 0; i < src_dims[batch_axis]; i++) {" << std::endl;
                     if (seq_lengths_data[i] > static_cast<int>(src_dims[seq_axis])) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                      if (seq_lengths_data[i] > static_cast<int>(src_dims[seq_axis])) {" << std::endl;
                         if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                          if (resp) {" << std::endl;
                             std::string errorMsg = "Incorrect input 'seq_lengths' values!";
                             errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
                         }
@@ -128,25 +145,31 @@ public:
                 }
 
                 parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                  parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
                     size_t i, start = 0, end = 0, src_idx = 0;
                     SizeVector counters(src_dims.size(), 0);
                     splitter(work_amount_dst, nthr, ithr, start, end);
                     for (int j = src_dims.size() - 1, i = start; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                      for (int j = src_dims.size() - 1, i = start; j >= 0; j--) {" << std::endl;
                         counters[j] = i % src_dims[j];
                         i /= src_dims[j];
                     }
 
                     for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                      for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
                         for (i = 0, src_idx = 0; i < src_dims.size(); ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                          for (i = 0, src_idx = 0; i < src_dims.size(); ++i) {" << std::endl;
                             size_t idx = counters[i];
                             if (static_cast<int>(i) == seq_axis &&
                                     static_cast<int>(idx) < seq_lengths_data[counters[batch_axis]]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                                      static_cast<int>(idx) < seq_lengths_data[counters[batch_axis]]) {" << std::endl;
                                 idx = seq_lengths_data[counters[batch_axis]] - idx - 1;
                             }
                             src_idx += idx * srcStrides[i];
                         }
                         dst_data[iwork] = src_data[src_idx];
                         for (int j = src_dims.size() - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/reverse_sequence.cpp:                          for (int j = src_dims.size() - 1; j >= 0; j--) {" << std::endl;
                             counters[j] = (counters[j] + 1) % src_dims[j];
                             if (counters[j] != 0) break;
                         }

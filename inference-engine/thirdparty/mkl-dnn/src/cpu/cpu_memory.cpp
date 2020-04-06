@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -42,6 +43,7 @@ template <data_type_t dt, memory_format_t fmt>
 typename utils::enable_if<format_traits<fmt>::data_kind == dk::data>::type
 typed_zero_pad_data(
     const memory_desc_wrapper &m_d, typename prec_traits<dt>::type *data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:      const memory_desc_wrapper &m_d, typename prec_traits<dt>::type *data) {" << std::endl;
     constexpr int blksize = format_traits<fmt>::blk_size;
 
     const auto &dims = m_d.dims();
@@ -53,8 +55,10 @@ typed_zero_pad_data(
     const size_t sp_rest = utils::array_product(dims + 3, m_d.ndims() - 3);
 
     parallel_nd(dims[0], dims[2], [&](int n, int sp0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:      parallel_nd(dims[0], dims[2], [&](int n, int sp0) {" << std::endl;
         auto *d = &data[m_d.blk_off(n, C, sp0)];
         for (size_t sp = 0; sp < sp_rest; ++sp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          for (size_t sp = 0; sp < sp_rest; ++sp) {" << std::endl;
             for (int c = c_tail_start; c < blksize; ++c)
                 d[sp * blksize + c] = 0;
         }
@@ -68,6 +72,7 @@ typename utils::enable_if<false
 || format_traits<fmt>::blk_fmt == bf::_16o
 >::type typed_zero_pad_weights(const memory_desc_wrapper &m_d,
         typename prec_traits<dt>::type *data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          typename prec_traits<dt>::type *data) {" << std::endl;
     static constexpr int w_groups = format_traits<fmt>::data_kind == dk::gwei;
     constexpr int is_1d = format_traits<fmt>::ndims_sp == 1;
     constexpr int is_3d = format_traits<fmt>::ndims_sp == 3;
@@ -87,6 +92,7 @@ typename utils::enable_if<false
 
     parallel_nd(G, IC, D, H, W,
         [&](int g, int ic, int d, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          [&](int g, int ic, int d, int h, int w) {" << std::endl;
         auto x = &data[wei_blk_off_like_gwei3D<fmt>(m_d,
                 g, NB_OC - 1, ic, d, h, w)];
         for (int oc = blksize - oc_tail; oc < blksize; ++oc)
@@ -100,6 +106,7 @@ typename utils::enable_if<false
 || format_traits<fmt>::blk_fmt == bf::_16i
 >::type typed_zero_pad_weights(const memory_desc_wrapper &m_d,
         typename prec_traits<dt>::type *data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          typename prec_traits<dt>::type *data) {" << std::endl;
     static constexpr int w_groups = format_traits<fmt>::data_kind == dk::gwei;
     constexpr int is_1d = format_traits<fmt>::ndims_sp == 1;
     constexpr int is_3d = format_traits<fmt>::ndims_sp == 3;
@@ -119,6 +126,7 @@ typename utils::enable_if<false
 
     parallel_nd(G, OC, D, H, W,
         [&](int g, int oc, int d, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          [&](int g, int oc, int d, int h, int w) {" << std::endl;
         auto x = &data[wei_blk_off_like_gwei3D<fmt>(m_d,
                 g, oc, NB_IC - 1, d, h, w)];
         for (int ic = blksize - ic_tail; ic < blksize; ++ic)
@@ -131,6 +139,7 @@ typename utils::enable_if<
 block_format_traits<format_traits<fmt>::blk_fmt>::blk_ndims == 2>::type
 typed_zero_pad_weights(const memory_desc_wrapper &m_d,
         typename prec_traits<dt>::type *data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          typename prec_traits<dt>::type *data) {" << std::endl;
     using data_t = typename prec_traits<dt>::type;
     static constexpr int w_groups = format_traits<fmt>::data_kind == dk::gwei;
     constexpr int is_1d = format_traits<fmt>::ndims_sp == 1;
@@ -147,9 +156,11 @@ typed_zero_pad_weights(const memory_desc_wrapper &m_d,
     const int W = dims[w_groups + 3 - is_1d + is_3d];
 
     auto ker = [&](data_t *d, const int oc_tail, const int ic_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:      auto ker = [&](data_t *d, const int oc_tail, const int ic_tail) {" << std::endl;
 #       define blk_off OI_blk_off<format_traits<fmt>::blk_fmt>
         int oc = 0;
         for (; oc < blksize - oc_tail; ++oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          for (; oc < blksize - oc_tail; ++oc) {" << std::endl;
             for (int ic = blksize - ic_tail; ic < blksize; ++ic)
                 d[blk_off(oc, ic)] = 0;
         }
@@ -163,8 +174,10 @@ typed_zero_pad_weights(const memory_desc_wrapper &m_d,
     const int ic_tail = pdims[w_groups + 1] - dims[w_groups + 1];
 
     if (ic_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:      if (ic_tail) {" << std::endl;
         parallel_nd(G, NB_OC, D, H, W,
             [&](int g, int nb_oc, int d, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:              [&](int g, int nb_oc, int d, int h, int w) {" << std::endl;
             auto x = &data[wei_blk_off_like_gwei3D<fmt>(m_d,
                     g, nb_oc, NB_IC - 1, d, h, w)];
             ker(x, 0, ic_tail);
@@ -172,8 +185,10 @@ typed_zero_pad_weights(const memory_desc_wrapper &m_d,
     }
 
     if (oc_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:      if (oc_tail) {" << std::endl;
         parallel_nd(G, NB_IC, D, H, W,
             [&](int g, int nb_ic, int d, int h, int w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:              [&](int g, int nb_ic, int d, int h, int w) {" << std::endl;
             auto x = &data[wei_blk_off_like_gwei3D<fmt>(m_d,
                     g, NB_OC - 1, nb_ic, d, h, w)];
             ker(x, oc_tail, 0);
@@ -187,6 +202,7 @@ typename utils::enable_if<false
 || format_traits<fmt>::blk_fmt == bf::_16g
 >::type typed_zero_pad_weights(const memory_desc_wrapper &m_d,
         typename prec_traits<dt>::type *data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          typename prec_traits<dt>::type *data) {" << std::endl;
     constexpr int blksize = format_traits<fmt>::blk_size;
 
     const auto &dims = m_d.dims();
@@ -201,6 +217,7 @@ typename utils::enable_if<false
     auto *d = &data[m_d.blk_off(G)];
 
     parallel_nd(sz_rest, [&](ptrdiff_t s) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:      parallel_nd(sz_rest, [&](ptrdiff_t s) {" << std::endl;
         for (int g = g_tail_start; g < blksize; ++g)
             d[s * blksize + g] = 0;
     });
@@ -209,6 +226,7 @@ typename utils::enable_if<false
 template <data_type_t dt>
 void typed_zero_pad_generic_blocked(const memory_desc_wrapper &m_d,
         typename prec_traits<dt>::type *data) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          typename prec_traits<dt>::type *data) {" << std::endl;
     const int ndims = m_d.ndims();
     const auto &dims = m_d.dims();
     const auto &pdims = m_d.blocking_desc().padding_dims;
@@ -228,6 +246,7 @@ void typed_zero_pad_generic_blocked(const memory_desc_wrapper &m_d,
     ptrdiff_t step = 1;
     int step_dim = ndims - 1;
     for (; step_dim >= 0; --step_dim) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:      for (; step_dim >= 0; --step_dim) {" << std::endl;
         if (dims[step_dim] != pdims[step_dim]) break;
         step *= dims[step_dim];
     }
@@ -236,11 +255,14 @@ void typed_zero_pad_generic_blocked(const memory_desc_wrapper &m_d,
     if (step_dim < 0) return;
 
     parallel_nd(nelems / step, [&](ptrdiff_t e1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:      parallel_nd(nelems / step, [&](ptrdiff_t e1) {" << std::endl;
         bool need_zero = false;
 
         ptrdiff_t idx = e1;
         for (int d = step_dim; d >= 0; --d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          for (int d = step_dim; d >= 0; --d) {" << std::endl;
             if (idx % pdims[d] >= dims[d]) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:              if (idx % pdims[d] >= dims[d]) {" << std::endl;
                 need_zero = true;
                 break;
             }
@@ -248,6 +270,7 @@ void typed_zero_pad_generic_blocked(const memory_desc_wrapper &m_d,
         }
 
         if (need_zero) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:          if (need_zero) {" << std::endl;
             for (ptrdiff_t e0 = 0; e0 < step; ++e0)
                 data[m_d.off_l(e1 * step + e0, true)] = 0;
         }
@@ -387,6 +410,7 @@ status_t cpu_memory_t::typed_zero_pad() const {
 
     // the last line of defence
     if (types::format_normalize(fmt) == blocked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:      if (types::format_normalize(fmt) == blocked) {" << std::endl;
         typed_zero_pad_generic_blocked<dt>(mpd, data);
         return success;
     }
@@ -403,6 +427,7 @@ status_t cpu_memory_t::zero_pad() const {
     if (skip_zeroing) return success;
 
     switch (md.data_type()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_memory.cpp:      switch (md.data_type()) {" << std::endl;
         case f32: return typed_zero_pad<f32>();
         case s32: return typed_zero_pad<s32>();
         case s16: return typed_zero_pad<s16>();

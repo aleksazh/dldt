@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -91,6 +92,7 @@ struct jit_uni_i8i8_pooling_fwd_ker_t: public jit_generator {
     Opmask k_cmp_mask = Opmask(7);
 
     Opmask mask(int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      Opmask mask(int idx) {" << std::endl;
         return Opmask(6 - idx);
     }
 
@@ -125,12 +127,17 @@ struct jit_uni_i8i8_pooling_fwd_ker_t: public jit_generator {
                 / sizeof(typename prec_traits<data_type::u8>::type),
         max_num_ll =  s32_to_i8_ratio
     };
-    Vmm vreg_src_s32(int jj, int ll) { return base_vr(3*max_num_ll*jj + ll + 0*max_num_ll); }  // ll: 0..4 [0..3]
-    Vmm vreg_dst_s32(int jj, int ll) { return base_vr(3*max_num_ll*jj + ll + 1*max_num_ll); }  // ll: 0..4 [4..7]
-    Vmm vreg_dst_f32(int jj, int ll) { return base_vr(3*max_num_ll*jj + ll + 2*max_num_ll); }  // ll: 0..4 [8..11]
+    Vmm vreg_src_s32(int jj, int ll) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      Vmm vreg_src_s32(int jj, int ll) {" << std::endl; return base_vr(3*max_num_ll*jj + ll + 0*max_num_ll); }  // ll: 0..4 [0..3]
+    Vmm vreg_dst_s32(int jj, int ll) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      Vmm vreg_dst_s32(int jj, int ll) {" << std::endl; return base_vr(3*max_num_ll*jj + ll + 1*max_num_ll); }  // ll: 0..4 [4..7]
+    Vmm vreg_dst_f32(int jj, int ll) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      Vmm vreg_dst_f32(int jj, int ll) {" << std::endl; return base_vr(3*max_num_ll*jj + ll + 2*max_num_ll); }  // ll: 0..4 [8..11]
 
-    Vmm vreg_d_weights(int jj, int ll) { return vreg_src_s32(jj, ll); }     // ll: 0..4 [0..3]
-    Vmm vreg_d_bias(int jj, int ll) { return vreg_dst_s32(jj, ll); }        // ll: 0..4 [4..7]
+    Vmm vreg_d_weights(int jj, int ll) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      Vmm vreg_d_weights(int jj, int ll) {" << std::endl; return vreg_src_s32(jj, ll); }     // ll: 0..4 [0..3]
+    Vmm vreg_d_bias(int jj, int ll) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      Vmm vreg_d_bias(int jj, int ll) {" << std::endl; return vreg_dst_s32(jj, ll); }        // ll: 0..4 [4..7]
 
     Vmm vreg_mask_dst = vreg_src(1);
 
@@ -141,7 +148,8 @@ struct jit_uni_i8i8_pooling_fwd_ker_t: public jit_generator {
     void init_tmp_reg();
     void init_mask();
 
-    void load_vreg_mask_q(int ll) {};
+    void load_vreg_mask_q(int ll) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      void load_vreg_mask_q(int ll) {" << std::endl;};
 
     void load_src_max_op(int jj, int ll, size_t offset, bool masked, uint64_t msk);
     void load_src_avg_op(int jj, int ll, size_t offset, bool masked, uint64_t msk);
@@ -166,6 +174,7 @@ struct jit_uni_i8i8_pooling_fwd_ker_t: public jit_generator {
 
     jit_uni_i8i8_pooling_fwd_ker_t(const jit_pool_conf_t &jpp_, const primitive_attr_t &attr_)
            : jpp(jpp_), attr(attr_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:             : jpp(jpp_), attr(attr_) {" << std::endl;
         generate();
         ker_ = reinterpret_cast<decltype(ker_)>(const_cast<uint8_t*>(
                        getCode()));
@@ -174,6 +183,7 @@ struct jit_uni_i8i8_pooling_fwd_ker_t: public jit_generator {
 
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::load_vreg_mask_q(int ll) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::load_vreg_mask_q(int ll) {" << std::endl;
 
     // extract ll-th part of mask (ll-th QWORD)
     vpblendd(vreg_mask_q, vreg_zeros, vreg_mask, 0x3 << ll); // 0x3 - mask for 2 x DWORD
@@ -186,10 +196,13 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::load_vreg_mask_q(int ll) {
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::load_src_max_op(int jj, int ll,
         size_t offset, bool masked, uint64_t msk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          size_t offset, bool masked, uint64_t msk) {" << std::endl;
     using namespace data_type;
 
     if (masked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      if (masked) {" << std::endl;
         if (jpp.src_dt == s32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          if (jpp.src_dt == s32) {" << std::endl;
             vpblendd(vreg_src(jj), vreg_tmp, ptr[aux_reg_src_w + offset], static_cast<uint8_t>(msk));
         } else {
             vpblendvb(vreg_src(jj), vreg_tmp, ptr[aux_reg_src_w + offset], vreg_mask);
@@ -201,9 +214,11 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::load_src_max_op(int jj, int ll,
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::load_src_max_op(int jj, int ll,
         size_t offset, bool masked, uint64_t msk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          size_t offset, bool masked, uint64_t msk) {" << std::endl;
     using namespace data_type;
 
     if (masked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      if (masked) {" << std::endl;
         if (jpp.src_dt == s32)
             vmovups(vreg_src(jj) | mask(0), ptr[aux_reg_src_w + offset]);
         else
@@ -215,6 +230,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::load_src_max_op(int jj, int ll
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::load_src_avg_op(int jj, int ll,
         size_t offset, bool masked, uint64_t msk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          size_t offset, bool masked, uint64_t msk) {" << std::endl;
     using namespace data_type;
 
     // Don't generate useless code
@@ -222,9 +238,11 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::load_src_avg_op(int jj, int ll,
         return;
 
     auto load_i8 = [&](bool is_signed, const Vmm& vr_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      auto load_i8 = [&](bool is_signed, const Vmm& vr_src) {" << std::endl;
 
         // Need to use mask of tail?
         if (masked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          if (masked) {" << std::endl;
 
             // load ll-th part of mask into vreg_mask_q
             load_vreg_mask_q(ll);
@@ -248,6 +266,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::load_src_avg_op(int jj, int ll,
     };
 
     switch (jpp.src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.src_dt) {" << std::endl;
         case s32:
             if (masked)
                 vpblendd(vreg_src_s32(jj, ll), vreg_zeros, ptr[aux_reg_src_w + offset],
@@ -268,6 +287,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::load_src_avg_op(int jj, int ll,
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::load_src_avg_op(int jj, int ll,
         size_t offset, bool masked, uint64_t msk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          size_t offset, bool masked, uint64_t msk) {" << std::endl;
     using namespace data_type;
 
     // Don't generate useless code
@@ -279,6 +299,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::load_src_avg_op(int jj, int ll
             vreg_src_s32(jj, ll);
 
     switch (jpp.src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.src_dt) {" << std::endl;
         case s32:
             vmovups(vr_src, ptr[aux_reg_src_w + offset]);
             break;
@@ -294,12 +315,14 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::load_src_avg_op(int jj, int ll
 
 template <cpu_isa_t isa>
 void jit_uni_i8i8_pooling_fwd_ker_t<isa>::load_src(int jj, int ll, int c_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<isa>::load_src(int jj, int ll, int c_tail) {" << std::endl;
     using namespace data_type;
 
     int c_block = jpp.c_block;
     int ur_c = jpp.ur_c;
 
     switch (jpp.alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.alg) {" << std::endl;
         case pooling_max: {
             auto offset = jj*c_block*sizeof_src_dt();
             bool masked = jj == ur_c - 1 && c_tail;
@@ -320,12 +343,15 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::load_src(int jj, int ll, int c_tail) {
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::store_dst_max_op(int jj, int ll,
         size_t offset, bool masked, uint64_t msk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          size_t offset, bool masked, uint64_t msk) {" << std::endl;
     using namespace data_type;
 
     int c_block = jpp.c_block;
 
     if (masked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      if (masked) {" << std::endl;
         switch (jpp.src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          switch (jpp.src_dt) {" << std::endl;
             case s32:
                 vpmaskmovd(ptr[reg_ptr_dst_i8 + offset], vreg_mask, vreg_dst(jj));
                 break;
@@ -338,6 +364,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::store_dst_max_op(int jj, int ll,
                 // Do we need to store high half (bytes 16...31) ?
                 const uint64_t low_mask = (1ULL << (c_block/2))-1;
                 if (msk & ~low_mask) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                  if (msk & ~low_mask) {" << std::endl;
                     vextracti128(Xmm(vreg_dst(jj).getIdx()), vreg_dst(jj), 1);
                     add(reg_ptr_maskmovdqu_dst, c_block / 2);
                     maskmovdqu(vreg_dst(jj), xreg_mask_hi);
@@ -352,10 +379,13 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::store_dst_max_op(int jj, int ll,
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::store_dst_max_op(int jj, int ll,
         size_t offset, bool masked, uint64_t msk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          size_t offset, bool masked, uint64_t msk) {" << std::endl;
     using namespace data_type;
 
     if (masked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      if (masked) {" << std::endl;
         switch (jpp.src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          switch (jpp.src_dt) {" << std::endl;
             case s32:
                 vmovups(ptr[reg_ptr_dst_i8 + offset], vreg_dst(jj) | mask(0));
                 break;
@@ -372,6 +402,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::store_dst_max_op(int jj, int l
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::store_dst_avg_op(int jj, int ll,
         size_t offset, bool masked, uint64_t msk){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          size_t offset, bool masked, uint64_t msk){" << std::endl;
     using namespace data_type;
 
     // Don't generate useless code
@@ -379,6 +410,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::store_dst_avg_op(int jj, int ll,
         return;
 
     auto s32_to_i8 = [&](bool is_signed, const Vmm& vr_dst) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      auto s32_to_i8 = [&](bool is_signed, const Vmm& vr_dst) {" << std::endl;
 
         // conversion: s32 -> s16/u16 : {8 x s32}{8 x 0} -> {16 x s16/u16}
         // Result QWORDs (qw0, qw1) permuted: {qw0, 0, qw1, 0}
@@ -401,12 +433,14 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::store_dst_avg_op(int jj, int ll,
     };
 
     auto store_i8 = [&](bool is_signed, bool is_masked, const Vmm& vr_dst) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      auto store_i8 = [&](bool is_signed, bool is_masked, const Vmm& vr_dst) {" << std::endl;
 
         // Conversion s32 -> s8/u8
         s32_to_i8(is_signed, vr_dst);
 
         // Need to use mask of tail?
         if (is_masked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          if (is_masked) {" << std::endl;
             // load ll-th part of mask into vreg_mask_q
             load_vreg_mask_q(ll);
             // store 8 bytes
@@ -418,9 +452,12 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::store_dst_avg_op(int jj, int ll,
     };
 
     switch (jpp.dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.dst_dt) {" << std::endl;
         case f32:
             if (masked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              if (masked) {" << std::endl;
                 if (sizeof_src_dt() != sizeof_dst_dt()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                  if (sizeof_src_dt() != sizeof_dst_dt()) {" << std::endl;
                     vpmaskmovd(ptr[reg_ptr_dst_i8 + offset], vreg_mask_dst, vreg_dst_f32(jj, ll));
                 } else {
                     vpmaskmovd(ptr[reg_ptr_dst_i8 + offset], vreg_mask, vreg_dst_f32(jj, ll));
@@ -431,6 +468,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::store_dst_avg_op(int jj, int ll,
             break;
         case s32:
             if (masked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              if (masked) {" << std::endl;
                 vpmaskmovd(ptr[reg_ptr_dst_i8 + offset], vreg_mask, vreg_dst_s32(jj, ll));
             } else
                 vmovups(ptr[reg_ptr_dst_i8 + offset], vreg_dst_s32(jj, ll));
@@ -448,6 +486,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::store_dst_avg_op(int jj, int ll,
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::store_dst_avg_op(int jj, int ll,
         size_t offset, bool masked, uint64_t msk) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          size_t offset, bool masked, uint64_t msk) {" << std::endl;
     using namespace data_type;
 
     // Don't generate useless code
@@ -458,6 +497,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::store_dst_avg_op(int jj, int l
                                           : masked ? vreg_dst_s32(jj, ll) | mask(ll) : vreg_dst_s32(jj, ll);
 
     switch (jpp.dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.dst_dt) {" << std::endl;
         case f32:
         case s32:
             vmovups(ptr[reg_ptr_dst_i8 + offset], vr_dst);
@@ -476,12 +516,14 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::store_dst_avg_op(int jj, int l
 template <cpu_isa_t isa>
 void jit_uni_i8i8_pooling_fwd_ker_t<isa>::store_dst(int jj, int ll,
         int c_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          int c_tail) {" << std::endl;
     using namespace data_type;
 
     int c_block = jpp.c_block;
     int ur_c = jpp.ur_c;
 
     switch(jpp.alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch(jpp.alg) {" << std::endl;
         case pooling_max: {
             auto offset = jj*c_block*sizeof_dst_dt();
             bool masked = jj == ur_c - 1 && c_tail;
@@ -501,11 +543,14 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::store_dst(int jj, int ll,
 
 template <cpu_isa_t isa>
 void jit_uni_i8i8_pooling_fwd_ker_t<isa>::apply_post_ops(int ur_c, int c_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<isa>::apply_post_ops(int ur_c, int c_tail) {" << std::endl;
     const auto &p = attr.post_ops_;
     const int num_ll = data_type_size(avg_proc_dt)/data_type_size(jpp.dst_dt);
     for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      for (int i = 0; i < p.len_; i++) {" << std::endl;
         auto& post_op = p.entry_[i];
         if (post_op.is_quantization()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          if (post_op.is_quantization()) {" << std::endl;
             bool do_dequantization = post_op.quantization.alg == alg_kind::quantization_quantize_dequantize;
             bool do_rounding = do_dequantization || jpp.dst_dt == mkldnn_f32 || i != p.len_ - 1;
 
@@ -516,10 +561,13 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::apply_post_ops(int ur_c, int c_tail) {
             add(reg_d_bias, reg_oc_off);
 
             for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
                 for (int ll = 0; ll < num_ll; ll++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                  for (int ll = 0; ll < num_ll; ll++) {" << std::endl;
                     bool masked = jj == ur_c - 1 && c_tail;
                     size_t msk = jpp.tail[ll];
                     if (!(masked && !msk)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                      if (!(masked && !msk)) {" << std::endl;
                         uni_vmovups(vreg_d_weights(jj, ll), ptr[reg_d_weights + (jj + ll) * jpp.c_block / num_ll * sizeof(float)]);
                         uni_vmovups(vreg_d_bias(jj, ll), ptr[reg_d_bias +  (jj + ll) * jpp.c_block / num_ll * sizeof(float)]);
 
@@ -538,10 +586,13 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::apply_post_ops(int ur_c, int c_tail) {
             add(reg_d_bias, reg_oc_off);
 
             for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
                 for (int ll = 0; ll < num_ll; ll++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                  for (int ll = 0; ll < num_ll; ll++) {" << std::endl;
                     bool masked = jj == ur_c - 1 && c_tail;
                     size_t msk = jpp.tail[ll];
                     if (!(masked && !msk)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                      if (!(masked && !msk)) {" << std::endl;
                         uni_vmovups(vreg_d_weights(jj, ll), ptr[reg_d_weights +  (jj + ll) * jpp.c_block / num_ll * sizeof(float)]);
                         uni_vmovups(vreg_d_bias(jj, ll), ptr[reg_d_bias +  (jj + ll) * jpp.c_block / num_ll * sizeof(float)]);
 
@@ -555,6 +606,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::apply_post_ops(int ur_c, int c_tail) {
             }
 
             if (do_dequantization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              if (do_dequantization) {" << std::endl;
                 mov(reg_d_weights, reinterpret_cast<size_t>(post_op.quantization.output_scale_data));
                 mov(reg_d_bias, reinterpret_cast<size_t>(post_op.quantization.output_shift_data));
 
@@ -562,10 +614,13 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::apply_post_ops(int ur_c, int c_tail) {
                 add(reg_d_bias, reg_oc_off);
 
                 for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                  for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
                     for (int ll = 0; ll < num_ll; ll++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                      for (int ll = 0; ll < num_ll; ll++) {" << std::endl;
                         bool masked = jj == ur_c - 1 && c_tail;
                         size_t msk = jpp.tail[ll];
                         if (!(masked && !msk)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                          if (!(masked && !msk)) {" << std::endl;
                             uni_vmovups(vreg_d_weights(jj, ll), ptr[reg_d_weights +  (jj + ll) * jpp.c_block / num_ll * sizeof(float)]);
                             uni_vmovups(vreg_d_bias(jj, ll), ptr[reg_d_bias +  (jj + ll) * jpp.c_block / num_ll * sizeof(float)]);
 
@@ -583,8 +638,10 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::apply_post_ops(int ur_c, int c_tail) {
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::compute_max_op(const int jj)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::compute_max_op(const int jj) {" << std::endl;
     using namespace data_type;
     switch (jpp.src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.src_dt) {" << std::endl;
         case s32:
             vpmaxsd(vreg_dst(jj), vreg_dst(jj), vreg_src(jj));
             break;
@@ -601,10 +658,12 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::compute_max_op(const int jj)
 template <>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::compute_max_op(const int jj)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::compute_max_op(const int jj) {" << std::endl;
     using namespace data_type;
 
     // Compare
     switch (jpp.src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.src_dt) {" << std::endl;
         case s32:
             vpcmpd(k_cmp_mask, vreg_dst(jj), vreg_src(jj), _cmp_lt_os);
             break;
@@ -628,6 +687,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::compute_max_op(const int jj)
 template <cpu_isa_t isa>
 void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_max_step(int ur_c, int c_tail)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_max_step(int ur_c, int c_tail) {" << std::endl;
     Label l_kw, l_kh, l_kd;
 
     int iw = jpp.iw;
@@ -638,6 +698,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_max_step(int ur_c, int c_tail)
         vmovups(vreg_dst(jj), vreg_tmp);
 
     if (jpp.ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      if (jpp.ndims == 5) {" << std::endl;
         push(c_iter);
 
         mov(aux_reg_src_d, reg_ptr_src_i8);
@@ -656,6 +717,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_max_step(int ur_c, int c_tail)
         L(l_kw);
         {
             for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
                 load_src(jj, 0, c_tail);
                 compute_max_op(jj);
             }
@@ -671,6 +733,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_max_step(int ur_c, int c_tail)
     }
 
     if (jpp.ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      if (jpp.ndims == 5) {" << std::endl;
         add(aux_reg_src_d, ih * iw * c * sizeof_src_dt());
         inc(kk);
         cmp(kk, reg_kd);
@@ -686,6 +749,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_max_step(int ur_c, int c_tail)
 template <cpu_isa_t isa>
 void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_avg_step(int ur_c, int c_tail)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_avg_step(int ur_c, int c_tail) {" << std::endl;
     using namespace data_type;
 
     Label l_kw, l_kh, l_kd;
@@ -697,10 +761,13 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_avg_step(int ur_c, int c_tail)
     const int num_ll = data_type_size(avg_proc_dt)/data_type_size(jpp.dst_dt);
 
     for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
         for (int ll = 0; ll < num_ll; ll++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          for (int ll = 0; ll < num_ll; ll++) {" << std::endl;
             bool masked = jj == ur_c - 1 && c_tail;
             size_t msk = jpp.tail[ll];
             if (!(masked && !msk)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              if (!(masked && !msk)) {" << std::endl;
                 uni_vpxor(vreg_src_s32(jj, ll), vreg_src_s32(jj, ll), vreg_src_s32(jj, ll));
                 uni_vpxor(vreg_dst_s32(jj, ll), vreg_dst_s32(jj, ll), vreg_dst_s32(jj, ll));
             }
@@ -708,6 +775,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_avg_step(int ur_c, int c_tail)
     }
 
     if (jpp.ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      if (jpp.ndims == 5) {" << std::endl;
         push(c_iter);
 
         mov(aux_reg_src_d, reg_ptr_src_i8);
@@ -726,10 +794,13 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_avg_step(int ur_c, int c_tail)
         L(l_kw);
         {
             for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
                 for (int ll = 0; ll < num_ll; ll++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                  for (int ll = 0; ll < num_ll; ll++) {" << std::endl;
                     bool masked = jj == ur_c - 1 && c_tail;
                     size_t msk = jpp.tail[ll];
                     if (!(masked && !msk)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                      if (!(masked && !msk)) {" << std::endl;
                         load_src(jj, ll, c_tail);
                         vpaddd(vreg_dst_s32(jj, ll), vreg_dst_s32(jj, ll),
                                 vreg_src_s32(jj, ll));
@@ -748,6 +819,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_avg_step(int ur_c, int c_tail)
     }
 
     if (jpp.ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      if (jpp.ndims == 5) {" << std::endl;
         add(aux_reg_src_d, ih * iw * c * sizeof_src_dt());
         inc(kk);
         cmp(kk, reg_kd);
@@ -757,10 +829,13 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_avg_step(int ur_c, int c_tail)
     }
 
     for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
         for (int ll = 0; ll < num_ll; ll++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          for (int ll = 0; ll < num_ll; ll++) {" << std::endl;
             bool masked = jj == ur_c - 1 && c_tail;
             size_t msk = jpp.tail[ll];
             if (!(masked && !msk)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              if (!(masked && !msk)) {" << std::endl;
 
                 vcvtdq2ps(vreg_dst_f32(jj, ll), vreg_dst_s32(jj, ll));
                 vfmadd132ps(vreg_dst_f32(jj, ll), vreg_zeros, vreg_tmp);
@@ -771,15 +846,21 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_avg_step(int ur_c, int c_tail)
     apply_post_ops(ur_c, c_tail);
 
     for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
         for (int ll = 0; ll < num_ll; ll++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          for (int ll = 0; ll < num_ll; ll++) {" << std::endl;
             bool masked = jj == ur_c - 1 && c_tail;
             size_t msk = jpp.tail[ll];
             if (!(masked && !msk)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              if (!(masked && !msk)) {" << std::endl;
                 if (jpp.dst_dt != f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                  if (jpp.dst_dt != f32) {" << std::endl;
                     if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                      if (isa == avx2) {" << std::endl;
                         uni_vroundps(vreg_dst_f32(jj, ll), vreg_dst_f32(jj, ll), rnd_op_nearest);
                         vcvtps2dq(vreg_dst_s32(jj, ll), vreg_dst_f32(jj, ll));
                     } else if (isa >= avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:                      } else if (isa >= avx512_common) {" << std::endl;
                         // AVX512: use of EVEX-embedded static rounding override
                         vcvtps2dq(vreg_dst_s32(jj, ll) | T_rn_sae, vreg_dst_f32(jj, ll));
                     }
@@ -793,7 +874,9 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_avg_step(int ur_c, int c_tail)
 
 template <cpu_isa_t isa>
 void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_step(int ur_c, int c_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_step(int ur_c, int c_tail) {" << std::endl;
     switch (jpp.alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.alg) {" << std::endl;
         case pooling_max:
             compute_max_step(ur_c, c_tail); break;
         case pooling_avg_include_padding:
@@ -805,6 +888,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_step(int ur_c, int c_tail) {
 
 template <cpu_isa_t isa>
 void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_c_block(){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_c_block(){" << std::endl;
     Label l_main_loop;
 
     int nb_c = jpp.nb_c;
@@ -818,6 +902,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_c_block(){
     xor_(reg_oc_off, reg_oc_off);
 
     if (c_steps > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      if (c_steps > 0) {" << std::endl;
         L(l_main_loop); {
             compute_step(ur_c, 0);
             add(reg_ptr_src_i8, ur_c*c_block*sizeof_src_dt());
@@ -830,27 +915,32 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::compute_c_block(){
     }
 
     if (ur_c_tail != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      if (ur_c_tail != 0) {" << std::endl;
         compute_step(ur_c_tail, c_tail);
     }
 }
 
 template<>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::init_mask() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::init_mask() {" << std::endl;
     using namespace data_type;
     using cpu_isa = cpu_isa_traits<avx2>;
 
     // AVX2 mask initialization: mask stored in Ymm-regs
     auto init = [&](uint64_t bit_mask, bool init_mask_q) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      auto init = [&](uint64_t bit_mask, bool init_mask_q) {" << std::endl;
         const size_t QW_PER_VREG = cpu_isa::vlen / sizeof(uint64_t);
 
         uint64_t vmask[QW_PER_VREG];
         for (size_t i = 0; i < QW_PER_VREG; i++){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          for (size_t i = 0; i < QW_PER_VREG; i++){" << std::endl;
 
             uint64_t qw_vmask=0ULL;
             const size_t DBITS = 8*sizeof_src_dt();
             const uint64_t VMSK = 1ULL << (DBITS-1);
             const size_t D_PER_QW = (8*sizeof(qw_vmask))/DBITS;
             for (size_t j = 0; j < D_PER_QW; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              for (size_t j = 0; j < D_PER_QW; j++) {" << std::endl;
                 if (bit_mask & 1)
                     qw_vmask |= VMSK << DBITS * j;
                 bit_mask >>= 1;
@@ -874,6 +964,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::init_mask() {
         const uint8 qw_dst_idx[QW_PER_VREG] = {0, 1, 0, 1}; // qword index in 128-bit xreg
 
         for (size_t i = 0; i < QW_PER_VREG; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          for (size_t i = 0; i < QW_PER_VREG; i++) {" << std::endl;
             mov(reg_mask, vmask[i]);
             vpinsrq(Xmm(xdst_i[i]), Xmm(xsrc_i[i]), reg_mask, qw_dst_idx[i]);
         }
@@ -884,11 +975,13 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::init_mask() {
         vinserti128(vreg_mask, vreg_mask, xreg_mask_hi, 1);
 
         if (sizeof_src_dt() != sizeof_dst_dt()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          if (sizeof_src_dt() != sizeof_dst_dt()) {" << std::endl;
             vpmovsxbd(vreg_mask_dst, vreg_mask);
         }
 
         // Keep only low qword of mask in xreg_mask_q
         if (init_mask_q) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          if (init_mask_q) {" << std::endl;
             mov(reg_mask, vmask[0]);
             vpinsrq(xreg_mask_q, Xmm(vreg_zeros.getIdx()), reg_mask, 0);
         }
@@ -896,6 +989,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::init_mask() {
 
     uint64_t tail_mask = (1ULL << jpp.c_tail) - 1;
     switch (jpp.alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.alg) {" << std::endl;
         case pooling_max:
             // For "max" we need mask only in case of non-zero tail
             if (tail_mask)
@@ -907,6 +1001,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::init_mask() {
             // - s32   - in case of the non-zero tail
             // - s8/u8 - irrespective of the tail
             switch (jpp.src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              switch (jpp.src_dt) {" << std::endl;
                 case s32:
                     if (tail_mask)
                         init(tail_mask, false);
@@ -924,8 +1019,10 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx2>::init_mask() {
 
 template<>
 void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::init_mask() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::init_mask() {" << std::endl;
 
     for (int ll = 0; ll < max_num_ll; ll++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      for (int ll = 0; ll < max_num_ll; ll++) {" << std::endl;
         mov(reg_mask, jpp.tail[ll]);
         kmovq(mask(ll), reg_mask);
     }
@@ -933,9 +1030,11 @@ void jit_uni_i8i8_pooling_fwd_ker_t<avx512_core>::init_mask() {
 
 template <cpu_isa_t isa>
 void jit_uni_i8i8_pooling_fwd_ker_t<isa>::init_tmp_reg() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<isa>::init_tmp_reg() {" << std::endl;
     using namespace data_type;
 
     switch (jpp.alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.alg) {" << std::endl;
         case pooling_avg_include_padding:
         case pooling_avg_exclude_padding:
             mov(reg_tmp, ptr[reg_param + offsetof(call_params_t, idivider)]);
@@ -944,6 +1043,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::init_tmp_reg() {
             break;
         case pooling_max:
             switch (jpp.src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              switch (jpp.src_dt) {" << std::endl;
                 case s32:
                     mov(reg_tmp, nstl::numeric_limits<int32_t>::lowest());
                     break;
@@ -969,6 +1069,7 @@ void jit_uni_i8i8_pooling_fwd_ker_t<isa>::init_tmp_reg() {
 
 template <cpu_isa_t isa>
 void jit_uni_i8i8_pooling_fwd_ker_t<isa>::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  void jit_uni_i8i8_pooling_fwd_ker_t<isa>::generate() {" << std::endl;
     preamble();
 
 #if !defined(_WIN32)
@@ -1002,6 +1103,7 @@ template <cpu_isa_t isa>
 status_t jit_uni_i8i8_pooling_fwd_ker_t<isa>::init_conf(jit_pool_conf_t &jpp,
         const pooling_desc_t &pd, const memory_desc_wrapper &src_d,
         const memory_desc_wrapper &dst_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:          const memory_desc_wrapper &dst_d) {" << std::endl;
     if (!mayiuse(isa))
         return status::unimplemented;
 
@@ -1062,6 +1164,7 @@ status_t jit_uni_i8i8_pooling_fwd_ker_t<isa>::init_conf(jit_pool_conf_t &jpp,
     size_t tail_mask = (1ULL << jpp.c_tail) - 1;
 
     switch (jpp.alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      switch (jpp.alg) {" << std::endl;
         case pooling_max:
             jpp.tail[0] = tail_mask;
             jpp.tail[1] = 0;
@@ -1076,6 +1179,7 @@ status_t jit_uni_i8i8_pooling_fwd_ker_t<isa>::init_conf(jit_pool_conf_t &jpp,
             const size_t msk_msk = (1ULL << msk_gran) - 1;
             size_t m = tail_mask;
             for (size_t ll = 0; ll < max_num_ll; ll++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              for (size_t ll = 0; ll < max_num_ll; ll++) {" << std::endl;
                 jpp.tail[ll] = m & msk_msk;
                 m = m >> msk_gran;
             }
@@ -1089,6 +1193,7 @@ status_t jit_uni_i8i8_pooling_fwd_ker_t<isa>::init_conf(jit_pool_conf_t &jpp,
 
 template <cpu_isa_t isa>
 status_t jit_uni_i8i8_pooling_fwd_t<isa>::pd_t::jit_conf() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  status_t jit_uni_i8i8_pooling_fwd_t<isa>::pd_t::jit_conf() {" << std::endl;
     return jit_uni_i8i8_pooling_fwd_ker_t<isa>::init_conf(jpp_,
        desc_, src_pd_.desc(), dst_pd_.desc());
 }
@@ -1098,11 +1203,13 @@ jit_uni_i8i8_pooling_fwd_t<isa>::
 jit_uni_i8i8_pooling_fwd_t(const pd_t *apd,
           const input_vector &inputs, const output_vector &outputs)
     : cpu_primitive_t(apd, inputs, outputs), ker_(nullptr)
-{ ker_ = new jit_uni_i8i8_pooling_fwd_ker_t<isa>(pd()->jpp_, *pd()->attr()); }
+{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:      : cpu_primitive_t(apd, inputs, outputs), ker_(nullptr) {" << std::endl; ker_ = new jit_uni_i8i8_pooling_fwd_ker_t<isa>(pd()->jpp_, *pd()->attr()); }
 
 template <cpu_isa_t isa>
 jit_uni_i8i8_pooling_fwd_t<isa>::
-~jit_uni_i8i8_pooling_fwd_t() { delete ker_; }
+~jit_uni_i8i8_pooling_fwd_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:  ~jit_uni_i8i8_pooling_fwd_t() {" << std::endl; delete ker_; }
 
 template <cpu_isa_t isa>
 void jit_uni_i8i8_pooling_fwd_t<isa>::execute_forward() const {
@@ -1116,6 +1223,7 @@ void jit_uni_i8i8_pooling_fwd_t<isa>::execute_forward() const {
 
     parallel_nd(jpp.mb, jpp.od, jpp.oh, jpp.ow,
             [&](int n, int od, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_i8i8_pooling.cpp:              [&](int n, int od, int oh, int ow) {" << std::endl;
         const int id = nstl::max(od*jpp.stride_d - jpp.f_pad, 0);
         const int ih = nstl::max(oh*jpp.stride_h - jpp.t_pad, 0);
         const int iw = nstl::max(ow*jpp.stride_w - jpp.l_pad, 0);

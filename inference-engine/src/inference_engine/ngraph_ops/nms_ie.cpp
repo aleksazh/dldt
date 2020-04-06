@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -27,6 +28,7 @@ op::NonMaxSuppressionIE::NonMaxSuppressionIE(const Output<Node> &boxes,
 
 std::shared_ptr<Node> op::NonMaxSuppressionIE::copy_with_new_args(const NodeVector &new_args) const {
     if (new_args.size() != 5) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/nms_ie.cpp:      if (new_args.size() != 5) {" << std::endl;
         throw ngraph_error("Incorrect number of new arguments");
     }
 
@@ -35,5 +37,6 @@ std::shared_ptr<Node> op::NonMaxSuppressionIE::copy_with_new_args(const NodeVect
 }
 
 void op::NonMaxSuppressionIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/nms_ie.cpp:  void op::NonMaxSuppressionIE::validate_and_infer_types() {" << std::endl;
     set_output_type(0, element::i32, m_output_shape);
 }

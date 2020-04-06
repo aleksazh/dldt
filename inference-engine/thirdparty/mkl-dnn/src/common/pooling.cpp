@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -34,6 +35,7 @@ status_t pooling_desc_init(pooling_desc_t *pool_desc,
         const memory_desc_t *src_desc, const memory_desc_t *dst_desc,
         const dims_t strides, const dims_t kernel, const dims_t padding_l,
         const dims_t padding_r, padding_kind_t padding_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/pooling.cpp:          const dims_t padding_r, padding_kind_t padding_kind) {" << std::endl;
     bool args_ok = true
         && !any_null(pool_desc, src_desc, dst_desc, strides, kernel, padding_l)
         && one_of(alg_kind, pooling_max,
@@ -67,6 +69,7 @@ status_t pooling_desc_init(pooling_desc_t *pool_desc,
     pd.padding_kind = padding_kind;
     if (one_of(alg_kind, pooling_max, pooling_avg_include_padding,
                 pooling_avg_exclude_padding)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/pooling.cpp:                  pooling_avg_exclude_padding)) {" << std::endl;
         pd.accum_data_type = types::default_accum_data_type(
                 src_desc->data_type, dst_desc->data_type);
     } else {
@@ -79,6 +82,7 @@ status_t pooling_desc_init(pooling_desc_t *pool_desc,
         && src_desc->dims[0] == dst_desc->dims[0]
         && src_desc->dims[1] == dst_desc->dims[1];
     for (int i = 2; i < src_desc->ndims; ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/pooling.cpp:      for (int i = 2; i < src_desc->ndims; ++i) {" << std::endl;
         consistency = consistency && (
                 (src_desc->dims[i] - kernel[i - 2] + padding_l[i - 2]
                  + padding_r[i - 2]) / strides[i - 2] + 1
@@ -104,6 +108,7 @@ status_t mkldnn_pooling_forward_desc_init(pooling_desc_t *pool_desc,
         const memory_desc_t *src_desc, const memory_desc_t *dst_desc,
         const dims_t strides, const dims_t kernel, const dims_t padding_l,
         const dims_t padding_r, padding_kind_t padding_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/pooling.cpp:          const dims_t padding_r, padding_kind_t padding_kind) {" << std::endl;
     if (!one_of(prop_kind, forward_training, forward_inference))
         return invalid_arguments;
     return pooling_desc_init(pool_desc, prop_kind, alg_kind, src_desc,
@@ -115,6 +120,7 @@ status_t mkldnn_pooling_backward_desc_init(pooling_desc_t *pool_desc,
         const memory_desc_t *diff_dst_desc, const dims_t strides,
         const dims_t kernel, const dims_t padding_l, const dims_t padding_r,
         padding_kind_t padding_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/pooling.cpp:          padding_kind_t padding_kind) {" << std::endl;
     return pooling_desc_init(pool_desc, prop_kind::backward_data, alg_kind,
             diff_src_desc, diff_dst_desc, strides, kernel, padding_l,
             padding_r, padding_kind);

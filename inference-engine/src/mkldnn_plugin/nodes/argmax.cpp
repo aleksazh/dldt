@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -24,6 +25,7 @@ template <mkldnn::impl::cpu::cpu_isa_t T>
 class ArgMaxImpl: public ExtLayerBase {
 public:
     explicit ArgMaxImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:      explicit ArgMaxImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 1 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -37,12 +39,14 @@ public:
 
             addConfig(layer, {DataConfigurator(ConfLayout::PLN)}, {DataConfigurator(ConfLayout::PLN)});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
 
     template <bool out_max_val>
     void argmax_one_class_has_axis(float* src_data, float* dst_data, SizeVector in_dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:      void argmax_one_class_has_axis(float* src_data, float* dst_data, SizeVector in_dims) {" << std::endl;
         int axis_ = (axis_index_ < 0) ? axis_index_ + static_cast<int>(in_dims.size()) : axis_index_;
         const int dim = static_cast<int>(in_dims[axis_]);
         int before_num = count(in_dims, 0, axis_);
@@ -67,15 +71,18 @@ public:
 
 #if defined(HAVE_SSE) || defined(HAVE_AVX2) || defined(HAVE_AVX512F)
         parallel_for2d(before_num, after_num / block_size, [&](int i0, int ib1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:          parallel_for2d(before_num, after_num / block_size, [&](int i0, int ib1) {" << std::endl;
             int s_index = i0 * dim * after_num + ib1 * block_size;
             vec_type_f vmax_val = _mm_uni_loadu_ps(src_data + s_index);
             vec_type_i vindex_max_val = _mm_uni_setzero_si();
             for (int i2 = 1; i2 < dim; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i2 = 1; i2 < dim; i2++) {" << std::endl;
                 s_index += after_num;
                 vec_type_f vsrc = _mm_uni_loadu_ps(src_data + s_index);
                 vmask_type vmask = _mm_uni_cmpgt_ps(vsrc, vmax_val);
                 vmax_val = _mm_uni_blendv_ps(vmax_val, vsrc, vmask);
                 if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (!out_max_val) {" << std::endl;
                     vec_type_i vindex_cur_val = _mm_uni_set1_epi32(i2);
 #if defined(HAVE_AVX512F)
                     vindex_max_val = _mm512_mask_blend_epi32(vmask, vindex_max_val, vindex_cur_val);
@@ -85,6 +92,7 @@ public:
                 }
             }
             if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              if (!out_max_val) {" << std::endl;
                 vec_type_f vindex_max_val_fp32 = _mm_uni_cvtepi32_ps(vindex_max_val);
                 _mm_uni_storeu_ps(dst_data + i0 * after_num + ib1 * block_size, vindex_max_val_fp32);
             } else {
@@ -95,14 +103,18 @@ public:
 #endif
         int rest = after_num - first_index;
         parallel_for2d(before_num, rest, [&](int i0, int i1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:          parallel_for2d(before_num, rest, [&](int i0, int i1) {" << std::endl;
             int index_max_val = 0;
             int s_index = i0 * dim * after_num + first_index + i1;
             float max_val = src_data[s_index];
             for (int i2 = 1; i2 < dim; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i2 = 1; i2 < dim; i2++) {" << std::endl;
                 s_index += after_num;
                 if (src_data[s_index] > max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (src_data[s_index] > max_val) {" << std::endl;
                     max_val = src_data[s_index];
                     if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      if (!out_max_val) {" << std::endl;
                         index_max_val = i2;
                     }
                 }
@@ -116,20 +128,25 @@ public:
 
     template <bool out_max_val>
     void argmax_one_class(float* src_data, float* dst_data, SizeVector in_dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:      void argmax_one_class(float* src_data, float* dst_data, SizeVector in_dims) {" << std::endl;
         const int dim = count(in_dims, 1);
         int before_num = in_dims[0];
         parallel_for(before_num, [&](int i0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:          parallel_for(before_num, [&](int i0) {" << std::endl;
             int index_max_val = 0;
             int s_index = i0 * dim;
             float max_val = src_data[s_index];
             for (int i1 = 1; i1 < dim; i1++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i1 = 1; i1 < dim; i1++) {" << std::endl;
                 s_index++;
                 if (src_data[s_index] > max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (src_data[s_index] > max_val) {" << std::endl;
                     max_val = src_data[s_index];
                     index_max_val = i1;
                 }
             }
             if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              if (!out_max_val) {" << std::endl;
                 dst_data[i0] = static_cast<float>(index_max_val);
             } else {
                 dst_data[i0 * 2] = static_cast<float>(index_max_val);
@@ -140,6 +157,7 @@ public:
 
     template <bool out_max_val>
     void argmax_many_classes_has_axis(float* src_data, float* dst_data, SizeVector in_dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:      void argmax_many_classes_has_axis(float* src_data, float* dst_data, SizeVector in_dims) {" << std::endl;
         int axis_ = (axis_index_ < 0) ? axis_index_ + static_cast<int>(in_dims.size()) : axis_index_;
         const int dim = static_cast<int>(in_dims[axis_]);
         int before_num = count(in_dims, 0, axis_);
@@ -164,7 +182,9 @@ public:
 
 #if defined(HAVE_SSE) || defined(HAVE_AVX2) || defined(HAVE_AVX512F)
         if (top_k_ < count_vec) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:          if (top_k_ < count_vec) {" << std::endl;
             parallel_for2d(before_num, after_num / block_size, [&](int i0, int ib1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              parallel_for2d(before_num, after_num / block_size, [&](int i0, int ib1) {" << std::endl;
 #if defined(HAVE_AVX512F)
                 const int N = 32;
                 vec_type_f vmax_values[N];
@@ -182,10 +202,12 @@ public:
                 memset(reinterpret_cast<void*>(&vmax_values[0]), 0, sizeof(vmax_values));
 
                 auto vswap_func = [&](int index1, int index2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  auto vswap_func = [&](int index1, int index2) {" << std::endl;
                     vtmp = vmax_values[index1];
                     vmax_values[index1] = _mm_uni_blendv_ps(vmax_values[index1], vmax_values[index2], vmask);
                     vmax_values[index2] = _mm_uni_blendv_ps(vmax_values[index2], vtmp, vmask);
                     if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      if (!out_max_val) {" << std::endl;
                         vtmp_indexes = vmax_indexes[index1];
 #if defined(HAVE_AVX512F)
                         vmax_indexes[index1] = _mm512_mask_blend_epi32(vmask, vmax_indexes[index1], vmax_indexes[index2]);
@@ -198,36 +220,46 @@ public:
                 };
 
                 for (int i2 = 0; i2 < top_k_; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  for (int i2 = 0; i2 < top_k_; i2++) {" << std::endl;
                     vmax_values[i2] = _mm_uni_loadu_ps(src_data + s_index);
                     if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      if (!out_max_val) {" << std::endl;
                         vmax_indexes[i2] = _mm_uni_set1_epi32(i2);
                     }
                     s_index += after_num;
                 }
                 for (int i2 = 0; i2 < top_k_ - 1; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  for (int i2 = 0; i2 < top_k_ - 1; i2++) {" << std::endl;
                     for (int i3 = top_k_ - 1; i3 > i2; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      for (int i3 = top_k_ - 1; i3 > i2; i3--) {" << std::endl;
                         vmask = _mm_uni_cmpgt_ps(vmax_values[i3], vmax_values[i3 - 1]);
 #if defined(HAVE_AVX512F)
                         if (vmask) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                          if (vmask) {" << std::endl;
                             vswap_func(i3, i3 - 1);
                         }
 #else
                         int swap = _mm_uni_movemask_ps(vmask);
                         if (swap) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                          if (swap) {" << std::endl;
                             vswap_func(i3, i3 - 1);
                         }
 #endif
                     }
                 }
                 for (int i2 = top_k_; i2 < dim; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  for (int i2 = top_k_; i2 < dim; i2++) {" << std::endl;
                     vmax_values[top_k_] = _mm_uni_loadu_ps(src_data + s_index);
                     if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      if (!out_max_val) {" << std::endl;
                         vmax_indexes[top_k_] = _mm_uni_set1_epi32(i2);
                     }
                     for (int i3 = top_k_; i3 > 0; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      for (int i3 = top_k_; i3 > 0; i3--) {" << std::endl;
                         vmask = _mm_uni_cmpgt_ps(vmax_values[i3], vmax_values[i3 - 1]);
 #if defined(HAVE_AVX512F)
                         if (vmask) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                          if (vmask) {" << std::endl;
                             vswap_func(i3, i3 - 1);
                         } else {
                             break;
@@ -235,6 +267,7 @@ public:
 #else
                         int swap = _mm_uni_movemask_ps(vmask);
                         if (swap) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                          if (swap) {" << std::endl;
                             vswap_func(i3, i3 - 1);
                         } else {
                             break;
@@ -244,7 +277,9 @@ public:
                     s_index += after_num;
                 }
                 for (int i2 = 0; i2 < top_k_; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  for (int i2 = 0; i2 < top_k_; i2++) {" << std::endl;
                     if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      if (!out_max_val) {" << std::endl;
                         _mm_uni_storeu_ps(dst_data + (i0 * top_k_ + i2) * after_num + ib1 * block_size,
                                       _mm_uni_cvtepi32_ps(vmax_indexes[i2]));
                     } else {
@@ -257,6 +292,7 @@ public:
 #endif
         int rest = after_num - first_index;
         parallel_for2d(before_num, rest, [&](int i0, int i1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:          parallel_for2d(before_num, rest, [&](int i0, int i1) {" << std::endl;
             std::vector<float> max_values(top_k_ + 1);
             std::vector<int> max_indexes(top_k_ + 1);
             float tmp_value;
@@ -264,10 +300,12 @@ public:
             int s_index = i0 * dim * after_num + first_index + i1;
 
             auto swap_func = [&](int index1, int index2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              auto swap_func = [&](int index1, int index2) {" << std::endl;
                 tmp_value = max_values[index1];
                 max_values[index1] = max_values[index2];
                 max_values[index2] = tmp_value;
                 if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (!out_max_val) {" << std::endl;
                     tmp_index = max_indexes[index1];
                     max_indexes[index1] = max_indexes[index2];
                     max_indexes[index2] = tmp_index;
@@ -275,26 +313,35 @@ public:
             };
 
             for (int i2 = 0; i2 < top_k_; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i2 = 0; i2 < top_k_; i2++) {" << std::endl;
                 max_values[i2] = src_data[s_index];
                 if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (!out_max_val) {" << std::endl;
                     max_indexes[i2] = i2;
                 }
                 s_index += after_num;
             }
             for (int i2 = 0; i2 < top_k_ - 1; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i2 = 0; i2 < top_k_ - 1; i2++) {" << std::endl;
                 for (int i3 = top_k_ - 1; i3 > i2; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  for (int i3 = top_k_ - 1; i3 > i2; i3--) {" << std::endl;
                     if (max_values[i3] > max_values[i3 - 1]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      if (max_values[i3] > max_values[i3 - 1]) {" << std::endl;
                         swap_func(i3, i3 - 1);
                     }
                 }
             }
             for (int i2 = top_k_; i2 < dim; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i2 = top_k_; i2 < dim; i2++) {" << std::endl;
                 max_values[top_k_] = src_data[s_index];
                 if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (!out_max_val) {" << std::endl;
                     max_indexes[top_k_] = i2;
                 }
                 for (int i3 = top_k_; i3 > 0; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  for (int i3 = top_k_; i3 > 0; i3--) {" << std::endl;
                     if (max_values[i3] > max_values[i3 - 1]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      if (max_values[i3] > max_values[i3 - 1]) {" << std::endl;
                         swap_func(i3, i3 - 1);
                     } else {
                         break;
@@ -303,7 +350,9 @@ public:
                 s_index += after_num;
             }
             for (int i2 = 0; i2 < top_k_; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i2 = 0; i2 < top_k_; i2++) {" << std::endl;
                 if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (!out_max_val) {" << std::endl;
                     dst_data[i0 * top_k_ * after_num + i2 * after_num + first_index + i1] = static_cast<float>(max_indexes[i2]);
                 } else {
                     dst_data[i0 * top_k_ * after_num + i2 * after_num + first_index + i1] = max_values[i2];
@@ -314,9 +363,11 @@ public:
 
     template <bool out_max_val>
     void argmax_many_classes(float* src_data, float* dst_data, SizeVector in_dims) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:      void argmax_many_classes(float* src_data, float* dst_data, SizeVector in_dims) {" << std::endl;
         const int dim = count(in_dims, 1);
         int before_num = in_dims[0];
         parallel_for(before_num, [&](int i0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:          parallel_for(before_num, [&](int i0) {" << std::endl;
             std::vector<float> max_values(top_k_ + 1);
             std::vector<int> max_indexes(top_k_ + 1);
             float tmp_value;
@@ -324,6 +375,7 @@ public:
             int s_index = i0 * dim;
 
             auto swap_func = [&](int index1, int index2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              auto swap_func = [&](int index1, int index2) {" << std::endl;
                 tmp_value = max_values[index1];
                 max_values[index1] = max_values[index2];
                 max_values[index2] = tmp_value;
@@ -334,22 +386,29 @@ public:
             };
 
             for (int i2 = 0; i2 < top_k_; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i2 = 0; i2 < top_k_; i2++) {" << std::endl;
                 max_values[i2] = src_data[s_index];
                 max_indexes[i2] = i2;
                 s_index++;
             }
             for (int i2 = 0; i2 < top_k_ - 1; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i2 = 0; i2 < top_k_ - 1; i2++) {" << std::endl;
                 for (int i3 = top_k_ - 1; i3 > i2; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  for (int i3 = top_k_ - 1; i3 > i2; i3--) {" << std::endl;
                     if (max_values[i3] > max_values[i3 - 1]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      if (max_values[i3] > max_values[i3 - 1]) {" << std::endl;
                         swap_func(i3, i3 - 1);
                     }
                 }
             }
             for (int i2 = top_k_; i2 < dim; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i2 = top_k_; i2 < dim; i2++) {" << std::endl;
                 max_values[top_k_] = src_data[s_index];
                 max_indexes[top_k_] = i2;
                 for (int i3 = top_k_; i3 > 0; i3--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  for (int i3 = top_k_; i3 > 0; i3--) {" << std::endl;
                     if (max_values[i3] > max_values[i3 - 1]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                      if (max_values[i3] > max_values[i3 - 1]) {" << std::endl;
                         swap_func(i3, i3 - 1);
                     } else {
                         break;
@@ -358,7 +417,9 @@ public:
                 s_index++;
             }
             for (int i2 = 0; i2 < top_k_; i2++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              for (int i2 = 0; i2 < top_k_; i2++) {" << std::endl;
                 if (!out_max_val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (!out_max_val) {" << std::endl;
                     dst_data[i0 * top_k_ + i2] = static_cast<float>(max_indexes[i2]);
                 } else {
                     dst_data[i0 * 2 * top_k_ + i2] = static_cast<float>(max_indexes[i2]);
@@ -376,14 +437,18 @@ public:
         float* dst_data = outputs[0]->buffer();
 
         if (top_k_ == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:          if (top_k_ == 1) {" << std::endl;
             if (has_axis_) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              if (has_axis_) {" << std::endl;
                 if (out_max_val_) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (out_max_val_) {" << std::endl;
                     argmax_one_class_has_axis<true>(src_data, dst_data, in_dims);
                 } else {
                     argmax_one_class_has_axis<false>(src_data, dst_data, in_dims);
                 }
             } else {
                 if (out_max_val_) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (out_max_val_) {" << std::endl;
                     argmax_one_class<true>(src_data, dst_data, in_dims);
                 } else {
                     argmax_one_class<false>(src_data, dst_data, in_dims);
@@ -391,13 +456,16 @@ public:
             }
         } else {
             if (has_axis_) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:              if (has_axis_) {" << std::endl;
                 if (out_max_val_) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (out_max_val_) {" << std::endl;
                     argmax_many_classes_has_axis<true>(src_data, dst_data, in_dims);
                 } else {
                     argmax_many_classes_has_axis<false>(src_data, dst_data, in_dims);
                 }
             } else {
                 if (out_max_val_) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:                  if (out_max_val_) {" << std::endl;
                     argmax_many_classes<true>(src_data, dst_data, in_dims);
                 } else {
                     argmax_many_classes<false>(src_data, dst_data, in_dims);
@@ -420,6 +488,7 @@ private:
 #endif
 
     inline int count(SizeVector dims, size_t start_ind, size_t end_ind) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:      inline int count(SizeVector dims, size_t start_ind, size_t end_ind) {" << std::endl;
         size_t count = 1;
         for (size_t i = start_ind; i < end_ind; i++)
             count *= dims[i];
@@ -427,6 +496,7 @@ private:
     }
 
     inline int count(SizeVector dims, size_t start_ind = 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/argmax.cpp:      inline int count(SizeVector dims, size_t start_ind = 0) {" << std::endl;
         return count(dims, start_ind, dims.size());
     }
 };

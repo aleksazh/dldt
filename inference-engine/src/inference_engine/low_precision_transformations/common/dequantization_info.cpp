@@ -1,4 +1,5 @@
-﻿// Copyright (C) 2018-2020 Intel Corporation
+#include <iostream>
+// Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -26,7 +27,9 @@ using namespace InferenceEngine::details;
 DequantizationInfo::DequantizationInfo(const size_t levels, const std::vector<float>& outputLowValues,
                                        const std::vector<float>& outputHighValues)
     : levels(levels), outputLowValues(outputLowValues), outputHighValues(outputHighValues) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/common/dequantization_info.cpp:      : levels(levels), outputLowValues(outputLowValues), outputHighValues(outputHighValues) {" << std::endl;
     if (outputLowValues.size() != outputHighValues.size()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/common/dequantization_info.cpp:      if (outputLowValues.size() != outputHighValues.size()) {" << std::endl;
         THROW_IE_EXCEPTION << "values size is not correct";
     }
 }

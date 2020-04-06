@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -13,9 +14,11 @@ using namespace MKLDNNPlugin;
 using namespace InferenceEngine;
 
 MKLDNNTileNode::MKLDNNTileNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) :
-        MKLDNNNode(layer, eng, socket) {}
+        MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:          MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNTileNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:  void MKLDNNTileNode::getSupportedDescriptors() {" << std::endl;
     auto * tileLayer = dynamic_cast<TileLayer*>(getCnnLayer().get());
 
     if (tileLayer == nullptr)
@@ -31,6 +34,7 @@ void MKLDNNTileNode::getSupportedDescriptors() {
 }
 
 void MKLDNNTileNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:  void MKLDNNTileNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -46,17 +50,23 @@ void MKLDNNTileNode::initSupportedPrimitiveDescriptors() {
     auto& inDims = getParentEdgeAt(0)->getDims();
     memory::format fmt = memory::format::any;
     if (inDims.ndims() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:      if (inDims.ndims() == 1) {" << std::endl;
         fmt = memory::format::x;
     } else if (inDims.ndims() == 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:      } else if (inDims.ndims() == 2) {" << std::endl;
         fmt = memory::format::nc;
     } else if (inDims.ndims() == 3) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:      } else if (inDims.ndims() == 3) {" << std::endl;
         fmt = memory::format::tnc;
     } else if (inDims.ndims() == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:      } else if (inDims.ndims() == 4) {" << std::endl;
         fmt = memory::format::nchw;
     } else if (inDims.ndims() == 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:      } else if (inDims.ndims() == 5) {" << std::endl;
         fmt = memory::format::ncdhw;
     }
     if (fmt == memory::format::any) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:      if (fmt == memory::format::any) {" << std::endl;
         THROW_IE_EXCEPTION << "Tile " << getName() << " supports only 2D, 4D and 5D dimensions!";
     }
 
@@ -74,6 +84,7 @@ void MKLDNNTileNode::initSupportedPrimitiveDescriptors() {
 }
 
 void MKLDNNTileNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:  void MKLDNNTileNode::createPrimitive() {" << std::endl;
     auto& dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
     auto& srcMemPtr = getParentEdgeAt(0)->getMemoryPtr();
     if (!dstMemPtr || !dstMemPtr->GetPrimitivePtr())
@@ -87,6 +98,7 @@ void MKLDNNTileNode::createPrimitive() {
 }
 
 void MKLDNNTileNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:  void MKLDNNTileNode::execute(mkldnn::stream strm) {" << std::endl;
     auto& srcMemory = getParentEdgeAt(0)->getMemory();
 
     const float *src_ptr = reinterpret_cast<const float*>(srcMemory.GetData()) +
@@ -100,6 +112,7 @@ void MKLDNNTileNode::execute(mkldnn::stream strm) {
     for (int i=0; i < axis; i++ ) m_outer_dim *= inDims[i];
     for (int i=axis; i < inDims.size(); i++ ) m_inner_dim *= inDims[i];
     if (axis > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:      if (axis > 0) {" << std::endl;
         m_outer_dim /= inDims[0];
         m_outer_dim *= batchToProcess();
     } else {
@@ -109,6 +122,7 @@ void MKLDNNTileNode::execute(mkldnn::stream strm) {
 
     if (m_inner_dim == 1 && m_outer_dim % 8 == 0 && ((inDims.size() == 4 && srcMemory.GetFormat() == memory::nChw8c) ||
             (inDims.size() == 5 && srcMemory.GetFormat() == memory::nCdhw8c))) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:              (inDims.size() == 5 && srcMemory.GetFormat() == memory::nCdhw8c))) {" << std::endl;
         /*
          * We may enable tile processing directly to appropriate output format (nChw8c)
          */
@@ -117,6 +131,7 @@ void MKLDNNTileNode::execute(mkldnn::stream strm) {
     } else if (m_inner_dim == 1 && m_outer_dim % 16 == 0 &&
             ((inDims.size() == 4 && srcMemory.GetFormat() == memory::nChw16c) ||
             (inDims.size() == 5 && srcMemory.GetFormat() == memory::nCdhw16c))) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:              (inDims.size() == 5 && srcMemory.GetFormat() == memory::nCdhw16c))) {" << std::endl;
         /*
          * We may enable tile processing directly to appropriate output format (nChw16c)
          */
@@ -125,7 +140,9 @@ void MKLDNNTileNode::execute(mkldnn::stream strm) {
     }
 
     for (int i = 0; i < m_outer_dim; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:      for (int i = 0; i < m_outer_dim; ++i) {" << std::endl;
         for (int t = 0; t < tiles; ++t) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tile_node.cpp:          for (int t = 0; t < tiles; ++t) {" << std::endl;
             memcpy(dst_ptr, src_ptr, m_inner_dim* sizeof(float));
             dst_ptr += m_inner_dim;
         }

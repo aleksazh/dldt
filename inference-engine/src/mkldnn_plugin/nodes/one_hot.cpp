@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -14,6 +15,7 @@ namespace Cpu {
 class OneHotImpl: public ExtLayerBase {
 public:
     explicit OneHotImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/one_hot.cpp:      explicit OneHotImpl(const CNNLayer* layer) {" << std::endl;
         try {
             depth     = layer->GetParamAsUInt("depth");
             on_value  = layer->GetParamAsFloat("on_value", 1.0f);
@@ -26,6 +28,7 @@ public:
             int output_dims_size = dst_dims.size();
             if (layer->CheckParamPresence("axis") &&
                 (-1 > axis || axis >= output_dims_size)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/one_hot.cpp:                  (-1 > axis || axis >= output_dims_size)) {" << std::endl;
                     THROW_IE_EXCEPTION << "The value of " << layer->name << " layer axis parameter must be between -1 <= axis < "\
                                        << output_dims_size << ", but actually it is " << axis;
             }
@@ -37,17 +40,20 @@ public:
             // check a precision of the input tensor
             input_precision = layer->insData[0].lock()->getTensorDesc().getPrecision();
             if (input_precision != Precision::I32 && input_precision != Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/one_hot.cpp:              if (input_precision != Precision::I32 && input_precision != Precision::FP32) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect input precision for the input. Only I32 and FP32 are supported!";
             }
 
             addConfig(layer, { DataConfigurator(ConfLayout::PLN) }, { DataConfigurator(ConfLayout::PLN) });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/one_hot.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
 
     StatusCode execute(std::vector<Blob::Ptr>& inputs, std::vector<Blob::Ptr>& outputs, ResponseDesc *resp) noexcept override {
         switch (input_precision) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/one_hot.cpp:          switch (input_precision) {" << std::endl;
             case Precision::FP32:
                 one_hot<float>(inputs[0], outputs[0]);
                 break;
@@ -64,6 +70,7 @@ public:
 private:
     template <typename in_type>
     void one_hot(Blob::Ptr input, Blob::Ptr output) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/one_hot.cpp:      void one_hot(Blob::Ptr input, Blob::Ptr output) {" << std::endl;
         const auto *src_data = input->cbuffer().as<const in_type *>();
         auto *dst_data = output->buffer().as<float *>();
         std::size_t prefix_size = 1;
@@ -77,8 +84,11 @@ private:
 
         std::size_t dst_offset = 0;
         for (std::size_t prefix_idx = 0; prefix_idx < prefix_size; ++prefix_idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/one_hot.cpp:          for (std::size_t prefix_idx = 0; prefix_idx < prefix_size; ++prefix_idx) {" << std::endl;
             for (std::size_t depth_idx = 0; depth_idx < depth; ++depth_idx) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/one_hot.cpp:              for (std::size_t depth_idx = 0; depth_idx < depth; ++depth_idx) {" << std::endl;
                 for (std::size_t suffix_idx = 0; suffix_idx < suffix_size; suffix_idx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/one_hot.cpp:                  for (std::size_t suffix_idx = 0; suffix_idx < suffix_size; suffix_idx++) {" << std::endl;
                     auto src_index = prefix_idx * suffix_size + suffix_idx;
                     std::size_t v = static_cast<std::size_t>(src_data[src_index]);
                     dst_data[dst_offset++] = (v == depth_idx) ? on_value : off_value;

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2019 Intel Corporation
 *
@@ -63,6 +64,7 @@
 	#if (_MSC_VER < 1400) && defined(XBYAK32)
 		static inline __declspec(naked) void __cpuid(int[4], int)
 		{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  		static inline __declspec(naked) void __cpuid(int[4], int) 		{" << std::endl;
 			__asm {
 				push	ebx
 				push	esi
@@ -131,6 +133,7 @@ class Cpu {
 	}
 	void setFamily()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	void setFamily() 	{" << std::endl;
 		unsigned int data[4] = {};
 		getCpuid(1, data);
 		stepping = data[0] & mask(4);
@@ -152,10 +155,12 @@ class Cpu {
 	}
 	unsigned int extractBit(unsigned int val, unsigned int base, unsigned int end)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	unsigned int extractBit(unsigned int val, unsigned int base, unsigned int end) 	{" << std::endl;
 		return (val >> base) & ((1u << (end - base)) - 1);
 	}
 	void setNumCores()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	void setNumCores() 	{" << std::endl;
 		if ((type_ & tINTEL) == 0) return;
 
 		unsigned int data[4] = {};
@@ -189,6 +194,7 @@ class Cpu {
 	}
 	void setCacheHierarchy()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	void setCacheHierarchy() 	{" << std::endl;
 		if ((type_ & tINTEL) == 0) return;
 		const unsigned int NO_CACHE = 0;
 		const unsigned int DATA_CACHE = 1;
@@ -271,6 +277,7 @@ public:
 	*/
 	static inline void getCpuid(unsigned int eaxIn, unsigned int data[4])
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	static inline void getCpuid(unsigned int eaxIn, unsigned int data[4]) 	{" << std::endl;
 #ifdef XBYAK_INTEL_CPU_SPECIFIC
 	#ifdef _MSC_VER
 		__cpuid(reinterpret_cast<int*>(data), eaxIn);
@@ -284,6 +291,7 @@ public:
 	}
 	static inline void getCpuidEx(unsigned int eaxIn, unsigned int ecxIn, unsigned int data[4])
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	static inline void getCpuidEx(unsigned int eaxIn, unsigned int ecxIn, unsigned int data[4]) 	{" << std::endl;
 #ifdef XBYAK_INTEL_CPU_SPECIFIC
 	#ifdef _MSC_VER
 		__cpuidex(reinterpret_cast<int*>(data), eaxIn, ecxIn);
@@ -298,6 +306,7 @@ public:
 	}
 	static inline uint64 getXfeature()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	static inline uint64 getXfeature() 	{" << std::endl;
 #ifdef XBYAK_INTEL_CPU_SPECIFIC
 	#ifdef _MSC_VER
 		return _xgetbv(0);
@@ -387,6 +396,7 @@ public:
 		, coresSharignDataCache_()
 		, dataCacheLevels_(0)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  		, dataCacheLevels_(0) 	{" << std::endl;
 		unsigned int data[4] = {};
 		const unsigned int& EAX = data[0];
 		const unsigned int& EBX = data[1];
@@ -499,6 +509,7 @@ class Clock {
 public:
 	static inline uint64 getRdtsc()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	static inline uint64 getRdtsc() 	{" << std::endl;
 #ifdef XBYAK_INTEL_CPU_SPECIFIC
 	#ifdef _MSC_VER
 		return __rdtsc();
@@ -516,13 +527,16 @@ public:
 		: clock_(0)
 		, count_(0)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  		, count_(0) 	{" << std::endl;
 	}
 	void begin()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	void begin() 	{" << std::endl;
 		clock_ -= getRdtsc();
 	}
 	void end()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	void end() 	{" << std::endl;
 		clock_ += getRdtsc();
 		count_++;
 	}
@@ -548,36 +562,49 @@ public:
 	Pack(const Pack& rhs)
 		: n_(rhs.n_)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  		: n_(rhs.n_) 	{" << std::endl;
 		for (size_t i = 0; i < n_; i++) tbl_[i] = rhs.tbl_[i];
 	}
 	Pack& operator=(const Pack& rhs)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack& operator=(const Pack& rhs) 	{" << std::endl;
 		n_ = rhs.n_;
 		for (size_t i = 0; i < n_; i++) tbl_[i] = rhs.tbl_[i];
 		return *this;
 	}
 	Pack(const Xbyak::Reg64& t0)
-	{ n_ = 1; tbl_[0] = &t0; }
+	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack(const Xbyak::Reg64& t0) 	{" << std::endl; n_ = 1; tbl_[0] = &t0; }
 	Pack(const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
-	{ n_ = 2; tbl_[0] = &t0; tbl_[1] = &t1; }
+	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack(const Xbyak::Reg64& t1, const Xbyak::Reg64& t0) 	{" << std::endl; n_ = 2; tbl_[0] = &t0; tbl_[1] = &t1; }
 	Pack(const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
-	{ n_ = 3; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; }
+	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack(const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0) 	{" << std::endl; n_ = 3; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; }
 	Pack(const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
-	{ n_ = 4; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; }
+	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack(const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0) 	{" << std::endl; n_ = 4; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; }
 	Pack(const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
-	{ n_ = 5; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; }
+	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack(const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0) 	{" << std::endl; n_ = 5; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; }
 	Pack(const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
-	{ n_ = 6; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; }
+	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack(const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0) 	{" << std::endl; n_ = 6; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; }
 	Pack(const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
-	{ n_ = 7; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; }
+	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack(const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0) 	{" << std::endl; n_ = 7; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; }
 	Pack(const Xbyak::Reg64& t7, const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
-	{ n_ = 8; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; tbl_[7] = &t7; }
+	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack(const Xbyak::Reg64& t7, const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0) 	{" << std::endl; n_ = 8; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; tbl_[7] = &t7; }
 	Pack(const Xbyak::Reg64& t8, const Xbyak::Reg64& t7, const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
-	{ n_ = 9; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; tbl_[7] = &t7; tbl_[8] = &t8; }
+	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack(const Xbyak::Reg64& t8, const Xbyak::Reg64& t7, const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0) 	{" << std::endl; n_ = 9; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; tbl_[7] = &t7; tbl_[8] = &t8; }
 	Pack(const Xbyak::Reg64& t9, const Xbyak::Reg64& t8, const Xbyak::Reg64& t7, const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0)
-	{ n_ = 10; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; tbl_[7] = &t7; tbl_[8] = &t8; tbl_[9] = &t9; }
+	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack(const Xbyak::Reg64& t9, const Xbyak::Reg64& t8, const Xbyak::Reg64& t7, const Xbyak::Reg64& t6, const Xbyak::Reg64& t5, const Xbyak::Reg64& t4, const Xbyak::Reg64& t3, const Xbyak::Reg64& t2, const Xbyak::Reg64& t1, const Xbyak::Reg64& t0) 	{" << std::endl; n_ = 10; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; tbl_[7] = &t7; tbl_[8] = &t8; tbl_[9] = &t9; }
 	Pack& append(const Xbyak::Reg64& t)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	Pack& append(const Xbyak::Reg64& t) 	{" << std::endl;
 		if (n_ == maxTblNum) {
 			fprintf(stderr, "ERR Pack::can't append\n");
 			throw Error(ERR_BAD_PARAMETER);
@@ -587,6 +614,7 @@ public:
 	}
 	void init(const Xbyak::Reg64 *tbl, size_t n)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	void init(const Xbyak::Reg64 *tbl, size_t n) 	{" << std::endl;
 		if (n > maxTblNum) {
 			fprintf(stderr, "ERR Pack::init bad n=%d\n", (int)n);
 			throw Error(ERR_BAD_PARAMETER);
@@ -687,6 +715,7 @@ public:
 		, p(p_)
 		, t(t_)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  		, t(t_) 	{" << std::endl;
 		using namespace Xbyak;
 		if (pNum < 0 || pNum > 4) throw Error(ERR_BAD_PNUM);
 		const int allRegNum = pNum + tNum_ + (useRcx_ ? 1 : 0) + (useRdx_ ? 1 : 0);
@@ -719,6 +748,7 @@ public:
 	*/
 	void close(bool callRet = true)
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	void close(bool callRet = true) 	{" << std::endl;
 		using namespace Xbyak;
 		const Reg64& _rsp = code_->rsp;
 		const int *tbl = getOrderTbl() + noSaveNum;
@@ -731,6 +761,7 @@ public:
 	}
 	~StackFrame()
 	{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  	~StackFrame() 	{" << std::endl;
 		if (!makeEpilog_) return;
 		try {
 			close();

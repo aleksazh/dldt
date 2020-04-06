@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,6 +19,7 @@ namespace Cpu {
 class FillImpl: public ExtLayerBase {
 public:
     explicit FillImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:      explicit FillImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -40,6 +42,7 @@ public:
                   layer->outData[0]->getTensorDesc().getPrecision() == Precision::I32) &&
                 !(layer->insData[FILL_VALUE].lock()->getTensorDesc().getPrecision() == Precision::FP32 &&
                   layer->outData[0]->getTensorDesc().getPrecision() == Precision::FP32)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:                    layer->outData[0]->getTensorDesc().getPrecision() == Precision::FP32)) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name <<
                     " 'Value' input scalars and output tensor should have same precision and only FP32 and I32 are supported!";
             }
@@ -47,6 +50,7 @@ public:
             addConfig(layer, { DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN) },
                              { DataConfigurator(ConfLayout::PLN) });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -58,7 +62,9 @@ public:
         SizeVector dst_dims = outputs[0]->getTensorDesc().getDims();
 
         if (dst_dims.size() != fill_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:          if (dst_dims.size() != fill_size) {" << std::endl;
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Output tensor dimension mismatch";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }
@@ -67,9 +73,12 @@ public:
 
         size_t work_amount_dst = 1;
         for (size_t i = 0; i < dst_dims.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:          for (size_t i = 0; i < dst_dims.size(); i++) {" << std::endl;
             work_amount_dst *= fill_dims[i];
             if (static_cast<int>(dst_dims[i]) != fill_dims[i]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:              if (static_cast<int>(dst_dims[i]) != fill_dims[i]) {" << std::endl;
                 if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:                  if (resp) {" << std::endl;
                     std::string errorMsg = "Output tensor dimension size mismatch";
                     errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
                 }
@@ -78,6 +87,7 @@ public:
         }
 
         switch (outputs[0]->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:          switch (outputs[0]->getTensorDesc().getPrecision()) {" << std::endl;
         case Precision::FP32: {
             float* dst_data = outputs[0]->cbuffer().as<float *>() +
                               outputs[0]->getTensorDesc().getBlockingDesc().getOffsetPadding();
@@ -85,6 +95,7 @@ public:
                            inputs[FILL_VALUE]->getTensorDesc().getBlockingDesc().getOffsetPadding())[0];
 
             parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:              parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
                 size_t start = 0, end = 0;
                 splitter(work_amount_dst, nthr, ithr, start, end);
                 std::fill_n(dst_data + start, end - start, value);
@@ -98,6 +109,7 @@ public:
                              inputs[FILL_VALUE]->getTensorDesc().getBlockingDesc().getOffsetPadding())[0];
 
             parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:              parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
                 size_t start = 0, end = 0;
                 splitter(work_amount_dst, nthr, ithr, start, end);
                 std::fill_n(dst_data + start, end - start, value);
@@ -107,6 +119,7 @@ public:
         break;
         default:
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/fill.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = "Incorrect output precision. Only FP32 and I32 are supported!";
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }

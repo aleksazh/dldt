@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -81,47 +82,58 @@ struct jit_sse42_i8i8_pool_fwd_ker_t : public jit_generator {
 
     /* max pooling */
     Xmm vmm_src(int jj, int ii) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Xmm vmm_src(int jj, int ii) {" << std::endl;
         return Xmm(2*jj + ii);
     }
 
     Xmm xmm_src(int jj) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Xmm xmm_src(int jj) {" << std::endl;
         return Xmm(2*jj);
     }
 
     Xmm vmm_dst(int jj, int ii) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Xmm vmm_dst(int jj, int ii) {" << std::endl;
         return Xmm(2*jj + ii + 2 * jpp.ur_c);
     }
 
     Xmm xmm_dst(int jj) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Xmm xmm_dst(int jj) {" << std::endl;
         return Xmm(2*jj + 2 * jpp.ur_c);
     }
 
     /* avg pooling */
     Xmm vmm_src_s32(int jj, int ii) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Xmm vmm_src_s32(int jj, int ii) {" << std::endl;
         return Xmm(2*jj + ii);
     }
 
     Xmm xmm_src_s32(int jj, int ii) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Xmm xmm_src_s32(int jj, int ii) {" << std::endl;
         return Xmm(2*jj + ii);
     }
 
     Xmm vmm_dst_s32(int jj, int ii) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Xmm vmm_dst_s32(int jj, int ii) {" << std::endl;
         return Xmm(2*jj + ii + 2 * jpp.ur_c);
     }
 
     Ymm ymm_dst_s32(int jj, int ii) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Ymm ymm_dst_s32(int jj, int ii) {" << std::endl;
         return Ymm(2*jj + ii + 2 * jpp.ur_c);
     }
 
     Xmm xmm_dst_s32(int jj, int ii) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Xmm xmm_dst_s32(int jj, int ii) {" << std::endl;
         return Xmm(2*jj + ii + 2 * jpp.ur_c);
     }
 
     Xmm vmm_dst_f32(int jj, int ii) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Xmm vmm_dst_f32(int jj, int ii) {" << std::endl;
         return Xmm(2*jj + ii + 4 * jpp.ur_c);
     }
 
     Xmm xmm_dst_f32(int jj, int ii) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      Xmm xmm_dst_f32(int jj, int ii) {" << std::endl;
         return Xmm(2*jj + ii + 4 * jpp.ur_c);
     }
 
@@ -148,6 +160,7 @@ struct jit_sse42_i8i8_pool_fwd_ker_t : public jit_generator {
 
     jit_sse42_i8i8_pool_fwd_ker_t(const jit_pool_conf_t &jpp_, const primitive_attr_t &attr_)
            : jpp(jpp_), attr(attr_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:             : jpp(jpp_), attr(attr_) {" << std::endl;
         generate();
         ker_ = reinterpret_cast<decltype(ker_)>(const_cast<uint8_t*>(
                        getCode()));
@@ -155,17 +168,22 @@ struct jit_sse42_i8i8_pool_fwd_ker_t : public jit_generator {
 };
 
 void jit_sse42_i8i8_pool_fwd_ker_t::load_src(int jj, int c_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  void jit_sse42_i8i8_pool_fwd_ker_t::load_src(int jj, int c_step) {" << std::endl;
     using namespace data_type;
 
     int repeats = c_step != 1 ? 2 : 1;
     switch (jpp.alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      switch (jpp.alg) {" << std::endl;
         case pooling_max: {
             auto offset = jj*c_step*sizeof_src_dt();
             if (c_step == jpp.c_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              if (c_step == jpp.c_block) {" << std::endl;
                 for (int ii = 0; ii < repeats; ii++)
                     uni_vmovups(vmm_src(jj, ii), ptr[aux_reg_src_w + offset + (jpp.c_block / 2) * ii * sizeof_src_dt()]);
             } else if (c_step == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              } else if (c_step == 1) {" << std::endl;
                 if (jpp.src_dt == s32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                  if (jpp.src_dt == s32) {" << std::endl;
                     movsd(xmm_src(jj), ptr[aux_reg_src_w + offset]);
                 } else {
                     mov(reg_src_8, ptr[aux_reg_src_w + offset]);
@@ -178,34 +196,43 @@ void jit_sse42_i8i8_pool_fwd_ker_t::load_src(int jj, int c_step) {
         case pooling_avg_exclude_padding: {
             auto offset = jj*c_step*sizeof_src_dt();
             switch (jpp.src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              switch (jpp.src_dt) {" << std::endl;
                 case s32:
                     if (c_step == jpp.c_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      if (c_step == jpp.c_block) {" << std::endl;
                         for (int ii = 0; ii < repeats; ii++)
                             uni_vmovups(vmm_src_s32(jj, ii), ptr[aux_reg_src_w + offset + (jpp.c_block / 2) * ii * sizeof_src_dt()]);
                     } else if (c_step == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      } else if (c_step == 1) {" << std::endl;
                         movsd(xmm_src_s32(jj, 0), ptr[aux_reg_src_w + offset]);
                     }
                     break;
                 case s8:
                     if (c_step == jpp.c_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      if (c_step == jpp.c_block) {" << std::endl;
                         for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                          for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                             movd(xmm_src_s32(jj, ii), ptr[aux_reg_src_w + offset + (jpp.c_block / 2) * ii * sizeof_src_dt()]);
 
                             uni_vpmovsxbd(vmm_src_s32(jj, ii), xmm_src_s32(jj, ii));
                         }
                     } else if (c_step == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      } else if (c_step == 1) {" << std::endl;
                         movsx(reg_src_32, ptr[aux_reg_src_w + offset]);
                         movq(xmm_src_s32(jj, 0), reg_src_64);
                     }
                     break;
                 case u8:
                     if (c_step == jpp.c_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      if (c_step == jpp.c_block) {" << std::endl;
                         for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                          for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                             movd(xmm_src_s32(jj, ii), ptr[aux_reg_src_w + offset + (jpp.c_block / 2) * ii * sizeof_src_dt()]);
 
                             uni_vpmovzxbd(vmm_src_s32(jj, ii), xmm_src_s32(jj, ii));
                         }
                     } else if (c_step == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      } else if (c_step == 1) {" << std::endl;
                         movzx(reg_src_32, ptr[aux_reg_src_w + offset]);
                         movq(xmm_src_s32(jj, 0), reg_src_64);
                     }
@@ -219,17 +246,22 @@ void jit_sse42_i8i8_pool_fwd_ker_t::load_src(int jj, int c_step) {
 }
 
 void jit_sse42_i8i8_pool_fwd_ker_t::store_dst(int jj, int c_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  void jit_sse42_i8i8_pool_fwd_ker_t::store_dst(int jj, int c_step) {" << std::endl;
     using namespace data_type;
 
     int repeats = c_step != 1 ? 2 : 1;
     switch(jpp.alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      switch(jpp.alg) {" << std::endl;
         case pooling_max: {
             auto offset = jj*c_step*sizeof_dst_dt();
             if (c_step == jpp.c_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              if (c_step == jpp.c_block) {" << std::endl;
                 for (int ii = 0; ii < repeats; ii++)
                     uni_vmovups(ptr[reg_ptr_dst_i8 + offset + (jpp.c_block / 2) * ii * sizeof_dst_dt()], vmm_dst(jj, ii));
             } else if (c_step == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              } else if (c_step == 1) {" << std::endl;
                 if (jpp.src_dt == s32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                  if (jpp.src_dt == s32) {" << std::endl;
                     movq(reg_src_64, xmm_dst(jj));
                     mov(ptr[reg_ptr_dst_i8 + offset], reg_src_32);
                 } else {
@@ -243,25 +275,32 @@ void jit_sse42_i8i8_pool_fwd_ker_t::store_dst(int jj, int c_step) {
         case pooling_avg_exclude_padding: {
             auto offset = jj*c_step*sizeof_dst_dt();
             switch (jpp.dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              switch (jpp.dst_dt) {" << std::endl;
                 case f32:
                     if (c_step == jpp.c_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      if (c_step == jpp.c_block) {" << std::endl;
                         for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                          for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                             uni_vmovups(ptr[reg_ptr_dst_i8 + offset + (jpp.c_block / 2) * ii * sizeof_dst_dt()],
                                         vmm_dst_f32(jj, ii));
                         }
                     } else if (c_step == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      } else if (c_step == 1) {" << std::endl;
                         movq(reg_src_64, xmm_dst_f32(jj, 0));
                         mov(ptr[reg_ptr_dst_i8 + offset], reg_src_32);
                     }
                     break;
                 case s32:
                     if (c_step == jpp.c_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      if (c_step == jpp.c_block) {" << std::endl;
                         for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                          for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                             uni_vcvtps2dq(vmm_dst_s32(jj, ii), vmm_dst_f32(jj, ii));
                             uni_vmovups(ptr[reg_ptr_dst_i8 + offset + (jpp.c_block / 2) * ii * sizeof_dst_dt()],
                                         vmm_dst_s32(jj, ii));
                         }
                     } else if (c_step == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      } else if (c_step == 1) {" << std::endl;
                         uni_vcvtps2dq(vmm_dst_s32(jj, 0), vmm_dst_f32(jj, 0));
                         movq(reg_src_64, xmm_dst_s32(jj, 0));
                         mov(ptr[reg_ptr_dst_i8 + offset], reg_src_32);
@@ -269,7 +308,9 @@ void jit_sse42_i8i8_pool_fwd_ker_t::store_dst(int jj, int c_step) {
                     break;
                 case s8:
                     if (c_step == jpp.c_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      if (c_step == jpp.c_block) {" << std::endl;
                         for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                          for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                             uni_vcvtps2dq(vmm_dst_s32(jj, ii), vmm_dst_f32(jj, ii));
                             uni_vpackssdw(vmm_dst_s32(jj, ii), vmm_dst_s32(jj, ii), vmm_dst_s32(jj, ii));
                             uni_vpacksswb(xmm_dst_s32(jj, ii), xmm_dst_s32(jj, ii), xmm_dst_s32(jj, ii));
@@ -277,6 +318,7 @@ void jit_sse42_i8i8_pool_fwd_ker_t::store_dst(int jj, int c_step) {
                             movd(ptr[reg_ptr_dst_i8 + offset + (jpp.c_block / 2) * ii * sizeof_dst_dt()], xmm_dst_s32(jj, ii));
                         }
                     } else if (c_step == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      } else if (c_step == 1) {" << std::endl;
                         uni_vcvtps2dq(vmm_dst_s32(jj, 0), vmm_dst_f32(jj, 0));
                         vpackssdw(vmm_dst_s32(jj, 0), vmm_dst_s32(jj, 0), vmm_dst_s32(jj, 0));
                         vpacksswb(xmm_dst_s32(jj, 0), xmm_dst_s32(jj, 0), xmm_dst_s32(jj, 0));
@@ -286,7 +328,9 @@ void jit_sse42_i8i8_pool_fwd_ker_t::store_dst(int jj, int c_step) {
                     break;
                 case u8:
                     if (c_step == jpp.c_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      if (c_step == jpp.c_block) {" << std::endl;
                         for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                          for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                             uni_vcvtps2dq(vmm_dst_s32(jj, ii), vmm_dst_f32(jj, ii));
                             uni_vpackusdw(vmm_dst_s32(jj, ii), vmm_dst_s32(jj, ii), vmm_dst_s32(jj, ii));
                             uni_vpackuswb(xmm_dst_s32(jj, ii), xmm_dst_s32(jj, ii), xmm_dst_s32(jj, ii));
@@ -294,6 +338,7 @@ void jit_sse42_i8i8_pool_fwd_ker_t::store_dst(int jj, int c_step) {
                             movd(ptr[reg_ptr_dst_i8 + offset + (jpp.c_block / 2) * ii * sizeof_dst_dt()], xmm_dst_s32(jj, ii));
                         }
                     } else if (c_step == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      } else if (c_step == 1) {" << std::endl;
                         uni_vcvtps2dq(vmm_dst_s32(jj, 0), vmm_dst_f32(jj, 0));
                         vpackusdw(vmm_dst_s32(jj, 0), vmm_dst_s32(jj, 0), vmm_dst_s32(jj, 0));
                         vpackuswb(xmm_dst_s32(jj, 0), xmm_dst_s32(jj, 0), xmm_dst_s32(jj, 0));
@@ -310,10 +355,13 @@ void jit_sse42_i8i8_pool_fwd_ker_t::store_dst(int jj, int c_step) {
 }
 
 void jit_sse42_i8i8_pool_fwd_ker_t::apply_post_ops(int ur_c, int repeats) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  void jit_sse42_i8i8_pool_fwd_ker_t::apply_post_ops(int ur_c, int repeats) {" << std::endl;
     const auto &p = attr.post_ops_;
     for (int i = 0; i < p.len_; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      for (int i = 0; i < p.len_; i++) {" << std::endl;
         auto& post_op = p.entry_[i];
         if (post_op.is_quantization()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:          if (post_op.is_quantization()) {" << std::endl;
             bool do_dequantization = post_op.quantization.alg == alg_kind::quantization_quantize_dequantize;
             bool do_rounding = do_dequantization || jpp.dst_dt == mkldnn_f32 || i != p.len_ - 1;
 
@@ -324,7 +372,9 @@ void jit_sse42_i8i8_pool_fwd_ker_t::apply_post_ops(int ur_c, int repeats) {
             add(reg_d_bias, reg_oc_off);
 
             for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
                 for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                  for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                     uni_vmovups(vmm_d_weights, ptr[reg_d_weights + (ii * (jpp.c_block / 2) + jj * jpp.c_block) * sizeof(float)]);
                     uni_vmovups(vmm_d_bias, ptr[reg_d_bias + (ii * (jpp.c_block / 2) + jj * jpp.c_block) * sizeof(float)]);
 
@@ -342,7 +392,9 @@ void jit_sse42_i8i8_pool_fwd_ker_t::apply_post_ops(int ur_c, int repeats) {
             add(reg_d_bias, reg_oc_off);
 
             for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
                 for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                  for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                     uni_vmovups(vmm_d_weights, ptr[reg_d_weights + (ii * (jpp.c_block / 2) + jj * jpp.c_block) * sizeof(float)]);
                     uni_vmovups(vmm_d_bias, ptr[reg_d_bias + (ii * (jpp.c_block / 2) + jj * jpp.c_block) * sizeof(float)]);
 
@@ -355,6 +407,7 @@ void jit_sse42_i8i8_pool_fwd_ker_t::apply_post_ops(int ur_c, int repeats) {
             }
 
             if (do_dequantization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              if (do_dequantization) {" << std::endl;
                 mov(reg_d_weights, reinterpret_cast<size_t>(post_op.quantization.output_scale_data));
                 mov(reg_d_bias, reinterpret_cast<size_t>(post_op.quantization.output_shift_data));
 
@@ -362,7 +415,9 @@ void jit_sse42_i8i8_pool_fwd_ker_t::apply_post_ops(int ur_c, int repeats) {
                 add(reg_d_bias, reg_oc_off);
 
                 for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                  for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
                     for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                         uni_vmovups(vmm_d_weights, ptr[reg_d_weights + (ii * (jpp.c_block / 2) + jj * jpp.c_block) * sizeof(float)]);
                         uni_vmovups(vmm_d_bias, ptr[reg_d_bias + (ii * (jpp.c_block / 2) + jj * jpp.c_block) * sizeof(float)]);
 
@@ -378,6 +433,7 @@ void jit_sse42_i8i8_pool_fwd_ker_t::apply_post_ops(int ur_c, int repeats) {
 
 void jit_sse42_i8i8_pool_fwd_ker_t::compute_max_step(int ur_c, int c_step)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  void jit_sse42_i8i8_pool_fwd_ker_t::compute_max_step(int ur_c, int c_step) {" << std::endl;
     Label l_kw, l_kh;
 
     int iw = jpp.iw;
@@ -386,7 +442,9 @@ void jit_sse42_i8i8_pool_fwd_ker_t::compute_max_step(int ur_c, int c_step)
     int repeats = c_step != 1 ? 2 : 1;
 
     for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
         for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:          for (int ii = 0; ii < repeats; ii++) {" << std::endl;
             uni_vmovups(vmm_dst(jj, ii), vreg_tmp);
         }
     }
@@ -401,10 +459,13 @@ void jit_sse42_i8i8_pool_fwd_ker_t::compute_max_step(int ur_c, int c_step)
         L(l_kw);
         {
             for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
                 load_src(jj, c_step);
 
                 for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                  for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                     if (jpp.src_dt == data_type::s32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                      if (jpp.src_dt == data_type::s32) {" << std::endl;
                         uni_vpmaxsd(vmm_dst(jj, ii), vmm_dst(jj, ii), vmm_src(jj, ii));
                     } else {
                         if (jpp.src_dt == data_type::s8)
@@ -431,6 +492,7 @@ void jit_sse42_i8i8_pool_fwd_ker_t::compute_max_step(int ur_c, int c_step)
 
 void jit_sse42_i8i8_pool_fwd_ker_t::compute_avg_step(int ur_c, int c_step)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  void jit_sse42_i8i8_pool_fwd_ker_t::compute_avg_step(int ur_c, int c_step) {" << std::endl;
     using namespace data_type;
 
     Label l_kw, l_kh;
@@ -441,7 +503,9 @@ void jit_sse42_i8i8_pool_fwd_ker_t::compute_avg_step(int ur_c, int c_step)
     int repeats = c_step != 1 ? 2 : 1;
 
     for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
         for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:          for (int ii = 0; ii < repeats; ii++) {" << std::endl;
             uni_vpxor(vmm_src_s32(jj, ii), vmm_src_s32(jj, ii), vmm_src_s32(jj, ii));
             uni_vpxor(vmm_dst_s32(jj, ii), vmm_dst_s32(jj, ii), vmm_dst_s32(jj, ii));
         }
@@ -457,9 +521,11 @@ void jit_sse42_i8i8_pool_fwd_ker_t::compute_avg_step(int ur_c, int c_step)
         L(l_kw);
         {
             for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
                 load_src(jj, c_step);
 
                 for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:                  for (int ii = 0; ii < repeats; ii++) {" << std::endl;
                     uni_vpaddd(vmm_dst_s32(jj, ii), vmm_dst_s32(jj, ii), vmm_src_s32(jj, ii));
                 }
             }
@@ -475,7 +541,9 @@ void jit_sse42_i8i8_pool_fwd_ker_t::compute_avg_step(int ur_c, int c_step)
     }
 
     for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
         for (int ii = 0; ii < repeats; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:          for (int ii = 0; ii < repeats; ii++) {" << std::endl;
             uni_vcvtdq2ps(vmm_dst_f32(jj, ii), vmm_dst_s32(jj, ii));
 
             mulps(vmm_dst_f32(jj, ii), vreg_tmp);
@@ -485,12 +553,15 @@ void jit_sse42_i8i8_pool_fwd_ker_t::compute_avg_step(int ur_c, int c_step)
     apply_post_ops(ur_c, repeats);
 
     for (int jj = 0; jj < ur_c; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      for (int jj = 0; jj < ur_c; jj++) {" << std::endl;
         store_dst(jj, c_step);
     }
 }
 
 void jit_sse42_i8i8_pool_fwd_ker_t::compute_step(int ur_c, int c_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  void jit_sse42_i8i8_pool_fwd_ker_t::compute_step(int ur_c, int c_step) {" << std::endl;
     switch (jpp.alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      switch (jpp.alg) {" << std::endl;
         case pooling_max:
             compute_max_step(ur_c, c_step); break;
         case pooling_avg_include_padding:
@@ -501,6 +572,7 @@ void jit_sse42_i8i8_pool_fwd_ker_t::compute_step(int ur_c, int c_step) {
 }
 
 void jit_sse42_i8i8_pool_fwd_ker_t::compute_c_block() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  void jit_sse42_i8i8_pool_fwd_ker_t::compute_c_block() {" << std::endl;
     Label l_main_loop;
     Label l_tail_loop;
     Label exit;
@@ -544,9 +616,11 @@ void jit_sse42_i8i8_pool_fwd_ker_t::compute_c_block() {
 }
 
 void jit_sse42_i8i8_pool_fwd_ker_t::init_tmp_reg() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  void jit_sse42_i8i8_pool_fwd_ker_t::init_tmp_reg() {" << std::endl;
     using namespace data_type;
 
     switch (jpp.alg) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      switch (jpp.alg) {" << std::endl;
         case pooling_avg_include_padding:
         case pooling_avg_exclude_padding:
             mov(reg_tmp, ptr[abi_param1 + offsetof(call_params_t, idivider)]);
@@ -555,6 +629,7 @@ void jit_sse42_i8i8_pool_fwd_ker_t::init_tmp_reg() {
             break;
         case pooling_max:
             switch (jpp.src_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              switch (jpp.src_dt) {" << std::endl;
                 case s32:
                     mov(reg_tmp, nstl::numeric_limits<int32_t>::lowest());
                     break;
@@ -569,6 +644,7 @@ void jit_sse42_i8i8_pool_fwd_ker_t::init_tmp_reg() {
 
             movq(xmm_tmp, reg_tmp);
             if (jpp.src_dt == s32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:              if (jpp.src_dt == s32) {" << std::endl;
                 uni_vpbroadcastd(vreg_tmp, xmm_tmp);
             } else {
                 movups(vreg_tmp, xmm_tmp);
@@ -582,6 +658,7 @@ void jit_sse42_i8i8_pool_fwd_ker_t::init_tmp_reg() {
 }
 
 void jit_sse42_i8i8_pool_fwd_ker_t::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  void jit_sse42_i8i8_pool_fwd_ker_t::generate() {" << std::endl;
     preamble();
 
 #   define READ_PARAM(reg, field) \
@@ -605,7 +682,9 @@ void jit_sse42_i8i8_pool_fwd_ker_t::generate() {
 status_t jit_sse42_i8i8_pool_fwd_ker_t::init_conf(jit_pool_conf_t &jpp,
         const pooling_desc_t &pd, const memory_desc_wrapper &src_d,
         const memory_desc_wrapper &dst_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:          const memory_desc_wrapper &dst_d) {" << std::endl;
     if (!mayiuse(sse42)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      if (!mayiuse(sse42)) {" << std::endl;
         return status::unimplemented;
     }
 
@@ -639,6 +718,7 @@ status_t jit_sse42_i8i8_pool_fwd_ker_t::init_conf(jit_pool_conf_t &jpp,
 }
 
 status_t jit_sse42_i8i8_pooling_fwd_t::pd_t::jit_conf() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  status_t jit_sse42_i8i8_pooling_fwd_t::pd_t::jit_conf() {" << std::endl;
     return jit_sse42_i8i8_pool_fwd_ker_t::init_conf(jpp_,
        desc_, src_pd_.desc(), dst_pd_.desc());
 }
@@ -646,9 +726,11 @@ status_t jit_sse42_i8i8_pooling_fwd_t::pd_t::jit_conf() {
 jit_sse42_i8i8_pooling_fwd_t::jit_sse42_i8i8_pooling_fwd_t(const pd_t *apd,
           const input_vector &inputs, const output_vector &outputs)
     : cpu_primitive_t(apd, inputs, outputs), ker_(nullptr)
-{ ker_ = new jit_sse42_i8i8_pool_fwd_ker_t(pd()->jpp_, *pd()->attr()); }
+{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:      : cpu_primitive_t(apd, inputs, outputs), ker_(nullptr) {" << std::endl; ker_ = new jit_sse42_i8i8_pool_fwd_ker_t(pd()->jpp_, *pd()->attr()); }
 
 jit_sse42_i8i8_pooling_fwd_t::~jit_sse42_i8i8_pooling_fwd_t() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:  jit_sse42_i8i8_pooling_fwd_t::~jit_sse42_i8i8_pooling_fwd_t() {" << std::endl;
     delete ker_;
 }
 
@@ -663,6 +745,7 @@ void jit_sse42_i8i8_pooling_fwd_t::execute_forward() const {
 
     parallel_nd(jpp.mb, jpp.oh, jpp.ow,
         [&](int n, int oh, int ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_sse42_i8i8_pooling.cpp:          [&](int n, int oh, int ow) {" << std::endl;
         const int ih = nstl::max(oh * jpp.stride_h - jpp.t_pad, 0);
         const int iw = nstl::max(ow * jpp.stride_w - jpp.l_pad, 0);
 

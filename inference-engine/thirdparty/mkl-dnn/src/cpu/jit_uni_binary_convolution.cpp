@@ -1,3 +1,4 @@
+#include <iostream>
     /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -52,12 +53,14 @@ void jit_uni_binary_convolution_fwd_t<isa>::execute_forward() const {
     int nbits = 8;
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         size_t start{0}, end{0};
         balance211(work_amount, nthr, ithr, start, end);
 
         size_t n{0}, g{0}, ocbb{0}, oh{0};
         nd_iterator_init(start, n, MB, g, jcp.ngroups, ocbb, ocb_work, oh, jcp.oh);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int ocb = ocbb * jcp.nb_oc_blocking;
             int ocb_num = jcp.nb_oc_blocking;
 
@@ -75,6 +78,7 @@ void jit_uni_binary_convolution_fwd_t<isa>::execute_forward() const {
             par_conv.src = &src[src_d.blk_off(n, _ic*jcp.ic_block, ih, 0) / nbits];
 
             if (jcp.with_binarization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:              if (jcp.with_binarization) {" << std::endl;
                 par_conv.dst = &dst_u8[dst_d.blk_off(n, _oc*jcp.oc_block, oh, 0) / nbits];
             } else {
                 par_conv.dst = &dst_f32[dst_d.blk_off(n, _oc*jcp.oc_block, oh, 0)];
@@ -126,10 +130,15 @@ void jit_uni_binary_convolution_fwd_t<isa>::execute_forward_with_dw_conv() const
     int nbits = 8;
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         auto compute_row_generic_conv = [&](float* ws_p, int n, int g, int ocb, int ocb_num, int oh, int num_rows) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:          auto compute_row_generic_conv = [&](float* ws_p, int n, int g, int ocb, int ocb_num, int oh, int num_rows) {" << std::endl;
             for (int h = 0; h < num_rows; h++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:              for (int h = 0; h < num_rows; h++) {" << std::endl;
                 if ((oh + h) < 0 || (oh + h) >= jcp.oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:                  if ((oh + h) < 0 || (oh + h) >= jcp.oh) {" << std::endl;
                     for (int chb = ocb; chb < ocb + ocb_num; chb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:                      for (int chb = ocb; chb < ocb + ocb_num; chb++) {" << std::endl;
                         memset(ws_p + (((oh + h) + 1) % jcp_dw_conv.kh) * jcp.ow * jcp.oc_block +
                                (chb - ocb) * jcp_dw_conv.kh * jcp.ow * jcp.oc_block, 0, jcp.ow * jcp.oc_block * sizeof(float));
                     }
@@ -169,7 +178,9 @@ void jit_uni_binary_convolution_fwd_t<isa>::execute_forward_with_dw_conv() const
         };
 
         auto compute_row_dw_conv = [&](const float* ws_p, int n, int ocb, int ocb_num, int dst_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:          auto compute_row_dw_conv = [&](const float* ws_p, int n, int ocb, int ocb_num, int dst_idx) {" << std::endl;
             for (int chb = ocb; chb < nstl::min(ocb + ocb_num, jcp.nb_oc); chb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:              for (int chb = ocb; chb < nstl::min(ocb + ocb_num, jcp.nb_oc); chb++) {" << std::endl;
                 auto par_conv_dw = jit_conv_call_s();
 
                 par_conv_dw.src_row0 = &ws_p[(((dst_idx+1) - 1) % jcp_dw_conv.kh) * jcp_dw_conv.iw * jcp_dw_conv.ch_block +
@@ -180,6 +191,7 @@ void jit_uni_binary_convolution_fwd_t<isa>::execute_forward_with_dw_conv() const
                                              (chb - ocb) * jcp_dw_conv.kh * jcp_dw_conv.iw * jcp_dw_conv.ch_block];
 
                 if (jcp_dw_conv.with_binarization) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:                  if (jcp_dw_conv.with_binarization) {" << std::endl;
                     int nbits = 8;
 
                     int didx = n*jcp_dw_conv.oc*jcp_dw_conv.oh*jcp_dw_conv.ow +
@@ -210,20 +222,24 @@ void jit_uni_binary_convolution_fwd_t<isa>::execute_forward_with_dw_conv() const
         size_t n{0}, g{0}, ocbb{0}, oh{0};
         nd_iterator_init(start, n, MB, g, jcp.ngroups, ocbb, ocb_work, oh, jcp.oh);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int ocb = ocbb * jcp.nb_oc_blocking;
             int ocb_num = jcp.nb_oc_blocking;
 
             if (iwork == start || oh == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:              if (iwork == start || oh == 0) {" << std::endl;
                 compute_row_generic_conv(pbuf, n, g, ocb, ocb_num, oh - 1, 2);
             } else {
                 compute_row_generic_conv(pbuf, n, g, ocb, ocb_num, oh, 1);
             }
 
             if (iwork > start && ((oh - 1) % jcp_dw_conv.stride_h == 0) && oh > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:              if (iwork > start && ((oh - 1) % jcp_dw_conv.stride_h == 0) && oh > 0) {" << std::endl;
                 compute_row_dw_conv(pbuf, n, ocb, ocb_num, oh - 1);
             }
 
             if ((iwork == end - 1 || (int) oh == jcp.oh - 1) && ((oh) % jcp_dw_conv.stride_h == 0)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:              if ((iwork == end - 1 || (int) oh == jcp.oh - 1) && ((oh) % jcp_dw_conv.stride_h == 0)) {" << std::endl;
                 compute_row_generic_conv(pbuf, n, g, ocb, ocb_num, oh + 1, 1);
                 compute_row_dw_conv(pbuf, n, ocb, ocb_num, oh);
             }
@@ -233,6 +249,7 @@ void jit_uni_binary_convolution_fwd_t<isa>::execute_forward_with_dw_conv() const
     };
 
     if (jcp.oc != jcp.oc_padded) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_binary_convolution.cpp:      if (jcp.oc != jcp.oc_padded) {" << std::endl;
         auto dw_conv_padded_bias = scratchpad().template get<float>(key_dw_conv_padded_bias);
         utils::array_copy(dw_conv_padded_bias, dw_conv_bias, jcp.oc);
         utils::array_set(dw_conv_padded_bias + jcp.oc, 0.f, jcp.oc_padded - jcp.oc);

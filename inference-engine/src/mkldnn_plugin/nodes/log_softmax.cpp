@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,6 +21,7 @@ namespace Cpu {
 class LogSoftmaxImpl: public ExtLayerBase {
 public:
     explicit LogSoftmaxImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/log_softmax.cpp:      explicit LogSoftmaxImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -42,6 +44,7 @@ public:
 
             int j;
             for (j = dims.size() - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/log_softmax.cpp:              for (j = dims.size() - 1; j >= 0; j--) {" << std::endl;
                 if (dims[j] != 1) break;
             }
             if (j == axis) is_last_dim = true;
@@ -54,6 +57,7 @@ public:
 
             addConfig(layer, { { ConfLayout::PLN, false, 0 } }, { { ConfLayout::PLN, false, 0 } });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/log_softmax.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -65,7 +69,9 @@ public:
             outputs[0]->getTensorDesc().getBlockingDesc().getOffsetPadding();
 
         if (is_last_dim) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/log_softmax.cpp:          if (is_last_dim) {" << std::endl;
             parallel_for(axis_step, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/log_softmax.cpp:              parallel_for(axis_step, [&](size_t i) {" << std::endl;
                 float reduce_prod = 0.0f;
                 const float *src_dataPtr = &src_data[i * reduced_axis_size];
                 for (size_t j = 0; j < reduced_axis_size; ++j)
@@ -77,9 +83,11 @@ public:
             });
         } else {
             parallel_for2d(axis_step, reduced_axis_stride, [&](size_t k, size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/log_softmax.cpp:              parallel_for2d(axis_step, reduced_axis_stride, [&](size_t k, size_t i) {" << std::endl;
                 float reduce_prod = 0.0f;
                 const float *src_dataPtr = &src_data[k * reduced_axis_stride * reduced_axis_size + i];
                 for (size_t j = 0; j < reduced_axis_size; ++j) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/log_softmax.cpp:                  for (size_t j = 0; j < reduced_axis_size; ++j) {" << std::endl;
                     reduce_prod += expf((*src_dataPtr));
                     src_dataPtr += reduced_axis_stride;
                 }
@@ -88,6 +96,7 @@ public:
                 src_dataPtr = &src_data[k * reduced_axis_stride * reduced_axis_size + i];
                 float *dst_dataPtr = reinterpret_cast<float*>(&dst_data[k * reduced_axis_stride * reduced_axis_size + i]);
                 for (size_t j = 0; j < reduced_axis_size; ++j) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/log_softmax.cpp:                  for (size_t j = 0; j < reduced_axis_size; ++j) {" << std::endl;
                     (*dst_dataPtr) = (*src_dataPtr) - reduce_prod;
                     src_dataPtr += reduced_axis_stride;
                     dst_dataPtr += reduced_axis_stride;

@@ -1,4 +1,5 @@
-﻿// Copyright (C) 2018-2020 Intel Corporation
+#include <iostream>
+// Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -25,10 +26,12 @@ ScaleShiftToConvolutionTransformation::ScaleShiftToConvolutionTransformation(con
     WeightableLayerTransformation(params),
     groupSize(1ul),
     ignoreWithParents(defaultIgnoreWithParents) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:      ignoreWithParents(defaultIgnoreWithParents) {" << std::endl;
 }
 
 void ScaleShiftToConvolutionTransformation::transform(TransformationContext& context, CNNLayer& layer) const {
     if (!CaselessEq<std::string>()(layer.type, "ScaleShift")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:      if (!CaselessEq<std::string>()(layer.type, 'ScaleShift')) {" << std::endl;
         THROW_IE_EXCEPTION << "Layer '" << layer.name << "' has invalid type '" << layer.type << "'. Convolution is expected.";
     }
 
@@ -37,6 +40,7 @@ void ScaleShiftToConvolutionTransformation::transform(TransformationContext& con
         return;
     const DataPtr outData = CNNNetworkHelper::getOutData(*parents[0], layer);
     if (outData == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:      if (outData == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "layer " << layer.type << " '" << layer.name << "' is child for " << parents[0]->type << " '" << parents[0]->name << "'";
     }
 
@@ -44,30 +48,37 @@ void ScaleShiftToConvolutionTransformation::transform(TransformationContext& con
         return;
 
     if (layer.outData[0]->getInputTo().size() == 0ul) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:      if (layer.outData[0]->getInputTo().size() == 0ul) {" << std::endl;
         return;
     }
 
     if (updatePrecisions) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:      if (updatePrecisions) {" << std::endl;
         const Precision parentPrecision = CNNNetworkHelper::getPrecisionParent(layer);
         if ((parentPrecision != Precision::I8) && (parentPrecision != Precision::U8)) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:          if ((parentPrecision != Precision::I8) && (parentPrecision != Precision::U8)) {" << std::endl;
             return;
         }
     }
 
     if (std::any_of(parents.begin(), parents.end(), [](CNNLayerPtr parent) { return CaselessEq<std::string>()(parent->type, "Input"); })) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:      if (std::any_of(parents.begin(), parents.end(), [](CNNLayerPtr parent) { return CaselessEq<std::string>()(parent->type, 'Input'); })) {" << std::endl;
         return;
     }
 
     const size_t channelsCount = CNNNetworkHelper::getOutputChannelsCount(layer);
     if (channelsCount != CNNNetworkHelper::getInputChannelsCount(layer)) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:      if (channelsCount != CNNNetworkHelper::getInputChannelsCount(layer)) {" << std::endl;
         return;
     }
 
     if (channelsCount % groupSize != 0) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:      if (channelsCount % groupSize != 0) {" << std::endl;
         return;
     }
 
     if (layer.insData[0].lock()->getDims().size() != 4) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:      if (layer.insData[0].lock()->getDims().size() != 4) {" << std::endl;
         return;
     }
 
@@ -77,12 +88,14 @@ void ScaleShiftToConvolutionTransformation::transform(TransformationContext& con
         channelsCount / groupSize);
 
     if (updatePrecisions) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:      if (updatePrecisions) {" << std::endl;
         std::vector<float> originalDataDequantizationScales(channelsCount, 1.f);
         std::vector<float> originalDataDequantizationShifts(channelsCount, 0.f);
         std::vector<float> originalWeightsDequantizationScales(channelsCount);
         const Blob::Ptr weightsOriginalShiftsBlob = CNNNetworkHelper::getBlob(std::make_shared<CNNLayer>(layer), "weights");
         const float* weightsOriginalShiftsBuffer = weightsOriginalShiftsBlob->buffer().as<float*>();
         for (size_t i = 0ul; i < originalWeightsDequantizationScales.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:          for (size_t i = 0ul; i < originalWeightsDequantizationScales.size(); ++i) {" << std::endl;
             originalWeightsDequantizationScales[i] = weightsOriginalShiftsBuffer[i];
         }
         std::vector<float> originalWeightsDequantizationShifts(channelsCount, 0.f);
@@ -98,12 +111,14 @@ void ScaleShiftToConvolutionTransformation::transform(TransformationContext& con
             dequantizationShifts);
 
         if (this->updateBiases) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:          if (this->updateBiases) {" << std::endl;
             std::vector<float> biasesShifts(dequantizationShifts.size(), 0.f);
             updateLayerBiases(context, *convolutionLayerPtr, dequantizationScales, dequantizationShifts, biasesShifts);
         }
 
         const std::vector<CNNLayerPtr> children = CNNNetworkHelper::getChildren(*convolutionLayerPtr);
         if (children.size() == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:          if (children.size() == 0) {" << std::endl;
             const std::string originalName = convolutionLayerPtr->name;
             CNNNetworkHelper::renameLayer(context.network, convolutionLayerPtr->name, convolutionLayerPtr->name + LayerTransformation::lastLayerPrefix);
 
@@ -116,6 +131,7 @@ void ScaleShiftToConvolutionTransformation::transform(TransformationContext& con
             context.dequantizationLayersNames.insert(dequantizationLayer->name);
         } else {
             for (const CNNLayerPtr& child : children) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:              for (const CNNLayerPtr& child : children) {" << std::endl;
                 const CNNLayerPtr dequantizationLayer = CNNNetworkHelper::addScaleShiftBetween(
                     context,
                     convolutionLayerPtr,
@@ -128,6 +144,7 @@ void ScaleShiftToConvolutionTransformation::transform(TransformationContext& con
 }
 
 void ScaleShiftToConvolutionTransformation::setGroupSize(const size_t groupSize) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:  void ScaleShiftToConvolutionTransformation::setGroupSize(const size_t groupSize) {" << std::endl;
     this->groupSize = groupSize;
 }
 
@@ -136,6 +153,7 @@ size_t ScaleShiftToConvolutionTransformation::getGroupSize() const {
 }
 
 void ScaleShiftToConvolutionTransformation::setIgnoreWithParents(const std::unordered_set<std::string>& ignoreWithParents) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:  void ScaleShiftToConvolutionTransformation::setIgnoreWithParents(const std::unordered_set<std::string>& ignoreWithParents) {" << std::endl;
     this->ignoreWithParents = ignoreWithParents;
 }
 
@@ -196,8 +214,11 @@ CNNLayerPtr ScaleShiftToConvolutionTransformation::transformToConvolution(
             const float* weightsOriginalShiftsBlobBuffer = weightsOriginalShiftsBlob->buffer().as<float*>();
             const size_t kernelsCount = inputChannelsCount / group;
             if (group == 1ul) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:              if (group == 1ul) {" << std::endl;
                 for (size_t outputChannel = 0ul; outputChannel < outputChannelsCount; ++outputChannel) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:                  for (size_t outputChannel = 0ul; outputChannel < outputChannelsCount; ++outputChannel) {" << std::endl;
                     for (size_t kernel = 0ul; kernel < kernelsCount; ++kernel) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:                      for (size_t kernel = 0ul; kernel < kernelsCount; ++kernel) {" << std::endl;
                         const float value = (outputChannel == kernel) ? (updatePrecisions ? 1.f : weightsOriginalShiftsBlobBuffer[outputChannel]) : 0.f;
                         weightsBuffer[kernelsCount * outputChannel + kernel] = value;
                     }
@@ -205,8 +226,10 @@ CNNLayerPtr ScaleShiftToConvolutionTransformation::transformToConvolution(
             } else {
                 const float channelsInGroup = outputChannelsCount / group;
                 for (size_t outputChannel = 0ul; outputChannel < outputChannelsCount; ++outputChannel) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:                  for (size_t outputChannel = 0ul; outputChannel < outputChannelsCount; ++outputChannel) {" << std::endl;
                     const size_t groupIndex = outputChannel / channelsInGroup;
                     for (size_t kernel = 0ul; kernel < kernelsCount; ++kernel) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/scaleshift_to_convolution.cpp:                      for (size_t kernel = 0ul; kernel < kernelsCount; ++kernel) {" << std::endl;
                         const size_t outputChannelIndexInGroup = outputChannel - groupIndex * channelsInGroup;
                         const float value = (outputChannelIndexInGroup == kernel) ?
                             (updatePrecisions ? 1.f : weightsOriginalShiftsBlobBuffer[outputChannel]) : 0.f;

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018-2019 Intel Corporation
 *
@@ -39,6 +40,7 @@ namespace gemm_utils {
 void calc_nthr_nocopy_avx(int m, int n, int k,
         int nthrs, int *nthrs_m, int *nthrs_n, int *nthrs_k, int *BM, int *BN,
         int *BK) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:          int *BK) {" << std::endl;
 
     int nthr, nthr_m, nthr_n, nthr_k;
     int MB, NB, KB;
@@ -52,9 +54,11 @@ void calc_nthr_nocopy_avx(int m, int n, int k,
     //  - if threading allows having barriers (e.g. OMP)
     //  - if there is not enough parallelism along M or N
     if (mkldnn_thr_syncable()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      if (mkldnn_thr_syncable()) {" << std::endl;
         int nthr_other = nthr_k = 1;
         while ((nthr_m * nthr_n * nthr_other < nthr)
                 && (k / (nthr_other + 1) > BK_NOCOPY_AVX)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:                  && (k / (nthr_other + 1) > BK_NOCOPY_AVX)) {" << std::endl;
             nthr_other++;
             if ((nthr / nthr_other) * nthr_other > 0.9 * nthr)
                 nthr_k = nthr_other;
@@ -80,14 +84,17 @@ void calc_nthr_nocopy_avx(int m, int n, int k,
             nthr_n++;
 
     if ((nthr_m * nthr_n > nthr) && (nthr_m > 1) && (nthr_n > 1)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      if ((nthr_m * nthr_n > nthr) && (nthr_m > 1) && (nthr_n > 1)) {" << std::endl;
 
         if (nthr_m <= nthr_n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:          if (nthr_m <= nthr_n) {" << std::endl;
             nthr_m = (int)sqrt((double)nthr);
             if (nthr_m > (m + BM_SMALL_NOCOPY_AVX - 1) / BM_SMALL_NOCOPY_AVX)
                 nthr_m = (m + BM_SMALL_NOCOPY_AVX - 1) / BM_SMALL_NOCOPY_AVX;
             nthr_n = nthr / nthr_m;
 
             while ((nthr_m > 1) && (nthr_m * nthr_n != nthr)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:              while ((nthr_m > 1) && (nthr_m * nthr_n != nthr)) {" << std::endl;
                 nthr_m--;
                 nthr_n = nthr / nthr_m;
             }
@@ -98,6 +105,7 @@ void calc_nthr_nocopy_avx(int m, int n, int k,
             nthr_m = nthr / nthr_n;
 
             while ((nthr_n > 1) && (nthr_m * nthr_n != nthr)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:              while ((nthr_n > 1) && (nthr_m * nthr_n != nthr)) {" << std::endl;
                 nthr_n--;
                 nthr_m = nthr / nthr_n;
             }
@@ -150,6 +158,7 @@ void calc_nthr_nocopy_avx(int m, int n, int k,
 void calc_nthr_nocopy_avx512_common(int m,
         int n, int k, int nthrs, int *nthrs_m, int *nthrs_n, int *nthrs_k,
         int *BM, int *BN, int *BK) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:          int *BM, int *BN, int *BK) {" << std::endl;
 
     int nthr, nthr_m, nthr_n, nthr_k = 1;
     int MB, NB, KB;
@@ -165,8 +174,10 @@ void calc_nthr_nocopy_avx512_common(int m,
     //  - if threading allows having barriers (e.g. OMP)
     //  - if there is not enough parallelism along M or N
     if (mkldnn_thr_syncable()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      if (mkldnn_thr_syncable()) {" << std::endl;
         if (n <= 2 * BN_NOCOPY_AVX512_COMMON &&
                 m <= 2 * BM_NOCOPY_AVX512_COMMON * nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:                  m <= 2 * BM_NOCOPY_AVX512_COMMON * nthr) {" << std::endl;
             nthr_k = k / BK_NOCOPY_AVX512_COMMON;
             if (nthr_k > nthr / 4)
                 nthr_k = nthr / 4;
@@ -174,6 +185,7 @@ void calc_nthr_nocopy_avx512_common(int m,
                 nthr_k = 1;
 
             while ((nthr_k > 1) && (nthr % nthr_k)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:              while ((nthr_k > 1) && (nthr % nthr_k)) {" << std::endl;
                 nthr_k--;
             }
             nthr /= nthr_k;
@@ -199,6 +211,7 @@ void calc_nthr_nocopy_avx512_common(int m,
 
     // scale down nthr_m and nthr_n if they are too large
     while (nthr_m * nthr_n > 4 * nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      while (nthr_m * nthr_n > 4 * nthr) {" << std::endl;
         nthr_m /= 2;
         nthr_n /= 2;
     }
@@ -211,7 +224,9 @@ void calc_nthr_nocopy_avx512_common(int m,
     // Simple partition reduction
     counter = 0;
     while (nthr_m * nthr_n > nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      while (nthr_m * nthr_n > nthr) {" << std::endl;
         if (nthr_m > nthr_n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:          if (nthr_m > nthr_n) {" << std::endl;
             if (counter < ratio)
                 nthr_m--;
             else {
@@ -232,7 +247,9 @@ void calc_nthr_nocopy_avx512_common(int m,
     // Simple partition increment
     counter = 0;
     while (nthr_m * nthr_n < 0.95 * nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      while (nthr_m * nthr_n < 0.95 * nthr) {" << std::endl;
         if (nthr_m > nthr_n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:          if (nthr_m > nthr_n) {" << std::endl;
             if (counter < ratio)
                 nthr_m++;
             else {
@@ -252,8 +269,10 @@ void calc_nthr_nocopy_avx512_common(int m,
 
     // if nothing works out, then this should work
     if ((nthr_m * nthr_n > nthr)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      if ((nthr_m * nthr_n > nthr)) {" << std::endl;
 
         if (nthr_m <= nthr_n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:          if (nthr_m <= nthr_n) {" << std::endl;
             nthr_m = (int)sqrt((double)nthr);
             if (nthr_m > (m + BM_SMALL_NOCOPY_AVX512_COMMON - 1)
                             / BM_SMALL_NOCOPY_AVX512_COMMON)
@@ -262,6 +281,7 @@ void calc_nthr_nocopy_avx512_common(int m,
             nthr_n = nthr / nthr_m;
 
             while ((nthr_m > 1) && (nthr_m * nthr_n != nthr)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:              while ((nthr_m > 1) && (nthr_m * nthr_n != nthr)) {" << std::endl;
                 nthr_m--;
                 nthr_n = nthr / nthr_m;
             }
@@ -274,6 +294,7 @@ void calc_nthr_nocopy_avx512_common(int m,
             nthr_m = nthr / nthr_n;
 
             while ((nthr_n > 1) && (nthr_m * nthr_n != nthr)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:              while ((nthr_n > 1) && (nthr_m * nthr_n != nthr)) {" << std::endl;
                 nthr_n--;
                 nthr_m = nthr / nthr_n;
             }
@@ -315,6 +336,7 @@ void calc_nthr_nocopy_avx512_common(int m,
 // Assumption: 0 <= ithr < nthr
 void partition_unit_diff(int ithr, int nthr, int n, int *t_offset,
         int *t_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:          int *t_block) {" << std::endl;
 
     int band = n / nthr;
     if (band == 0)
@@ -324,6 +346,7 @@ void partition_unit_diff(int ithr, int nthr, int n, int *t_offset,
         tail = 0;
 
     if (ithr < tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      if (ithr < tail) {" << std::endl;
         band++;
         *t_offset = band * ithr;
         *t_block = band;
@@ -333,11 +356,13 @@ void partition_unit_diff(int ithr, int nthr, int n, int *t_offset,
     }
 
     if (*t_offset >= n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      if (*t_offset >= n) {" << std::endl;
         *t_offset = 0;
         *t_block = 0;
     }
 
     if (*t_offset + *t_block > n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      if (*t_offset + *t_block > n) {" << std::endl;
         *t_block = n - *t_offset;
     }
 }
@@ -348,10 +373,13 @@ template<typename data_t>
 void sum_two_matrices(int m, int n,
         data_t * __restrict p_src, dim_t ld_src,
         data_t * __restrict p_dst, dim_t ld_dst) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:          data_t * __restrict p_dst, dim_t ld_dst) {" << std::endl;
 
     int i, j;
     for (j = 0; j < n; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:      for (j = 0; j < n; j++) {" << std::endl;
         for (i = 0; i < m; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/gemm_utils_f32.cpp:          for (i = 0; i < m; i++) {" << std::endl;
             p_dst[i + j * ld_dst] += p_src[i + j * ld_src];
         }
     }

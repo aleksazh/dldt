@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -47,6 +48,7 @@ void _jit_uni_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_forward()
     const auto &jcp = pd()->jcp_;
 
     if (pd()->wants_padded_bias()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:      if (pd()->wants_padded_bias()) {" << std::endl;
         auto padded_bias = this->scratchpad().template get<f32_data_t>(
                 key_conv_padded_bias);
         utils::array_copy(padded_bias, bias, jcp.oc_without_padding);
@@ -62,6 +64,7 @@ void _jit_uni_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_forward()
 
     auto kernel_params = [&](int ur_w_step, int ow, int oh, int ih, int kh,
             int kh_padding, int ch, int ch_num, int n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              int kh_padding, int ch, int ch_num, int n) {" << std::endl;
         auto par_conv = jit_conv_call_s();
 
         const int i_l_overflow = nstl::max(0, (jcp.l_pad - ow * str_w));
@@ -96,6 +99,7 @@ void _jit_uni_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_forward()
     const int chb_work = utils::div_up(jcp.nb_ch, jcp.nb_ch_blocking);
     parallel_nd(MB, chb_work, jcp.oh,
             [&](int n, int chb, int oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              [&](int n, int chb, int oh) {" << std::endl;
         int ch = chb * jcp.nb_ch_blocking;
         int ch_num = jcp.nb_ch_blocking;
 
@@ -114,6 +118,7 @@ void _jit_uni_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_forward()
         int l_border = nstl::min(div_up(jcp.l_pad, str_w), jcp.ow);
         int ur_w_step = 1;
         for (; ow < l_border; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:          for (; ow < l_border; ow++) {" << std::endl;
             jit_conv_call_s par_conv = kernel_params(ur_w_step, ow, oh, ih,
                                         kh, kh_padding, ch, ch_num, n);
 
@@ -124,6 +129,7 @@ void _jit_uni_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_forward()
         ur_w_step = (jcp.iw - (jcp.kw - 1)*dil_w + jcp.l_pad - 1)
             / jcp.stride_w - ow + 1;
         if (ur_w_step > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:          if (ur_w_step > 0) {" << std::endl;
             jit_conv_call_s par_conv = kernel_params(ur_w_step, ow, oh, ih,
                                         kh, kh_padding, ch, ch_num, n);
 
@@ -135,6 +141,7 @@ void _jit_uni_dw_convolution_fwd_t<isa, src_type, dst_type>::execute_forward()
         // right border
         ur_w_step = 1;
         for (; ow < jcp.ow; ow++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:          for (; ow < jcp.ow; ow++) {" << std::endl;
             jit_conv_call_s par_conv = kernel_params(ur_w_step, ow, oh, ih,
                                         kh, kh_padding, ch, ch_num, n);
 
@@ -171,6 +178,7 @@ void _jit_uni_dw_convolution_bwd_data_t<isa, diff_dst_type,
     auto kernel_params = [&](int ur_str_w, int iw, int oh, int ih,
             int i_t_overflow, int i_b_overflow, int stride_off_h,
             int ch, int ch_num, int n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              int ch, int ch_num, int n) {" << std::endl;
         auto par_conv = jit_conv_call_s();
 
         const int i_l_overflow = nstl::max(0, (jcp.kw - 1 - iw - jcp.l_pad));
@@ -202,6 +210,7 @@ void _jit_uni_dw_convolution_bwd_data_t<isa, diff_dst_type,
     const int chb_work = utils::div_up(jcp.nb_ch, jcp.nb_ch_blocking);
     parallel_nd(MB, chb_work, jcp.ih,
         [&](int n, int chb, int ih) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:          [&](int n, int chb, int ih) {" << std::endl;
         int ch = chb * jcp.nb_ch_blocking;
         int ch_num = jcp.nb_ch_blocking;
 
@@ -215,11 +224,13 @@ void _jit_uni_dw_convolution_bwd_data_t<isa, diff_dst_type,
         oh /= jcp.stride_h;
 
         for (int i_str_w = 0; i_str_w < jcp.stride_w; i_str_w++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:          for (int i_str_w = 0; i_str_w < jcp.stride_w; i_str_w++) {" << std::endl;
             // left border
             int iw = i_str_w;
             int l_border = nstl::min(jcp.kw - 1 - jcp.l_pad, jcp.iw);
             int ur_str_w = 1;
             for (; iw < l_border; iw += jcp.stride_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              for (; iw < l_border; iw += jcp.stride_w) {" << std::endl;
                 jit_conv_call_s par_conv = kernel_params(ur_str_w, iw, oh,
                                              ih, i_t_overflow, i_b_overflow,
                                              stride_off_h, ch, ch_num, n);
@@ -231,6 +242,7 @@ void _jit_uni_dw_convolution_bwd_data_t<isa, diff_dst_type,
             ur_str_w = nstl::min((jcp.iw - jcp.kw + jcp.r_pad - iw)
                  / jcp.stride_w, jcp.iw);
             if (ur_str_w > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              if (ur_str_w > 0) {" << std::endl;
                 jit_conv_call_s par_conv = kernel_params(ur_str_w, iw, oh,
                                              ih, i_t_overflow, i_b_overflow,
                                              stride_off_h, ch, ch_num, n);
@@ -243,6 +255,7 @@ void _jit_uni_dw_convolution_bwd_data_t<isa, diff_dst_type,
             // right border
             ur_str_w = 1;
             for (; iw < jcp.iw; iw += jcp.stride_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              for (; iw < jcp.iw; iw += jcp.stride_w) {" << std::endl;
                 jit_conv_call_s par_conv = kernel_params(ur_str_w, iw, oh,
                                              ih, i_t_overflow, i_b_overflow,
                                              stride_off_h, ch, ch_num, n);
@@ -288,6 +301,7 @@ void _jit_uni_dw_convolution_bwd_weights_t<isa, src_type,
             const int batch, const int group, const int oh_start,
             const int work_size, const unsigned char exec_flag,
             const size_t kh_padding, const size_t filter_off) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              const size_t kh_padding, const size_t filter_off) {" << std::endl;
         const int tpad_underflow_off = jcp.t_pad - filter_off;
 
         conv_params->exec_flags = exec_flag;
@@ -316,6 +330,7 @@ void _jit_uni_dw_convolution_bwd_weights_t<isa, src_type,
     };
 
     parallel(jcp.nthr, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:      parallel(jcp.nthr, (size_t)mkldnn_get_max_threads(), [&](const int ithr, const int nthr) {" << std::endl;
         assert(nthr == jcp.nthr);
 
         auto conv_params = jit_dw_conv_call_s();
@@ -343,6 +358,7 @@ void _jit_uni_dw_convolution_bwd_weights_t<isa, src_type,
                         + (ithr_mb - 1) * bias_size;
 
         for (int g = g_start; g < g_end; ++g) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:          for (int g = g_start; g < g_end; ++g) {" << std::endl;
             unsigned char zero_filter_flag = FLAG_ZERO_FILTER;
             unsigned char zero_bias_flag = jcp.with_bias ? FLAG_ZERO_BIAS : 0;
 
@@ -353,8 +369,10 @@ void _jit_uni_dw_convolution_bwd_weights_t<isa, src_type,
                 conv_params.bias = &diff_bia[g * ch_block];
 
             for (int mb = mb_start; mb < mb_end; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              for (int mb = mb_start; mb < mb_end; ++mb) {" << std::endl;
                 int oh = 0;
                 while (oh < jcp.oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:                  while (oh < jcp.oh) {" << std::endl;
                     const int h_work = nstl::min(h_block_size, jcp.oh - oh);
                     auto kh_t_padding = nstl::max(0, jcp.t_pad - oh);
                     auto kh_b_padding
@@ -401,13 +419,17 @@ void _jit_uni_dw_convolution_bwd_weights_t<avx512_core,
 
     /* Apply single-threaded 'mb' reduction */
     if (jcp.with_bias && jcp.nthr_mb > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:      if (jcp.with_bias && jcp.nthr_mb > 1) {" << std::endl;
         for (int thr_mb = 1; thr_mb < jcp.nthr_mb; ++thr_mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:          for (int thr_mb = 1; thr_mb < jcp.nthr_mb; ++thr_mb) {" << std::endl;
             size_t b_accum_offset = (thr_mb - 1) * bias_size;
 
             for (int g = 0; g < jcp.nb_ch; ++g) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              for (int g = 0; g < jcp.nb_ch; ++g) {" << std::endl;
                 /* Reduction on Bias */
                 PRAGMA_OMP_SIMD()
                 for (int g_block = 0; g_block < ch_block; ++g_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:                  for (int g_block = 0; g_block < ch_block; ++g_block) {" << std::endl;
                     size_t bias_offset = g * ch_block + g_block;
                     diff_bias[bias_offset]
                             += diff_bia_reduction_buf[b_accum_offset
@@ -419,7 +441,9 @@ void _jit_uni_dw_convolution_bwd_weights_t<avx512_core,
 
     /* Apply single-threaded 'mb' reduction */
     if (jcp.nthr_mb > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:      if (jcp.nthr_mb > 1) {" << std::endl;
         for (int thr_mb = 2; thr_mb < jcp.nthr_mb; ++thr_mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:          for (int thr_mb = 2; thr_mb < jcp.nthr_mb; ++thr_mb) {" << std::endl;
             size_t mb_accum_offset = thr_mb * wei_size;
             acc_ker_->accumulate(&diff_wei_reduction_buf[0],
                     &diff_wei_reduction_buf[mb_accum_offset], wei_size);
@@ -455,14 +479,18 @@ void _jit_uni_dw_convolution_bwd_weights_t<sse42,
 
     /* Apply single-threaded 'mb' reduction */
     for (int thr_mb = 1; thr_mb < jcp.nthr_mb; ++thr_mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:      for (int thr_mb = 1; thr_mb < jcp.nthr_mb; ++thr_mb) {" << std::endl;
         size_t mb_accum_offset = (thr_mb - 1) * wei_size;
         size_t b_accum_offset = (thr_mb - 1) * bias_size;
 
         for (int g = 0; g < jcp.nb_ch; ++g) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:          for (int g = 0; g < jcp.nb_ch; ++g) {" << std::endl;
             /* Reduction on Bias */
             if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              if (jcp.with_bias) {" << std::endl;
                 PRAGMA_OMP_SIMD()
                 for (int g_block = 0; g_block < ch_block; ++g_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:                  for (int g_block = 0; g_block < ch_block; ++g_block) {" << std::endl;
                     size_t bias_offset = g * ch_block + g_block;
                     diff_bias[bias_offset]
                             += diff_bia_reduction_buf[b_accum_offset
@@ -471,9 +499,11 @@ void _jit_uni_dw_convolution_bwd_weights_t<sse42,
             }
             for (int kh = 0; kh < jcp.kh; ++kh)
             for (int kw = 0; kw < jcp.kw; ++kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              for (int kw = 0; kw < jcp.kw; ++kw) {" << std::endl;
                 size_t wei_offset = (g * jcp.kh + kh) * jcp.kw + kw;
                 PRAGMA_OMP_SIMD()
                 for (int g_block = 0; g_block < ch_block; ++g_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:                  for (int g_block = 0; g_block < ch_block; ++g_block) {" << std::endl;
                     const size_t off = wei_offset * ch_block + g_block;
                     diff_weights[off]
                             += diff_wei_reduction_buf[mb_accum_offset
@@ -507,14 +537,18 @@ void _jit_uni_dw_convolution_bwd_weights_t<isa, src_type,
 
     /* Apply single-threaded 'mb' reduction */
     for (int thr_mb = 1; thr_mb < jcp.nthr_mb; ++thr_mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:      for (int thr_mb = 1; thr_mb < jcp.nthr_mb; ++thr_mb) {" << std::endl;
         size_t mb_accum_offset = (thr_mb - 1) * wei_size;
         size_t b_accum_offset = (thr_mb - 1) * bias_size;
 
         for (int g = 0; g < jcp.nb_ch; ++g) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:          for (int g = 0; g < jcp.nb_ch; ++g) {" << std::endl;
             /* Reduction on Bias */
             if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:              if (jcp.with_bias) {" << std::endl;
                 PRAGMA_OMP_SIMD()
                 for (int g_block = 0; g_block < ch_block; ++g_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_dw_convolution.cpp:                  for (int g_block = 0; g_block < ch_block; ++g_block) {" << std::endl;
                     size_t bias_offset = g * ch_block + g_block;
                     diff_bias[bias_offset]
                             += diff_bia_reduction_buf[b_accum_offset

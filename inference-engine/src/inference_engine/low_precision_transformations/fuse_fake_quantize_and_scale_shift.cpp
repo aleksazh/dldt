@@ -1,4 +1,5 @@
-﻿// Copyright (C) 2018-2020 Intel Corporation
+#include <iostream>
+// Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -23,15 +24,18 @@ void FuseFakeQuantizeAndScaleShiftTransformation::transform(
     // Fuse if only all children are ScaleShift
     auto dScaleShiftsVector = CNNNetworkHelper::getChildren(fakeQuantizeLayer);
     for (const auto& child : dScaleShiftsVector) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fuse_fake_quantize_and_scale_shift.cpp:      for (const auto& child : dScaleShiftsVector) {" << std::endl;
         if (!CaselessEq<std::string>()(child->type, "ScaleShift"))
             return;
 
         const DataPtr insData = child->insData[0].lock();
         if (insData == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fuse_fake_quantize_and_scale_shift.cpp:          if (insData == nullptr) {" << std::endl;
             return;
         }
 
         if (insData->getDims().size() > 5) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fuse_fake_quantize_and_scale_shift.cpp:          if (insData->getDims().size() > 5) {" << std::endl;
             return;
         }
     }
@@ -50,12 +54,14 @@ void FuseFakeQuantizeAndScaleShiftTransformation::transform(
     const float* scalesBuffer = scalesBufferPtr.get();
     // Don't fuse when there is a negative scale, because it leads to invalid results of FQ
     for (size_t i = 0lu; i < scalesBlob->size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fuse_fake_quantize_and_scale_shift.cpp:      for (size_t i = 0lu; i < scalesBlob->size(); ++i) {" << std::endl;
         if (scalesBuffer[i] <= 0.0f)
             return;
     }
 
     // All ScaleShifts must be equal
     for (size_t i = 1lu; i < dScaleShiftsVector.size(); i++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fuse_fake_quantize_and_scale_shift.cpp:      for (size_t i = 1lu; i < dScaleShiftsVector.size(); i++) {" << std::endl;
         auto ssLayer = dScaleShiftsVector[i];
 
         const Blob::Ptr scBlob = CNNNetworkHelper::getBlob(ssLayer, "weights");
@@ -65,6 +71,7 @@ void FuseFakeQuantizeAndScaleShiftTransformation::transform(
         auto shBufferPtr = CNNNetworkHelper::getFloatData(shBlob);
 
         for (size_t j = 0lu; j < scalesBlob->size(); j++) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fuse_fake_quantize_and_scale_shift.cpp:          for (size_t j = 0lu; j < scalesBlob->size(); j++) {" << std::endl;
             if (scalesBuffer[j] != scBufferPtr.get()[j] ||
                     shiftsBuffer[j] != shBufferPtr.get()[j])
                 return;
@@ -78,6 +85,7 @@ void FuseFakeQuantizeAndScaleShiftTransformation::transform(
     Layout layout;
     size_t channelIndex;
     switch (inputDims) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fuse_fake_quantize_and_scale_shift.cpp:      switch (inputDims) {" << std::endl;
         case 5: {
             layout = Layout::NCDHW;
             channelIndex = 1ul;
@@ -119,6 +127,7 @@ void FuseFakeQuantizeAndScaleShiftTransformation::transform(
     auto targetOutputHighBuffer = CNNNetworkHelper::getFloatData(targetOutputHighBufferPtr);
 
     for (size_t i = 0lu; i < scalesBlob->size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fuse_fake_quantize_and_scale_shift.cpp:      for (size_t i = 0lu; i < scalesBlob->size(); ++i) {" << std::endl;
         auto q_lo = quantizationDetails.getOutputLowValue(i);
         auto q_ho = quantizationDetails.getOutputHighValue(i);
         auto sc = scalesBlob->size() == 1lu ? scalesBuffer[0] : scalesBuffer[i];
@@ -131,10 +140,12 @@ void FuseFakeQuantizeAndScaleShiftTransformation::transform(
     CNNNetworkHelper::fillBlobByFP32(targetOutputHighBufferPtr, targetOutputHighBuffer.get());
 
     for (auto& ss : dScaleShiftsVector) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fuse_fake_quantize_and_scale_shift.cpp:      for (auto& ss : dScaleShiftsVector) {" << std::endl;
         CNNNetworkHelper::removeLayer(context.network, ss);
         context.removeLayer(*ss);
     }
     if (updatePrecisions) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/fuse_fake_quantize_and_scale_shift.cpp:      if (updatePrecisions) {" << std::endl;
         auto ssPrecision = dScaleShiftsVector[0]->outData[0]->getPrecision();
         fakeQuantizeLayer.outData[0]->setPrecision(ssPrecision);
     }

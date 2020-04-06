@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017 Intel Corporation
 *
@@ -34,6 +35,7 @@ template <cpu_isa_t isa>
 status_t jit_uni_roi_pool_kernel_f32<isa>::init_conf(jit_roi_pool_conf_t &jpp,
             const roi_pooling_desc_t &pd, const memory_desc_wrapper &src_d,
             const memory_desc_wrapper &dst_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:              const memory_desc_wrapper &dst_d) {" << std::endl;
 
     const int simd_w = isa == avx512_common ? 16 : 8;
     jpp.c_block = simd_w;
@@ -60,20 +62,24 @@ status_t jit_uni_roi_pool_kernel_f32<isa>::init_conf(jit_roi_pool_conf_t &jpp,
 
 template <cpu_isa_t isa>
 void jit_uni_roi_pool_kernel_f32<isa>::empty_roi(int c_blocks) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:  void jit_uni_roi_pool_kernel_f32<isa>::empty_roi(int c_blocks) {" << std::endl;
     uni_vpxor(vmm_zero, vmm_zero, vmm_zero);
     for (int i = 0; i < c_blocks; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:      for (int i = 0; i < c_blocks; i++) {" << std::endl;
         uni_vmovups(ptr[reg_output + i * jpp.oh * jpp.ow * jpp.c_block * sizeof(float)], vmm_zero);
     }
 }
 
 template <cpu_isa_t isa>
 void jit_uni_roi_pool_kernel_f32<isa>::roi_pool_max(int c_blocks) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:  void jit_uni_roi_pool_kernel_f32<isa>::roi_pool_max(int c_blocks) {" << std::endl;
     Label h_loop_label;
     Label w_loop_label;
 
     mov(aux_reg_input, reg_input);
 
     for (int i = 0; i < c_blocks; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:      for (int i = 0; i < c_blocks; i++) {" << std::endl;
         Vmm vmm_max = get_acc_reg(i);
         uni_vmovups(vmm_max, ptr[reg_input + i * jpp.ih * jpp.iw * jpp.c_block * sizeof(float)]);
     }
@@ -84,18 +90,22 @@ void jit_uni_roi_pool_kernel_f32<isa>::roi_pool_max(int c_blocks) {
         mov(aux_reg_input1, aux_reg_input);
         L(w_loop_label); {
             for (int i = 0; i < c_blocks; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:              for (int i = 0; i < c_blocks; i++) {" << std::endl;
                 Vmm vmm_max = get_acc_reg(i);
                 Vmm vmm_src = get_src_reg(i);
 
                 uni_vmovups(vmm_src, ptr[aux_reg_input1 + i * jpp.ih * jpp.iw * jpp.c_block * sizeof(float)]);
                 if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:                  if (isa == sse42) {" << std::endl;
                     movups(vmm_mask, vmm_max);
                     cmpps(vmm_mask, vmm_src, _cmp_lt_os);
                     blendvps(vmm_max, vmm_src);
                 } else if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:                  } else if (isa == avx2) {" << std::endl;
                     vcmpps(vmm_mask, vmm_max, vmm_src, _cmp_lt_os);
                     vblendvps(vmm_max, vmm_max, vmm_src, vmm_mask);
                 } else if (isa == avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:                  } else if (isa == avx512_common) {" << std::endl;
                     vcmpps(k_store_mask,  vmm_max,  vmm_src, _cmp_lt_os);
                     vblendmps(vmm_max| k_store_mask, vmm_max, vmm_src);
                 }
@@ -116,6 +126,7 @@ void jit_uni_roi_pool_kernel_f32<isa>::roi_pool_max(int c_blocks) {
     }
 
     for (int i = 0; i < c_blocks; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:      for (int i = 0; i < c_blocks; i++) {" << std::endl;
         Vmm vmm_dst = get_acc_reg(i);
         uni_vmovups(ptr[reg_output + i * jpp.oh * jpp.ow * jpp.c_block * sizeof(float)], vmm_dst);
     }
@@ -123,6 +134,7 @@ void jit_uni_roi_pool_kernel_f32<isa>::roi_pool_max(int c_blocks) {
 
 template <cpu_isa_t isa>
 void jit_uni_roi_pool_kernel_f32<isa>::roi_pool_bilinear(int c_blocks) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:  void jit_uni_roi_pool_kernel_f32<isa>::roi_pool_bilinear(int c_blocks) {" << std::endl;
     movq(xmm_yf, reg_yf);
     uni_vbroadcastss(vmm_yf, xmm_yf);
     movq(xmm_xf, reg_xf);
@@ -134,6 +146,7 @@ void jit_uni_roi_pool_kernel_f32<isa>::roi_pool_bilinear(int c_blocks) {
     Vmm vmm_src11 = get_src_reg(3);
 
     for (int i = 0; i < c_blocks; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:      for (int i = 0; i < c_blocks; i++) {" << std::endl;
         int src_c_off = i * jpp.ih * jpp.iw * jpp.c_block * sizeof(float);
 
         mov(aux_reg_input, reg_input);
@@ -162,6 +175,7 @@ void jit_uni_roi_pool_kernel_f32<isa>::roi_pool_bilinear(int c_blocks) {
 
 template <cpu_isa_t isa>
 void jit_uni_roi_pool_kernel_f32<isa>::loop_body(int c_blocks) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:  void jit_uni_roi_pool_kernel_f32<isa>::loop_body(int c_blocks) {" << std::endl;
     Label empty_roi_label;
     Label exit_label;
 
@@ -174,6 +188,7 @@ void jit_uni_roi_pool_kernel_f32<isa>::loop_body(int c_blocks) {
         roi_pool_bilinear(c_blocks);
 
     if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:      if (isa == sse42) {" << std::endl;
         add(reg_input, 4 * sizeof(float));
         add(reg_output, 4 * sizeof(float));
 
@@ -187,6 +202,7 @@ void jit_uni_roi_pool_kernel_f32<isa>::loop_body(int c_blocks) {
     L(empty_roi_label);
     empty_roi(c_blocks);
     if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:      if (isa == sse42) {" << std::endl;
         add(reg_output, 4 * sizeof(float));
         empty_roi(c_blocks);
     }
@@ -196,6 +212,7 @@ void jit_uni_roi_pool_kernel_f32<isa>::loop_body(int c_blocks) {
 
 template <cpu_isa_t isa>
 void jit_uni_roi_pool_kernel_f32<isa>::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:  void jit_uni_roi_pool_kernel_f32<isa>::generate() {" << std::endl;
     this->preamble();
 
     Label exit_label;
@@ -208,6 +225,7 @@ void jit_uni_roi_pool_kernel_f32<isa>::generate() {
     mov(reg_c_blocks, ptr[this->param1 + GET_OFF(c_blocks)]);
 
     if (jpp.alg == roi_pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:      if (jpp.alg == roi_pooling_max) {" << std::endl;
         mov(reg_kh, ptr[this->param1 + GET_OFF(kh)]);
         mov(reg_kw, ptr[this->param1 + GET_OFF(kw)]);
     } else {
@@ -225,6 +243,7 @@ void jit_uni_roi_pool_kernel_f32<isa>::generate() {
     jmp(exit_label, T_NEAR);
 
     if (nb_c_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_roi_pool_kernel_f32.cpp:      if (nb_c_tail) {" << std::endl;
         L(tail_label);
         loop_body(nb_c_tail);
     }

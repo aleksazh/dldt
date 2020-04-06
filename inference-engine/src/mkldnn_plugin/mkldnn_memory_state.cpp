@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -14,10 +15,12 @@ std::string  MKLDNNMemoryState::GetName() const {
 }
 
 void  MKLDNNMemoryState::Reset() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory_state.cpp:  void  MKLDNNMemoryState::Reset() {" << std::endl;
     storage->FillZero();
 }
 
 void  MKLDNNMemoryState::SetState(Blob::Ptr newState) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_memory_state.cpp:  void  MKLDNNMemoryState::SetState(Blob::Ptr newState) {" << std::endl;
     auto prec = newState->getTensorDesc().getPrecision();
     auto data_type = MKLDNNExtensionUtils::IEPrecisionToDataType(prec);
     auto data_layout = MKLDNNMemory::Convert(newState->getTensorDesc().getLayout());

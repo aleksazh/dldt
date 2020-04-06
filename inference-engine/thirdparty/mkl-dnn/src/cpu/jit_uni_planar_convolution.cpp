@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -68,7 +69,9 @@ void _jit_uni_planar_convolution_fwd_t<isa>::execute_forward() const {
 
     int idx = 0;
     for (int i = 0; i < (jcp.dilate_d + 1); i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:      for (int i = 0; i < (jcp.dilate_d + 1); i++) {" << std::endl;
         for (int ib = 0; ib < jcp.od; ib += (jcp.dilate_d + 1)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:          for (int ib = 0; ib < jcp.od; ib += (jcp.dilate_d + 1)) {" << std::endl;
             if (ib + i >= jcp.od)
                 continue;
 
@@ -84,6 +87,7 @@ void _jit_uni_planar_convolution_fwd_t<isa>::execute_forward() const {
     int odb_size = div_up(jcp.od, threads_count);
 
     auto kernel_params = [&](int n, int g, int icb, int oc, int od, int oh, int oh_blocks, int id, int wd, int kd_padding) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:      auto kernel_params = [&](int n, int g, int icb, int oc, int od, int oh, int oh_blocks, int id, int wd, int kd_padding) {" << std::endl;
         auto par_conv = jit_conv_call_s();
 
         const int hj = oh * jcp.stride_h;
@@ -101,12 +105,14 @@ void _jit_uni_planar_convolution_fwd_t<isa>::execute_forward() const {
         par_conv.filt = &weights[wht_blk_off(weights_d, g, _oc, _ic, wd, wh, 0)];
 
         if (icb == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:          if (icb == 0) {" << std::endl;
             if (bias)
                 par_conv.bias = &bias[bias_d.blk_off(_oc)];
             par_conv.flags |= FLAG_IC_FIRST;
         }
 
         if (icb + 1 == jcp.nb_ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:          if (icb + 1 == jcp.nb_ic) {" << std::endl;
             par_conv.flags |= FLAG_IC_LAST;
         }
 
@@ -120,22 +126,29 @@ void _jit_uni_planar_convolution_fwd_t<isa>::execute_forward() const {
     };
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         int g = 0;
         int oc = 0;
 
         for (int n = 0; n < MB; n++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:          for (int n = 0; n < MB; n++) {" << std::endl;
             int icbb = 0;
             while (icbb < jcp.nb_ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:              while (icbb < jcp.nb_ic) {" << std::endl;
                 int icb_step = jcp.nb_ic_blocking;
                 int icb_step_rem = jcp.nb_ic - icbb;
                 if (icb_step_rem < jcp.nb_ic_blocking_max)
                     icb_step = icb_step_rem;
 
                 for (int icb = icbb; icb < icbb + icb_step; ++icb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:                  for (int icb = icbb; icb < icbb + icb_step; ++icb) {" << std::endl;
                     for (int ohb = 0; ohb < (jcp.dilate_h + 1); ohb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:                      for (int ohb = 0; ohb < (jcp.dilate_h + 1); ohb++) {" << std::endl;
                         for (int oh = ohb; oh < jcp.oh; oh += (jcp.dilate_h + 1)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:                          for (int oh = ohb; oh < jcp.oh; oh += (jcp.dilate_h + 1)) {" << std::endl;
                             int od_idx_off = ithr * odb_size;
                             for (int od_idx = 0; od_idx < odb_size; od_idx++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_planar_convolution.cpp:                              for (int od_idx = 0; od_idx < odb_size; od_idx++) {" << std::endl;
                                 if ((od_idx_off + od_idx) >= jcp.od || od_indexes[od_idx_off + od_idx] >= jcp.od)
                                     continue;
                                 int od = od_indexes[od_idx_off + od_idx];

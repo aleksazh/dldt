@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 *
@@ -32,6 +33,7 @@ void simple_sum_t<src_data_type, dst_data_type>::execute() const {
     const src_data_t *input_ptrs[max_num_arrs];
 
     for (int a = 0; a < num_arrs; ++a) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:      for (int a = 0; a < num_arrs; ++a) {" << std::endl;
         const memory_desc_wrapper i_d(pd()->src_pd(a));
 
         input_ptrs[a] = reinterpret_cast<const src_data_t *>(
@@ -46,6 +48,7 @@ void simple_sum_t<src_data_type, dst_data_type>::execute() const {
     const auto &scales = pd()->scales_;
 
     auto sum_block_bf16 = [&](size_t start, size_t end, int ithr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:      auto sum_block_bf16 = [&](size_t start, size_t end, int ithr) {" << std::endl;
         using namespace bf16_cvt_utils;
         const bool is_dst_bf16 = dst_data_type == data_type::bf16;
 
@@ -56,6 +59,7 @@ void simple_sum_t<src_data_type, dst_data_type>::execute() const {
         acc_data_t *my_ws = &wspace[ithr * bf16_p.ws_elements_per_thread_];
 
         for (size_t b = start; b < end; b += bf16_p.acc_loop_step_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:          for (size_t b = start; b < end; b += bf16_p.acc_loop_step_) {" << std::endl;
             acc_data_t *my_acc = is_dst_bf16
                                  ? &my_ws[bf16_p.ws_cvt_elements_per_thread_]
                                  : (acc_data_t *)&output[b];
@@ -66,6 +70,7 @@ void simple_sum_t<src_data_type, dst_data_type>::execute() const {
                 my_acc[e] = scales[0] * my_ws[e];
 
             for (int a = 1; a < num_arrs; a++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:              for (int a = 1; a < num_arrs; a++) {" << std::endl;
                 cvt_bfloat16_to_float(my_ws,
                         (mkldnn_bfloat16_t *)&input_ptrs[a][b], current_block);
                 for (size_t e = 0; e < current_block; e++)
@@ -78,23 +83,29 @@ void simple_sum_t<src_data_type, dst_data_type>::execute() const {
     };
 
     auto sum_block = [&](size_t start, size_t end, int ithr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:      auto sum_block = [&](size_t start, size_t end, int ithr) {" << std::endl;
         PRAGMA_OMP_SIMD()
         for (size_t e = start; e < end; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:          for (size_t e = start; e < end; e++) {" << std::endl;
             output[e] = dst_data_t(scales[0] * input_ptrs[0][e]);
         }
         for (int a = 1; a < num_arrs; a++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:          for (int a = 1; a < num_arrs; a++) {" << std::endl;
             PRAGMA_OMP_SIMD()
             for (size_t e = start; e < end; e++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:              for (size_t e = start; e < end; e++) {" << std::endl;
                 output[e] += dst_data_t(scales[a] * input_ptrs[a][e]);
             }
         }
     };
 
     parallel(0, blocks_number, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:      parallel(0, blocks_number, [&](const int ithr, const int nthr) {" << std::endl;
         size_t start{0}, end{0};
         balance211(blocks_number, nthr, ithr, start, end);
 
         for (size_t nb = start; nb < end; ++nb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:          for (size_t nb = start; nb < end; ++nb) {" << std::endl;
             size_t start_e = nb * block_size;
             size_t end_e = start_e + block_size;
             if (src_data_type == data_type::bf16)
@@ -104,6 +115,7 @@ void simple_sum_t<src_data_type, dst_data_type>::execute() const {
         }
 
         if (tail != 0 && ithr == nthr - 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/simple_sum.cpp:          if (tail != 0 && ithr == nthr - 1) {" << std::endl;
             size_t start_e = nelems - tail;
             size_t end_e = nelems;
             if (src_data_type == data_type::bf16)

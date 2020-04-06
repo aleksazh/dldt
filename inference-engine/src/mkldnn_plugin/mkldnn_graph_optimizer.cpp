@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -30,9 +31,11 @@ using namespace mkldnn;
 using namespace MKLDNNPlugin;
 using namespace InferenceEngine;
 
-MKLDNNGraphOptimizer::MKLDNNGraphOptimizer() {}
+MKLDNNGraphOptimizer::MKLDNNGraphOptimizer() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  MKLDNNGraphOptimizer::MKLDNNGraphOptimizer() {" << std::endl;}
 
 void MKLDNNGraphOptimizer::ApplyCommonGraphOptimizations(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::ApplyCommonGraphOptimizations(MKLDNNGraph &graph) {" << std::endl;
     MergeConversions(graph);
     graph.RemoveDroppedNodes();
 
@@ -111,6 +114,7 @@ void MKLDNNGraphOptimizer::ApplyCommonGraphOptimizations(MKLDNNGraph &graph) {
 }
 
 void MKLDNNGraphOptimizer::ApplyImplSpecificGraphOptimizations(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::ApplyImplSpecificGraphOptimizations(MKLDNNGraph &graph) {" << std::endl;
     RemoveIOScaleShifts(graph);
     graph.RemoveDroppedNodes();
 
@@ -126,16 +130,20 @@ void MKLDNNGraphOptimizer::ApplyImplSpecificGraphOptimizations(MKLDNNGraph &grap
 }
 
 void MKLDNNGraphOptimizer::MergeConversions(MKLDNNGraph& graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::MergeConversions(MKLDNNGraph& graph) {" << std::endl;
     for (auto node : graph.GetNodes()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (auto node : graph.GetNodes()) {" << std::endl;
         // Input with at least 2 Convertions
         if (!IsOneOf(node->getType(), { Input }) || node->getChildEdges().size() < 2 ||
             !IsOneOf(node->getChildEdgeAt(0)->getChild()->getType(), { Convert })) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              !IsOneOf(node->getChildEdgeAt(0)->getChild()->getType(), { Convert })) {" << std::endl;
             continue;
         }
         auto& input = node;
 
         // Convertions of same the type with Concat as a child
         for (size_t i = 0; i < input->getChildEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (size_t i = 0; i < input->getChildEdges().size(); i++) {" << std::endl;
             auto convInEdge = input->getChildEdgeAt(i);
             auto conv = convInEdge->getChild();
             auto convOutEdge = conv->getChildEdgeAt(i);
@@ -144,6 +152,7 @@ void MKLDNNGraphOptimizer::MergeConversions(MKLDNNGraph& graph) {
             Precision convOutPrecision = conv->getCnnLayer()->precision;
 
             for (size_t j = i + 1; j < input->getChildEdges().size();) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              for (size_t j = i + 1; j < input->getChildEdges().size();) {" << std::endl;
                 auto childEdge = input->getChildEdgeAt(j);
                 auto child = childEdge->getChild();
 
@@ -151,6 +160,7 @@ void MKLDNNGraphOptimizer::MergeConversions(MKLDNNGraph& graph) {
                     child->getChildEdgeAt(0)->getDims() != convOutDims ||
                     childEdge->getDims() != convInDims ||
                     child->getChildEdges().size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                      child->getChildEdges().size() != 1) {" << std::endl;
                     j++;
                     continue;
                 }
@@ -171,10 +181,14 @@ void MKLDNNGraphOptimizer::MergeConversions(MKLDNNGraph& graph) {
 }
 
 void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {" << std::endl;
     auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {" << std::endl;
         auto& edges = graph.GetEdges();
         for (auto it = edges.begin(); it != edges.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto it = edges.begin(); it != edges.end(); it++) {" << std::endl;
             if ((*it) == edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if ((*it) == edge) {" << std::endl;
                 edges.erase(it);
                 return;
             }
@@ -184,6 +198,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
     auto& graphNodes = graph.GetNodes();
 
     auto isSutableConvNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableConvNode = [](MKLDNNNodePtr node) {" << std::endl;
         if (node->getType() != Convolution)
             return false;
 
@@ -205,6 +220,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
     };
 
     auto initializeInputZeroPoints = [](MKLDNNNodePtr node, MKLDNNNodePtr parent0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto initializeInputZeroPoints = [](MKLDNNNodePtr node, MKLDNNNodePtr parent0) {" << std::endl;
         auto* convNode = dynamic_cast<MKLDNNConvolutionNode*>(node.get());
         if (convNode == nullptr)
             THROW_IE_EXCEPTION << "Cannot get convolution node " << node->getName();
@@ -213,6 +229,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
         int OC = node->getChildEdgesAtPort(0)[0]->getDims()[1];
 
         if (parent0->getType() == Eltwise) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (parent0->getType() == Eltwise) {" << std::endl;
             auto * eltwiseLayer = dynamic_cast<EltwiseLayer*>(parent0->getCnnLayer().get());
             if (eltwiseLayer == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get eltwise layer " << node->getName();
@@ -224,6 +241,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
                 return false;
 
             if (parent0->getParentEdgesAtPort(1)[0]->getParent()->getCnnLayer()->type == "Const") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (parent0->getParentEdgesAtPort(1)[0]->getParent()->getCnnLayer()->type == 'Const') {" << std::endl;
                 auto arg0 = parent0->getParentEdgesAtPort(1)[0]->getParent();
                 if (arg0->getCnnLayer()->outData[0]->getPrecision() != Precision::U8)
                     return false;
@@ -240,6 +258,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
                 auto zeroPointsData = zeroPointsBlob->buffer().as<uint8_t*>();
 
                 for (int j = 0; j < parent0->getParentEdgesAtPort(1)[0]->getDims()[1]; j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  for (int j = 0; j < parent0->getParentEdgesAtPort(1)[0]->getDims()[1]; j++) {" << std::endl;
                     convNode->inputZeroPoints.push_back(zeroPointsData[j]);
                 }
             } else {
@@ -250,6 +269,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
         }
 
         if (convNode->outputCompensation.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (convNode->outputCompensation.empty()) {" << std::endl;
             convNode->outputCompensation.resize(OC);
         }
 
@@ -257,6 +277,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
     };
 
     auto initializeWeightsZeroPoints = [](MKLDNNNodePtr node, MKLDNNNodePtr parent0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto initializeWeightsZeroPoints = [](MKLDNNNodePtr node, MKLDNNNodePtr parent0) {" << std::endl;
         auto* convNode = dynamic_cast<MKLDNNConvolutionNode*>(node.get());
         if (convNode == nullptr)
             THROW_IE_EXCEPTION << "Cannot get convolution node " << node->getName();
@@ -264,6 +285,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
         int OC = node->getChildEdgesAtPort(0)[0]->getDims()[1];
 
         if (parent0->getType() == Eltwise) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (parent0->getType() == Eltwise) {" << std::endl;
             auto * eltwiseLayer = dynamic_cast<EltwiseLayer*>(parent0->getCnnLayer().get());
             if (eltwiseLayer == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get eltwise layer " << node->getName();
@@ -275,6 +297,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
                 return false;
 
             if (parent0->getParentEdgesAtPort(1)[0]->getParent()->getCnnLayer()->type == "Const") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (parent0->getParentEdgesAtPort(1)[0]->getParent()->getCnnLayer()->type == 'Const') {" << std::endl;
                 auto arg0 = parent0->getParentEdgesAtPort(1)[0]->getParent();
                 if (arg0->getCnnLayer()->outData[0]->getPrecision() != Precision::I8)
                     return false;
@@ -291,6 +314,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
                 auto zeroPointsData = zeroPointsBlob->buffer().as<int8_t*>();
 
                 for (int j = 0; j < parent0->getParentEdgesAtPort(1)[0]->getDims()[0]; j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  for (int j = 0; j < parent0->getParentEdgesAtPort(1)[0]->getDims()[0]; j++) {" << std::endl;
                     convNode->weightsZeroPoints.push_back(static_cast<float>(zeroPointsData[j]));
                 }
             } else {
@@ -304,6 +328,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
     };
 
     auto initializeOutputCompensation = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto initializeOutputCompensation = [](MKLDNNNodePtr node) {" << std::endl;
         auto* convNode = dynamic_cast<MKLDNNConvolutionNode*>(node.get());
         if (convNode == nullptr)
             THROW_IE_EXCEPTION << "Cannot get convolution node " << node->getName();
@@ -321,6 +346,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
 
         auto weightsLayer = convLayer->insData[1].lock()->getCreatorLayer().lock();
         if (weightsLayer->type != "Const") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (weightsLayer->type != 'Const') {" << std::endl;
             weightsLayer = weightsLayer->insData[0].lock()->getCreatorLayer().lock();
         }
 
@@ -335,12 +361,18 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
         ptrdiff_t KW = weightsLayer->outData[0]->getDims()[weightsLayer->outData[0]->getDims().size() - 1];
 
         for (size_t g = 0; g < G; g++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (size_t g = 0; g < G; g++) {" << std::endl;
             for (size_t oc = 0; oc < OC; oc++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              for (size_t oc = 0; oc < OC; oc++) {" << std::endl;
                 int32_t a = 0;
                 for (size_t ic = 0; ic < IC; ic++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  for (size_t ic = 0; ic < IC; ic++) {" << std::endl;
                     for (size_t kd = 0; kd < KD; kd++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                      for (size_t kd = 0; kd < KD; kd++) {" << std::endl;
                         for (size_t kh = 0; kh < KH; kh++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                          for (size_t kh = 0; kh < KH; kh++) {" << std::endl;
                             for (size_t kw = 0; kw < KW; kw++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                              for (size_t kw = 0; kw < KW; kw++) {" << std::endl;
                                 size_t widx = g * OC * IC * KD * KH * KW +
                                               oc * IC * KD * KH * KW +
                                               ic * KD * KH * KW +
@@ -365,11 +397,13 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
     };
 
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         auto conv = graphNodes[i];
         if (!isSutableConvNode(conv)) continue;
 
         auto dataEltwise = conv->getParentEdgesAtPort(0)[0]->getParent();
         if (initializeInputZeroPoints(conv, dataEltwise)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (initializeInputZeroPoints(conv, dataEltwise)) {" << std::endl;
             auto p_edge = dataEltwise->getParentEdgesAtPort(1)[0];
             removeEdge(graph, p_edge);
 
@@ -378,6 +412,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
 
         auto weightsEltwise = conv->getParentEdgesAtPort(1)[0]->getParent();
         if (initializeWeightsZeroPoints(conv, weightsEltwise)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (initializeWeightsZeroPoints(conv, weightsEltwise)) {" << std::endl;
             auto p_edge = weightsEltwise->getParentEdgesAtPort(1)[0];
             removeEdge(graph, p_edge);
 
@@ -389,10 +424,13 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndZeroPoints(MKLDNNGraph &graph) {
 }
 
 void MKLDNNGraphOptimizer::MergeGroupConvolution(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::MergeGroupConvolution(MKLDNNGraph &graph) {" << std::endl;
     for (auto node : graph.GetNodes()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (auto node : graph.GetNodes()) {" << std::endl;
         // Split with at least 2 Convolutions
         if (!IsOneOf(node->getType(), {Split}) || node->getChildEdges().size() < 2 ||
                 !IsOneOf(node->getChildEdgeAt(0)->getChild()->getType(), {Convolution})) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  !IsOneOf(node->getChildEdgeAt(0)->getChild()->getType(), {Convolution})) {" << std::endl;
             continue;
         }
         bool canBeMerged = true;
@@ -409,6 +447,7 @@ void MKLDNNGraphOptimizer::MergeGroupConvolution(MKLDNNGraph &graph) {
 
         // Convolutions of same the type with Concat as a child
         for (size_t i = 1; i < split->getChildEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (size_t i = 1; i < split->getChildEdges().size(); i++) {" << std::endl;
             auto childEdge = split->getChildEdgeAt(i);
             auto child = childEdge->getChild();
             Type type = child->getType();
@@ -416,6 +455,7 @@ void MKLDNNGraphOptimizer::MergeGroupConvolution(MKLDNNGraph &graph) {
             if (convType != type || child->getChildEdgeAt(0)->getChild()->getType() != Concatenation ||
                     convOutDims != child->getChildEdgeAt(0)->getDims() || child->getChildEdges().size() != 1 ||
                     convInDims != childEdge->getDims()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                      convInDims != childEdge->getDims()) {" << std::endl;
                 canBeMerged = false;
                 break;
             }
@@ -427,6 +467,7 @@ void MKLDNNGraphOptimizer::MergeGroupConvolution(MKLDNNGraph &graph) {
         auto concat = conv->getChildEdgeAt(0)->getChild();
         // Merge and remove Convolution
         while (split->getChildEdges().size() > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          while (split->getChildEdges().size() > 1) {" << std::endl;
             auto peerInEdge = split->getChildEdgeAt(1);
             auto peer = peerInEdge->getChild();
             conv->mergeWith(peer);
@@ -446,20 +487,27 @@ void MKLDNNGraphOptimizer::MergeGroupConvolution(MKLDNNGraph &graph) {
 }
 
 void MKLDNNGraphOptimizer::FuseBatchNormWithScale(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseBatchNormWithScale(MKLDNNGraph &graph) {" << std::endl;
     auto &graphNodes = graph.GetNodes();
 
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         const auto& bn = graphNodes[i];
         if (bn->getType() == BatchNormalization) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (bn->getType() == BatchNormalization) {" << std::endl;
             const auto& outputNodes = graph.GetOutputNodes();
             const std::string node_name = bn->getName();
             // Check that the node is not output node
             if (std::find_if(outputNodes.begin(), outputNodes.end(),
                             [&node_name](const MKLDNNNodePtr& x) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                              [&node_name](const MKLDNNNodePtr& x) {" << std::endl;
                                 return x->getName() == node_name;}) == outputNodes.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                                  return x->getName() == node_name;}) == outputNodes.end()) {" << std::endl;
                 if (bn->getChildEdges().size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  if (bn->getChildEdges().size() == 1) {" << std::endl;
                     auto child = bn->getChildEdgeAt(0)->getChild();
                     if (child->type == Depthwise && child->getCnnLayer()->type == "ScaleShift") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                      if (child->type == Depthwise && child->getCnnLayer()->type == 'ScaleShift') {" << std::endl;
                         bn->fuseWith(child);
                         graph.DropNode(child);
                     }
@@ -471,9 +519,13 @@ void MKLDNNGraphOptimizer::FuseBatchNormWithScale(MKLDNNGraph &graph) {
 
 #if defined(COMPILED_CPU_MKLDNN_ACTIVATION_NODE)
 void MKLDNNGraphOptimizer::FuseConvolutionAndActivation(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseConvolutionAndActivation(MKLDNNGraph &graph) {" << std::endl;
     auto isOneOf = [&](mkldnn::algorithm alg, std::vector<mkldnn::algorithm> algs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isOneOf = [&](mkldnn::algorithm alg, std::vector<mkldnn::algorithm> algs) {" << std::endl;
         for (auto a : algs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto a : algs) {" << std::endl;
             if (alg == a) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (alg == a) {" << std::endl;
                 return true;
             }
         }
@@ -483,6 +535,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndActivation(MKLDNNGraph &graph) {
     auto& graphNodes = graph.GetNodes();
 
     auto isFusingSupported = [&](MKLDNNNodePtr conv, MKLDNNNodePtr activation) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isFusingSupported = [&](MKLDNNNodePtr conv, MKLDNNNodePtr activation) {" << std::endl;
         if (!activation->getCnnLayer())
             return false;
 
@@ -495,23 +548,30 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndActivation(MKLDNNGraph &graph) {
     };
 
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         if (graphNodes[i]->getType() == Convolution || graphNodes[i]->getType() == BinaryConvolution) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (graphNodes[i]->getType() == Convolution || graphNodes[i]->getType() == BinaryConvolution) {" << std::endl;
             auto conv = graphNodes[i];
 
             auto fuse = [&] (MKLDNNNodePtr relu) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              auto fuse = [&] (MKLDNNNodePtr relu) {" << std::endl;
                 conv->fuseWith(relu);
             };
 
             if (conv->getChildEdges().size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (conv->getChildEdges().size() == 1) {" << std::endl;
                 auto ch1 = conv->getChildEdgeAt(0)->getChild();
 
                 if (isFusingSupported(conv, ch1)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  if (isFusingSupported(conv, ch1)) {" << std::endl;
                     fuse(ch1);
 
                     if (ch1->getChildEdges().size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                      if (ch1->getChildEdges().size() == 1) {" << std::endl;
                         auto ch2 = ch1->getChildEdgeAt(0)->getChild();
 
                         if (isFusingSupported(conv, ch2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                          if (isFusingSupported(conv, ch2)) {" << std::endl;
                             fuse(ch2);
                             graph.DropNode(ch2);
                         }
@@ -519,6 +579,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndActivation(MKLDNNGraph &graph) {
                     graph.DropNode(ch1);
                 } else {
                     if (ch1->type == Pooling) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                      if (ch1->type == Pooling) {" << std::endl;
                         auto pool = ch1;
 
                         auto* pLayer = dynamic_cast<PoolingLayer *>(pool->getCnnLayer().get());
@@ -527,8 +588,10 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndActivation(MKLDNNGraph &graph) {
                         bool is_max_pool = pLayer->_type == PoolingLayer::PoolType::MAX;
 
                         if (is_max_pool && pool->getChildEdges().size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                          if (is_max_pool && pool->getChildEdges().size() == 1) {" << std::endl;
                             auto ch2 = pool->getChildEdgeAt(0)->getChild();
                             if (isFusingSupported(conv, ch2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                              if (isFusingSupported(conv, ch2)) {" << std::endl;
                                 fuse(ch2);
                                 graph.DropNode(ch2);
                             }
@@ -541,9 +604,11 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndActivation(MKLDNNGraph &graph) {
 }
 
 void MKLDNNGraphOptimizer::FuseFullyConnectedAndActivation(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseFullyConnectedAndActivation(MKLDNNGraph &graph) {" << std::endl;
     auto& graphNodes = graph.GetNodes();
 
     auto isFusingSupported = [&](MKLDNNNodePtr fc, MKLDNNNodePtr activation) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isFusingSupported = [&](MKLDNNNodePtr fc, MKLDNNNodePtr activation) {" << std::endl;
         if (!activation->getCnnLayer())
             return false;
 
@@ -555,17 +620,22 @@ void MKLDNNGraphOptimizer::FuseFullyConnectedAndActivation(MKLDNNGraph &graph) {
     };
 
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         if (graphNodes[i]->getType() == FullyConnected) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (graphNodes[i]->getType() == FullyConnected) {" << std::endl;
             auto fc = graphNodes[i];
 
             auto fuse = [&] (MKLDNNNodePtr relu) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              auto fuse = [&] (MKLDNNNodePtr relu) {" << std::endl;
                 fc->fuseWith(relu);
             };
 
             if (fc->getChildEdges().size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (fc->getChildEdges().size() == 1) {" << std::endl;
                 auto ch1 = fc->getChildEdgeAt(0)->getChild();
 
                 if (isFusingSupported(fc, ch1)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  if (isFusingSupported(fc, ch1)) {" << std::endl;
                     fuse(ch1);
                     graph.DropNode(ch1);
                 }
@@ -577,9 +647,11 @@ void MKLDNNGraphOptimizer::FuseFullyConnectedAndActivation(MKLDNNGraph &graph) {
 
 #if defined (COMPILED_CPU_MKLDNN_DEPTHWISE_NODE)
 void MKLDNNGraphOptimizer::FuseConvolutionAndDepthwise(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseConvolutionAndDepthwise(MKLDNNGraph &graph) {" << std::endl;
     auto& graphNodes = graph.GetNodes();
 
     auto isSutableParentNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableParentNode = [](MKLDNNNodePtr node) {" << std::endl;
         bool isSutableConv = (node->getType() == Convolution) &&
                              node->getCnnLayer()->precision == Precision::FP32;
         bool isSutableBinConv = node->getType() == BinaryConvolution;
@@ -587,6 +659,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndDepthwise(MKLDNNGraph &graph) {
     };
 
     auto isSutableChildNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableChildNode = [](MKLDNNNodePtr node) {" << std::endl;
         if (node->getType() != Depthwise)
             return false;
 
@@ -601,6 +674,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndDepthwise(MKLDNNGraph &graph) {
     };
 
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         auto conv = graphNodes[i];
         if (!isSutableParentNode(conv)) continue;
 
@@ -610,9 +684,11 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndDepthwise(MKLDNNGraph &graph) {
         conv->fuseWith(depthwise0);
 
         if (depthwise0->getChildEdges().size() == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (depthwise0->getChildEdges().size() == 1) {" << std::endl;
             auto depthwise1 = depthwise0->getChildEdgeAt(0)->getChild();
 
             if (isSutableChildNode(depthwise1)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (isSutableChildNode(depthwise1)) {" << std::endl;
                 conv->fuseWith(depthwise1);
                 graph.DropNode(depthwise1);
             }
@@ -624,22 +700,28 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndDepthwise(MKLDNNGraph &graph) {
 #endif
 
 void MKLDNNGraphOptimizer::FuseConvolutionAndDWConvolution(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseConvolutionAndDWConvolution(MKLDNNGraph &graph) {" << std::endl;
     auto& graphNodes = graph.GetNodes();
 
     auto isConvolutionNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isConvolutionNode = [](MKLDNNNodePtr node) {" << std::endl;
         return node->getType() == Convolution;
     };
 
     auto isBinaryConvolutionNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isBinaryConvolutionNode = [](MKLDNNNodePtr node) {" << std::endl;
         return node->getType() == BinaryConvolution;
     };
 
     auto is1x1Convolution = [](ConvolutionLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto is1x1Convolution = [](ConvolutionLayer* layer) {" << std::endl;
         return layer->_kernel[X_AXIS] == 1 && layer->_kernel[Y_AXIS] == 1;
     };
 
     auto isSutableParentConvolution = [&](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableParentConvolution = [&](MKLDNNNodePtr node) {" << std::endl;
         if (isBinaryConvolutionNode(node)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (isBinaryConvolutionNode(node)) {" << std::endl;
             auto *layer = dynamic_cast<BinaryConvolutionLayer *>(node->getCnnLayer().get());
             if (layer == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get convolution layer " << node->getName();
@@ -670,11 +752,13 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndDWConvolution(MKLDNNGraph &graph) {
     };
 
     auto isSutableChildConvolution = [&](MKLDNNNodePtr parentNode, MKLDNNNodePtr childNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableChildConvolution = [&](MKLDNNNodePtr parentNode, MKLDNNNodePtr childNode) {" << std::endl;
         auto* childLayer = dynamic_cast<ConvolutionLayer*>(childNode->getCnnLayer().get());
         if (childLayer == nullptr)
             THROW_IE_EXCEPTION << "Cannot get convolution layer " << childNode->getName();
 
         if (!isBinaryConvolutionNode(parentNode)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (!isBinaryConvolutionNode(parentNode)) {" << std::endl;
             auto* parentLayer = dynamic_cast<ConvolutionLayer*>(parentNode->getCnnLayer().get());
             if (parentLayer == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get convolution layer " << parentNode->getName();
@@ -720,7 +804,9 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndDWConvolution(MKLDNNGraph &graph) {
     };
 
     auto isFusingWorthwhile = [&](MKLDNNNodePtr parentNode, MKLDNNNodePtr childNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isFusingWorthwhile = [&](MKLDNNNodePtr parentNode, MKLDNNNodePtr childNode) {" << std::endl;
         if (isBinaryConvolutionNode(parentNode)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (isBinaryConvolutionNode(parentNode)) {" << std::endl;
             return true;
         }
 
@@ -747,6 +833,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndDWConvolution(MKLDNNGraph &graph) {
     };
 
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         if (!isConvolutionNode(graphNodes[i]) && !isBinaryConvolutionNode(graphNodes[i])) continue;
 
         auto parentConvNode = graphNodes[i];
@@ -769,10 +856,14 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndDWConvolution(MKLDNNGraph &graph) {
 
 #if defined(COMPILED_CPU_MKLDNN_QUANTIZE_NODE)
 void MKLDNNGraphOptimizer::FuseConvolutionAndQuantize(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseConvolutionAndQuantize(MKLDNNGraph &graph) {" << std::endl;
     auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {" << std::endl;
         auto& edges = graph.GetEdges();
         for (auto it = edges.begin(); it != edges.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto it = edges.begin(); it != edges.end(); it++) {" << std::endl;
             if ((*it) == edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if ((*it) == edge) {" << std::endl;
                 edges.erase(it);
                 return;
             }
@@ -782,9 +873,11 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndQuantize(MKLDNNGraph &graph) {
     auto& graphNodes = graph.GetNodes();
 
     auto isSutableParentNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableParentNode = [](MKLDNNNodePtr node) {" << std::endl;
         bool isSutableBinConv = node->getType() == Convolution;
 
         if (isSutableBinConv) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (isSutableBinConv) {" << std::endl;
             auto *convLayer = dynamic_cast<ConvolutionLayer *>(node->getCnnLayer().get());
             if (convLayer == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get convolution layer " << node->getName();
@@ -796,6 +889,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndQuantize(MKLDNNGraph &graph) {
     };
 
     auto isSutableChildNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableChildNode = [](MKLDNNNodePtr node) {" << std::endl;
         if (!node->getCnnLayer())
             return false;
 
@@ -810,6 +904,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndQuantize(MKLDNNGraph &graph) {
     };
 
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         auto parent = graphNodes[i];
         if (!isSutableParentNode(parent)) continue;
 
@@ -820,6 +915,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndQuantize(MKLDNNGraph &graph) {
 
         auto parents = child->parentEdges;
         for (size_t j = 0; j < parents.size(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (size_t j = 0; j < parents.size(); j++) {" << std::endl;
             auto p_edge = parents[j].lock();
             if (p_edge->getParent()->getType() == Convolution)
                 continue;
@@ -832,9 +928,13 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndQuantize(MKLDNNGraph &graph) {
 }
 
 void MKLDNNGraphOptimizer::FuseConvolutionAndSimpleOperation(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseConvolutionAndSimpleOperation(MKLDNNGraph &graph) {" << std::endl;
     auto isOneOf = [&](mkldnn::algorithm alg, std::vector<mkldnn::algorithm> algs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isOneOf = [&](mkldnn::algorithm alg, std::vector<mkldnn::algorithm> algs) {" << std::endl;
         for (auto a : algs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto a : algs) {" << std::endl;
             if (alg == a) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (alg == a) {" << std::endl;
                 return true;
             }
         }
@@ -842,9 +942,12 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndSimpleOperation(MKLDNNGraph &graph)
     };
 
     auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {" << std::endl;
         auto& edges = graph.GetEdges();
         for (auto it = edges.begin(); it != edges.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto it = edges.begin(); it != edges.end(); it++) {" << std::endl;
             if ((*it) == edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if ((*it) == edge) {" << std::endl;
                 edges.erase(it);
                 return;
             }
@@ -854,22 +957,26 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndSimpleOperation(MKLDNNGraph &graph)
     auto& graphNodes = graph.GetNodes();
 
     auto isSutableParentNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableParentNode = [](MKLDNNNodePtr node) {" << std::endl;
         return node->getType() == Convolution &&
                node->getChildEdges().size() == 1 &&
                node->getCnnLayer()->precision == Precision::FP32;
     };
 
     auto isSutableChildNode = [&](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableChildNode = [&](MKLDNNNodePtr node) {" << std::endl;
         if (!node->getCnnLayer())
             return false;
 
         if (node->getType() == Quantize) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (node->getType() == Quantize) {" << std::endl;
             auto* quantizeNode = dynamic_cast<MKLDNNQuantizeNode*>(node.get());
             if (quantizeNode == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get quantize layer " << node->getName();
 
             return !quantizeNode->isBinarization();
         } else if (node->getType() == Depthwise) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          } else if (node->getType() == Depthwise) {" << std::endl;
             auto* depthwiseNode = dynamic_cast<MKLDNNDepthwiseNode*>(node.get());
             if (depthwiseNode == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get depthwise layer " << node->getName();
@@ -877,6 +984,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndSimpleOperation(MKLDNNGraph &graph)
             return ((depthwiseNode->getAlgorithm() == mkldnn::algorithm::depthwise_scale_shift && depthwiseNode->isWithBiases()) ||
                     (depthwiseNode->getAlgorithm() == mkldnn::algorithm::depthwise_prelu));
         } else if (node->getType() == Activation) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          } else if (node->getType() == Activation) {" << std::endl;
             auto* activationNode = dynamic_cast<MKLDNNActivationNode*>(node.get());
             if (activationNode == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get activation layer " << node->getName();
@@ -889,14 +997,17 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndSimpleOperation(MKLDNNGraph &graph)
 
     auto parent = graphNodes.begin();
     while (parent != graphNodes.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      while (parent != graphNodes.end()) {" << std::endl;
         auto parentNode = *parent;
         if (!isSutableParentNode(parentNode)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (!isSutableParentNode(parentNode)) {" << std::endl;
             parent++;
             continue;
         }
 
         auto childNode = parentNode->getChildEdgeAt(0)->getChild();
         if (!isSutableChildNode(childNode)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (!isSutableChildNode(childNode)) {" << std::endl;
             parent++;
             continue;
         }
@@ -904,8 +1015,10 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndSimpleOperation(MKLDNNGraph &graph)
         parentNode->fuseWith(childNode);
 
         if (childNode->getType() == Quantize) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (childNode->getType() == Quantize) {" << std::endl;
             auto parentEdges = childNode->parentEdges;
             for (auto &parentEdge : parentEdges) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              for (auto &parentEdge : parentEdges) {" << std::endl;
                 auto p_edge = parentEdge.lock();
                 if (p_edge->getParent()->getType() == Convolution)
                     continue;
@@ -919,10 +1032,14 @@ void MKLDNNGraphOptimizer::FuseConvolutionAndSimpleOperation(MKLDNNGraph &graph)
 }
 
 void MKLDNNGraphOptimizer::FuseBinaryConvolutionAndQuantize(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseBinaryConvolutionAndQuantize(MKLDNNGraph &graph) {" << std::endl;
     auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {" << std::endl;
         auto& edges = graph.GetEdges();
         for (auto it = edges.begin(); it != edges.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto it = edges.begin(); it != edges.end(); it++) {" << std::endl;
             if ((*it) == edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if ((*it) == edge) {" << std::endl;
                 edges.erase(it);
                 return;
             }
@@ -932,11 +1049,13 @@ void MKLDNNGraphOptimizer::FuseBinaryConvolutionAndQuantize(MKLDNNGraph &graph) 
     auto& graphNodes = graph.GetNodes();
 
     auto isSutableParentNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableParentNode = [](MKLDNNNodePtr node) {" << std::endl;
         bool isSutableBinConv = node->getType() == BinaryConvolution;
         return isSutableBinConv && node->getChildEdges().size() == 1;
     };
 
     auto isSutableChildNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableChildNode = [](MKLDNNNodePtr node) {" << std::endl;
         if (!node->getCnnLayer())
             return false;
 
@@ -951,6 +1070,7 @@ void MKLDNNGraphOptimizer::FuseBinaryConvolutionAndQuantize(MKLDNNGraph &graph) 
     };
 
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         auto parent = graphNodes[i];
         if (!isSutableParentNode(parent)) continue;
 
@@ -961,6 +1081,7 @@ void MKLDNNGraphOptimizer::FuseBinaryConvolutionAndQuantize(MKLDNNGraph &graph) 
 
         auto parents = child->parentEdges;
         for (size_t i = 0; i < parents.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (size_t i = 0; i < parents.size(); i++) {" << std::endl;
             auto p_edge = parents[i].lock();
             if (p_edge->getParent()->getType() == BinaryConvolution)
                 continue;
@@ -973,10 +1094,14 @@ void MKLDNNGraphOptimizer::FuseBinaryConvolutionAndQuantize(MKLDNNGraph &graph) 
 }
 
 void MKLDNNGraphOptimizer::FusePoolingAndQuantize(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FusePoolingAndQuantize(MKLDNNGraph &graph) {" << std::endl;
     auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {" << std::endl;
         auto& edges = graph.GetEdges();
         for (auto it = edges.begin(); it != edges.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto it = edges.begin(); it != edges.end(); it++) {" << std::endl;
             if ((*it) == edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if ((*it) == edge) {" << std::endl;
                 edges.erase(it);
                 return;
             }
@@ -986,9 +1111,11 @@ void MKLDNNGraphOptimizer::FusePoolingAndQuantize(MKLDNNGraph &graph) {
     auto& graphNodes = graph.GetNodes();
 
     auto isSutableParentNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableParentNode = [](MKLDNNNodePtr node) {" << std::endl;
         bool isSutablePooling = node->getType() == Pooling;
 
         if (isSutablePooling) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (isSutablePooling) {" << std::endl;
             auto *poolingLayer = dynamic_cast<PoolingLayer *>(node->getCnnLayer().get());
             if (poolingLayer == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get Pooling layer " << node->getName();
@@ -1000,6 +1127,7 @@ void MKLDNNGraphOptimizer::FusePoolingAndQuantize(MKLDNNGraph &graph) {
     };
 
     auto isSutableChildNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableChildNode = [](MKLDNNNodePtr node) {" << std::endl;
         if (!node->getCnnLayer())
             return false;
 
@@ -1014,6 +1142,7 @@ void MKLDNNGraphOptimizer::FusePoolingAndQuantize(MKLDNNGraph &graph) {
     };
 
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         auto parent = graphNodes[i];
         if (!isSutableParentNode(parent)) continue;
 
@@ -1024,6 +1153,7 @@ void MKLDNNGraphOptimizer::FusePoolingAndQuantize(MKLDNNGraph &graph) {
 
         auto parents = child->parentEdges;
         for (size_t i = 0; i < parents.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (size_t i = 0; i < parents.size(); i++) {" << std::endl;
             auto p_edge = parents[i].lock();
             if (p_edge->getParent()->getType() == Pooling)
                 continue;
@@ -1046,15 +1176,19 @@ void MKLDNNGraphOptimizer::FusePoolingAndQuantize(MKLDNNGraph &graph) {
  */
 static bool is_data_dependency(const std::shared_ptr<MKLDNNNode> &parent,
                                const std::shared_ptr<MKLDNNNode> &child) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                                 const std::shared_ptr<MKLDNNNode> &child) {" << std::endl;
     std::set<MKLDNNNode*> visited;
     std::list<MKLDNNNode*> nextLayers {parent.get()};
 
     for (; !nextLayers.empty();) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (; !nextLayers.empty();) {" << std::endl;
         auto layer = *nextLayers.begin();
         if (layer == child.get()) return true;
         for (auto oe : layer->getChildEdges()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto oe : layer->getChildEdges()) {" << std::endl;
             auto nn = oe.lock()->getChild();
             if (visited.find(nn.get()) == visited.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (visited.find(nn.get()) == visited.end()) {" << std::endl;
                 nextLayers.push_back(nn.get());
                 visited.insert(nn.get());
             }
@@ -1104,11 +1238,15 @@ static bool is_data_dependency(const std::shared_ptr<MKLDNNNode> &parent,
 
 #if defined(COMPILED_CPU_MKLDNN_ELTWISE_NODE)
 void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNGraph &graph) {" << std::endl;
     std::vector<MKLDNNNodePtr> &graphNodes = graph.GetNodes();
 
     auto isOneOf = [&](mkldnn::algorithm alg, std::vector<mkldnn::algorithm> algs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isOneOf = [&](mkldnn::algorithm alg, std::vector<mkldnn::algorithm> algs) {" << std::endl;
         for (auto a : algs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto a : algs) {" << std::endl;
             if (alg == a) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (alg == a) {" << std::endl;
                 return true;
             }
         }
@@ -1116,6 +1254,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
     };
 
     auto isFusingSupported = [&](MKLDNNNodePtr conv, MKLDNNNodePtr activation) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isFusingSupported = [&](MKLDNNNodePtr conv, MKLDNNNodePtr activation) {" << std::endl;
         if (!activation->getCnnLayer())
             return false;
 
@@ -1132,6 +1271,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
     };
 
     for (auto &graphNode : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (auto &graphNode : graphNodes) {" << std::endl;
         if (graphNode->getType() != Eltwise)
             continue;
 
@@ -1152,14 +1292,18 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
 
         auto* parentNode1 = dynamic_cast<MKLDNNConvolutionNode *>(parent1.get());
         if (parentNode1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (parentNode1) {" << std::endl;
             if (!parentNode1->canBeExecutedInInt8()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (!parentNode1->canBeExecutedInInt8()) {" << std::endl;
                 isSutableParent1 = isSutableParent1 && parentNode1->getFusedWith().empty();
             }
         }
 
         auto* parentNode2 = dynamic_cast<MKLDNNConvolutionNode *>(parent2.get());
         if (parentNode2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (parentNode2) {" << std::endl;
             if (!parentNode2->canBeExecutedInInt8()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (!parentNode2->canBeExecutedInInt8()) {" << std::endl;
                 isSutableParent2 = isSutableParent2 && parentNode2->getFusedWith().empty();
             }
         }
@@ -1170,8 +1314,10 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
         auto mergedConv = isSutableParent1 ? parent1 : parent2;
         auto peerNode = isSutableParent1 ? parent2 : parent1;
         if (isSutableParent1 && isSutableParent2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (isSutableParent1 && isSutableParent2) {" << std::endl;
             if ((peerNode->getType() == Convolution || peerNode->getType() == BinaryConvolution) &&
                 mergedConv->getChildEdges().size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  mergedConv->getChildEdges().size() != 1) {" << std::endl;
                 mergedConv = parent2;
                 peerNode = parent1;
             }
@@ -1191,6 +1337,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
         // we can spoil input data.
         // TODO: rewrite once we add "Inplace" reporting mechanism
         for (auto & edge : peerNode->getChildEdges()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto & edge : peerNode->getChildEdges()) {" << std::endl;
             if (!fuse_allowed)
                 break;
             fuse_allowed &= is_data_dependency(edge.lock()->getChild(), sum);
@@ -1199,6 +1346,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
 
         if (graphNode->getChildEdges().size() == 1 &&
                 isFusingSupported(graphNode, graphNode->getChildEdgeAt(0)->getChild())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  isFusingSupported(graphNode, graphNode->getChildEdgeAt(0)->getChild())) {" << std::endl;
             auto relu_shared = graphNode->getChildEdgeAt(0)->getChild();
             lastNode = relu_shared;
             mergedConv->fuseWith(sum);
@@ -1208,6 +1356,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
 
         if (mergedConv->fusedWith.size() > 0 &&
            (mergedConv->fusedWith[0]->getType() == Convolution || mergedConv->fusedWith[0]->getType() == BinaryConvolution)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:             (mergedConv->fusedWith[0]->getType() == Convolution || mergedConv->fusedWith[0]->getType() == BinaryConvolution)) {" << std::endl;
             // Merged with DW_conv. Shape may change
             mergedConv->inDims.push_back(mergedConv->fusedWith[0]->outDims[0]);
         } else {
@@ -1216,7 +1365,9 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
 
         size_t childIdx = 0lu;
         for (; childIdx < peerNode->getChildEdges().size(); childIdx++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (; childIdx < peerNode->getChildEdges().size(); childIdx++) {" << std::endl;
             if (peerNode->getChildEdgeAt(childIdx)->getChild() == sum) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (peerNode->getChildEdgeAt(childIdx)->getChild() == sum) {" << std::endl;
                 break;
             }
         }
@@ -1236,6 +1387,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
 
         std::vector<MKLDNNEdgeWeakPtr> edges_to_reconnect = lastNode->getChildEdges();
         for (auto &edge_w : edges_to_reconnect) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto &edge_w : edges_to_reconnect) {" << std::endl;
             auto edge = edge_w.lock();
             auto child = edge->getChild();
             int idxParent = edge->getInputNum();
@@ -1252,6 +1404,7 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
         }
 
         if (lastNode != sum) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (lastNode != sum) {" << std::endl;
             lastNode->remove();
         }
         sum->remove();
@@ -1260,10 +1413,14 @@ void MKLDNNGraphOptimizer::FuseConvolutionSumAndConvolutionSumActivation(MKLDNNG
 #endif
 
 void MKLDNNGraphOptimizer::FuseMVNAndSimpleOperation(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseMVNAndSimpleOperation(MKLDNNGraph &graph) {" << std::endl;
     auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {" << std::endl;
         auto& edges = graph.GetEdges();
         for (auto it = edges.begin(); it != edges.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto it = edges.begin(); it != edges.end(); it++) {" << std::endl;
             if ((*it) == edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if ((*it) == edge) {" << std::endl;
                 edges.erase(it);
                 return;
             }
@@ -1273,9 +1430,11 @@ void MKLDNNGraphOptimizer::FuseMVNAndSimpleOperation(MKLDNNGraph &graph) {
     auto& graphNodes = graph.GetNodes();
 
     auto isSutableParentNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableParentNode = [](MKLDNNNodePtr node) {" << std::endl;
         bool isSutableMVN = (node->getType() == MVN) && (node->inDims[0].ndims() == 4 || node->inDims[0].ndims() == 5);
 
         if (isSutableMVN) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (isSutableMVN) {" << std::endl;
             auto *mvnLayer = dynamic_cast<MVNLayer *>(node->getCnnLayer().get());
             if (mvnLayer == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get MVN layer " << node->getName();
@@ -1287,20 +1446,24 @@ void MKLDNNGraphOptimizer::FuseMVNAndSimpleOperation(MKLDNNGraph &graph) {
     };
 
     auto isSutableChildNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableChildNode = [](MKLDNNNodePtr node) {" << std::endl;
         if (!node->getCnnLayer())
             return false;
 
         if (node->getType() == Quantize) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (node->getType() == Quantize) {" << std::endl;
             auto* quantizeNode = dynamic_cast<MKLDNNQuantizeNode*>(node.get());
             if (quantizeNode == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get quantize layer " << node->getName();
             return !quantizeNode->isBinarization();
         } else if (node->getType() == Depthwise) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          } else if (node->getType() == Depthwise) {" << std::endl;
             auto* depthwiseNode = dynamic_cast<MKLDNNDepthwiseNode*>(node.get());
             if (depthwiseNode == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get depthwise layer " << node->getName();
             return depthwiseNode->cnnLayer->type == "ScaleShift";
         } else if (node->getType() == Activation) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          } else if (node->getType() == Activation) {" << std::endl;
             auto* activationNode = dynamic_cast<MKLDNNActivationNode*>(node.get());
             if (activationNode == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get activation layer " << node->getName();
@@ -1312,14 +1475,17 @@ void MKLDNNGraphOptimizer::FuseMVNAndSimpleOperation(MKLDNNGraph &graph) {
 
     auto parent = graphNodes.begin();
     while (parent != graphNodes.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      while (parent != graphNodes.end()) {" << std::endl;
         auto parentNode = *parent;
         if (!isSutableParentNode(parentNode)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (!isSutableParentNode(parentNode)) {" << std::endl;
             parent++;
             continue;
         }
 
         auto childNode = parentNode->getChildEdgeAt(0)->getChild();
         if (!isSutableChildNode(childNode)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (!isSutableChildNode(childNode)) {" << std::endl;
             parent++;
             continue;
         }
@@ -1327,8 +1493,10 @@ void MKLDNNGraphOptimizer::FuseMVNAndSimpleOperation(MKLDNNGraph &graph) {
         parentNode->fuseWith(childNode);
 
         if (childNode->getType() == Quantize) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (childNode->getType() == Quantize) {" << std::endl;
             auto parentEdges = childNode->parentEdges;
             for (auto &parentEdge : parentEdges) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              for (auto &parentEdge : parentEdges) {" << std::endl;
                 auto p_edge = parentEdge.lock();
                 if (p_edge->getParent()->getType() == MVN)
                     continue;
@@ -1342,9 +1510,13 @@ void MKLDNNGraphOptimizer::FuseMVNAndSimpleOperation(MKLDNNGraph &graph) {
 }
 
 void MKLDNNGraphOptimizer::FuseEltwiseAndSimple(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseEltwiseAndSimple(MKLDNNGraph &graph) {" << std::endl;
     auto isOneOf = [&](mkldnn::algorithm alg, std::vector<mkldnn::algorithm> algs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isOneOf = [&](mkldnn::algorithm alg, std::vector<mkldnn::algorithm> algs) {" << std::endl;
         for (auto a : algs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto a : algs) {" << std::endl;
             if (alg == a) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (alg == a) {" << std::endl;
                 return true;
             }
         }
@@ -1352,9 +1524,12 @@ void MKLDNNGraphOptimizer::FuseEltwiseAndSimple(MKLDNNGraph &graph) {
     };
 
     auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {" << std::endl;
         auto& edges = graph.GetEdges();
         for (auto it = edges.begin(); it != edges.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (auto it = edges.begin(); it != edges.end(); it++) {" << std::endl;
             if ((*it) == edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if ((*it) == edge) {" << std::endl;
                 edges.erase(it);
                 return;
             }
@@ -1364,15 +1539,18 @@ void MKLDNNGraphOptimizer::FuseEltwiseAndSimple(MKLDNNGraph &graph) {
     auto& graphNodes = graph.GetNodes();
 
     auto isSutableParentNode = [](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableParentNode = [](MKLDNNNodePtr node) {" << std::endl;
         bool isSutableEltwise = node->getType() == Eltwise;
 
         if (isSutableEltwise) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (isSutableEltwise) {" << std::endl;
             auto *eltwiseLayer = dynamic_cast<EltwiseLayer *>(node->getCnnLayer().get());
             if (eltwiseLayer == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get Eltwise layer " << node->getName();
 
             ptrdiff_t maxChannels = 1;
             for (size_t i = 0; i < node->getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              for (size_t i = 0; i < node->getParentEdges().size(); i++) {" << std::endl;
                 if (node->getParentEdgeAt(0)->getDims().ndims() != node->getParentEdgeAt(i)->getDims().ndims())
                     return false;
                 if (node->getParentEdgeAt(i)->getDims().ndims() != 2 &&
@@ -1397,15 +1575,18 @@ void MKLDNNGraphOptimizer::FuseEltwiseAndSimple(MKLDNNGraph &graph) {
     };
 
     auto isSutableChildNode = [&](MKLDNNNodePtr node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      auto isSutableChildNode = [&](MKLDNNNodePtr node) {" << std::endl;
         if (!node->getCnnLayer())
             return false;
 
         if (node->getType() == Quantize) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (node->getType() == Quantize) {" << std::endl;
             auto* quantizeNode = dynamic_cast<MKLDNNQuantizeNode*>(node.get());
             if (quantizeNode == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get quantize layer " << node->getName();
             return !quantizeNode->isBinarization();
         } else if (node->getType() == Activation) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          } else if (node->getType() == Activation) {" << std::endl;
             // Applicability was narrowed down in order not to affect FP32 topologies
             if (node->getChildEdges().size() != 1)
                 return false;
@@ -1423,14 +1604,17 @@ void MKLDNNGraphOptimizer::FuseEltwiseAndSimple(MKLDNNGraph &graph) {
 
     auto parent = graphNodes.begin();
     while (parent != graphNodes.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      while (parent != graphNodes.end()) {" << std::endl;
         auto parentNode = *parent;
         if (!isSutableParentNode(parentNode)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (!isSutableParentNode(parentNode)) {" << std::endl;
             parent++;
             continue;
         }
 
         auto childNode = parentNode->getChildEdgeAt(0)->getChild();
         if (!isSutableChildNode(childNode)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (!isSutableChildNode(childNode)) {" << std::endl;
             parent++;
             continue;
         }
@@ -1438,8 +1622,10 @@ void MKLDNNGraphOptimizer::FuseEltwiseAndSimple(MKLDNNGraph &graph) {
         parentNode->fuseWith(childNode);
 
         if (childNode->getType() == Quantize) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (childNode->getType() == Quantize) {" << std::endl;
             auto parentEdges = childNode->parentEdges;
             for (auto &parentEdge : parentEdges) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              for (auto &parentEdge : parentEdges) {" << std::endl;
                 auto p_edge = parentEdge.lock();
                 if (p_edge->getParent()->getType() == Eltwise)
                     continue;
@@ -1453,10 +1639,13 @@ void MKLDNNGraphOptimizer::FuseEltwiseAndSimple(MKLDNNGraph &graph) {
 }
 
 void MKLDNNGraphOptimizer::RemoveIdentityOperator(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::RemoveIdentityOperator(MKLDNNGraph &graph) {" << std::endl;
     for (MKLDNNNodePtr& node : graph.GetNodes()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (MKLDNNNodePtr& node : graph.GetNodes()) {" << std::endl;
         bool toDrop = false;
 
         if (node->getType() == Power) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (node->getType() == Power) {" << std::endl;
             PowerLayer* l = dynamic_cast<PowerLayer*>(node->getCnnLayer().get());
             if (l == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get power layer " << node->getName();
@@ -1465,6 +1654,7 @@ void MKLDNNGraphOptimizer::RemoveIdentityOperator(MKLDNNGraph &graph) {
         }
 
         if (node->getType() == Depthwise && node->getCnnLayer()->type == "ScaleShift") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (node->getType() == Depthwise && node->getCnnLayer()->type == 'ScaleShift') {" << std::endl;
             ScaleShiftLayer* l = dynamic_cast<ScaleShiftLayer*>(node->getCnnLayer().get());
             if (l == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get scale shift layer " << node->getName();
@@ -1480,12 +1670,15 @@ void MKLDNNGraphOptimizer::RemoveIdentityOperator(MKLDNNGraph &graph) {
 
 #if defined (COMPILED_CPU_MKLDNN_REORDER_NODE)
 void MKLDNNGraphOptimizer::DropDoubleReorders(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::DropDoubleReorders(MKLDNNGraph &graph) {" << std::endl;
     std::set<MKLDNNNodePtr> processed;
     std::vector<MKLDNNNodePtr> newNodes;
     for (MKLDNNNodePtr& node : graph.GetNodes()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (MKLDNNNodePtr& node : graph.GetNodes()) {" << std::endl;
         if (processed.find(node) == processed.end() && node->getType() == Reorder
             && node->getChildEdges().size() == 1
             && node->getChildEdgeAt(0)->getChild()->getType() == Reorder ) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              && node->getChildEdgeAt(0)->getChild()->getType() == Reorder ) {" << std::endl;
             auto nextNode = node->getChildEdgeAt(0)->getChild();
             MKLDNNReorderNode* n = dynamic_cast<MKLDNNReorderNode*>(node.get());
             if (n == nullptr)
@@ -1497,9 +1690,11 @@ void MKLDNNGraphOptimizer::DropDoubleReorders(MKLDNNGraph &graph) {
             auto scales = n->_scales;
 
             if (n->_scales != nullptr && nn->_scales != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (n->_scales != nullptr && nn->_scales != nullptr) {" << std::endl;
                 THROW_IE_EXCEPTION << "Merging scales of two subsequent reorders is unsupported yet";
             } else {
                 if (scales == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  if (scales == nullptr) {" << std::endl;
                     scales = nn->_scales;
                 }
             }
@@ -1517,6 +1712,7 @@ void MKLDNNGraphOptimizer::DropDoubleReorders(MKLDNNGraph &graph) {
 
             MKLDNNEdgePtr edge;
             for (auto cur : p->getChildEdgesAtPort(oldEdgeNum)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              for (auto cur : p->getChildEdgesAtPort(oldEdgeNum)) {" << std::endl;
                 if (cur->getChild() == c)
                     edge = cur;
             }
@@ -1530,6 +1726,7 @@ void MKLDNNGraphOptimizer::DropDoubleReorders(MKLDNNGraph &graph) {
             MKLDNNNodePtr newReorder(new MKLDNNReorderNode(layer, graph.getEngine(), graph.socket));
             auto *reorderPtr = dynamic_cast<MKLDNNReorderNode *>(newReorder.get());
             if (reorderPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (reorderPtr) {" << std::endl;
                 reorderPtr->setDescs(n->getInput(), nn->getOutput());
                 reorderPtr->_scales = scales;
             }
@@ -1570,30 +1767,39 @@ void MKLDNNGraphOptimizer::DropDoubleReorders(MKLDNNGraph &graph) {
         }
     }
     for (MKLDNNNodePtr& node : newNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (MKLDNNNodePtr& node : newNodes) {" << std::endl;
         graph.GetNodes().push_back(node);
     }
 }
 
 void MKLDNNGraphOptimizer::DropConvertReorder(MKLDNNGraph& graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::DropConvertReorder(MKLDNNGraph& graph) {" << std::endl;
     for (auto input : graph.GetNodes()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (auto input : graph.GetNodes()) {" << std::endl;
         if (input->getType() != Input) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (input->getType() != Input) {" << std::endl;
             continue;
         }
 
         auto inTD = input->getCnnLayer().get()->outData[0]->getTensorDesc();
         for (size_t i = 0; i < input->getChildEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (size_t i = 0; i < input->getChildEdges().size(); i++) {" << std::endl;
             auto inputEdge = input->getChildEdgeAt(i);
             auto convert = inputEdge->getChild();
             if (convert->getType() == Convert) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (convert->getType() == Convert) {" << std::endl;
                 for (int j = 0; j < convert->getChildEdges().size(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  for (int j = 0; j < convert->getChildEdges().size(); j++) {" << std::endl;
                     auto convertEdge = convert->getChildEdgeAt(j);
                     auto reorder = convertEdge->getChild();
                     if (reorder->getType() == Reorder) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                      if (reorder->getType() == Reorder) {" << std::endl;
                         MKLDNNReorderNode* rn = dynamic_cast<MKLDNNReorderNode*>(reorder.get());
                         auto rnOutput = rn->getOutput();
                         if (inTD.getPrecision() == rnOutput.getPrecision() &&
                             inTD.getLayout() == rnOutput.getLayout() &&
                             inTD.getDims() == rnOutput.getDims()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                              inTD.getDims() == rnOutput.getDims()) {" << std::endl;
                             auto avterReorder = reorder->getChildEdgeAt(0)->getChild();
                             auto oldEdgeNum = reorder->getChildEdgeAt(0)->getOutputNum();
                             reorder->getChildEdgeAt(0)->drop();
@@ -1613,23 +1819,31 @@ void MKLDNNGraphOptimizer::DropConvertReorder(MKLDNNGraph& graph) {
 #endif
 
 void MKLDNNGraphOptimizer::RemoveIOScaleShifts(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::RemoveIOScaleShifts(MKLDNNGraph &graph) {" << std::endl;
     for (MKLDNNNodePtr& node : graph.GetNodes()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (MKLDNNNodePtr& node : graph.GetNodes()) {" << std::endl;
         if (node->getType() == Depthwise && node->getCnnLayer()->type == "ScaleShift") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (node->getType() == Depthwise && node->getCnnLayer()->type == 'ScaleShift') {" << std::endl;
             ScaleShiftLayer* l = dynamic_cast<ScaleShiftLayer*>(node->getCnnLayer().get());
             if (l == nullptr)
                 THROW_IE_EXCEPTION << "Cannot get scale shift layer " << node->getName();
 
             auto cur = l->insData[0].lock();
             if (cur == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (cur == nullptr) {" << std::endl;
                 THROW_IE_EXCEPTION << "[MKLDNN] error - invalid input data";
             }
             if (cur->getTensorDesc().getPrecision() != l->outData[0]->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              if (cur->getTensorDesc().getPrecision() != l->outData[0]->getTensorDesc().getPrecision()) {" << std::endl;
                 if (node->name.find("_iScaleShift_") != std::string::npos) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  if (node->name.find('_iScaleShift_') != std::string::npos) {" << std::endl;
                     auto child = node->childEdges[0].lock()->getChild();
 #if defined (COMPILED_CPU_MKLDNN_REORDER_NODE)
                     if (child->type == Reorder) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                      if (child->type == Reorder) {" << std::endl;
                         MKLDNNReorderNode* rn = dynamic_cast<MKLDNNReorderNode*>(child.get());
                         if (rn != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                          if (rn != nullptr) {" << std::endl;
                             rn->_scales = l->_weights;
                             graph.DropNode(node);
                         }
@@ -1641,12 +1855,15 @@ void MKLDNNGraphOptimizer::RemoveIOScaleShifts(MKLDNNGraph &graph) {
                     }
 #endif
                 } else if (node->name.find("_oScaleShift_") != std::string::npos) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  } else if (node->name.find('_oScaleShift_') != std::string::npos) {" << std::endl;
                     auto parent = node->parentEdges[0].lock()->getParent();
 
 #if defined (COMPILED_CPU_MKLDNN_REORDER_NODE)
                     if (parent->type == Reorder) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                      if (parent->type == Reorder) {" << std::endl;
                         MKLDNNReorderNode* rn = dynamic_cast<MKLDNNReorderNode*>(parent.get());
                         if (rn != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                          if (rn != nullptr) {" << std::endl;
                             rn->_scales = l->_weights;
                             graph.DropNode(node);
                         }
@@ -1664,8 +1881,11 @@ void MKLDNNGraphOptimizer::RemoveIOScaleShifts(MKLDNNGraph &graph) {
 }
 
 bool MKLDNNGraphOptimizer::IsOneOf(Type type, std::vector<Type> types) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  bool MKLDNNGraphOptimizer::IsOneOf(Type type, std::vector<Type> types) {" << std::endl;
     for (auto tp : types) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (auto tp : types) {" << std::endl;
         if (type == tp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          if (type == tp) {" << std::endl;
             return true;
         }
     }
@@ -1673,9 +1893,11 @@ bool MKLDNNGraphOptimizer::IsOneOf(Type type, std::vector<Type> types) {
 }
 
 void MKLDNNGraphOptimizer::FuseBroadcastAndEltwise(MKLDNNGraph &graph) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:  void MKLDNNGraphOptimizer::FuseBroadcastAndEltwise(MKLDNNGraph &graph) {" << std::endl;
     std::vector<MKLDNNNodePtr>& graphNodes = graph.GetNodes();
 
     for (auto &graphNode : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:      for (auto &graphNode : graphNodes) {" << std::endl;
         if (graphNode->getType() != Generic
                 || graphNode->getTypeStr() != "Broadcast"
                 || graphNode->getChildEdges().size() != 1lu
@@ -1689,9 +1911,12 @@ void MKLDNNGraphOptimizer::FuseBroadcastAndEltwise(MKLDNNGraph &graph) {
 
         auto& edges = graph.GetEdges();
         for (size_t i = 1lu; i < broadcastNode->getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:          for (size_t i = 1lu; i < broadcastNode->getParentEdges().size(); i++) {" << std::endl;
             auto constParent = broadcastNode->getParentEdgeAt(i)->getParent();
             for (auto it = edges.begin(); it != edges.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:              for (auto it = edges.begin(); it != edges.end(); it++) {" << std::endl;
                 if ((*it) == constParent->getChildEdgeAt(0)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph_optimizer.cpp:                  if ((*it) == constParent->getChildEdgeAt(0)) {" << std::endl;
                     edges.erase(it);
                     constParent->remove();
                     break;

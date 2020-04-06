@@ -1,4 +1,5 @@
-﻿// Copyright (C) 2018-2020 Intel Corporation
+#include <iostream>
+// Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -14,6 +15,7 @@
 #include "ie_precision.hpp"
 
 int XMLParseUtils::GetIntAttr(const pugi::xml_node& node, const char* str) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  int XMLParseUtils::GetIntAttr(const pugi::xml_node& node, const char* str) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty())
         THROW_IE_EXCEPTION << "node <" << node.name() << "> is missing mandatory attribute: " << str << " at offset "
@@ -29,6 +31,7 @@ int XMLParseUtils::GetIntAttr(const pugi::xml_node& node, const char* str) {
 }
 
 int64_t XMLParseUtils::GetInt64Attr(const pugi::xml_node& node, const char* str) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  int64_t XMLParseUtils::GetInt64Attr(const pugi::xml_node& node, const char* str) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty())
         THROW_IE_EXCEPTION << "node <" << node.name() << "> is missing mandatory attribute: " << str << " at offset "
@@ -44,6 +47,7 @@ int64_t XMLParseUtils::GetInt64Attr(const pugi::xml_node& node, const char* str)
 }
 
 uint64_t XMLParseUtils::GetUInt64Attr(const pugi::xml_node& node, const char* str) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  uint64_t XMLParseUtils::GetUInt64Attr(const pugi::xml_node& node, const char* str) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty())
         THROW_IE_EXCEPTION << "node <" << node.name() << "> is missing mandatory attribute: " << str << " at offset "
@@ -59,6 +63,7 @@ uint64_t XMLParseUtils::GetUInt64Attr(const pugi::xml_node& node, const char* st
 }
 
 unsigned int XMLParseUtils::GetUIntAttr(const pugi::xml_node& node, const char* str) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  unsigned int XMLParseUtils::GetUIntAttr(const pugi::xml_node& node, const char* str) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty())
         THROW_IE_EXCEPTION << "node <" << node.name() << "> is missing mandatory attribute: " << str << " at offset "
@@ -74,6 +79,7 @@ unsigned int XMLParseUtils::GetUIntAttr(const pugi::xml_node& node, const char* 
 }
 
 std::string XMLParseUtils::GetStrAttr(const pugi::xml_node& node, const char* str) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  std::string XMLParseUtils::GetStrAttr(const pugi::xml_node& node, const char* str) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty())
         THROW_IE_EXCEPTION << "node <" << node.name() << "> is missing mandatory attribute: " << str << " at offset "
@@ -82,16 +88,19 @@ std::string XMLParseUtils::GetStrAttr(const pugi::xml_node& node, const char* st
 }
 
 std::string XMLParseUtils::GetStrAttr(const pugi::xml_node& node, const char* str, const char* def) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  std::string XMLParseUtils::GetStrAttr(const pugi::xml_node& node, const char* str, const char* def) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty()) return def;
     return attr.value();
 }
 
 bool XMLParseUtils::GetBoolAttr(const pugi::xml_node& node, const char* str, const bool def) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  bool XMLParseUtils::GetBoolAttr(const pugi::xml_node& node, const char* str, const bool def) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty()) return def;
     std::string string_attr = attr.value();
     std::transform(string_attr.begin(), string_attr.end(), string_attr.begin(), [](char ch) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:      std::transform(string_attr.begin(), string_attr.end(), string_attr.begin(), [](char ch) {" << std::endl;
         return std::tolower(static_cast<unsigned char>(ch));
     });
     std::set<std::string> true_names {"true", "1"};
@@ -101,6 +110,7 @@ bool XMLParseUtils::GetBoolAttr(const pugi::xml_node& node, const char* str, con
     bool is_false = false_names.find(string_attr) != false_names.end();
 
     if (!is_true && !is_false) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:      if (!is_true && !is_false) {" << std::endl;
         THROW_IE_EXCEPTION << "Unsupported boolean attribute type: " << string_attr;
     }
 
@@ -108,12 +118,14 @@ bool XMLParseUtils::GetBoolAttr(const pugi::xml_node& node, const char* str, con
 }
 
 bool XMLParseUtils::GetBoolAttr(const pugi::xml_node& node, const char* str) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  bool XMLParseUtils::GetBoolAttr(const pugi::xml_node& node, const char* str) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty())
         THROW_IE_EXCEPTION << "node <" << node.name() << "> is missing mandatory attribute: " << str << " at offset "
                            << node.offset_debug();
     std::string string_attr = attr.value();
     std::transform(string_attr.begin(), string_attr.end(), string_attr.begin(), [](char ch) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:      std::transform(string_attr.begin(), string_attr.end(), string_attr.begin(), [](char ch) {" << std::endl;
         return std::tolower(static_cast<unsigned char>(ch));
     });
     std::set<std::string> true_names {"true", "1"};
@@ -123,6 +135,7 @@ bool XMLParseUtils::GetBoolAttr(const pugi::xml_node& node, const char* str) {
     bool is_false = false_names.find(string_attr) != false_names.end();
 
     if (!is_true && !is_false) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:      if (!is_true && !is_false) {" << std::endl;
         THROW_IE_EXCEPTION << "Unsupported boolean attribute type: " << string_attr;
     }
 
@@ -130,6 +143,7 @@ bool XMLParseUtils::GetBoolAttr(const pugi::xml_node& node, const char* str) {
 }
 
 float XMLParseUtils::GetFloatAttr(const pugi::xml_node& node, const char* str) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  float XMLParseUtils::GetFloatAttr(const pugi::xml_node& node, const char* str) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty())
         THROW_IE_EXCEPTION << "node <" << node.name() << "> is missing mandatory attribute: " << str << " at offset "
@@ -147,6 +161,7 @@ float XMLParseUtils::GetFloatAttr(const pugi::xml_node& node, const char* str) {
 }
 
 InferenceEngine::Precision XMLParseUtils::GetPrecisionAttr(const pugi::xml_node& node, const char* str) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  InferenceEngine::Precision XMLParseUtils::GetPrecisionAttr(const pugi::xml_node& node, const char* str) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty())
         THROW_IE_EXCEPTION << "node <" << node.name() << "> is missing mandatory attribute: " << str << " at offset "
@@ -156,42 +171,49 @@ InferenceEngine::Precision XMLParseUtils::GetPrecisionAttr(const pugi::xml_node&
 
 InferenceEngine::Precision XMLParseUtils::GetPrecisionAttr(const pugi::xml_node& node, const char* str,
                                                            InferenceEngine::Precision def) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:                                                             InferenceEngine::Precision def) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty()) return InferenceEngine::Precision(def);
     return InferenceEngine::Precision::FromStr(attr.value());
 }
 
 int XMLParseUtils::GetIntAttr(const pugi::xml_node& node, const char* str, int defVal) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  int XMLParseUtils::GetIntAttr(const pugi::xml_node& node, const char* str, int defVal) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty()) return defVal;
     return GetIntAttr(node, str);
 }
 
 int64_t XMLParseUtils::GetInt64Attr(const pugi::xml_node& node, const char* str, int64_t defVal) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  int64_t XMLParseUtils::GetInt64Attr(const pugi::xml_node& node, const char* str, int64_t defVal) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty()) return defVal;
     return GetInt64Attr(node, str);
 }
 
 uint64_t XMLParseUtils::GetUInt64Attr(const pugi::xml_node& node, const char* str, uint64_t defVal) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  uint64_t XMLParseUtils::GetUInt64Attr(const pugi::xml_node& node, const char* str, uint64_t defVal) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty()) return defVal;
     return GetUInt64Attr(node, str);
 }
 
 unsigned int XMLParseUtils::GetUIntAttr(const pugi::xml_node& node, const char* str, unsigned int defVal) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  unsigned int XMLParseUtils::GetUIntAttr(const pugi::xml_node& node, const char* str, unsigned int defVal) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty()) return defVal;
     return GetUIntAttr(node, str);
 }
 
 float XMLParseUtils::GetFloatAttr(const pugi::xml_node& node, const char* str, float defVal) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  float XMLParseUtils::GetFloatAttr(const pugi::xml_node& node, const char* str, float defVal) {" << std::endl;
     auto attr = node.attribute(str);
     if (attr.empty()) return defVal;
     return GetFloatAttr(node, str);
 }
 
 int XMLParseUtils::GetIntChild(const pugi::xml_node& node, const char* str, int defVal) {
+    std::cerr << "./inference-engine/src/inference_engine/xml_parse_utils.cpp:  int XMLParseUtils::GetIntChild(const pugi::xml_node& node, const char* str, int defVal) {" << std::endl;
     auto child = node.child(str);
     if (child.empty()) return defVal;
     return atoi(child.child_value());

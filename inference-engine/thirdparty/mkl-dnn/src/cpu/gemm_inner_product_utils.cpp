@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -42,6 +43,7 @@ pp_kernel_t<acc_type, dst_type>::pp_kernel_t(
     , rmode_(round_mode::nearest)
     , do_bias_(pd->with_bias())
     , do_eltwise_(false) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:      , do_eltwise_(false) {" << std::endl;
     using namespace types;
 
     scale_idx_mult_ = (pd->attr()->output_scales_.mask_ == (1 << 1));
@@ -55,11 +57,13 @@ pp_kernel_t<acc_type, dst_type>::pp_kernel_t(
 
     bias_data_type_ = pd->desc()->bias_desc.data_type;
     if (do_bias_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:      if (do_bias_) {" << std::endl;
         assert(bias_data_type_ != data_type::undef);
         bias_data_type_size_ = data_type_size(bias_data_type_);
     }
 
     if (!mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:      if (!mayiuse(avx512_core)) {" << std::endl;
         // use fallback code for older CPUs since they do not have optimized
         // x8s8s32 GEMM anyways. The configuration variables above are used by
         // the fallback code.
@@ -78,6 +82,7 @@ pp_kernel_t<acc_type, dst_type>::pp_kernel_t(
 template<data_type_t acc_type, data_type_t dst_type>
 void pp_kernel_t<acc_type, dst_type>::generate()
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:  void pp_kernel_t<acc_type, dst_type>::generate() {" << std::endl;
     using namespace Xbyak;
     using namespace utils;
     using namespace round_mode;
@@ -100,8 +105,10 @@ void pp_kernel_t<acc_type, dst_type>::generate()
     Zmm vreg_zero = Zmm(0);
     Zmm vreg_scale = Zmm(1);
 
-    auto vreg_dst = [&](int idx) { return Zmm(3 + idx * 2 + 0); };
-    auto vreg_bias = [&](int idx) { return Zmm(3 + idx * 2 + 1); };
+    auto vreg_dst = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:      auto vreg_dst = [&](int idx) {" << std::endl; return Zmm(3 + idx * 2 + 0); };
+    auto vreg_bias = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:      auto vreg_bias = [&](int idx) {" << std::endl; return Zmm(3 + idx * 2 + 1); };
 
     preamble();
 
@@ -122,9 +129,11 @@ void pp_kernel_t<acc_type, dst_type>::generate()
     // Load accumulated value, convert to float, apply bias (if any), scaling,
     // and eltwise (if any); then convert to destination type and store
     auto compute = [&](size_t offset, int idx, bool apply_mask) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:      auto compute = [&](size_t offset, int idx, bool apply_mask) {" << std::endl;
         auto acc_addr = ptr[reg_acc + offset * sizeof(acc_data_t)];
 
         if (scale_idx_mult_ > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:          if (scale_idx_mult_ > 0) {" << std::endl;
             assert(scale_idx_mult_ == 1);
             auto scale_addr = ptr[reg_scales + offset * sizeof(float)];
             auto vreg_scale_ = vreg_scale;
@@ -138,17 +147,20 @@ void pp_kernel_t<acc_type, dst_type>::generate()
             vreg_dst_ = vreg_dst_ | kreg_rem_mask;
 
         switch (acc_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:          switch (acc_type) {" << std::endl;
         case data_type::s32: vcvtdq2ps(vreg_dst_, acc_addr); break;
         case data_type::f32: vmovups(vreg_dst_, acc_addr); break;
         }
 
         if (do_bias_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:          if (do_bias_) {" << std::endl;
             auto bias_addr = ptr[reg_bias + offset * bias_data_type_size_];
             auto vreg_bias_ = vreg_bias(idx);
             if (apply_mask)
                 vreg_bias_ = vreg_bias_ | kreg_rem_mask;
 
             switch (bias_data_type_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:              switch (bias_data_type_) {" << std::endl;
             case data_type::s8:
                 vpmovsxbd(vreg_bias_, bias_addr);
                 break;
@@ -174,12 +186,14 @@ void pp_kernel_t<acc_type, dst_type>::generate()
             vmaxps(vreg_dst(idx), vreg_dst(idx), vreg_zero);
 
         if (dst_type != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:          if (dst_type != data_type::f32) {" << std::endl;
             auto rmode_control = (rmode_ == nearest ? T_rn_sae : T_rd_sae);
             vcvtps2dq(vreg_dst(idx) | rmode_control, vreg_dst(idx));
         }
 
         auto dst_addr = ptr[reg_dst + offset * sizeof(dst_data_t)];
         switch (dst_type) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:          switch (dst_type) {" << std::endl;
         case data_type::s8:
             vpmovsdb(dst_addr, vreg_dst_);
             break;
@@ -196,9 +210,11 @@ void pp_kernel_t<acc_type, dst_type>::generate()
 
     // Advance all pointers by an immediate
     auto advance_ptrs_imm = [&](size_t offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:      auto advance_ptrs_imm = [&](size_t offset) {" << std::endl;
         add(reg_dst, offset * sizeof(dst_data_t));
         add(reg_acc, offset * sizeof(acc_data_t));
         if (scale_idx_mult_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:          if (scale_idx_mult_) {" << std::endl;
             assert(scale_idx_mult_ == 1);
             add(reg_scales, offset * sizeof(float));
         }
@@ -208,9 +224,11 @@ void pp_kernel_t<acc_type, dst_type>::generate()
 
     // Advance all pointers by a value stored in a register
     auto advance_ptrs_reg = [&](Reg64 offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:      auto advance_ptrs_reg = [&](Reg64 offset) {" << std::endl;
         lea(reg_dst, ptr[reg_dst + offset * sizeof(dst_data_t)]);
         lea(reg_acc, ptr[reg_acc + offset * sizeof(acc_data_t)]);
         if (scale_idx_mult_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:          if (scale_idx_mult_) {" << std::endl;
             assert(scale_idx_mult_ == 1);
             lea(reg_scales, ptr[reg_scales + offset * sizeof(float)]);
         }
@@ -221,9 +239,11 @@ void pp_kernel_t<acc_type, dst_type>::generate()
     // Rewind pointers that point to data that is indixed by output channel
     // (bias or per-oc scaling factors)
     auto rewind_ptrs = [&]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:      auto rewind_ptrs = [&]() {" << std::endl;
         if (do_bias_)
             sub(reg_bias, OC_ * bias_data_type_size_);
         if (scale_idx_mult_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:          if (scale_idx_mult_) {" << std::endl;
             assert(scale_idx_mult_ == 1);
             sub(reg_scales, OC_ * sizeof(float));
         }
@@ -292,6 +312,7 @@ void pp_kernel_t<acc_type, dst_type>::generate()
 
             size_t OC_loop, OC_tail;
             if (OC_ < max_unroll * vlen) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:              if (OC_ < max_unroll * vlen) {" << std::endl;
                 // Fully unroll small loops
                 OC_loop = 0;
                 OC_tail = OC_;
@@ -303,6 +324,7 @@ void pp_kernel_t<acc_type, dst_type>::generate()
             assert(!!OC_loop || !!OC_tail);
 
             if (OC_tail % vlen) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:              if (OC_tail % vlen) {" << std::endl;
                 int vlen_tail = OC_tail % vlen;
                 unsigned tail_mask = (1 << vlen_tail) - 1;
                 mov(reg_tmp, tail_mask);
@@ -310,6 +332,7 @@ void pp_kernel_t<acc_type, dst_type>::generate()
             }
 
             if (OC_loop) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:              if (OC_loop) {" << std::endl;
                 mov(reg_tmp, rnd_dn(OC_, OC_loop));
                 Label oc_loop;
                 L(oc_loop); {
@@ -322,7 +345,9 @@ void pp_kernel_t<acc_type, dst_type>::generate()
             }
 
             if (OC_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:              if (OC_tail) {" << std::endl;
                 for (size_t offset = 0; offset < OC_tail; offset += vlen) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:                  for (size_t offset = 0; offset < OC_tail; offset += vlen) {" << std::endl;
                     bool use_mask = (offset + vlen) > OC_tail;
                     compute(offset, offset / vlen, use_mask);
                 }
@@ -378,12 +403,14 @@ template <data_type_t acc_type, data_type_t dst_type>
 void pp_kernel_t<acc_type, dst_type>::operator()(dst_data_t *dst,
         const acc_data_t *acc, const char *bias, const float *scales,
         size_t start, size_t end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:          size_t start, size_t end) {" << std::endl;
     using math::get_bias;
 
     if (end <= start)
         return;
 
     if (ker_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:      if (ker_) {" << std::endl;
         // JIT
         ker_args args;
         size_t oc_offset = start % OC_;
@@ -398,6 +425,7 @@ void pp_kernel_t<acc_type, dst_type>::operator()(dst_data_t *dst,
         // Fallback
         size_t oc = start % OC_;
         for (size_t i = start; i < end; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_inner_product_utils.cpp:          for (size_t i = start; i < end; i++) {" << std::endl;
             float d = (float)acc[i];
             float b = get_bias(bias, oc, bias_data_type_);
             d = d + b;

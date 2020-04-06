@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -14,6 +15,7 @@ namespace Cpu {
 class PriorBoxClusteredImpl: public ExtLayerBase {
 public:
     explicit PriorBoxClusteredImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox_clustered.cpp:      explicit PriorBoxClusteredImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 2 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -35,6 +37,7 @@ public:
 
             addConfig(layer, {{ConfLayout::PLN, true}, {ConfLayout::PLN, true}}, {{ConfLayout::PLN, true}});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox_clustered.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -60,6 +63,7 @@ public:
         float step_w = step_w_ == 0 ? step_ : step_w_;
         float step_h = step_h_ == 0 ? step_ : step_h_;
         if (step_w == 0 && step_h == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox_clustered.cpp:          if (step_w == 0 && step_h == 0) {" << std::endl;
             step_w = static_cast<float>(img_width) / layer_width;
             step_h = static_cast<float>(img_height) / layer_height;
         }
@@ -69,11 +73,14 @@ public:
         int var_size = variance_.size();
 
         for (int h = 0; h < layer_height; ++h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox_clustered.cpp:          for (int h = 0; h < layer_height; ++h) {" << std::endl;
             for (int w = 0; w < layer_width; ++w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox_clustered.cpp:              for (int w = 0; w < layer_width; ++w) {" << std::endl;
                 float center_x = (w + offset_) * step_w;
                 float center_y = (h + offset_) * step_h;
 
                 for (int s = 0; s < num_priors_; ++s) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox_clustered.cpp:                  for (int s = 0; s < num_priors_; ++s) {" << std::endl;
                     float box_width = widths_[s];
                     float box_height = heights_[s];
 
@@ -83,6 +90,7 @@ public:
                     float ymax = (center_y + box_height / 2.0f) / img_height;
 
                     if (clip_) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/priorbox_clustered.cpp:                      if (clip_) {" << std::endl;
                         xmin = (std::min)((std::max)(xmin, 0.0f), 1.0f);
                         ymin = (std::min)((std::max)(ymin, 0.0f), 1.0f);
                         xmax = (std::min)((std::max)(xmax, 0.0f), 1.0f);

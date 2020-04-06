@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -39,6 +40,7 @@ status_t jit_avx512_core_x8s8s32x_deconv_fwd_kernel::init_conf(
         cpu_memory_t::pd_t &src_pd, cpu_memory_t::pd_t &weights_pd,
         cpu_memory_t::pd_t &dst_pd, const bool with_bias,
         cpu_memory_t::pd_t &bias_pd, const primitive_attr_t &attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          cpu_memory_t::pd_t &bias_pd, const primitive_attr_t &attr) {" << std::endl;
     const memory_desc_wrapper src_d(&src_pd);
     const memory_desc_wrapper dst_d(&dst_pd);
     const memory_desc_wrapper weights_d(&weights_pd);
@@ -99,6 +101,7 @@ status_t jit_avx512_core_x8s8s32x_deconv_fwd_kernel::init_conf(
 
     jcp.with_bias = with_bias;
     if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.with_bias) {" << std::endl;
         if (bias_d.format() == any)
             CHECK(bias_pd.set_format(x));
         if (bias_d.format() != x)
@@ -120,6 +123,7 @@ status_t jit_avx512_core_x8s8s32x_deconv_fwd_kernel::init_conf(
     jcp.src_fmt = src_d.format();
 
     if (jcp.is_depthwise) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.is_depthwise) {" << std::endl;
         jcp.ch_block = 16;
         jcp.oc_block = 1;
         jcp.ic_block = 1;
@@ -129,6 +133,7 @@ status_t jit_avx512_core_x8s8s32x_deconv_fwd_kernel::init_conf(
         jcp.ic_block = 16;
 
         if (jcp.ngroups == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (jcp.ngroups == 1) {" << std::endl;
             jcp.oc = utils::rnd_up(jcp.oc_without_padding, jcp.oc_block);
             jcp.ic = utils::rnd_up(jcp.ic_without_padding, jcp.ic_block);
         }
@@ -190,10 +195,12 @@ status_t jit_avx512_core_x8s8s32x_deconv_fwd_kernel::init_conf(
             0, ((jcp.kw - 1) * (jcp.dilate_w + 1) - jcp.l_pad) / jcp.stride_w);
 
     if (jcp.ow < jcp.ur_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.ow < jcp.ur_w) {" << std::endl;
         jcp.ur_w = jcp.ow;
         jcp.ur_w_tail = 0;
     } else {
         for (; jcp.ur_w >= 1; jcp.ur_w--) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          for (; jcp.ur_w >= 1; jcp.ur_w--) {" << std::endl;
             /* ur_w should be multiple of stride_w in order
                to simplify logic for get_ow_start and get_ow_end */
             bool is_multiple_of_stride = jcp.ur_w % jcp.stride_w == 0;
@@ -236,13 +243,16 @@ status_t jit_avx512_core_x8s8s32x_deconv_fwd_kernel::init_conf(
 }
 
 bool jit_avx512_core_x8s8s32x_deconv_fwd_kernel::maybe_eltwise(int position) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:  bool jit_avx512_core_x8s8s32x_deconv_fwd_kernel::maybe_eltwise(int position) {" << std::endl;
     using namespace primitive_kind;
     const auto &p = attr_.post_ops_;
 
     if (position == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (position == 0) {" << std::endl;
         /* eltwise before sum */
         return p.contain(eltwise, 0);
     } else if (position == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      } else if (position == 1) {" << std::endl;
         /* eltwise after sum */
         return p.contain(sum, 0) && p.contain(eltwise, 1);
     }
@@ -250,6 +260,7 @@ bool jit_avx512_core_x8s8s32x_deconv_fwd_kernel::maybe_eltwise(int position) {
 }
 
 void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_eltwise(int ur_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:  void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_eltwise(int ur_w) {" << std::endl;
     int nb_oc_block
             = jcp.is_depthwise ? jcp.nb_ch_blocking : jcp.nb_oc_blocking;
     if (ur_w == jcp.ur_w)
@@ -262,12 +273,15 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_eltwise(int ur_w) {
 
 bool jit_avx512_core_x8s8s32x_deconv_fwd_kernel::post_ops_ok(
         jit_conv_conf_t &jcp, const primitive_attr_t &attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          jit_conv_conf_t &jcp, const primitive_attr_t &attr) {" << std::endl;
     using namespace primitive_kind;
     const auto &p = attr.post_ops_;
 
-    auto is_eltwise = [&](int idx) { return p.entry_[idx].is_eltwise(); };
+    auto is_eltwise = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      auto is_eltwise = [&](int idx) {" << std::endl; return p.entry_[idx].is_eltwise(); };
 
     switch (p.len_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      switch (p.len_) {" << std::endl;
     case 0: return true;
     case 1: return is_eltwise(0) || p.contain(sum, 0);
     case 2:
@@ -282,7 +296,9 @@ bool jit_avx512_core_x8s8s32x_deconv_fwd_kernel::post_ops_ok(
 void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::init_scratchpad(
         memory_tracking::registrar_t &scratchpad, const jit_conv_conf_t &jcp,
         const primitive_attr_t &attr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          const primitive_attr_t &attr) {" << std::endl;
     if (jcp.signed_input && jcp.ver != ver_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.signed_input && jcp.ver != ver_vnni) {" << std::endl;
         size_t count = nstl::max(attr.output_scales_.count_, 16);
         scratchpad.book(key_conv_adjusted_scales, sizeof(float) * count);
     }
@@ -291,11 +307,13 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::init_scratchpad(
 void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_ker(int ur_w,
         int l_overflow, int r_overflow, ker_block_t last_ic_block_flag,
         bool h_padded) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          bool h_padded) {" << std::endl;
 
     const int ch_block_all = jcp.ch_block * jcp.ic_block * jcp.oc_block;
     const int ur_w_stride = jcp.signed_input ? 1 : jcp.stride_w;
 
     auto src_offset = [=](int oj, int icb, int ki) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      auto src_offset = [=](int oj, int icb, int ki) {" << std::endl;
         return jcp.typesize_in
                 * (((oj + jcp.l_pad - ki * (jcp.dilate_w + 1)) / jcp.stride_w)
                                   * jcp.ngroups * jcp.ic_without_padding
@@ -303,6 +321,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_ker(int ur_w,
     };
 
     auto kernel_offset = [=](int ocb, int icb, int ki) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      auto kernel_offset = [=](int ocb, int icb, int ki) {" << std::endl;
         return jcp.typesize_in
                 * (ocb * jcp.nb_ic * jcp.kh * jcp.kw * ch_block_all
                           + icb * jcp.oc_block * jcp.ic_block / 4
@@ -310,9 +329,12 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_ker(int ur_w,
     };
 
     auto compute = [=](zmm_t vreg_acc, zmm_t vreg_wei, zmm_t vreg_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      auto compute = [=](zmm_t vreg_acc, zmm_t vreg_wei, zmm_t vreg_src) {" << std::endl;
         if (jcp.ver == ver_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (jcp.ver == ver_vnni) {" << std::endl;
             vpdpbusd(vreg_acc, vreg_src, vreg_wei);
         } else if (jcp.is_depthwise) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          } else if (jcp.is_depthwise) {" << std::endl;
             vpmulld(zmm_tmp, vreg_src, vreg_wei);
             vpaddd(vreg_acc, vreg_acc, zmm_tmp);
         } else {
@@ -323,6 +345,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_ker(int ur_w,
     };
 
     for (int ki = 0; ki < jcp.kw; ki++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      for (int ki = 0; ki < jcp.kw; ki++) {" << std::endl;
 
         int jj_start = get_ow_start(ki, l_overflow);
         int jj_end = get_ow_end(ur_w, ki, r_overflow);
@@ -339,7 +362,9 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_ker(int ur_w,
                                 jcp.ic_block / 4);
 
         for (int icb1 = 0; icb1 < n_ic_blocks; icb1++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          for (int icb1 = 0; icb1 < n_ic_blocks; icb1++) {" << std::endl;
             if (h_padded == true) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:              if (h_padded == true) {" << std::endl;
                 /* fill padded area with shifted values */
                 Zmm inp = zmm_inp(0, jcp.nb_oc_blocking);
                 vpxord(inp, inp, inp);
@@ -347,17 +372,21 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_ker(int ur_w,
             } else {
 
                 for (int jj = _start; jj < _end; jj += ur_w_stride) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:                  for (int jj = _start; jj < _end; jj += ur_w_stride) {" << std::endl;
 
                     int aux_src_off = src_offset(jj, icb1, ki);
 
                     if (jj >= jj_start && jj < jj_end
                             && ((jj + jcp.l_pad - ki) % jcp.stride_w == 0)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:                              && ((jj + jcp.l_pad - ki) % jcp.stride_w == 0)) {" << std::endl;
                         if (jcp.is_depthwise) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:                          if (jcp.is_depthwise) {" << std::endl;
                             vpmovzxbd(zmm_inp(jj, jcp.nb_oc_blocking),
                                     EVEX_compress_addr(
                                               aux_reg_src, aux_src_off));
                         } else if ((last_ic_block_flag & last_sp_block)
                                 && tail_size != 0 && icb1 == n_ic_blocks - 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:                                  && tail_size != 0 && icb1 == n_ic_blocks - 1) {" << std::endl;
                             xmm_t xmm_tmp = xmm_t(
                                     zmm_inp(jj, jcp.nb_oc_blocking).getIdx());
                             for (int r = 0; r < tail_size; ++r)
@@ -376,6 +405,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_ker(int ur_w,
                     } else {
                         /* fill padded area with shifted values */
                         if (jcp.signed_input) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:                          if (jcp.signed_input) {" << std::endl;
                             Zmm inp = zmm_inp(jj, jcp.nb_oc_blocking);
                             vpxord(inp, inp, inp);
                             vpsubb(inp, inp, zmm_shift);
@@ -384,9 +414,11 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_ker(int ur_w,
                 }
             }
             for (int ocb = 0; ocb < jcp.nb_oc_blocking; ocb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:              for (int ocb = 0; ocb < jcp.nb_oc_blocking; ocb++) {" << std::endl;
                 int aux_filt_off = kernel_offset(ocb, icb1, ki);
 
                 if (_end - _start > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:                  if (_end - _start > 0) {" << std::endl;
                     if (jcp.is_depthwise)
                         vpmovsxbd(zmm_wei,
                                 EVEX_compress_addr(aux_reg_filt, aux_filt_off));
@@ -395,6 +427,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_ker(int ur_w,
                                 EVEX_compress_addr(aux_reg_filt, aux_filt_off));
                 }
                 for (int jj = _start; jj < _end; jj += ur_w_stride) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:                  for (int jj = _start; jj < _end; jj += ur_w_stride) {" << std::endl;
                     Zmm inp = (h_padded == true) ?
                             zmm_inp(0, jcp.nb_oc_blocking) :
                             zmm_inp(jj, jcp.nb_oc_blocking);
@@ -407,6 +440,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::compute_ker(int ur_w,
 
 void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::kh_loop(int ur_w,
         int l_overflow, int r_overflow, ker_block_t last_ic_block_flag) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          int l_overflow, int r_overflow, ker_block_t last_ic_block_flag) {" << std::endl;
 
     int ch_block_all = jcp.ch_block * jcp.ic_block * jcp.oc_block;
     int shift_src_ih = jcp.typesize_in * (jcp.dilate_h + 1) * jcp.iw
@@ -422,6 +456,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::kh_loop(int ur_w,
     mov(aux_reg_filt, reg_filt);
 
     if (jcp.signed_input && jcp.ndims > 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.signed_input && jcp.ndims > 3) {" << std::endl;
         /* Weights are transposed, so first compute 'bottom' padding. */
         mov(reg_overflow, ptr[param1 + GET_OFF(b_overflow)]);
         cmp(reg_overflow, 0);
@@ -443,6 +478,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::kh_loop(int ur_w,
         && ((min(jcp.t_pad, jcp.b_pad) < 0)
             || ((jcp.kh - 1) * (jcp.dilate_h + 1)
                 < nstl::max(jcp.t_pad, jcp.b_pad))))) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:                  < nstl::max(jcp.t_pad, jcp.b_pad))))) {" << std::endl;
         cmp(reg_kh, 0);
         je(skip_kh_loop, T_NEAR);
     }
@@ -455,6 +491,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::kh_loop(int ur_w,
 
         /* Insert weight compensation in stride 'holes' */
         if (jcp.signed_input && jcp.stride_h > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (jcp.signed_input && jcp.stride_h > 1) {" << std::endl;
             Label kh_comp_loop;
 
             cmp(reg_kh, 0);
@@ -475,6 +512,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::kh_loop(int ur_w,
     }
     L(skip_kh_loop);
     if (jcp.signed_input && jcp.ndims > 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.signed_input && jcp.ndims > 3) {" << std::endl;
         mov(reg_overflow, ptr[param1 + GET_OFF(t_overflow)]);
         cmp(reg_overflow, 0);
         je(no_t_overflow_label, T_NEAR);
@@ -491,13 +529,17 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::kh_loop(int ur_w,
 }
 
 void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::prepare_output(int ur_w) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:  void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::prepare_output(int ur_w) {" << std::endl;
     for (int ocb = 0; ocb < jcp.nb_oc_blocking; ocb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      for (int ocb = 0; ocb < jcp.nb_oc_blocking; ocb++) {" << std::endl;
         for (int ur = 0; ur < ur_w; ur++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          for (int ur = 0; ur < ur_w; ur++) {" << std::endl;
             zmm_t zmm = zmm_out(ur, ocb);
             vpxord(zmm, zmm, zmm);
         }
     }
     if (jcp.signed_input) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.signed_input) {" << std::endl;
         xor_(reg_scratch, reg_scratch);
         Reg8 _t8 = reg_scratch.cvt8();
         mov(_t8, (int8_t)-128);
@@ -507,8 +549,10 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::prepare_output(int ur_w) {
 
 void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::cvt2ps(
         data_type_t type_in, zmm_t zmm_in, const Operand &op, bool mask_flag) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          data_type_t type_in, zmm_t zmm_in, const Operand &op, bool mask_flag) {" << std::endl;
     zmm_t zmm = mask_flag ? zmm_in | ktail_mask | T_z : zmm_in;
     switch (type_in) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      switch (type_in) {" << std::endl;
     case data_type::f32:
     case data_type::s32: vmovups(zmm, op); break;
     case data_type::s8: vpmovsxbd(zmm, op); break;
@@ -521,6 +565,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::cvt2ps(
 
 void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::store_output(
         int ur_w, bool last_oc_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          int ur_w, bool last_oc_block) {" << std::endl;
     mov(reg_bias, ptr[param1 + GET_OFF(bias)]);
     mov(reg_ptr_scales, ptr[param1 + GET_OFF(scales)]);
 
@@ -535,18 +580,21 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::store_output(
         mov(reg_ptr_sum_scale, (size_t)p_sum_scale);
 
     if (jcp.with_bias && jcp.signed_input && jcp.ver != ver_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.with_bias && jcp.signed_input && jcp.ver != ver_vnni) {" << std::endl;
         mov(reg_bias_alpha, float2int(jcp.wei_adj_scale));
         vmovq(xmm_bias_alpha(), reg_bias_alpha);
         vbroadcastss(zmm_bias_alpha(), xmm_bias_alpha());
     }
 
     for (int ocb = 0; ocb < jcp.nb_oc_blocking; ocb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      for (int ocb = 0; ocb < jcp.nb_oc_blocking; ocb++) {" << std::endl;
         const bool mask_flag = last_oc_block && ocb == jcp.nb_oc_blocking - 1;
         int scale_offset
                 = jcp.is_oc_scale * (sizeof(float) * ocb * jcp.oc_block);
 
         auto zmm_bias = zmm_tmp;
         if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (jcp.with_bias) {" << std::endl;
             int bias_offset = jcp.typesize_bia * ocb * jcp.oc_block;
             auto bias_addr = EVEX_compress_addr(reg_bias, bias_offset);
             cvt2ps(jcp.bia_dt, zmm_bias, bias_addr, mask_flag);
@@ -554,12 +602,14 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::store_output(
                 vmulps(zmm_bias, zmm_bias, zmm_bias_alpha());
         }
         if (jcp.signed_input) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (jcp.signed_input) {" << std::endl;
             int comp_offset = sizeof(int32_t) * ocb * jcp.oc_block;
             auto comp_addr = EVEX_compress_addr(reg_compensation, comp_offset);
             cvt2ps(data_type::s32, zmm_comp, comp_addr, mask_flag);
         }
 
         for (int ur = 0; ur < ur_w; ur++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          for (int ur = 0; ur < ur_w; ur++) {" << std::endl;
             zmm_t zmm = zmm_out(ur, ocb);
             vcvtdq2ps(zmm, zmm);
             if (jcp.signed_input)
@@ -573,11 +623,14 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::store_output(
     }
     if (maybe_eltwise(0))
         compute_eltwise(ur_w);
-    if (p_sum_scale) { // post_op: sum
+    if (p_sum_scale) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (p_sum_scale) {" << std::endl; // post_op: sum
         for (int k = 0; k < jcp.nb_oc_blocking; k++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          for (int k = 0; k < jcp.nb_oc_blocking; k++) {" << std::endl;
             const bool mask_flag
                     = last_oc_block == 1 && k == jcp.nb_oc_blocking - 1;
             for (int j = 0; j < ur_w; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:              for (int j = 0; j < ur_w; j++) {" << std::endl;
                 int aux_output_offset
                         = jcp.typesize_out
                         * (k * jcp.oc_block
@@ -596,14 +649,18 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::store_output(
         compute_eltwise(ur_w);
 
     for (int ocb = 0; ocb < jcp.nb_oc_blocking; ocb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      for (int ocb = 0; ocb < jcp.nb_oc_blocking; ocb++) {" << std::endl;
         const bool mask_flag = last_oc_block && ocb == jcp.nb_oc_blocking - 1;
         for (int ur = 0; ur < ur_w; ur++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          for (int ur = 0; ur < ur_w; ur++) {" << std::endl;
             zmm_t zmm = zmm_out(ur, ocb);
             if (jcp.dst_dt == data_type::u8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:              if (jcp.dst_dt == data_type::u8) {" << std::endl;
                 vpxord(zmm_zero, zmm_zero, zmm_zero);
                 vmaxps(zmm, zmm_zero, zmm);
             }
             if (jcp.dst_dt != data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:              if (jcp.dst_dt != data_type::f32) {" << std::endl;
                 if (attr_.round_mode_ == round_mode::nearest)
                     vcvtps2dq(zmm | T_rn_sae, zmm);
                 else if (attr_.round_mode_ == round_mode::down)
@@ -613,6 +670,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::store_output(
             }
         }
         for (int ur = 0; ur < ur_w; ur++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          for (int ur = 0; ur < ur_w; ur++) {" << std::endl;
             int aux_dst_off = jcp.typesize_out
                     * (ur * jcp.ngroups * jcp.oc_without_padding
                                       + ocb * jcp.oc_block);
@@ -621,6 +679,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::store_output(
             zmm_t zmm = zmm_out(ur, ocb);
             zmm_t r_zmm = mask_flag ? zmm | ktail_mask : zmm;
             switch (jcp.dst_dt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:              switch (jcp.dst_dt) {" << std::endl;
             case data_type::f32:
             case data_type::s32: vmovups(addr, r_zmm); break;
             case data_type::s8: vpmovsdb(addr, r_zmm); break;
@@ -633,6 +692,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::store_output(
 
 void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::icb_loop(
         int ur_w, int l_overflow, int r_overflow, bool is_last_sp_block) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          int ur_w, int l_overflow, int r_overflow, bool is_last_sp_block) {" << std::endl;
 
     int shift_src_icb = jcp.typesize_in * jcp.ic_block;
     int shift_filt_icb
@@ -646,6 +706,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::icb_loop(
     L(icb_loop_label); {
 
         if (jcp.ic_without_padding != jcp.ic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (jcp.ic_without_padding != jcp.ic) {" << std::endl;
             Label common_ker, end_ker;
             cmp(reg_icb, 1);
             jg(common_ker, T_NEAR);
@@ -675,6 +736,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::icb_loop(
     L(skip_icb_loop);
 
     if (jcp.ngroups % jcp.ch_block != 0 || jcp.oc_without_padding != jcp.oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.ngroups % jcp.ch_block != 0 || jcp.oc_without_padding != jcp.oc) {" << std::endl;
         Label common_store, end_store;
         mov(reg_oc_blocks, ptr[param1 + GET_OFF(oc_blocks)]);
         if (jcp.is_depthwise)
@@ -697,6 +759,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::icb_loop(
 }
 
 void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:  void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::generate() {" << std::endl;
     preamble();
 
     xor_(reg_scratch, reg_scratch);
@@ -705,6 +768,7 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::generate() {
     vpbroadcastw(zmm_one, _t);
 
     if (jcp.ngroups % jcp.ch_block != 0 || jcp.oc_without_padding != jcp.oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.ngroups % jcp.ch_block != 0 || jcp.oc_without_padding != jcp.oc) {" << std::endl;
         int tail_size = jcp.is_depthwise ?
                 jcp.ngroups % jcp.ch_block :
                 jcp.oc_without_padding % jcp.oc_block;
@@ -738,8 +802,10 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::generate() {
         nur_w--;
 
     if (jcp.ur_w == jcp.ow) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.ur_w == jcp.ow) {" << std::endl;
         icb_loop(jcp.ur_w, l_overflow, r_overflow, true);
     } else if (nur_w == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      } else if (nur_w == 0) {" << std::endl;
         icb_loop(jcp.ur_w, l_overflow, r_overflow1, jcp.ur_w_tail == 0);
         add(reg_src, src_shift);
         add(reg_dst, dst_shift);
@@ -748,12 +814,14 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::generate() {
     } else {
         xor_(reg_nur_w, reg_nur_w);
         if (l_overflow > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (l_overflow > 0) {" << std::endl;
             icb_loop(jcp.ur_w, l_overflow, 0, false);
             add(reg_src, src_shift);
             add(reg_dst, dst_shift);
             inc(reg_nur_w);
         }
         if ((l_overflow <= 0 && nur_w > 0) || (l_overflow > 0 && nur_w > 1)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if ((l_overflow <= 0 && nur_w > 0) || (l_overflow > 0 && nur_w > 1)) {" << std::endl;
             Label ow_loop_label;
             L(ow_loop_label);
             {
@@ -766,11 +834,13 @@ void jit_avx512_core_x8s8s32x_deconv_fwd_kernel::generate() {
             }
         }
         if (r_overflow1 > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (r_overflow1 > 0) {" << std::endl;
             icb_loop(jcp.ur_w, 0, r_overflow1, jcp.ur_w_tail == 0);
             add(reg_src, src_shift);
             add(reg_dst, dst_shift);
         }
         if (jcp.ur_w_tail != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (jcp.ur_w_tail != 0) {" << std::endl;
             icb_loop(jcp.ur_w_tail, 0, r_overflow, true);
         }
     }
@@ -800,11 +870,13 @@ void _jit_avx512_core_x8s8s32x_deconvolution_fwd_t<src_type,
 
     const float *oscales = pd()->attr()->output_scales_.scales_;
     if (jcp.signed_input && jcp.ver != ver_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.signed_input && jcp.ver != ver_vnni) {" << std::endl;
         auto local_scales
                 = scratchpad().template get<float>(key_conv_adjusted_scales);
         size_t count = pd()->attr()->output_scales_.count_;
         float factor = 1.f / pd()->jcp_.wei_adj_scale;
         if (count == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (count == 1) {" << std::endl;
             utils::array_set(local_scales, oscales[0] * factor, 16);
         } else {
             for (size_t c = 0; c < count; c++)
@@ -818,6 +890,7 @@ void _jit_avx512_core_x8s8s32x_deconvolution_fwd_t<src_type,
             = (jcp.signed_input) ? reinterpret_cast<int32_t *>(&w[offset]) : 0;
 
     parallel(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      parallel(0, [&](const int ithr, const int nthr) {" << std::endl;
         int start{ 0 }, end{ 0 };
         int work_amount = jcp.mb * nb_groups * oc_chunks;
         balance211(work_amount, nthr, ithr, start, end);
@@ -832,6 +905,7 @@ void _jit_avx512_core_x8s8s32x_deconvolution_fwd_t<src_type,
         else
             assert(!"unsupported loop order");
         while (start < end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          while (start < end) {" << std::endl;
 
             int ocb = occ * jcp.nb_oc_blocking;
             int g_oc = (g * jcp.ch_block * jcp.nb_oc + ocb) * jcp.oc_block;
@@ -887,11 +961,13 @@ void _jit_avx512_core_x8s8s32x_deconvolution_fwd_t<src_type,
 
     const float *oscales = pd()->attr()->output_scales_.scales_;
     if (jcp.signed_input && jcp.ver != ver_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      if (jcp.signed_input && jcp.ver != ver_vnni) {" << std::endl;
         auto local_scales
                 = scratchpad().template get<float>(key_conv_adjusted_scales);
         size_t count = pd()->attr()->output_scales_.count_;
         float factor = 1.f / pd()->jcp_.wei_adj_scale;
         if (count == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          if (count == 1) {" << std::endl;
             utils::array_set(local_scales, oscales[0] * factor, 16);
         } else {
             for (size_t c = 0; c < count; c++)
@@ -907,6 +983,7 @@ void _jit_avx512_core_x8s8s32x_deconvolution_fwd_t<src_type,
     int work_amount = jcp.mb * nb_groups * oc_chunks * jcp.oh;
 
     parallel(0, (size_t)work_amount, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:      parallel(0, (size_t)work_amount, [&](const int ithr, const int nthr) {" << std::endl;
         int start{ 0 }, end{ 0 };
         balance211(work_amount, nthr, ithr, start, end);
 
@@ -923,6 +1000,7 @@ void _jit_avx512_core_x8s8s32x_deconvolution_fwd_t<src_type,
         else
             assert(!"unsupported loop order");
         while (start < end) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:          while (start < end) {" << std::endl;
 
             int ocb = occ * jcp.nb_oc_blocking;
             int g_oc = (g * jcp.ch_block * jcp.nb_oc + ocb) * jcp.oc_block;
@@ -941,8 +1019,10 @@ void _jit_avx512_core_x8s8s32x_deconvolution_fwd_t<src_type,
 
             auto scales = &oscales[jcp.is_oc_scale * g_oc];
             for (int oj = oh_s; oj < oh_e; oj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:              for (int oj = oh_s; oj < oh_e; oj++) {" << std::endl;
                 int ih_max = 0, kh_lo = 0, kh_len = 0;
                 if (jcp.dilate_h != 0 && jcp.stride_h == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_x8s8s32x_deconvolution.cpp:                  if (jcp.dilate_h != 0 && jcp.stride_h == 1) {" << std::endl;
                     /* dilation */
                     int dilate_h = jcp.dilate_h + 1;
                     // Note: use div_up to account for "holes" in filter

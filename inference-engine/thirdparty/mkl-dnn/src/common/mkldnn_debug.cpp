@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018-2019 Intel Corporation
 *
@@ -22,6 +23,7 @@
 #include "mkldnn_types.h"
 
 const char *mkldnn_status2str(mkldnn_status_t v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/mkldnn_debug.cpp:  const char *mkldnn_status2str(mkldnn_status_t v) {" << std::endl;
     if (v == mkldnn_success) return "success";
     if (v == mkldnn_out_of_memory) return "out_of_memory";
     if (v == mkldnn_try_again) return "try_again";
@@ -36,6 +38,7 @@ const char *mkldnn_status2str(mkldnn_status_t v) {
 }
 
 const char *mkldnn_dt2str(mkldnn_data_type_t v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/mkldnn_debug.cpp:  const char *mkldnn_dt2str(mkldnn_data_type_t v) {" << std::endl;
     if (v == mkldnn_data_type_undef) return "undef";
     if (v == mkldnn_f32) return "f32";
     if (v == mkldnn_s32) return "s32";
@@ -49,6 +52,7 @@ const char *mkldnn_dt2str(mkldnn_data_type_t v) {
 }
 
 const char *mkldnn_rmode2str(mkldnn_round_mode_t v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/mkldnn_debug.cpp:  const char *mkldnn_rmode2str(mkldnn_round_mode_t v) {" << std::endl;
     if (v == mkldnn_round_nearest) return "round_nearest";
     if (v == mkldnn_round_down) return "round_down";
     assert(!"unknown rmode");
@@ -56,6 +60,7 @@ const char *mkldnn_rmode2str(mkldnn_round_mode_t v) {
 }
 
 const char *mkldnn_fmt2str(mkldnn_memory_format_t v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/mkldnn_debug.cpp:  const char *mkldnn_fmt2str(mkldnn_memory_format_t v) {" << std::endl;
     if (v == mkldnn_format_undef) return "undef";
     if (v == mkldnn_any) return "any";
     if (v == mkldnn_blocked) return "blocked";
@@ -239,6 +244,7 @@ const char *mkldnn_fmt2str(mkldnn_memory_format_t v) {
 }
 
 const char *mkldnn_prop_kind2str(mkldnn_prop_kind_t v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/mkldnn_debug.cpp:  const char *mkldnn_prop_kind2str(mkldnn_prop_kind_t v) {" << std::endl;
     if (v == mkldnn_prop_kind_undef) return "undef";
     if (v == mkldnn_forward_training) return "forward_training";
     if (v == mkldnn_forward_inference) return "forward_inference";
@@ -253,6 +259,7 @@ const char *mkldnn_prop_kind2str(mkldnn_prop_kind_t v) {
 }
 
 const char *mkldnn_prim_kind2str(mkldnn_primitive_kind_t v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/mkldnn_debug.cpp:  const char *mkldnn_prim_kind2str(mkldnn_primitive_kind_t v) {" << std::endl;
     if (v == mkldnn_undefined_primitive) return "undef";
     if (v == mkldnn_memory) return "memory";
     if (v == mkldnn_view) return "view";
@@ -281,6 +288,7 @@ const char *mkldnn_prim_kind2str(mkldnn_primitive_kind_t v) {
 }
 
 const char *mkldnn_alg_kind2str(mkldnn_alg_kind_t v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/mkldnn_debug.cpp:  const char *mkldnn_alg_kind2str(mkldnn_alg_kind_t v) {" << std::endl;
     if (v == mkldnn_alg_kind_undef) return "undef";
     if (v == mkldnn_convolution_auto) return "convolution_auto";
     if (v == mkldnn_convolution_direct) return "convolution_direct";
@@ -324,6 +332,7 @@ const char *mkldnn_alg_kind2str(mkldnn_alg_kind_t v) {
 }
 
 const char *mkldnn_rnn_direction2str(mkldnn_rnn_direction_t v) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/mkldnn_debug.cpp:  const char *mkldnn_rnn_direction2str(mkldnn_rnn_direction_t v) {" << std::endl;
     if (v == mkldnn_unidirectional_left2right) return "unidirectional_left2right";
     if (v == mkldnn_unidirectional_right2left) return "unidirectional_right2left";
     if (v == mkldnn_bidirectional_concat) return "bidirectional_concat";

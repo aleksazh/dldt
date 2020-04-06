@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,6 +19,7 @@ namespace InferenceEngine {
 
 template <InferenceEngine::Precision::ePrecision PRC>
 static void blob_copy_4d_t(Blob::Ptr src, Blob::Ptr dst) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:  static void blob_copy_4d_t(Blob::Ptr src, Blob::Ptr dst) {" << std::endl;
     using data_t = typename InferenceEngine::PrecisionTrait<PRC>::value_type;
 
     auto* src_ptr = src->buffer().as<data_t*>();
@@ -52,7 +54,9 @@ static void blob_copy_4d_t(Blob::Ptr src, Blob::Ptr dst) {
 #ifdef HAVE_SSE
     if (src->getTensorDesc().getLayout() == NHWC && dst->getTensorDesc().getLayout() == NCHW && C == 3 &&
         C_src_stride == 1 && W_src_stride == 3 && W_dst_stride == 1 && with_cpu_x86_sse42()) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          C_src_stride == 1 && W_src_stride == 3 && W_dst_stride == 1 && with_cpu_x86_sse42()) {" << std::endl;
         if (PRC == Precision::U8) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          if (PRC == Precision::U8) {" << std::endl;
             blob_copy_4d_split_u8c3(reinterpret_cast<const uint8_t*>(src_ptr), reinterpret_cast<uint8_t*>(dst_ptr),
                                     N_src_stride, H_src_stride, N_dst_stride, H_dst_stride, C_dst_stride,
                                     static_cast<int>(N), static_cast<int>(H), static_cast<int>(W));
@@ -60,6 +64,7 @@ static void blob_copy_4d_t(Blob::Ptr src, Blob::Ptr dst) {
         }
 
         if (PRC == Precision::FP32) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          if (PRC == Precision::FP32) {" << std::endl;
             blob_copy_4d_split_f32c3(reinterpret_cast<const float*>(src_ptr), reinterpret_cast<float*>(dst_ptr),
                                      N_src_stride, H_src_stride, N_dst_stride, H_dst_stride, C_dst_stride,
                                      static_cast<int>(N), static_cast<int>(H), static_cast<int>(W));
@@ -69,7 +74,9 @@ static void blob_copy_4d_t(Blob::Ptr src, Blob::Ptr dst) {
 
     if (src->getTensorDesc().getLayout() == NCHW && dst->getTensorDesc().getLayout() == NHWC && C == 3 &&
         C_dst_stride == 1 && W_dst_stride == 3 && W_src_stride == 1 && with_cpu_x86_sse42()) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          C_dst_stride == 1 && W_dst_stride == 3 && W_src_stride == 1 && with_cpu_x86_sse42()) {" << std::endl;
         if (PRC == Precision::U8) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          if (PRC == Precision::U8) {" << std::endl;
             blob_copy_4d_merge_u8c3(reinterpret_cast<const uint8_t*>(src_ptr), reinterpret_cast<uint8_t*>(dst_ptr),
                                     N_src_stride, H_src_stride, C_src_stride, N_dst_stride, H_dst_stride,
                                     static_cast<int>(N), static_cast<int>(H), static_cast<int>(W));
@@ -77,6 +84,7 @@ static void blob_copy_4d_t(Blob::Ptr src, Blob::Ptr dst) {
         }
 
         if (PRC == Precision::FP32) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          if (PRC == Precision::FP32) {" << std::endl;
             blob_copy_4d_merge_f32c3(reinterpret_cast<const float*>(src_ptr), reinterpret_cast<float*>(dst_ptr),
                                      N_src_stride, H_src_stride, C_src_stride, N_dst_stride, H_dst_stride,
                                      static_cast<int>(N), static_cast<int>(H), static_cast<int>(W));
@@ -86,13 +94,18 @@ static void blob_copy_4d_t(Blob::Ptr src, Blob::Ptr dst) {
 #endif  // HAVE_SSE
 
     if (src->getTensorDesc().getLayout() == NHWC && dst->getTensorDesc().getLayout() == NCHW) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:      if (src->getTensorDesc().getLayout() == NHWC && dst->getTensorDesc().getLayout() == NCHW) {" << std::endl;
         for (int n = 0; n < N; n++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          for (int n = 0; n < N; n++) {" << std::endl;
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 data_t* dst_ptr_l = dst_ptr + n * N_dst_stride + c * C_dst_stride;
                 data_t* src_ptr_l = src_ptr + n * N_src_stride + c * C_src_stride;
                 for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:                  for (int h = 0; h < H; h++) {" << std::endl;
                     data_t* src_ptr_l_l = src_ptr_l + h * H_src_stride;
                     for (int w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:                      for (int w = 0; w < W; w++) {" << std::endl;
                         *dst_ptr_l = *src_ptr_l_l;
                         src_ptr_l_l += W_src_stride;
                         dst_ptr_l++;
@@ -101,13 +114,18 @@ static void blob_copy_4d_t(Blob::Ptr src, Blob::Ptr dst) {
             }
         }
     } else if (src->getTensorDesc().getLayout() == NCHW && dst->getTensorDesc().getLayout() == NHWC) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:      } else if (src->getTensorDesc().getLayout() == NCHW && dst->getTensorDesc().getLayout() == NHWC) {" << std::endl;
         for (int n = 0; n < N; n++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          for (int n = 0; n < N; n++) {" << std::endl;
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 data_t* src_ptr_l = src_ptr + n * N_src_stride + c * C_src_stride;
                 data_t* dst_ptr_l = dst_ptr + n * N_dst_stride + c;
                 for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:                  for (int h = 0; h < H; h++) {" << std::endl;
                     data_t* src_ptr_l_l = src_ptr_l + h * H_src_stride;
                     for (int w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:                      for (int w = 0; w < W; w++) {" << std::endl;
                         *dst_ptr_l = *src_ptr_l_l;
                         dst_ptr_l += W_dst_stride;
                         src_ptr_l_l++;
@@ -117,13 +135,16 @@ static void blob_copy_4d_t(Blob::Ptr src, Blob::Ptr dst) {
         }
     } else {
         for (int i = 0; i < N * C * H * W; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          for (int i = 0; i < N * C * H * W; i++) {" << std::endl;
             dst_ptr[i] = src_ptr[i];
         }
     }
 }
 
 static inline void blob_copy_4d(Blob::Ptr src, Blob::Ptr dst) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:  static inline void blob_copy_4d(Blob::Ptr src, Blob::Ptr dst) {" << std::endl;
     switch (src->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:      switch (src->getTensorDesc().getPrecision()) {" << std::endl;
     case Precision::FP32:
     case Precision::I32:
         blob_copy_4d_t<Precision::FP32>(src, dst);
@@ -147,6 +168,7 @@ static inline void blob_copy_4d(Blob::Ptr src, Blob::Ptr dst) {
 
 template <InferenceEngine::Precision::ePrecision PRC>
 static void blob_copy_5d_t(Blob::Ptr src, Blob::Ptr dst) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:  static void blob_copy_5d_t(Blob::Ptr src, Blob::Ptr dst) {" << std::endl;
     using data_t = typename InferenceEngine::PrecisionTrait<PRC>::value_type;
 
     const auto& src_blk_desc = src->getTensorDesc().getBlockingDesc();
@@ -182,7 +204,9 @@ static void blob_copy_5d_t(Blob::Ptr src, Blob::Ptr dst) {
 #ifdef HAVE_SSE
     if (src->getTensorDesc().getLayout() == NDHWC && dst->getTensorDesc().getLayout() == NCDHW && C == 3 &&
         C_src_stride == 1 && W_src_stride == 3 && W_dst_stride == 1 && with_cpu_x86_sse42()) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          C_src_stride == 1 && W_src_stride == 3 && W_dst_stride == 1 && with_cpu_x86_sse42()) {" << std::endl;
         if (PRC == Precision::U8) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          if (PRC == Precision::U8) {" << std::endl;
             blob_copy_5d_split_u8c3(reinterpret_cast<const uint8_t*>(src_ptr), reinterpret_cast<uint8_t*>(dst_ptr),
                                     N_src_stride, D_src_stride, H_src_stride, N_dst_stride, D_dst_stride, H_dst_stride,
                                     C_dst_stride, static_cast<int>(N), static_cast<int>(D), static_cast<int>(H),
@@ -191,6 +215,7 @@ static void blob_copy_5d_t(Blob::Ptr src, Blob::Ptr dst) {
         }
 
         if (PRC == Precision::FP32) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          if (PRC == Precision::FP32) {" << std::endl;
             blob_copy_5d_split_f32c3(reinterpret_cast<const float*>(src_ptr), reinterpret_cast<float*>(dst_ptr),
                                      N_src_stride, D_src_stride, H_src_stride, N_dst_stride, D_dst_stride, H_dst_stride,
                                      C_dst_stride, static_cast<int>(N), static_cast<int>(D), static_cast<int>(H),
@@ -201,7 +226,9 @@ static void blob_copy_5d_t(Blob::Ptr src, Blob::Ptr dst) {
 
     if (src->getTensorDesc().getLayout() == NCDHW && dst->getTensorDesc().getLayout() == NDHWC && C == 3 &&
         C_dst_stride == 1 && W_dst_stride == 3 && W_src_stride == 1 && with_cpu_x86_sse42()) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          C_dst_stride == 1 && W_dst_stride == 3 && W_src_stride == 1 && with_cpu_x86_sse42()) {" << std::endl;
         if (PRC == Precision::U8) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          if (PRC == Precision::U8) {" << std::endl;
             blob_copy_5d_merge_u8c3(reinterpret_cast<const uint8_t*>(src_ptr), reinterpret_cast<uint8_t*>(dst_ptr),
                                     N_src_stride, D_src_stride, H_src_stride, C_src_stride, N_dst_stride, D_dst_stride,
                                     H_dst_stride, static_cast<int>(N), static_cast<int>(D), static_cast<int>(H),
@@ -210,6 +237,7 @@ static void blob_copy_5d_t(Blob::Ptr src, Blob::Ptr dst) {
         }
 
         if (PRC == Precision::FP32) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          if (PRC == Precision::FP32) {" << std::endl;
             blob_copy_5d_merge_f32c3(reinterpret_cast<const float*>(src_ptr), reinterpret_cast<float*>(dst_ptr),
                                      N_src_stride, D_src_stride, H_src_stride, C_src_stride, N_dst_stride, D_dst_stride,
                                      H_dst_stride, static_cast<int>(N), static_cast<int>(D), static_cast<int>(H),
@@ -219,14 +247,20 @@ static void blob_copy_5d_t(Blob::Ptr src, Blob::Ptr dst) {
     }
 #endif  // HAVE_SSE
     if (src->getTensorDesc().getLayout() == NDHWC && dst->getTensorDesc().getLayout() == NCDHW) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:      if (src->getTensorDesc().getLayout() == NDHWC && dst->getTensorDesc().getLayout() == NCDHW) {" << std::endl;
         for (int n = 0; n < N; n++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          for (int n = 0; n < N; n++) {" << std::endl;
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 for (int d = 0; d < D; d++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:                  for (int d = 0; d < D; d++) {" << std::endl;
                     data_t* dst_ptr_l = dst_ptr + n * N_dst_stride + c * C_dst_stride + d * D_dst_stride;
                     data_t* src_ptr_l = src_ptr + n * N_src_stride + c * C_src_stride + d * D_src_stride;
                     for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:                      for (int h = 0; h < H; h++) {" << std::endl;
                         data_t* src_ptr_l_l = src_ptr_l + h * H_src_stride;
                         for (int w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:                          for (int w = 0; w < W; w++) {" << std::endl;
                             *dst_ptr_l = *src_ptr_l_l;
                             src_ptr_l_l += W_src_stride;
                             dst_ptr_l++;
@@ -236,14 +270,20 @@ static void blob_copy_5d_t(Blob::Ptr src, Blob::Ptr dst) {
             }
         }
     } else if (src->getTensorDesc().getLayout() == NCDHW && dst->getTensorDesc().getLayout() == NDHWC) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:      } else if (src->getTensorDesc().getLayout() == NCDHW && dst->getTensorDesc().getLayout() == NDHWC) {" << std::endl;
         for (int n = 0; n < N; n++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          for (int n = 0; n < N; n++) {" << std::endl;
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 for (int d = 0; d < D; d++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:                  for (int d = 0; d < D; d++) {" << std::endl;
                     data_t* src_ptr_l = src_ptr + n * N_src_stride + c * C_src_stride + d * D_src_stride;
                     data_t* dst_ptr_l = dst_ptr + n * N_dst_stride + c + d * D_dst_stride;
                     for (int h = 0; h < H; h++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:                      for (int h = 0; h < H; h++) {" << std::endl;
                         data_t* src_ptr_l_l = src_ptr_l + h * H_src_stride;
                         for (int w = 0; w < W; w++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:                          for (int w = 0; w < W; w++) {" << std::endl;
                             *dst_ptr_l = *src_ptr_l_l;
                             dst_ptr_l += W_dst_stride;
                             src_ptr_l_l++;
@@ -254,13 +294,16 @@ static void blob_copy_5d_t(Blob::Ptr src, Blob::Ptr dst) {
         }
     } else {
         for (int i = 0; i < N * C * D * H * W; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:          for (int i = 0; i < N * C * D * H * W; i++) {" << std::endl;
             dst_ptr[i] = src_ptr[i];
         }
     }
 }
 
 static inline void blob_copy_5d(Blob::Ptr src, Blob::Ptr dst) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:  static inline void blob_copy_5d(Blob::Ptr src, Blob::Ptr dst) {" << std::endl;
     switch (src->getTensorDesc().getPrecision()) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:      switch (src->getTensorDesc().getPrecision()) {" << std::endl;
     case Precision::FP32:
     case Precision::I32:
         blob_copy_5d_t<Precision::FP32>(src, dst);
@@ -283,6 +326,7 @@ static inline void blob_copy_5d(Blob::Ptr src, Blob::Ptr dst) {
 }
 
 void blob_copy(Blob::Ptr src, Blob::Ptr dst) {
+    std::cerr << "./inference-engine/src/inference_engine/blob_transform.cpp:  void blob_copy(Blob::Ptr src, Blob::Ptr dst) {" << std::endl;
     if (src->buffer() == nullptr) THROW_IE_EXCEPTION << "Cannot copy blob data. Source is not allocated.";
 
     if (dst->buffer() == nullptr) THROW_IE_EXCEPTION << "Cannot copy blob data. Destination is not allocated.";

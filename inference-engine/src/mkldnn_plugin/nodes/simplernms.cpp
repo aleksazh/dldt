@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -18,6 +19,7 @@ struct simpler_nms_roi_t {
     float x0, y0, x1, y1;
 
     static inline const float clamp_v(const float v, const float v_min, const float v_max) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:      static inline const float clamp_v(const float v, const float v_min, const float v_max) {" << std::endl;
         return (std::max)(v_min, (std::min)(v, v_max));
     }
 
@@ -48,6 +50,7 @@ struct simpler_nms_anchor { float start_x; float start_y; float end_x; float end
 
 static void CalcBasicParams(const simpler_nms_anchor& base_anchor,
         float& width, float& height, float& x_center, float& y_center) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          float& width, float& height, float& x_center, float& y_center) {" << std::endl;
     width  = base_anchor.end_x - base_anchor.start_x + 1.0f;
     height = base_anchor.end_y - base_anchor.start_y + 1.0f;
 
@@ -58,11 +61,13 @@ static void CalcBasicParams(const simpler_nms_anchor& base_anchor,
 
 static void MakeAnchors(const std::vector<float>& ws, const std::vector<float>& hs,
                         float x_center, float y_center, std::vector<simpler_nms_anchor>& anchors) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:                          float x_center, float y_center, std::vector<simpler_nms_anchor>& anchors) {" << std::endl;
     unsigned int len = ws.size();
     anchors.clear();
     anchors.resize(len);
 
     for (unsigned int i = 0 ; i < len ; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:      for (unsigned int i = 0 ; i < len ; i++) {" << std::endl;
         // transpose to create the anchor
         anchors[i].start_x = x_center - 0.5f * (ws[i] - 1.0f);
         anchors[i].start_y = y_center - 0.5f * (hs[i] - 1.0f);
@@ -74,6 +79,7 @@ static void MakeAnchors(const std::vector<float>& ws, const std::vector<float>& 
 
 static void CalcAnchors(const simpler_nms_anchor& base_anchor, const std::vector<float>& scales,
                         std::vector<simpler_nms_anchor>& anchors) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:                          std::vector<simpler_nms_anchor>& anchors) {" << std::endl;
     float width = 0.0f, height = 0.0f, x_center = 0.0f, y_center = 0.0f;
 
     CalcBasicParams(base_anchor, width, height, x_center, y_center);
@@ -82,6 +88,7 @@ static void CalcAnchors(const simpler_nms_anchor& base_anchor, const std::vector
     std::vector<float> ws(num_scales), hs(num_scales);
 
     for (unsigned int i = 0 ; i < num_scales ; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:      for (unsigned int i = 0 ; i < num_scales ; i++) {" << std::endl;
         ws[i] = width * scales[i];
         hs[i] = height * scales[i];
     }
@@ -92,6 +99,7 @@ static void CalcAnchors(const simpler_nms_anchor& base_anchor, const std::vector
 
 static void CalcRatioAnchors(const simpler_nms_anchor& base_anchor, const std::vector<float>& ratios,
                              std::vector<simpler_nms_anchor>& ratio_anchors) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:                               std::vector<simpler_nms_anchor>& ratio_anchors) {" << std::endl;
     float width = 0.0f, height = 0.0f, x_center = 0.0f, y_center = 0.0f;
 
     CalcBasicParams(base_anchor, width, height, x_center, y_center);
@@ -103,6 +111,7 @@ static void CalcRatioAnchors(const simpler_nms_anchor& base_anchor, const std::v
     std::vector<float> ws(num_ratios), hs(num_ratios);
 
     for (unsigned int i = 0 ; i < num_ratios ; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:      for (unsigned int i = 0 ; i < num_ratios ; i++) {" << std::endl;
         float new_size = size / ratios[i];
         ws[i] = round(sqrt(new_size));
         hs[i] = round(ws[i] * ratios[i]);
@@ -113,6 +122,7 @@ static void CalcRatioAnchors(const simpler_nms_anchor& base_anchor, const std::v
 
 void GenerateAnchors(unsigned int base_size, const std::vector<float>& ratios,
         const std::vector<float> scales, simpler_nms_anchor *anchors) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          const std::vector<float> scales, simpler_nms_anchor *anchors) {" << std::endl;
     float end = static_cast<float>(base_size - 1);  // because we start at zero
 
     simpler_nms_anchor base_anchor = {0.0f, 0.0f, end, end};
@@ -121,10 +131,12 @@ void GenerateAnchors(unsigned int base_size, const std::vector<float>& ratios,
     CalcRatioAnchors(base_anchor, ratios, ratio_anchors);
 
     for (size_t i = 0, index = 0; i < ratio_anchors.size() ; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:      for (size_t i = 0, index = 0; i < ratio_anchors.size() ; i++) {" << std::endl;
         std::vector<simpler_nms_anchor> temp_anchors;
         CalcAnchors(ratio_anchors[i], scales, temp_anchors);
 
         for (size_t j = 0 ; j < temp_anchors.size() ; j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          for (size_t j = 0 ; j < temp_anchors.size() ; j++) {" << std::endl;
             anchors[index++] = temp_anchors[j];
         }
     }
@@ -134,21 +146,26 @@ std::vector<simpler_nms_roi_t> simpler_nms_perform_nms(
         const std::vector<simpler_nms_proposal_t>& proposals,
         float iou_threshold,
         size_t top_n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          size_t top_n) {" << std::endl;
     std::vector<simpler_nms_roi_t> res;
     res.reserve(top_n);
     for (const auto & prop : proposals) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:      for (const auto & prop : proposals) {" << std::endl;
         const auto bbox = prop.roi;
         const float area = bbox.area();
 
         // For any realistic WL, this condition is true for all top_n values anyway
         if (prop.confidence > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          if (prop.confidence > 0) {" << std::endl;
             bool overlaps = std::any_of(res.begin(), res.end(), [&](const simpler_nms_roi_t& res_bbox) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:              bool overlaps = std::any_of(res.begin(), res.end(), [&](const simpler_nms_roi_t& res_bbox) {" << std::endl;
                 float interArea = bbox.intersect(res_bbox).area();
                 float unionArea = res_bbox.area() + area - interArea;
                 return interArea > iou_threshold * unionArea;
             });
 
             if (!overlaps) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:              if (!overlaps) {" << std::endl;
                 res.push_back(bbox);
                 if (res.size() == top_n) break;
             }
@@ -161,12 +178,15 @@ std::vector<simpler_nms_roi_t> simpler_nms_perform_nms(
 inline void sort_and_keep_at_most_top_n(
         std::vector<simpler_nms_proposal_t>& proposals,
         size_t top_n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          size_t top_n) {" << std::endl;
     const auto cmp_fn = [](const simpler_nms_proposal_t& a,
                            const simpler_nms_proposal_t& b) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:                             const simpler_nms_proposal_t& b) {" << std::endl;
         return a.confidence > b.confidence || (a.confidence == b.confidence && a.ord > b.ord);
     };
 
     if (proposals.size() > top_n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:      if (proposals.size() > top_n) {" << std::endl;
         std::partial_sort(proposals.begin(), proposals.begin() + top_n, proposals.end(), cmp_fn);
         proposals.resize(top_n);
     } else {
@@ -179,6 +199,7 @@ inline simpler_nms_roi_t simpler_nms_gen_bbox(
         const simpler_nms_delta_t& delta,
         int anchor_shift_x,
         int anchor_shift_y) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          int anchor_shift_y) {" << std::endl;
     auto anchor_w = box.end_x - box.start_x + 1;
     auto anchor_h = box.end_y - box.start_y + 1;
     auto center_x = box.start_x + anchor_w * .5f;
@@ -198,6 +219,7 @@ inline simpler_nms_roi_t simpler_nms_gen_bbox(
 class SimplerNMSImpl : public ExtLayerBase {
 public:
     explicit SimplerNMSImpl(const CNNLayer *layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:      explicit SimplerNMSImpl(const CNNLayer *layer) {" << std::endl;
         try {
             if (layer->insData.size() != 3 || layer->outData.size() != 1)
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -229,6 +251,7 @@ public:
             addConfig(layer, {DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN)},
                       {DataConfigurator(ConfLayout::PLN)});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -242,6 +265,7 @@ public:
         Blob::Ptr src_delta = inputs[delta_idx];
 
         if (src_cls->getTensorDesc().getDims()[1] > src_delta->getTensorDesc().getDims()[1]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          if (src_cls->getTensorDesc().getDims()[1] > src_delta->getTensorDesc().getDims()[1]) {" << std::endl;
             cls_idx = 1;
             delta_idx = 0;
 
@@ -272,14 +296,17 @@ public:
         std::vector<simpler_nms_proposal_t> sorted_proposals_confidence;
 
         for (auto y = 0; y < H; ++y) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          for (auto y = 0; y < H; ++y) {" << std::endl;
             int anchor_shift_y = y * feat_stride_;
 
             for (auto x = 0; x < W; ++x) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:              for (auto x = 0; x < W; ++x) {" << std::endl;
                 int anchor_shift_x = x * feat_stride_;
                 int location_index = y * W + x;
 
                 // we assume proposals are grouped by window location
                 for (int anchor_index = 0; anchor_index < anchors_num ; anchor_index++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:                  for (int anchor_index = 0; anchor_index < anchors_num ; anchor_index++) {" << std::endl;
                     float dx0 = delta_pred[location_index + SZ * (anchor_index * 4 + 0)];
                     float dy0 = delta_pred[location_index + SZ * (anchor_index * 4 + 1)];
                     float dx1 = delta_pred[location_index + SZ * (anchor_index * 4 + 2)];
@@ -297,6 +324,7 @@ public:
                     int bbox_h = static_cast<int>(roi.y1 - roi.y0) + 1;
 
                     if (bbox_w >= scaled_min_bbox_size && bbox_h >= scaled_min_bbox_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:                      if (bbox_w >= scaled_min_bbox_size && bbox_h >= scaled_min_bbox_size) {" << std::endl;
                         simpler_nms_proposal_t proposal { roi, proposal_confidence, sorted_proposals_confidence.size() };
                         sorted_proposals_confidence.push_back(proposal);
                     }
@@ -310,6 +338,7 @@ public:
         size_t res_num_rois = res.size();
 
         for (size_t i = 0; i < res_num_rois; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/simplernms.cpp:          for (size_t i = 0; i < res_num_rois; ++i) {" << std::endl;
             dst[5 * i + 0] = 0;    // roi_batch_ind, always zero on test time
             dst[5 * i + 1] = res[i].x0;
             dst[5 * i + 2] = res[i].y0;

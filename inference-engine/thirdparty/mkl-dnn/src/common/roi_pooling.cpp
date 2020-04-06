@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016 Intel Corporation
 *
@@ -32,6 +33,7 @@ status_t roi_pooling_desc_init(roi_pooling_desc_t *roi_pool_desc,
         prop_kind_t prop_kind, alg_kind_t algorithm,
         memory_desc_t *src_descs, int num_src, const memory_desc_t *dst_desc,
         int pooled_h, int pooled_w, double spatial_scale) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/roi_pooling.cpp:          int pooled_h, int pooled_w, double spatial_scale) {" << std::endl;
     
     auto pd = roi_pooling_desc_t();
     pd.primitive_kind = primitive_kind::roi_pooling;
@@ -55,6 +57,7 @@ status_t mkldnn_roi_pooling_forward_desc_init(roi_pooling_desc_t *roi_pooling_de
         memory_desc_t *src_desc, int num_src,
         const memory_desc_t *dst_desc,
         int pooled_h, int pooled_w, double spatial_scale) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/roi_pooling.cpp:          int pooled_h, int pooled_w, double spatial_scale) {" << std::endl;
     if (!one_of(prop_kind, forward_inference))
         return invalid_arguments;
 

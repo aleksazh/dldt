@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -24,6 +25,7 @@ void generate_anchors(int base_size, float* ratios,
                       float* scales, const int num_ratios,
                       const int num_scales, float* anchors,
                       float coordinates_offset, bool shift_anchors, bool round_ratios) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:                        float coordinates_offset, bool shift_anchors, bool round_ratios) {" << std::endl;
     // base box's width & height & center location
     const float base_area = static_cast<float>(base_size * base_size);
     const float half_base_size = base_size * 0.5f;
@@ -31,10 +33,12 @@ void generate_anchors(int base_size, float* ratios,
 
     // enumerate all transformed boxes
     for (int ratio = 0; ratio < num_ratios; ++ratio) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:      for (int ratio = 0; ratio < num_ratios; ++ratio) {" << std::endl;
         // transformed width & height for given ratio factors
         float ratio_w;
         float ratio_h;
         if (round_ratios) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          if (round_ratios) {" << std::endl;
             ratio_w = std::roundf(std::sqrt(base_area / ratios[ratio]));
             ratio_h = std::roundf(ratio_w * ratios[ratio]);
         } else {
@@ -48,6 +52,7 @@ void generate_anchors(int base_size, float* ratios,
         float * const p_anchors_hp = anchors + 3 * num_ratios * num_scales + ratio * num_scales;
 
         for (int scale = 0; scale < num_scales; ++scale) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          for (int scale = 0; scale < num_scales; ++scale) {" << std::endl;
             // transformed width & height for given scale factors
             const float scale_w = 0.5f * (ratio_w * scales[scale] - coordinates_offset);
             const float scale_h = 0.5f * (ratio_h * scales[scale] - coordinates_offset);
@@ -59,6 +64,7 @@ void generate_anchors(int base_size, float* ratios,
             p_anchors_hp[scale] = center + scale_h;
 
             if (shift_anchors) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:              if (shift_anchors) {" << std::endl;
                 p_anchors_wm[scale] -= half_base_size;
                 p_anchors_hm[scale] -= half_base_size;
                 p_anchors_wp[scale] -= half_base_size;
@@ -75,6 +81,7 @@ void enumerate_proposals_cpu(const float* bottom4d, const float* d_anchor4d, con
                              const float min_box_H, const float min_box_W, const int feat_stride,
                              const float box_coordinate_scale, const float box_size_scale,
                              float coordinates_offset, bool initial_clip, bool swap_xy, bool clip_before_nms) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:                               float coordinates_offset, bool initial_clip, bool swap_xy, bool clip_before_nms) {" << std::endl;
     const int bottom_area = bottom_H * bottom_W;
 
     const float* p_anchors_wm = anchors + 0 * num_anchors;
@@ -83,6 +90,7 @@ void enumerate_proposals_cpu(const float* bottom4d, const float* d_anchor4d, con
     const float* p_anchors_hp = anchors + 3 * num_anchors;
 
     parallel_for2d(bottom_H, bottom_W, [&](size_t h, size_t w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:      parallel_for2d(bottom_H, bottom_W, [&](size_t h, size_t w) {" << std::endl;
             const float x = static_cast<float>((swap_xy ? h : w) * feat_stride);
             const float y = static_cast<float>((swap_xy ? w : h) * feat_stride);
 
@@ -92,6 +100,7 @@ void enumerate_proposals_cpu(const float* bottom4d, const float* d_anchor4d, con
             float* p_proposal = proposals + (h * bottom_W + w) * num_anchors * 5;
 
             for (int anchor = 0; anchor < num_anchors; ++anchor) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:              for (int anchor = 0; anchor < num_anchors; ++anchor) {" << std::endl;
                 const float dx = p_box[(anchor * 4 + 0) * bottom_area] / box_coordinate_scale;
                 const float dy = p_box[(anchor * 4 + 1) * bottom_area] / box_coordinate_scale;
 
@@ -106,6 +115,7 @@ void enumerate_proposals_cpu(const float* bottom4d, const float* d_anchor4d, con
                 float y1 = y + p_anchors_hp[anchor];
 
                 if (initial_clip) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:                  if (initial_clip) {" << std::endl;
                     // adjust new corner locations to be within the image region
                     x0 = std::max<float>(0.0f, std::min<float>(x0, img_W));
                     y0 = std::max<float>(0.0f, std::min<float>(y0, img_H));
@@ -136,6 +146,7 @@ void enumerate_proposals_cpu(const float* bottom4d, const float* d_anchor4d, con
 
                 // adjust new corner locations to be within the image region,
                 if (clip_before_nms) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:                  if (clip_before_nms) {" << std::endl;
                     x0 = std::max<float>(0.0f, std::min<float>(x0, img_W - coordinates_offset));
                     y0 = std::max<float>(0.0f, std::min<float>(y0, img_H - coordinates_offset));
                     x1 = std::max<float>(0.0f, std::min<float>(x1, img_W - coordinates_offset));
@@ -156,8 +167,11 @@ void enumerate_proposals_cpu(const float* bottom4d, const float* d_anchor4d, con
 }
 
 static void unpack_boxes(const float* p_proposals, float* unpacked_boxes, int pre_nms_topn, bool store_prob) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:  static void unpack_boxes(const float* p_proposals, float* unpacked_boxes, int pre_nms_topn, bool store_prob) {" << std::endl;
     if (store_prob) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:      if (store_prob) {" << std::endl;
         parallel_for(pre_nms_topn, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          parallel_for(pre_nms_topn, [&](size_t i) {" << std::endl;
             unpacked_boxes[0 * pre_nms_topn + i] = p_proposals[5 * i + 0];
             unpacked_boxes[1 * pre_nms_topn + i] = p_proposals[5 * i + 1];
             unpacked_boxes[2 * pre_nms_topn + i] = p_proposals[5 * i + 2];
@@ -166,6 +180,7 @@ static void unpack_boxes(const float* p_proposals, float* unpacked_boxes, int pr
         });
     } else {
         parallel_for(pre_nms_topn, [&](size_t i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          parallel_for(pre_nms_topn, [&](size_t i) {" << std::endl;
             unpacked_boxes[0 * pre_nms_topn + i] = p_proposals[5 * i + 0];
             unpacked_boxes[1 * pre_nms_topn + i] = p_proposals[5 * i + 1];
             unpacked_boxes[2 * pre_nms_topn + i] = p_proposals[5 * i + 2];
@@ -179,6 +194,7 @@ void nms_cpu(const int num_boxes, int is_dead[],
              const float* boxes, int index_out[], int* const num_out,
              const int base_index, const float nms_thresh, const int max_num_out,
              float coordinates_offset) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:               float coordinates_offset) {" << std::endl;
     const int num_proposals = num_boxes;
     int count = 0;
 
@@ -198,6 +214,7 @@ void nms_cpu(const int num_boxes, int is_dead[],
 #endif
 
     for (int box = 0; box < num_boxes; ++box) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:      for (int box = 0; box < num_boxes; ++box) {" << std::endl;
         if (is_dead[box])
             continue;
 
@@ -218,6 +235,7 @@ void nms_cpu(const int num_boxes, int is_dead[],
         __m256 vA_area   = _mm256_mul_ps(_mm256_add_ps(vA_width, vc_fone), _mm256_add_ps(vA_height, vc_fone));
 
         for (; tail <= num_boxes - 8; tail += 8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          for (; tail <= num_boxes - 8; tail += 8) {" << std::endl;
             __m256i *pdst = reinterpret_cast<__m256i*>(is_dead + tail);
             __m256i  vdst = _mm256_loadu_si256(pdst);
 
@@ -258,6 +276,7 @@ void nms_cpu(const int num_boxes, int is_dead[],
 #endif
 
         for (; tail < num_boxes; ++tail) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          for (; tail < num_boxes; ++tail) {" << std::endl;
             float res = 0.0f;
 
             const float x0i = x0[box];
@@ -271,6 +290,7 @@ void nms_cpu(const int num_boxes, int is_dead[],
             const float y1j = y1[tail];
 
             if (x0i <= x1j && y0i <= y1j && x0j <= x1i && y0j <= y1i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:              if (x0i <= x1j && y0i <= y1j && x0j <= x1i && y0j <= y1i) {" << std::endl;
                 // overlapped region (= box)
                 const float x0 = std::max<float>(x0i, x0j);
                 const float y0 = std::max<float>(y0i, y0j);
@@ -304,6 +324,7 @@ void retrieve_rois_cpu(const int num_rois, const int item_index,
                               const float* proposals, const int roi_indices[],
                               float* rois, int post_nms_topn_,
                               bool normalize, float img_h, float img_w, bool clip_after_nms, float* probs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:                                bool normalize, float img_h, float img_w, bool clip_after_nms, float* probs) {" << std::endl;
     const float *src_x0 = proposals + 0 * num_proposals;
     const float *src_y0 = proposals + 1 * num_proposals;
     const float *src_x1 = proposals + 2 * num_proposals;
@@ -311,6 +332,7 @@ void retrieve_rois_cpu(const int num_rois, const int item_index,
     const float *src_probs = proposals + 4 * num_proposals;
 
     parallel_for(num_rois, [&](size_t roi) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:      parallel_for(num_rois, [&](size_t roi) {" << std::endl;
         int index = roi_indices[roi];
 
         float x0 = src_x0[index];
@@ -319,6 +341,7 @@ void retrieve_rois_cpu(const int num_rois, const int item_index,
         float y1 = src_y1[index];
 
         if (clip_after_nms) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          if (clip_after_nms) {" << std::endl;
             x0 = std::max<float>(0.0f, std::min<float>(x0, img_w));
             y0 = std::max<float>(0.0f, std::min<float>(y0, img_h));
             x1 = std::max<float>(0.0f, std::min<float>(x1, img_w));
@@ -326,6 +349,7 @@ void retrieve_rois_cpu(const int num_rois, const int item_index,
         }
 
         if (normalize) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          if (normalize) {" << std::endl;
             x0 /= img_w;
             y0 /= img_h;
             x1 /= img_w;
@@ -343,7 +367,9 @@ void retrieve_rois_cpu(const int num_rois, const int item_index,
     });
 
     if (num_rois < post_nms_topn_) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:      if (num_rois < post_nms_topn_) {" << std::endl;
         for (int i = 5 * num_rois; i < 5 * post_nms_topn_; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          for (int i = 5 * num_rois; i < 5 * post_nms_topn_; i++) {" << std::endl;
             rois[i] = 0.f;
         }
 
@@ -356,6 +382,7 @@ template<mkldnn::impl::cpu::cpu_isa_t T>
 class ProposalImpl : public ExtLayerBase {
 public:
     explicit ProposalImpl(const CNNLayer *layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:      explicit ProposalImpl(const CNNLayer *layer) {" << std::endl;
         try {
             if (layer->insData.size() != 3 || (layer->outData.size() != 1 && layer->outData.size() != 2))
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -382,6 +409,7 @@ public:
 
             std::string framework_ = layer->GetParamAsString("framework", "");
             if (framework_ == "tensorflow") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:              if (framework_ == 'tensorflow') {" << std::endl;
                 coordinates_offset = 0.0f;
                 initial_clip = true;
                 shift_anchors = true;
@@ -402,6 +430,7 @@ public:
             store_prob = layer->outData.size() == 2;
 
             if (store_prob) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:              if (store_prob) {" << std::endl;
                 addConfig(layer, {DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN)},
                                  {DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN)});
             } else {
@@ -409,6 +438,7 @@ public:
                                  {DataConfigurator(ConfLayout::PLN)});
             }
         } catch (const InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          } catch (const InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -417,6 +447,7 @@ public:
                        ResponseDesc *resp) noexcept override {
         try {
             if (inputs.size() != 3 || outputs.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:              if (inputs.size() != 3 || outputs.empty()) {" << std::endl;
                 THROW_IE_EXCEPTION << "Incorrect number of input or output edges!";
             }
 
@@ -478,6 +509,7 @@ public:
             // Execute
             int nn = inputs[0]->getTensorDesc().getDims()[0];
             for (int n = 0; n < nn; ++n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:              for (int n = 0; n < nn; ++n) {" << std::endl;
                 enumerate_proposals_cpu(p_bottom_item + num_proposals + n * num_proposals * 2,
                                         p_d_anchor_item + n * num_proposals * 4,
                                         &anchors_[0], reinterpret_cast<float *>(&proposals_[0]),
@@ -487,6 +519,7 @@ public:
                                         coordinates_offset, initial_clip, swap_xy, clip_before_nms);
                 std::partial_sort(proposals_.begin(), proposals_.begin() + pre_nms_topn, proposals_.end(),
                                   [](const ProposalBox &struct1, const ProposalBox &struct2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:                                    [](const ProposalBox &struct1, const ProposalBox &struct2) {" << std::endl;
                                       return (struct1.score > struct2.score);
                                   });
 
@@ -502,7 +535,9 @@ public:
 
             return OK;
         } catch (const InferenceEngine::details::InferenceEngineException& e) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:          } catch (const InferenceEngine::details::InferenceEngineException& e) {" << std::endl;
             if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/proposal.cpp:              if (resp) {" << std::endl;
                 std::string errorMsg = e.what();
                 errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
             }

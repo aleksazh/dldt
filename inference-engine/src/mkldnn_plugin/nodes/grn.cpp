@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,6 +18,7 @@ namespace Cpu {
 class GRNImpl: public ExtLayerBase {
 public:
     explicit GRNImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/grn.cpp:      explicit GRNImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 1 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -25,6 +27,7 @@ public:
 
             addConfig(layer, {{ConfLayout::PLN, false, 0}}, {{ConfLayout::PLN, false, 0}});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/grn.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -42,12 +45,15 @@ public:
         int W = static_cast<int>((dims.size() > 3) ? dims[3] : 1);
 
         parallel_for3d(N, H, W, [&](int b, int h, int w) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/grn.cpp:          parallel_for3d(N, H, W, [&](int b, int h, int w) {" << std::endl;
             double variance = 0;
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/grn.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 variance += std::pow(src_data[b*C*H*W + c*H*W + h*W + w], 2);
             }
             variance = std::pow(variance + bias, 0.5f);
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/grn.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 dst_data[b*C*H*W + c*H*W + h*W + w] = src_data[b*C*H*W + c*H*W + h*W + w] / static_cast<float>(variance);
             }
         });

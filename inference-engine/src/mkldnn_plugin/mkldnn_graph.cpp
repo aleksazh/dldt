@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -58,7 +59,8 @@
 
 #ifdef BLOB_DUMP_PATH
 #   define DUMP_DIR        BLOB_DUMP_PATH
-#   define ENABLE_DUMP(_x) { _x ;}
+#   define ENABLE_DUMP(_x) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  #   define ENABLE_DUMP(_x) {" << std::endl; _x ;}
 #else
 #   define DUMP_DIR ""
 #   define ENABLE_DUMP(_x)
@@ -72,6 +74,7 @@ using namespace InferenceEngine::details;
 
 template<typename NET>
 void MKLDNNGraph::ApplyUnrollPasses(NET &net) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::ApplyUnrollPasses(NET &net) {" << std::endl;
     NetPass::CombineRNNSeq(net);
     bool ti_proc_ok = NetPass::UnrollRNN_if(net, [] (const RNNCellBase &rnn) -> bool {
         if (rnn.clip != 0.0f)
@@ -94,6 +97,7 @@ template void MKLDNNGraph::ApplyUnrollPasses(ICNNNetwork&);
 
 template<typename NET>
 void MKLDNNGraph::CreateGraph(const NET &net, const MKLDNNExtensionManager::Ptr& extMgr, int _socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::CreateGraph(const NET &net, const MKLDNNExtensionManager::Ptr& extMgr, int _socket) {" << std::endl;
     if (IsReady())
         ForgetGraphData();
     socket = _socket;
@@ -107,6 +111,7 @@ template void MKLDNNGraph::CreateGraph(const ICNNNetwork&, const MKLDNNExtension
 template void MKLDNNGraph::CreateGraph(const CNNNetwork&, const MKLDNNExtensionManager::Ptr& , int);
 
 void MKLDNNGraph::Replicate(const TensorIterator::Body &subgraph, const MKLDNNExtensionManager::Ptr& extMgr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::Replicate(const TensorIterator::Body &subgraph, const MKLDNNExtensionManager::Ptr& extMgr) {" << std::endl;
     this->_name = "subgraph";
     this->reuse_io_tensors = false;
 
@@ -131,6 +136,7 @@ void MKLDNNGraph::Replicate(const TensorIterator::Body &subgraph, const MKLDNNEx
 
     // Replicate All Nodes in topological order
     for (const auto layer : NetPass::TIBodySortTopologically(subgraph)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (const auto layer : NetPass::TIBodySortTopologically(subgraph)) {" << std::endl;
         CNNLayerPtr _layer = layer;
 
         const MKLDNNNodePtr node(MKLDNNNode::CreateNode(_layer, getEngine(), extMgr, socket));
@@ -138,6 +144,7 @@ void MKLDNNGraph::Replicate(const TensorIterator::Body &subgraph, const MKLDNNEx
         layer2node[layer] = node;
 
         for (int port = 0; port < layer->insData.size(); port++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (int port = 0; port < layer->insData.size(); port++) {" << std::endl;
             auto data = layer->insData[port].lock();
             auto parent_layer = data->getCreatorLayer().lock();
             if (!parent_layer) continue;  // no parent means that it is input data node (or memory/const layer)
@@ -149,13 +156,16 @@ void MKLDNNGraph::Replicate(const TensorIterator::Body &subgraph, const MKLDNNEx
             graphEdges.push_back(edge);
         }
         for (auto &out_data : layer->outData) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (auto &out_data : layer->outData) {" << std::endl;
             if (out_data->getInputTo().empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (out_data->getInputTo().empty()) {" << std::endl;
                 unused_data.insert(out_data);
             }
         }
     }
 
     for (const auto &output : subgraph.outputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (const auto &output : subgraph.outputs) {" << std::endl;
         auto parent_layer = output->getCreatorLayer().lock();
         auto parent_node = layer2node[parent_layer];
 
@@ -176,6 +186,7 @@ void MKLDNNGraph::Replicate(const TensorIterator::Body &subgraph, const MKLDNNEx
 
     // Add stub output node for unused data
     for (auto to_stub_data : unused_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto to_stub_data : unused_data) {" << std::endl;
         auto parent_layer = to_stub_data->getCreatorLayer().lock();
         auto parent_node = layer2node[parent_layer];
 
@@ -192,6 +203,7 @@ void MKLDNNGraph::Replicate(const TensorIterator::Body &subgraph, const MKLDNNEx
 
     // Replicate input nodes
     for (const auto &input : subgraph.inputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (const auto &input : subgraph.inputs) {" << std::endl;
         if (input->getName() == "const_holder") continue;
 
         CNNLayerPtr layer(new CNNLayer({"in_" + input->getName(), "Input", input->getTensorDesc().getPrecision()}));
@@ -200,6 +212,7 @@ void MKLDNNGraph::Replicate(const TensorIterator::Body &subgraph, const MKLDNNEx
         const MKLDNNNodePtr node(MKLDNNNode::CreateNode(layer, getEngine(), extMgr, socket));
 
         for (auto p : input->getInputTo()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (auto p : input->getInputTo()) {" << std::endl;
             auto consumer = p.second;
             MKLDNNEdgePtr edge(new MKLDNNEdge(node, layer2node[consumer], 0, _child_port(input, consumer)));
             node->addEdge(edge);
@@ -212,9 +225,11 @@ void MKLDNNGraph::Replicate(const TensorIterator::Body &subgraph, const MKLDNNEx
 }
 
 void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionManager::Ptr& extMgr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionManager::Ptr& extMgr) {" << std::endl;
     InputsDataMap inputs;
     network.getInputsInfo(inputs);
     if (inputs.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      if (inputs.empty()) {" << std::endl;
         THROW_IE_EXCEPTION << "MKLDNNGraph::CreateGraph: No inputs for the topology";
     }
 
@@ -223,8 +238,10 @@ void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionMan
     // The input layer precision has to be equal to the InputData precision
     std::map<std::string, Precision> changedPrecision;
     for (const auto& input : inputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (const auto& input : inputs) {" << std::endl;
         auto inputLayer = input.second->getInputData()->getCreatorLayer().lock();
         if (inputLayer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (inputLayer) {" << std::endl;
             inputLayer->precision = inputLayer->outData[0]->getTensorDesc().getPrecision();
         }
     }
@@ -242,8 +259,10 @@ void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionMan
 
     // Replicate All Nodes in topological order
     for (const auto layer : CNNNetSortTopologically(network)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (const auto layer : CNNNetSortTopologically(network)) {" << std::endl;
         CNNLayerPtr _layer = layer;
         if (layer->type == "Memory" && layer->GetParamAsString("index") == "1") {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (layer->type == 'Memory' && layer->GetParamAsString('index') == '1') {" << std::endl;
             auto memoryId = layer->GetParamAsString("id");
             Precision portPrecision = layer->outData[0]->getTensorDesc().getPrecision();
             _layer.reset(new CNNLayer({layer->name + "/id=" + memoryId, "MemoryInput", portPrecision}));
@@ -256,6 +275,7 @@ void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionMan
         layer2node[layer] = node;
 
         for (int port = 0; port < layer->insData.size(); port++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (int port = 0; port < layer->insData.size(); port++) {" << std::endl;
             auto data = layer->insData[port].lock();
             auto parent_layer = data->getCreatorLayer().lock();
             if (!parent_layer) continue;  // no parent means that it is input data node (or memory/const layer)
@@ -267,7 +287,9 @@ void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionMan
             graphEdges.push_back(edge);
         }
         for (auto &out_data : layer->outData) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (auto &out_data : layer->outData) {" << std::endl;
             if (out_data->getInputTo().empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (out_data->getInputTo().empty()) {" << std::endl;
                 unused_data.insert(out_data);
             }
         }
@@ -277,6 +299,7 @@ void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionMan
     network.getOutputsInfo(outputs);
 
     for (const auto &output : outputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (const auto &output : outputs) {" << std::endl;
         const auto data = output.second;
 
         auto parent_layer = data->getCreatorLayer().lock();
@@ -299,6 +322,7 @@ void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionMan
 
     // Add stub output node for unused data
     for (auto to_stub_data : unused_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto to_stub_data : unused_data) {" << std::endl;
         auto parent_layer = to_stub_data->getCreatorLayer().lock();
         auto parent_node = layer2node[parent_layer];
 
@@ -315,6 +339,7 @@ void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionMan
 
     // Replicate input nodes
     for (const auto& input : inputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (const auto& input : inputs) {" << std::endl;
         auto inputLayer = input.second->getInputData()->getCreatorLayer().lock();
         inputNodes[input.first] = layer2node[inputLayer];
 
@@ -325,8 +350,10 @@ void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionMan
         else
             outDims = MKLDNNDims(inputNodes[input.first]->getChildEdgeAt(0)->getDims());
         if (inputs.find(input.first) != inputs.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (inputs.find(input.first) != inputs.end()) {" << std::endl;
             InputInfo::Ptr ii = inputs[input.first];
             if (ii && ii->getPreProcess().getNumberOfChannels()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (ii && ii->getPreProcess().getNumberOfChannels()) {" << std::endl;
                 _meanImages[input.first].Load(outDims, ii);
             }
         }
@@ -334,6 +361,7 @@ void MKLDNNGraph::Replicate(const ICNNNetwork &network, const MKLDNNExtensionMan
 }
 
 void MKLDNNGraph::InitGraph() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::InitGraph() {" << std::endl;
     SortTopologically();
     MKLDNNGraphOptimizer optimizer;
     optimizer.ApplyCommonGraphOptimizations(*this);
@@ -342,6 +370,7 @@ void MKLDNNGraph::InitGraph() {
     InitNodes();
 
     for (auto &node : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &node : graphNodes) {" << std::endl;
         node->initOptimalPrimitiveDescriptor();
     }
     InitEdges();
@@ -356,17 +385,20 @@ void MKLDNNGraph::InitGraph() {
 
     // Do it before cleanup. Because it will lose original layers information
     for (auto &graphNode : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &graphNode : graphNodes) {" << std::endl;
         auto nodeType = graphNode->getType();
         if (nodeType == Reorder || nodeType == Output) continue;
 
         graphNode->addOriginalLayer(graphNode->getCnnLayer());
         if (graphNode->getFusedWith().size() || graphNode->getMergeWith().size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (graphNode->getFusedWith().size() || graphNode->getMergeWith().size()) {" << std::endl;
             // Original layer names
             std::vector<MKLDNNNodePtr> internal = graphNode->getFusedWith();
             auto &merged = graphNode->getMergeWith();
             internal.insert(internal.end(), merged.begin(), merged.end());
 
             for (auto &sub_node : internal) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              for (auto &sub_node : internal) {" << std::endl;
                 graphNode->addOriginalLayer(sub_node->getCnnLayer());
             }
         }
@@ -376,20 +408,24 @@ void MKLDNNGraph::InitGraph() {
 
 #ifndef DUMP_INTERNAL_BLOBS
     for (auto &graphNode : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &graphNode : graphNodes) {" << std::endl;
         graphNode->cleanup();
     }
 #endif
 
 #if !defined(NDEBUG) && defined(PRINT_GRAPH_INFO)
     for (auto &graphNode : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &graphNode : graphNodes) {" << std::endl;
         std::cout << "name: " << graphNode->getName() << " [ ";
         if (graphNode->parentEdges.size() > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (graphNode->parentEdges.size() > 0) {" << std::endl;
             auto prnt_out_desc = graphNode->parentEdges[0].lock()->getOutputDesc();
             std::cout << "in: " << prnt_out_desc.getPrecision().name()
                       << "/l=" << prnt_out_desc.getLayout()
                     << "; ";
         }
         if (graphNode->childEdges.size() > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (graphNode->childEdges.size() > 0) {" << std::endl;
             auto chld_in_desc = graphNode->childEdges[0].lock()->getInputDesc();
             std::cout << "out: " << chld_in_desc.getPrecision().name()
                       << "/l=" << chld_in_desc.getLayout();
@@ -400,6 +436,7 @@ void MKLDNNGraph::InitGraph() {
 
     mkldnn::stream stream = mkldnn::stream(stream::kind::eager);
     for (auto &graphNode : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &graphNode : graphNodes) {" << std::endl;
         if (!graphNode->isConstant())
             continue;
         graphNode->execute(stream);
@@ -407,9 +444,12 @@ void MKLDNNGraph::InitGraph() {
 }
 
 void MKLDNNGraph::InitNodes() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::InitNodes() {" << std::endl;
     for (auto &node : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &node : graphNodes) {" << std::endl;
 #if defined (COMPILED_CPU_MKLDNN_INPUT_NODE)
         if (node->getType() == Input && _meanImages.find(node->getName()) != _meanImages.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (node->getType() == Input && _meanImages.find(node->getName()) != _meanImages.end()) {" << std::endl;
             auto *inputNode = dynamic_cast<MKLDNNInputNode *>(node.get());
             if (inputNode)
                 inputNode->withMeanImage();
@@ -421,18 +461,23 @@ void MKLDNNGraph::InitNodes() {
     }
 
     for (auto &node : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &node : graphNodes) {" << std::endl;
         node->selectOptimalPrimitiveDescriptor();
     }
 }
 
 void MKLDNNGraph::InitEdges() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::InitEdges() {" << std::endl;
     auto reorderArgs = [](const InferenceEngine::TensorDesc &parentDesc, const InferenceEngine::TensorDesc &childDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      auto reorderArgs = [](const InferenceEngine::TensorDesc &parentDesc, const InferenceEngine::TensorDesc &childDesc) {" << std::endl;
         std::string inArgs, outArgs;
         if (parentDesc.getPrecision() != childDesc.getPrecision()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (parentDesc.getPrecision() != childDesc.getPrecision()) {" << std::endl;
             inArgs += (inArgs.empty() ? "" : "_") + std::string(parentDesc.getPrecision().name());
             outArgs += (outArgs.empty() ? "" : "_") + std::string(childDesc.getPrecision().name());
         }
         if (MKLDNNMemoryDesc(parentDesc).getFormat() != MKLDNNMemoryDesc(childDesc).getFormat()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (MKLDNNMemoryDesc(parentDesc).getFormat() != MKLDNNMemoryDesc(childDesc).getFormat()) {" << std::endl;
             inArgs += (inArgs.empty() ? "" : "_") + MKLDNNMemory::formatToString(MKLDNNMemoryDesc(parentDesc).getFormat());
             outArgs += (outArgs.empty() ? "" : "_") + MKLDNNMemory::formatToString(MKLDNNMemoryDesc(childDesc).getFormat());
         }
@@ -440,7 +485,9 @@ void MKLDNNGraph::InitEdges() {
     };
     size_t numberOfEdges = graphEdges.size();
     for (auto i = 0; i < numberOfEdges; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto i = 0; i < numberOfEdges; i++) {" << std::endl;
         if (graphEdges[i]->needReorder()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (graphEdges[i]->needReorder()) {" << std::endl;
 #if defined (COMPILED_CPU_MKLDNN_REORDER_NODE)
             auto &edge = graphEdges[i];
             std::string layerName = edge->getParent()->getName() + "_" +
@@ -452,6 +499,7 @@ void MKLDNNGraph::InitEdges() {
             MKLDNNNodePtr newReorder(new MKLDNNReorderNode(layer, getEngine(), socket));
             auto *reorderPtr = dynamic_cast<MKLDNNReorderNode *>(newReorder.get());
             if (reorderPtr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (reorderPtr) {" << std::endl;
                 reorderPtr->setDescs(edge->getInputDesc(), edge->getOutputDesc());
             }
 
@@ -494,22 +542,29 @@ void MKLDNNGraph::InitEdges() {
 }
 
 static inline bool isConstOutput(MKLDNNEdgePtr edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  static inline bool isConstOutput(MKLDNNEdgePtr edge) {" << std::endl;
     return edge->getParent()->isConstant() && !edge->getChild()->isConstant();
 }
 
 void MKLDNNGraph::AllocateWithReuse() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::AllocateWithReuse() {" << std::endl;
     std::vector<std::vector<MKLDNNEdgePtr>> edge_clasters;
 
     // detect edge clusters which are view on one.
     for (auto &edge : graphEdges) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &edge : graphEdges) {" << std::endl;
         MKLDNNEdgePtr par = (edge->getStatus() == MKLDNNEdge::Status::NotAllocated)
                             ? edge->getSharedEdge()
                             : nullptr;
         if (par) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (par) {" << std::endl;
             bool found = false;
             for (auto &claster : edge_clasters) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              for (auto &claster : edge_clasters) {" << std::endl;
                 for (auto &element : claster) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:                  for (auto &element : claster) {" << std::endl;
                     if (element == par) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:                      if (element == par) {" << std::endl;
                         if (std::find(claster.begin(), claster.end(), edge) == claster.end())
                             claster.push_back(edge);
                         found = true;
@@ -522,8 +577,11 @@ void MKLDNNGraph::AllocateWithReuse() {
         } else {
             bool found = false;
             for (auto &claster : edge_clasters) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              for (auto &claster : edge_clasters) {" << std::endl;
                 for (auto &element : claster) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:                  for (auto &element : claster) {" << std::endl;
                     if (element == edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:                      if (element == edge) {" << std::endl;
                         found = true;
                         break;
                     }
@@ -537,6 +595,7 @@ void MKLDNNGraph::AllocateWithReuse() {
     //======= WA. getSharedEdge() returns not identical edges ============
     //  Will try to merge clasters with matched edges
     for (auto &edge : graphEdges) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &edge : graphEdges) {" << std::endl;
         std::vector<decltype(&edge_clasters[0])> to_merge;
 
         for (auto &claster : edge_clasters)
@@ -544,9 +603,11 @@ void MKLDNNGraph::AllocateWithReuse() {
                 to_merge.push_back(&claster);
 
         if (to_merge.size() > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (to_merge.size() > 1) {" << std::endl;
             // Merge clasters
             auto base_classter = to_merge[0];
             for (int i = 1; i < to_merge.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              for (int i = 1; i < to_merge.size(); i++) {" << std::endl;
                 base_classter->insert(base_classter->end(),
                                       to_merge[i]->begin(), to_merge[i]->end());
                 to_merge[i]->clear();
@@ -559,7 +620,8 @@ void MKLDNNGraph::AllocateWithReuse() {
 
             // remove empty clasters
             edge_clasters.erase(std::remove_if(edge_clasters.begin(), edge_clasters.end(),
-                                               [] ( std::vector<MKLDNNEdgePtr> &cls) { return cls.empty(); }),
+                                               [] ( std::vector<MKLDNNEdgePtr> &cls) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:                                                 [] ( std::vector<MKLDNNEdgePtr> &cls) {" << std::endl; return cls.empty(); }),
                                 edge_clasters.end());
         }
     }
@@ -569,9 +631,11 @@ void MKLDNNGraph::AllocateWithReuse() {
 
     std::vector<MemorySolver::Box> boxes(edge_clasters.size());
     for (int i = 0; i < edge_clasters.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (int i = 0; i < edge_clasters.size(); i++) {" << std::endl;
         MemorySolver::Box &box = boxes[i];
         box = { std::numeric_limits<int>::max(), 0, 0, i };
         for (auto &edge : edge_clasters[i]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (auto &edge : edge_clasters[i]) {" << std::endl;
             int e_start = edge->getParent()->execIndex;
             int e_finish = edge->getChild()->execIndex;
 
@@ -586,6 +650,7 @@ void MKLDNNGraph::AllocateWithReuse() {
             // TODO: need to properly investigate the root cause of incorrect computations
             int64_t min_size = 1;
             for (int64_t dim : block_desk.getBlockDims()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              for (int64_t dim : block_desk.getBlockDims()) {" << std::endl;
                 min_size *= dim;
             }
             e_size = std::max(e_size, min_size);
@@ -602,6 +667,7 @@ void MKLDNNGraph::AllocateWithReuse() {
         // -1 is a place holder for a max timestamp.
         bool isConst = false, isOutput = false, isInput = false;
         for (auto &edge : edge_clasters[i]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (auto &edge : edge_clasters[i]) {" << std::endl;
             isConst  |= isConstOutput(edge);
             isOutput |= edge->getChild()->getType() == Output;
             isInput  |= edge->getParent()->getType() == Input;
@@ -612,10 +678,12 @@ void MKLDNNGraph::AllocateWithReuse() {
         }
 
         if (reuse_io_tensors) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (reuse_io_tensors) {" << std::endl;
             if (isInput | isConst) box.start = 0;
             if (isOutput | isConst) box.finish = -1;
         } else {
             if (isInput  | isOutput | isConst) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (isInput  | isOutput | isConst) {" << std::endl;
                 box.start = 0;
                 box.finish = -1;
             }
@@ -632,9 +700,12 @@ void MKLDNNGraph::AllocateWithReuse() {
     auto* workspace_ptr = static_cast<int8_t*>(memWorkspace->GetData());
 
     for (int i = 0; i < edge_clasters.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (int i = 0; i < edge_clasters.size(); i++) {" << std::endl;
         int count = 0;
         for (auto &edge : edge_clasters[i]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (auto &edge : edge_clasters[i]) {" << std::endl;
             if (edge->getStatus() == MKLDNNEdge::Status::NeedAllocation) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (edge->getStatus() == MKLDNNEdge::Status::NeedAllocation) {" << std::endl;
                 int64_t offset = memSolver.getOffset(i);
                 // !! Fallback to individual memory allocation !!
                 // if you like to check infer without reuse just call this function without arguments.
@@ -654,6 +725,7 @@ void MKLDNNGraph::AllocateWithReuse() {
 }
 
 void MKLDNNGraph::Allocate() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::Allocate() {" << std::endl;
     // resolve edges. Define which will be a view on others
     //   NeedAllocation - real blob
     //   NotAllocated - view on other blob, peer or in-place
@@ -669,9 +741,11 @@ void MKLDNNGraph::Allocate() {
     for (auto& edge : graphEdges) edge->validate();
 }
 
-void MKLDNNGraph::CreatePrimitives() { IE_PROFILING_AUTO_SCOPE(MKLDNNGraph::CreatePrimitives)
+void MKLDNNGraph::CreatePrimitives() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::CreatePrimitives() {" << std::endl; IE_PROFILING_AUTO_SCOPE(MKLDNNGraph::CreatePrimitives)
     bool weights_caching = config.throughputStreams != 1;
     for (auto& node : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto& node : graphNodes) {" << std::endl;
         // disable caching if graph was created only once
         node->enableWeightCaching(weights_caching);
         node->createPrimitive();
@@ -679,16 +753,19 @@ void MKLDNNGraph::CreatePrimitives() { IE_PROFILING_AUTO_SCOPE(MKLDNNGraph::Crea
 }
 
 void MKLDNNGraph::PushInputData(const std::string& name, const InferenceEngine::Blob::Ptr &in) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::PushInputData(const std::string& name, const InferenceEngine::Blob::Ptr &in) {" << std::endl;
     if (!IsReady()) THROW_IE_EXCEPTION<< "Wrong state. Topology not ready.";
 
     auto input = inputNodes.find(name);
     if (input != inputNodes.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      if (input != inputNodes.end()) {" << std::endl;
         MKLDNNDims outDims = input->second->getChildEdgeAt(0)->getDims();
 
         const void *ext_data_ptr = in->cbuffer();
         void *inter_data_ptr = input->second->getChildEdgeAt(0)->getMemory().GetData();
 
         if (ext_data_ptr != inter_data_ptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (ext_data_ptr != inter_data_ptr) {" << std::endl;
             auto l = in->getTensorDesc().getLayout();
             if (l == CHW && input->second->getChildEdgeAt(0)->getDims().ndims() == 4)
                 l = NCHW;
@@ -700,7 +777,9 @@ void MKLDNNGraph::PushInputData(const std::string& name, const InferenceEngine::
 
         // todo: make sure 'name' exists in this map...
         if (_meanImages.find(name) != _meanImages.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (_meanImages.find(name) != _meanImages.end()) {" << std::endl;
             if (in->getTensorDesc().getPrecision() == InferenceEngine::Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (in->getTensorDesc().getPrecision() == InferenceEngine::Precision::FP32) {" << std::endl;
                 _meanImages[name].Subtract(outDims, reinterpret_cast<float *>(inter_data_ptr), in->getTensorDesc().getLayout());
             } else {
                 THROW_IE_EXCEPTION << "Mean image of type " << in->getTensorDesc().getPrecision().name() << " is unsupported";
@@ -712,14 +791,17 @@ void MKLDNNGraph::PushInputData(const std::string& name, const InferenceEngine::
 }
 
 void MKLDNNGraph::PullOutputData(BlobMap &out) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::PullOutputData(BlobMap &out) {" << std::endl;
     if (!IsReady())
         THROW_IE_EXCEPTION << "Wrong state. Topology not ready.";
 
     for (MKLDNNNodePtr &node : outputNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (MKLDNNNodePtr &node : outputNodes) {" << std::endl;
         // remove out_ from node name
         std::string name = node->getName().substr(4);
         const MKLDNNMemory& intr_blob = node->getParentEdgeAt(0)->getMemory();
         if (out.find(name) == out.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (out.find(name) == out.end()) {" << std::endl;
             // TODO: Create blob from MemoryDesc
             Blob::Ptr outBlob = make_shared_blob<float>({Precision::FP32, node->getParentEdgeAt(0)->getDims().ToSizeVector(),
                                                          TensorDesc::getLayoutByDims(node->getParentEdgeAt(0)->getDims().ToSizeVector())},
@@ -732,6 +814,7 @@ void MKLDNNGraph::PullOutputData(BlobMap &out) {
         // TODO: Why we allow allocation of output memory inside Infer call??
         // Suggestion is to disable this behaviour
         if (ext_blob->buffer() == nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (ext_blob->buffer() == nullptr) {" << std::endl;
             ext_blob->allocate();
         }
 
@@ -757,12 +840,15 @@ void MKLDNNGraph::PullOutputData(BlobMap &out) {
 }
 
 void MKLDNNGraph::Infer(int batch) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::Infer(int batch) {" << std::endl;
     if (!IsReady()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      if (!IsReady()) {" << std::endl;
         THROW_IE_EXCEPTION << "Wrong state. Topology is not ready.";
     }
 
     mkldnn::stream stream = mkldnn::stream(stream::kind::eager);
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         PERF(graphNodes[i]);
 
         if (batch > 0)
@@ -771,6 +857,7 @@ void MKLDNNGraph::Infer(int batch) {
         ENABLE_DUMP(do_before(DUMP_DIR, graphNodes[i]));
 
         if (!graphNodes[i]->isConstant()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (!graphNodes[i]->isConstant()) {" << std::endl;
             IE_PROFILING_AUTO_SCOPE_TASK(graphNodes[i]->profilingTask)
             graphNodes[i]->execute(stream);
         }
@@ -782,17 +869,21 @@ void MKLDNNGraph::Infer(int batch) {
 }
 
 void MKLDNNGraph::VisitNode(MKLDNNNodePtr node, std::vector<MKLDNNNodePtr>& sortedNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::VisitNode(MKLDNNNodePtr node, std::vector<MKLDNNNodePtr>& sortedNodes) {" << std::endl;
     if (node->temporary) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      if (node->temporary) {" << std::endl;
         return;
     }
 
     if (node->permanent) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      if (node->permanent) {" << std::endl;
         return;
     }
 
     node->temporary = true;
 
     for (size_t i = 0; i < node->getChildEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (size_t i = 0; i < node->getChildEdges().size(); i++) {" << std::endl;
         VisitNode(node->getChildEdgeAt(i)->getChild(), sortedNodes);
     }
 
@@ -803,10 +894,12 @@ void MKLDNNGraph::VisitNode(MKLDNNNodePtr node, std::vector<MKLDNNNodePtr>& sort
 }
 
 void MKLDNNGraph::SortTopologically() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::SortTopologically() {" << std::endl;
     std::vector<MKLDNNNodePtr> unsorted;
     std::vector<MKLDNNNodePtr> sorted;
 
     for (int i = 0; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (int i = 0; i < graphNodes.size(); i++) {" << std::endl;
         MKLDNNNodePtr node = graphNodes[i];
 
         node->permanent = false;
@@ -816,6 +909,7 @@ void MKLDNNGraph::SortTopologically() {
     }
 
     while (!unsorted.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      while (!unsorted.empty()) {" << std::endl;
         MKLDNNNodePtr node = unsorted.at(0);
         unsorted.erase(unsorted.begin());
 
@@ -834,11 +928,13 @@ void MKLDNNGraph::SortTopologically() {
     //
     // Make first N (N == port_num) edge indexes are matched with port index
     for (auto &node : graphNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &node : graphNodes) {" << std::endl;
         {
             int port_num = node->inDims.size();
             std::vector<MKLDNNEdgePtr> res(port_num);
 
             for (int i = 0; i < node->parentEdges.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              for (int i = 0; i < node->parentEdges.size(); i++) {" << std::endl;
                 auto edge = node->getParentEdgeAt(i);
                 int port = edge->getOutputNum();
                 if (!res[port])
@@ -853,6 +949,7 @@ void MKLDNNGraph::SortTopologically() {
             std::vector<MKLDNNEdgePtr> res(port_num);
 
             for (int i = 0; i < node->childEdges.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              for (int i = 0; i < node->childEdges.size(); i++) {" << std::endl;
                 auto edge = node->getChildEdgeAt(i);
                 int port = edge->getInputNum();
                 if (!res[port])
@@ -869,6 +966,7 @@ void MKLDNNGraph::GetPerfData(std::map<std::string, InferenceEngine::InferenceEn
     unsigned i = 0;
     std::function<void(std::map<std::string, InferenceEngine::InferenceEngineProfileInfo> &, const MKLDNNNodePtr&)>
             getPerfMapFor = [&](std::map<std::string, InferenceEngine::InferenceEngineProfileInfo> &perfMap, const MKLDNNNodePtr& node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              getPerfMapFor = [&](std::map<std::string, InferenceEngine::InferenceEngineProfileInfo> &perfMap, const MKLDNNNodePtr& node) {" << std::endl;
         InferenceEngine::InferenceEngineProfileInfo &pc = perfMap[node->getName()];
         pc.execution_index = i++;
         // TODO: Why time counter is signed?
@@ -882,15 +980,18 @@ void MKLDNNGraph::GetPerfData(std::map<std::string, InferenceEngine::InferenceEn
         node->typeStr.copy(pc.layer_type, layerTypeLen, 0);
 
         for (auto& fusedNode : node->fusedWith) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (auto& fusedNode : node->fusedWith) {" << std::endl;
             getPerfMapFor(perfMap, fusedNode);
         }
 
         for (auto& mergedWith : node->mergedWith) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (auto& mergedWith : node->mergedWith) {" << std::endl;
             getPerfMapFor(perfMap, mergedWith);
         }
     };
 
     for (int i = 1; i < graphNodes.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (int i = 1; i < graphNodes.size(); i++) {" << std::endl;
         getPerfMapFor(perfMap, graphNodes[i]);
     }
 
@@ -898,20 +999,25 @@ void MKLDNNGraph::GetPerfData(std::map<std::string, InferenceEngine::InferenceEn
 }
 
 void MKLDNNGraph::setConfig(const Config &cfg) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::setConfig(const Config &cfg) {" << std::endl;
     config = cfg;
 }
 
 void MKLDNNGraph::setProperty(const std::map<std::string, std::string>& properties) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::setProperty(const std::map<std::string, std::string>& properties) {" << std::endl;
     config.readProperties(properties);
 }
 
 Config MKLDNNGraph::getProperty() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  Config MKLDNNGraph::getProperty() {" << std::endl;
     return config;
 }
 
 void MKLDNNGraph::getInputBlobs(InferenceEngine::BlobMap &resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::getInputBlobs(InferenceEngine::BlobMap &resp) {" << std::endl;
 #if defined (COMPILED_CPU_MKLDNN_INPUT_NODE)
     for (auto &it : inputNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &it : inputNodes) {" << std::endl;
         MKLDNNInputNode* node = dynamic_cast<MKLDNNInputNode*>(it.second.get());
         if (!node || node->isConstant())
             continue;
@@ -921,17 +1027,23 @@ void MKLDNNGraph::getInputBlobs(InferenceEngine::BlobMap &resp) {
 }
 
 void MKLDNNGraph::getOutputBlobs(InferenceEngine::BlobMap &resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::getOutputBlobs(InferenceEngine::BlobMap &resp) {" << std::endl;
     for (auto &it : outputNodes) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (auto &it : outputNodes) {" << std::endl;
         std::string name = it->getName().substr(4);
         resp[name] = it->getParentEdgeAt(0)->getBlob();
     }
 }
 
 void MKLDNNGraph::DropNode(const MKLDNNNodePtr &node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::DropNode(const MKLDNNNodePtr &node) {" << std::endl;
     auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {" << std::endl;
         auto& edges = graph.GetEdges();
         for (auto it = edges.begin(); it != edges.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (auto it = edges.begin(); it != edges.end(); it++) {" << std::endl;
             if ((*it) == edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if ((*it) == edge) {" << std::endl;
                 edges.erase(it);
                 return;
             }
@@ -942,12 +1054,14 @@ void MKLDNNGraph::DropNode(const MKLDNNNodePtr &node) {
     auto parents = node->parentEdges;
 
     for (size_t i = 0; i < parents.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (size_t i = 0; i < parents.size(); i++) {" << std::endl;
         auto p_edge = parents[i].lock();
         if (!p_edge) continue;
         auto parent = p_edge->getParent();
         if (!parent) continue;
 
         for (size_t j = 0; j < childs.size(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (size_t j = 0; j < childs.size(); j++) {" << std::endl;
             if (!childs[j].lock())
                 continue;
             auto child = childs[j].lock()->getChild();
@@ -957,6 +1071,7 @@ void MKLDNNGraph::DropNode(const MKLDNNNodePtr &node) {
             MKLDNNEdgePtr &remEdge = p_edge;
             int inNum = 0;
             if (remEdge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (remEdge) {" << std::endl;
                 inNum = remEdge->getInputNum();
                 remEdge->drop();
                 removeEdge(*this, remEdge);
@@ -964,6 +1079,7 @@ void MKLDNNGraph::DropNode(const MKLDNNNodePtr &node) {
             remEdge = childs[j].lock();
             int outNum = 0;
             if (remEdge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (remEdge) {" << std::endl;
                 outNum = remEdge->getOutputNum();
                 remEdge->drop();
                 removeEdge(*this, remEdge);
@@ -976,10 +1092,14 @@ void MKLDNNGraph::DropNode(const MKLDNNNodePtr &node) {
 }
 
 void MKLDNNGraph::DropDWConvNode(const MKLDNNNodePtr &node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::DropDWConvNode(const MKLDNNNodePtr &node) {" << std::endl;
     auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      auto removeEdge = [](MKLDNNGraph &graph, MKLDNNEdgePtr& edge) {" << std::endl;
         auto& edges = graph.GetEdges();
         for (auto it = edges.begin(); it != edges.end(); it++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (auto it = edges.begin(); it != edges.end(); it++) {" << std::endl;
             if ((*it) == edge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if ((*it) == edge) {" << std::endl;
                 edges.erase(it);
                 return;
             }
@@ -995,12 +1115,14 @@ void MKLDNNGraph::DropDWConvNode(const MKLDNNNodePtr &node) {
     if (!parentConv) return;
 
     for (size_t i = 0; i < 1; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (size_t i = 0; i < 1; i++) {" << std::endl;
         auto p_edge = parents[i].lock();
         if (!p_edge) continue;
         auto parent = p_edge->getParent();
         if (!parent) continue;
 
         for (size_t j = 0; j < childs.size(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          for (size_t j = 0; j < childs.size(); j++) {" << std::endl;
             if (!childs[j].lock())
                 continue;
             auto child = childs[j].lock()->getChild();
@@ -1010,6 +1132,7 @@ void MKLDNNGraph::DropDWConvNode(const MKLDNNNodePtr &node) {
             MKLDNNEdgePtr &remEdge = p_edge;
             int inNum = 0;
             if (remEdge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (remEdge) {" << std::endl;
                 inNum = remEdge->getInputNum();
                 remEdge->drop();
                 removeEdge(*this, remEdge);
@@ -1017,6 +1140,7 @@ void MKLDNNGraph::DropDWConvNode(const MKLDNNNodePtr &node) {
             remEdge = childs[j].lock();
             int outNum = 0;
             if (remEdge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:              if (remEdge) {" << std::endl;
                 outNum = remEdge->getOutputNum();
                 remEdge->drop();
                 removeEdge(*this, remEdge);
@@ -1028,6 +1152,7 @@ void MKLDNNGraph::DropDWConvNode(const MKLDNNNodePtr &node) {
     }
 
     for (size_t i = 1; i < parents.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (size_t i = 1; i < parents.size(); i++) {" << std::endl;
         auto p_edge = parents[i].lock();
         if (!p_edge) continue;
         auto parent = p_edge->getParent();
@@ -1036,6 +1161,7 @@ void MKLDNNGraph::DropDWConvNode(const MKLDNNNodePtr &node) {
         MKLDNNEdgePtr &remEdge = p_edge;
         int inNum = 0;
         if (remEdge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if (remEdge) {" << std::endl;
             inNum = remEdge->getInputNum();
             remEdge->drop();
             removeEdge(*this, remEdge);
@@ -1050,12 +1176,15 @@ void MKLDNNGraph::DropDWConvNode(const MKLDNNNodePtr &node) {
 }
 
 void MKLDNNGraph::RemoveDroppedNodes() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::RemoveDroppedNodes() {" << std::endl;
     auto& nodes = this->GetNodes();
 
     auto it = nodes.begin();
 
     while (it != nodes.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      while (it != nodes.end()) {" << std::endl;
         if ((*it)->isDropped()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if ((*it)->isDropped()) {" << std::endl;
             it = nodes.erase(it);
         } else {
             it++;
@@ -1064,12 +1193,15 @@ void MKLDNNGraph::RemoveDroppedNodes() {
 }
 
 void MKLDNNGraph::RemoveDroppedEdges() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::RemoveDroppedEdges() {" << std::endl;
     auto& edges = this->GetEdges();
 
     auto it = edges.begin();
 
     while (it != edges.end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      while (it != edges.end()) {" << std::endl;
         if ((*it)->isDropped()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:          if ((*it)->isDropped()) {" << std::endl;
             it = edges.erase(it);
         } else {
             it++;
@@ -1087,6 +1219,7 @@ void MKLDNNGraph::dumpToDotFile(std::string file) const {
 }
 
 void MKLDNNGraph::do_before(const std::string &dir, const MKLDNNNodePtr &node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::do_before(const std::string &dir, const MKLDNNNodePtr &node) {" << std::endl;
     auto exec_order = std::to_string(node->execIndex);
     std::string nodeName = node->name;
     std::replace(nodeName.begin(), nodeName.end(), '\\', '_');
@@ -1096,6 +1229,7 @@ void MKLDNNGraph::do_before(const std::string &dir, const MKLDNNNodePtr &node) {
 
     auto num_ports = node->getSelectedPrimitiveDescriptor()->getConfig().inConfs.size();
     for (size_t i = 0; i < num_ports; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (size_t i = 0; i < num_ports; i++) {" << std::endl;
         auto prEdge = node->getParentEdgeAt(i);
         auto pr = prEdge->getParent();
 
@@ -1122,6 +1256,7 @@ void MKLDNNGraph::do_before(const std::string &dir, const MKLDNNNodePtr &node) {
 
 #ifdef DUMP_INTERNAL_BLOBS
     for (size_t i = 0; i < node->internalBlobs.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (size_t i = 0; i < node->internalBlobs.size(); i++) {" << std::endl;
         const auto& blb = node->internalBlobs[i];
         auto dump_file = dir + "/#" + exec_order + "_" +  nodeName + "_blb" + std::to_string(i) + ".ieb";
         TensorDesc desc = blb->getTensorDesc();
@@ -1138,6 +1273,7 @@ void MKLDNNGraph::do_before(const std::string &dir, const MKLDNNNodePtr &node) {
 }
 
 void MKLDNNGraph::do_after(const std::string &dir, const MKLDNNNodePtr &node) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:  void MKLDNNGraph::do_after(const std::string &dir, const MKLDNNNodePtr &node) {" << std::endl;
     auto exec_order = std::to_string(node->execIndex);
     auto nodeName = node->name;
     std::replace(nodeName.begin(), nodeName.end(), '\\', '_');
@@ -1147,6 +1283,7 @@ void MKLDNNGraph::do_after(const std::string &dir, const MKLDNNNodePtr &node) {
 
     auto num_ports = node->getSelectedPrimitiveDescriptor()->getConfig().outConfs.size();
     for (size_t i = 0; i < num_ports; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_graph.cpp:      for (size_t i = 0; i < num_ports; i++) {" << std::endl;
         auto childEdge = node->getChildEdgeAt(i);
 
         std::string file_name = nodeName;

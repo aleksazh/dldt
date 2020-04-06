@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -15,9 +16,11 @@ using namespace MKLDNNPlugin;
 using namespace InferenceEngine;
 
 MKLDNNCropNode::MKLDNNCropNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket) :
-        MKLDNNNode(layer, eng, socket) {}
+        MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:          MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNCropNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:  void MKLDNNCropNode::getSupportedDescriptors() {" << std::endl;
     CropLayer* cropLayer = dynamic_cast<CropLayer*>(getCnnLayer().get());
 
     if (cropLayer == nullptr)
@@ -25,6 +28,7 @@ void MKLDNNCropNode::getSupportedDescriptors() {
 
     channelAxis = 1;
     if (getParentEdges().size() != 1 && getParentEdges().size() != 2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:      if (getParentEdges().size() != 1 && getParentEdges().size() != 2) {" << std::endl;
         THROW_IE_EXCEPTION << "Incorrect number of input edges for layer " << getName();
     }
 
@@ -36,12 +40,16 @@ void MKLDNNCropNode::getSupportedDescriptors() {
         dims[i] = childDims[i];
 
     for (int i = 0; i < cropLayer->axis.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:      for (int i = 0; i < cropLayer->axis.size(); i++) {" << std::endl;
         offsets[cropLayer->axis[i]] = cropLayer->offset[i];
     }
 
     if (cropLayer->axis.size() == dims.size()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:      if (cropLayer->axis.size() == dims.size()) {" << std::endl;
         for (size_t i = 0; i < cropLayer->axis.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:          for (size_t i = 0; i < cropLayer->axis.size(); i++) {" << std::endl;
             if (cropLayer->axis[i] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:              if (cropLayer->axis[i] == 1) {" << std::endl;
                 channelAxis = static_cast<int>(i);
                 break;
             }
@@ -53,6 +61,7 @@ void MKLDNNCropNode::getSupportedDescriptors() {
 }
 
 void MKLDNNCropNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:  void MKLDNNCropNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -67,11 +76,13 @@ void MKLDNNCropNode::initSupportedPrimitiveDescriptors() {
 
     auto& inDims = getParentEdgeAt(0)->getDims();
     if (inDims.ndims() != 2 && inDims.ndims() != 4 && inDims.ndims() != 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:      if (inDims.ndims() != 2 && inDims.ndims() != 4 && inDims.ndims() != 5) {" << std::endl;
         THROW_IE_EXCEPTION << "Crop supports only 2d, 4d and 5d blobs.";
     }
 
     memory::format fmt = memory::format::format_undef;
     switch (inDims.ndims()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:      switch (inDims.ndims()) {" << std::endl;
         case 2: fmt = memory::format::nc; break;
         case 4: fmt = memory::format::nchw; break;
         case 5: fmt = memory::format::ncdhw; break;
@@ -82,6 +93,7 @@ void MKLDNNCropNode::initSupportedPrimitiveDescriptors() {
     config.inConfs.resize(getParentEdges().size());
     config.outConfs.resize(1);
     for (size_t i = 0; i < getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:      for (size_t i = 0; i < getParentEdges().size(); i++) {" << std::endl;
         config.inConfs[i].inPlace = -1;
         config.inConfs[i].constant = i != 0;
         config.inConfs[i].desc = MKLDNNMemoryDesc(getParentEdgeAt(i)->getDims(), inputDataType, fmt);
@@ -93,11 +105,13 @@ void MKLDNNCropNode::initSupportedPrimitiveDescriptors() {
     supportedPrimitiveDescriptors.emplace_back(config, impl_desc_type::unknown, fmt);
 
     if ((inDims.ndims() == 4 || inDims.ndims() == 5) && channelAxis >= 0 && dims[channelAxis] % 8 == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:      if ((inDims.ndims() == 4 || inDims.ndims() == 5) && channelAxis >= 0 && dims[channelAxis] % 8 == 0) {" << std::endl;
         fmt = inDims.ndims() == 5 ? memory::format::nCdhw8c : memory::format::nChw8c;
         config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, fmt);
         config.outConfs[0].desc = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, fmt);
         supportedPrimitiveDescriptors.emplace_back(config, impl_desc_type::unknown, fmt);
         if (dims[channelAxis] % 16 == 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:          if (dims[channelAxis] % 16 == 0) {" << std::endl;
             fmt = inDims.ndims() == 5 ? memory::format::nCdhw16c : memory::format::nChw16c;
             config.inConfs[0].desc = MKLDNNMemoryDesc(getParentEdgeAt(0)->getDims(), inputDataType, fmt);
             config.outConfs[0].desc = MKLDNNMemoryDesc(getChildEdgeAt(0)->getDims(), outputDataType, fmt);
@@ -107,6 +121,7 @@ void MKLDNNCropNode::initSupportedPrimitiveDescriptors() {
 }
 
 void MKLDNNCropNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:  void MKLDNNCropNode::createPrimitive() {" << std::endl;
     auto& dstMemPtr = getChildEdgeAt(0)->getMemoryPtr();
     auto& srcMemPtr = getParentEdgeAt(0)->getMemoryPtr();
     if (!dstMemPtr || !dstMemPtr->GetPrimitivePtr())
@@ -118,10 +133,12 @@ void MKLDNNCropNode::createPrimitive() {
 }
 
 void MKLDNNCropNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:  void MKLDNNCropNode::execute(mkldnn::stream strm) {" << std::endl;
     auto& parentMem = getParentEdgeAt(0)->getMemory();
 
     int m_block_size = 1;
     if (!MKLDNNMemory::IsPlainFormat(parentMem.GetFormat())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:      if (!MKLDNNMemory::IsPlainFormat(parentMem.GetFormat())) {" << std::endl;
         m_block_size = parentMem.GetDescriptor().data.layout_desc.blocking.block_dims[1];
     }
     int m_inner_dim = dims[dims.size() - 1] * m_block_size;
@@ -161,14 +178,20 @@ void MKLDNNCropNode::execute(mkldnn::stream strm) {
 
 #ifdef _WIN32
     if (OD == 1 && OH == 1 && OW == 1 && ID == 1 && IH == 1 && IW == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:      if (OD == 1 && OH == 1 && OW == 1 && ID == 1 && IH == 1 && IW == 1) {" << std::endl;
         for (int n = 0; n < ON; ++n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:          for (int n = 0; n < ON; ++n) {" << std::endl;
             memcpy(&dst_data[n*OC], &src_data[(n+OFFSET_N)*IC + OFFSET_C], OC * sizeof(float));
         }
     } else {
         for (int n = 0; n < ON; ++n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:          for (int n = 0; n < ON; ++n) {" << std::endl;
             for (int c = 0; c < OC; c += m_block_size) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:              for (int c = 0; c < OC; c += m_block_size) {" << std::endl;
                 for (int d = 0; d < OD; ++d) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:                  for (int d = 0; d < OD; ++d) {" << std::endl;
                     for (int h = 0; h < OH; ++h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:                      for (int h = 0; h < OH; ++h) {" << std::endl;
                         int dst_ind =
                                 n*OC*OD*OH*OW + c*OD*OH*OW + d*OH*OW*m_block_size +
                                 h*OW*m_block_size;
@@ -188,18 +211,23 @@ void MKLDNNCropNode::execute(mkldnn::stream strm) {
     }
 #else
     if (OD == 1 && OH == 1 && OW == 1 && ID == 1 && IH == 1 && IW == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:      if (OD == 1 && OH == 1 && OW == 1 && ID == 1 && IH == 1 && IW == 1) {" << std::endl;
         parallel_for(ON, [&](int n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:          parallel_for(ON, [&](int n) {" << std::endl;
             memcpy(&dst_data[n*OC], &src_data[(n+OFFSET_N)*IC + OFFSET_C], OC * sizeof(float));
         });
     } else {
         parallel_for2d(ON, (OC / m_block_size), [&](int n, int c) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:          parallel_for2d(ON, (OC / m_block_size), [&](int n, int c) {" << std::endl;
             for (int d = 0; d < OD; ++d) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:              for (int d = 0; d < OD; ++d) {" << std::endl;
                 int dst_ind = (n*OC + c*m_block_size)*OD*OH*OW + d*m_block_size*OH*OW;
 
                 int src_ind = ((n+OFFSET_N)*IC + (c*m_block_size+OFFSET_C))*ID*IH*IW +
                               ((d+OFFSET_D)*IH*IW + OFFSET_H*IW + OFFSET_W)*m_block_size;
 
                 for (int h = 0; h < OH; ++h) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_crop_node.cpp:                  for (int h = 0; h < OH; ++h) {" << std::endl;
                     memcpy(dst_data + dst_ind, src_data + src_ind, m_inner_dim * sizeof(float));
 
                     src_ind += IW * m_block_size;

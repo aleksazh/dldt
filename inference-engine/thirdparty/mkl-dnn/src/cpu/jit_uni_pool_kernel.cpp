@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2018 Intel Corporation
 * Copyright 2018 YANDEX LLC
@@ -36,6 +37,7 @@ template <cpu_isa_t isa>
 status_t jit_uni_pool_kernel<isa>::init_conf(jit_pool_conf_t &jpp,
             const pooling_desc_t &pd, const memory_desc_wrapper &src_d,
             const memory_desc_wrapper &dst_d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              const memory_desc_wrapper &dst_d) {" << std::endl;
 
     bool args_ok = true
         && utils::one_of(pd.alg_kind, pooling_max,
@@ -103,6 +105,7 @@ status_t jit_uni_pool_kernel<isa>::init_conf(jit_pool_conf_t &jpp,
 
     jpp.nb_c = jpp.c / jpp.c_block;
     if (jpp.alg == pooling_max) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.alg == pooling_max) {" << std::endl;
         jpp.ur_w = isa == avx512_common ? 16 : 4;
         if (jpp.is_training)
             jpp.ur_w = isa == avx512_common ? 9 : 3;
@@ -115,6 +118,7 @@ status_t jit_uni_pool_kernel<isa>::init_conf(jit_pool_conf_t &jpp,
             jpp.ur_w = isa == avx512_common ? 24 : 12;
     }
     if (jpp.is_bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.is_bf16) {" << std::endl;
         jpp.ur_w = (!jpp.is_cpx)
                    ? jpp.ur_w - 4  // Free registers for AVX512 emulation
                    : jpp.ur_w - 1; // Free register for cvt from bf16 to f32
@@ -128,11 +132,13 @@ status_t jit_uni_pool_kernel<isa>::init_conf(jit_pool_conf_t &jpp,
 template <cpu_isa_t isa>
 inline void jit_uni_pool_kernel<isa>::maybe_recalculate_divisor(int jj,
         int ur_w, int pad_l, int pad_r, int pad_r_logic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          int ur_w, int pad_l, int pad_r, int pad_r_logic) {" << std::endl;
     int kw = jpp.kw;
     int stride_w = jpp.stride_w;
 
     int non_zero_kw = kw;
     if (jpp.alg == pooling_avg_exclude_padding) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.alg == pooling_avg_exclude_padding) {" << std::endl;
         non_zero_kw -= nstl::max(0, pad_l - jj * stride_w);
         non_zero_kw -= nstl::max(0, pad_r - (ur_w - 1 - jj) * stride_w);
     } else { //  jpp.alg == pooling_avg_include_padding
@@ -140,6 +146,7 @@ inline void jit_uni_pool_kernel<isa>::maybe_recalculate_divisor(int jj,
     }
 
     if (non_zero_kw != prev_kw) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (non_zero_kw != prev_kw) {" << std::endl;
         mov(tmp_gpr, float2int((float)non_zero_kw));
         movq(xmm_tmp, tmp_gpr);
         uni_vbroadcastss(vmm_tmp, xmm_tmp);
@@ -152,6 +159,7 @@ inline void jit_uni_pool_kernel<isa>::maybe_recalculate_divisor(int jj,
 template <cpu_isa_t isa>
 inline void jit_uni_pool_kernel<isa>::avg_step(int ur_w, int pad_l,
         int pad_r, int pad_r_logic) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          int pad_r, int pad_r_logic) {" << std::endl;
 
     int iw = jpp.iw;
     int kw = jpp.kw;
@@ -160,7 +168,9 @@ inline void jit_uni_pool_kernel<isa>::avg_step(int ur_w, int pad_l,
     Label kd_label, kh_label;
 
     for (int jj = 0; jj < ur_w; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      for (int jj = 0; jj < ur_w; jj++) {" << std::endl;
         if (jpp.is_backward) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (jpp.is_backward) {" << std::endl;
             load(jj, reg_output, jpp.dt_size * jj * c_block);
             maybe_recalculate_divisor(jj, ur_w, pad_l, pad_r, pad_r_logic);
             uni_vdivps(vreg(jj), vreg(jj), vmm_tmp);
@@ -170,6 +180,7 @@ inline void jit_uni_pool_kernel<isa>::avg_step(int ur_w, int pad_l,
     }
 
     if (jpp.simple_alg && jpp.ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.simple_alg && jpp.ndims == 5) {" << std::endl;
         push(reg_input);
         push(reg_output);
         mov(aux_reg_input_d, reg_input);
@@ -184,19 +195,23 @@ inline void jit_uni_pool_kernel<isa>::avg_step(int ur_w, int pad_l,
     L(kh_label);
     {
         for (int ki = 0; ki < kw; ki++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          for (int ki = 0; ki < kw; ki++) {" << std::endl;
             int jj_start = nstl::max(0, utils::div_up(pad_l - ki, stride_w));
             int jj_end = ur_w
                 - utils::div_up(nstl::max(0, ki + pad_r - (kw-1)), stride_w);
 
             for (int jj = jj_start; jj  < jj_end; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              for (int jj = jj_start; jj  < jj_end; jj++) {" << std::endl;
                 int aux_input_offset = (ki+jj*stride_w-pad_l)* c_block;
                 if (aux_input_offset > iw * c_block)
                     continue;
                 int input_offset = jpp.dt_size * aux_input_offset;
                 if (jpp.is_backward) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                  if (jpp.is_backward) {" << std::endl;
                     load(ur_w + jj, aux_reg_input, input_offset);
                     uni_vaddps(vreg(ur_w+jj), vreg(ur_w+jj), vreg(jj));
                     if (jpp.is_bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                      if (jpp.is_bf16) {" << std::endl;
                         if (!jpp.is_cpx)
                             bf16_emu_->r_vcvtneps2bf16(
                                     yreg(ur_w + jj), zreg(ur_w + jj));
@@ -210,6 +225,7 @@ inline void jit_uni_pool_kernel<isa>::avg_step(int ur_w, int pad_l,
                     }
                 } else {
                     if (jpp.is_bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                      if (jpp.is_bf16) {" << std::endl;
                         vmovups(ymm_tmp_1, ptr[aux_reg_input + input_offset]);
                         vpermw(vmm_tmp_1 | k_mask_cvt | T_z, vmm_idx(), vmm_tmp_1);
 
@@ -229,6 +245,7 @@ inline void jit_uni_pool_kernel<isa>::avg_step(int ur_w, int pad_l,
 
     if (jpp.simple_alg && jpp.ndims == 5)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.simple_alg && jpp.ndims == 5)     {" << std::endl;
         add(aux_reg_input_d,  jpp.dt_size * jpp.ih * iw * c_block);
         dec(ki);
         cmp(ki, 0);
@@ -238,10 +255,13 @@ inline void jit_uni_pool_kernel<isa>::avg_step(int ur_w, int pad_l,
     }
 
     if (!jpp.is_backward) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (!jpp.is_backward) {" << std::endl;
         for (int jj = 0; jj < ur_w; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          for (int jj = 0; jj < ur_w; jj++) {" << std::endl;
             maybe_recalculate_divisor(jj, ur_w, pad_l, pad_r, pad_r_logic);
             uni_vdivps(vreg(jj), vreg(jj), vmm_tmp);
             if (jpp.is_bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              if (jpp.is_bf16) {" << std::endl;
                 if (!jpp.is_cpx)
                     bf16_emu_->r_vcvtneps2bf16(yreg(jj), zreg(jj));
                 else
@@ -259,6 +279,7 @@ inline void jit_uni_pool_kernel<isa>::avg_step(int ur_w, int pad_l,
 template <cpu_isa_t isa>
 inline void jit_uni_pool_kernel<isa>::max_step_fwd(int ur_w, int pad_l,
         int pad_r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          int pad_r) {" << std::endl;
     int iw = jpp.iw;
     int kw = jpp.kw;
     int stride_w = jpp.stride_w;
@@ -271,16 +292,19 @@ inline void jit_uni_pool_kernel<isa>::max_step_fwd(int ur_w, int pad_l,
     uni_vbroadcastss(vmm_tmp, xmm_tmp);
 
     for (int jj = 0; jj < ur_w; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      for (int jj = 0; jj < ur_w; jj++) {" << std::endl;
         uni_vmovups(vreg(jj), vmm_tmp);
         if (jpp.is_training)
             uni_vpxor(vreg(2*ur_w+jj), vreg(2*ur_w+jj), vreg(2*ur_w+jj));
     }
     if (jpp.is_training) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.is_training) {" << std::endl;
         movq(xmm_tmp, reg_k_shift);
         uni_vpbroadcastd(vmm_k_offset, xmm_tmp);
     }
 
     if (jpp.ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.ndims == 5) {" << std::endl;
         push(reg_input);
         push(reg_output);
         mov(aux_reg_input_d, reg_input);
@@ -294,22 +318,26 @@ inline void jit_uni_pool_kernel<isa>::max_step_fwd(int ur_w, int pad_l,
     L(kh_label);
     {
         for (int ki = 0; ki < kw; ki++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          for (int ki = 0; ki < kw; ki++) {" << std::endl;
             int jj_start = nstl::max(0, utils::div_up(pad_l - ki, stride_w));
             int jj_end = ur_w
                 - utils::div_up(nstl::max(0, ki + pad_r - (kw-1)), stride_w);
             for (int jj = jj_start; jj  < jj_end; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              for (int jj = jj_start; jj  < jj_end; jj++) {" << std::endl;
                 int aux_input_offset = (ki + jj * stride_w - pad_l) * c_block;
                 if (aux_input_offset > iw * c_block)
                     continue;
                 int input_offset = jpp.dt_size*aux_input_offset;
                 load(ur_w + jj, aux_reg_input, input_offset);
                 if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                  if (isa == sse42) {" << std::endl;
                     movups(vmm_mask, vreg(jj));
                     cmpps(vmm_mask, vreg(ur_w+jj), _cmp_lt_os);
                     blendvps(vreg(jj), vreg(ur_w+jj));
                     if (jpp.is_training)
                         blendvps(vreg(2*ur_w+jj), vmm_k_offset);
                 } else if (isa == avx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                  } else if (isa == avx) {" << std::endl;
                     vcmpps(vreg(3*ur_w+jj), vreg(jj), vreg(ur_w+jj),
                            _cmp_lt_os);
                     vblendvps(vreg(jj), vreg(jj), vreg(ur_w+jj),
@@ -326,7 +354,9 @@ inline void jit_uni_pool_kernel<isa>::max_step_fwd(int ur_w, int pad_l,
                 }
             }
             if (jpp.is_training) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              if (jpp.is_training) {" << std::endl;
                 if (isa == avx && !mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                  if (isa == avx && !mayiuse(avx2)) {" << std::endl;
                     avx_vpadd1(vmm_k_offset, vmm_one, xmm_tmp);
                 } else {
                     uni_vpaddd(vmm_k_offset, vmm_k_offset, vmm_one);
@@ -341,12 +371,15 @@ inline void jit_uni_pool_kernel<isa>::max_step_fwd(int ur_w, int pad_l,
 
     if (jpp.ndims == 5)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.ndims == 5)     {" << std::endl;
         add(aux_reg_input_d,  jpp.dt_size * jpp.ih * iw * c_block);
         if (jpp.is_training) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (jpp.is_training) {" << std::endl;
             mov(tmp_gpr, ptr[reg_param + GET_OFF(kd_padding_shift)]);
             movq(xmm_tmp, tmp_gpr);
             uni_vpbroadcastd(vmm_tmp, xmm_tmp);
             if (isa == avx && !mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              if (isa == avx && !mayiuse(avx2)) {" << std::endl;
                 Xmm t(vmm_mask.getIdx());
                 avx_vpadd1(vmm_k_offset, xmm_tmp, t);
             } else {
@@ -362,7 +395,9 @@ inline void jit_uni_pool_kernel<isa>::max_step_fwd(int ur_w, int pad_l,
     }
 
     for (int jj = 0; jj < ur_w; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      for (int jj = 0; jj < ur_w; jj++) {" << std::endl;
         if (jpp.is_bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (jpp.is_bf16) {" << std::endl;
             if (!jpp.is_cpx)
                 bf16_emu_->r_vcvtneps2bf16(yreg(jj), zreg(jj));
             else
@@ -372,21 +407,27 @@ inline void jit_uni_pool_kernel<isa>::max_step_fwd(int ur_w, int pad_l,
             uni_vmovups(vmmword[reg_output + jpp.dt_size*jj*c_block], vreg(jj));
         }
         if (jpp.is_training) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (jpp.is_training) {" << std::endl;
             const size_t step_index
                 = jj * c_block * types::data_type_size(jpp.ind_dt);
 
             auto x = xreg(2 * ur_w + jj);
             if (jpp.ind_dt == data_type::u8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              if (jpp.ind_dt == data_type::u8) {" << std::endl;
                 if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                  if (isa == sse42) {" << std::endl;
                     for (int i = 0; i < 4; ++i)
                         pextrb(ptr[reg_index + step_index + i], x, 4*i);
                 } else if (isa == avx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                  } else if (isa == avx) {" << std::endl;
                     auto y = yreg(2 * ur_w + jj);
                     if (jj == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                      if (jj == 0) {" << std::endl;
                         movd(xmm_tmp, reg_shuf_mask);
                         uni_vpbroadcastd(vmm_tmp, xmm_tmp);
                     }
                     if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                      if (mayiuse(avx2)) {" << std::endl;
                         vpshufb(y, y, vmm_tmp);
                         movd(ptr[reg_index + step_index], x);
                         vperm2i128(y, y, y, 0x1u);
@@ -415,6 +456,7 @@ inline void jit_uni_pool_kernel<isa>::max_step_fwd(int ur_w, int pad_l,
 template <cpu_isa_t isa>
 inline void jit_uni_pool_kernel<isa>::max_step_bwd(int ur_w, int pad_l,
         int pad_r) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          int pad_r) {" << std::endl;
 
     int iw = jpp.iw;
     int kw = jpp.kw;
@@ -423,16 +465,21 @@ inline void jit_uni_pool_kernel<isa>::max_step_bwd(int ur_w, int pad_l,
     Label kd_label, kh_label;
 
     for (int jj = 0; jj < ur_w; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      for (int jj = 0; jj < ur_w; jj++) {" << std::endl;
         load(jj, reg_output, jpp.dt_size * jj * c_block);
         const size_t step_index
             = jj * c_block * types::data_type_size(jpp.ind_dt);
         if (jpp.ind_dt == data_type::u8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (jpp.ind_dt == data_type::u8) {" << std::endl;
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              if (isa == sse42) {" << std::endl;
                 movd(xreg(ur_w+jj), ptr[reg_index + step_index]);
                 pmovzxbd(vreg(ur_w+jj), xreg(ur_w+jj));
             } else if (isa == avx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              } else if (isa == avx) {" << std::endl;
                 movq(xreg(ur_w+jj), ptr[reg_index + step_index]);
                 if (!mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                  if (!mayiuse(avx2)) {" << std::endl;
                     avx_pmovzxbd(vreg(ur_w+jj), xreg(ur_w+jj), xmm_tmp);
                 } else {
                     vpmovzxbd(vreg(ur_w+jj), xreg(ur_w+jj));
@@ -450,9 +497,11 @@ inline void jit_uni_pool_kernel<isa>::max_step_bwd(int ur_w, int pad_l,
     uni_vpbroadcastd(vmm_k_offset, xmm_tmp);
 
     if (jpp.simple_alg && jpp.ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.simple_alg && jpp.ndims == 5) {" << std::endl;
         push(reg_input);
         push(reg_output);
         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (isa == sse42) {" << std::endl;
             // Save rdi since it is used in maskmovdqu
             assert(dst_ptr == rdi);
             push(dst_ptr);
@@ -470,16 +519,19 @@ inline void jit_uni_pool_kernel<isa>::max_step_bwd(int ur_w, int pad_l,
     L(kh_label);
     {
         for (int ki = 0; ki < kw; ki++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          for (int ki = 0; ki < kw; ki++) {" << std::endl;
             int jj_start = nstl::max(0, utils::div_up(pad_l - ki, stride_w));
             int jj_end = ur_w
                 - utils::div_up(nstl::max(0, ki + pad_r - (kw-1)), stride_w);
             for (int jj = jj_start; jj  < jj_end; jj++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              for (int jj = jj_start; jj  < jj_end; jj++) {" << std::endl;
                 int aux_input_offset = (ki+jj*stride_w-pad_l)* c_block;
                 if (aux_input_offset > iw * c_block)
                     continue;
                 int input_offset = jpp.dt_size*aux_input_offset;
                 load(2 * ur_w + jj, aux_reg_input, input_offset);
                 if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                  if (isa == sse42) {" << std::endl;
                     mov(dst_ptr, aux_reg_input);
                     add(dst_ptr, input_offset);
 
@@ -488,7 +540,9 @@ inline void jit_uni_pool_kernel<isa>::max_step_bwd(int ur_w, int pad_l,
                     addps(vreg(2*ur_w+jj), vreg(jj));
                     maskmovdqu(vreg(2*ur_w+jj), vreg(3*ur_w+jj));
                 } else if (isa == avx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                  } else if (isa == avx) {" << std::endl;
                     if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                      if (mayiuse(avx2)) {" << std::endl;
                         vpcmpeqd(vreg(3*ur_w+jj), vreg(ur_w+jj), vmm_k_offset);
                     } else {
                         avx_pcmpeqd(vreg(3*ur_w+jj), vreg(ur_w+jj), vmm_k_offset, xmm_tmp);
@@ -501,6 +555,7 @@ inline void jit_uni_pool_kernel<isa>::max_step_bwd(int ur_w, int pad_l,
                     vblendmps(vmm_tmp | k_store_mask | T_z, vreg(jj), vreg(jj));
                     vaddps(vreg(2*ur_w+jj), vreg(2*ur_w+jj), vmm_tmp);
                     if (jpp.is_bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:                      if (jpp.is_bf16) {" << std::endl;
                         if (!jpp.is_cpx)
                             bf16_emu_->r_vcvtneps2bf16(yreg(2*ur_w+jj), zreg(2*ur_w+jj));
                         else
@@ -514,6 +569,7 @@ inline void jit_uni_pool_kernel<isa>::max_step_bwd(int ur_w, int pad_l,
                 }
             }
             if (isa == avx && !mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              if (isa == avx && !mayiuse(avx2)) {" << std::endl;
                 avx_vpadd1(vmm_k_offset, vmm_one, xmm_tmp);
             } else {
                 uni_vpaddd(vmm_k_offset, vmm_k_offset, vmm_one);
@@ -526,12 +582,14 @@ inline void jit_uni_pool_kernel<isa>::max_step_bwd(int ur_w, int pad_l,
     }
     if (jpp.simple_alg && jpp.ndims == 5)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.simple_alg && jpp.ndims == 5)     {" << std::endl;
         add(aux_reg_input_d,  jpp.dt_size * jpp.ih * iw * c_block);
 
         mov(tmp_gpr, reg_kd_pad_shift);
         movq(xmm_tmp, tmp_gpr);
         uni_vpbroadcastd(vmm_tmp, xmm_tmp);
         if (isa == avx && !mayiuse(avx2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (isa == avx && !mayiuse(avx2)) {" << std::endl;
             Xmm t(vmm_mask.getIdx());
             avx_vpadd1(vmm_k_offset, vmm_tmp, t);
         } else {
@@ -542,6 +600,7 @@ inline void jit_uni_pool_kernel<isa>::max_step_bwd(int ur_w, int pad_l,
         cmp(ki, 0);
         jg(kd_label, T_NEAR);
         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (isa == sse42) {" << std::endl;
             // Save rdi since it is used in maskmovdqu
             assert(dst_ptr == rdi);
             pop(dst_ptr);
@@ -553,6 +612,7 @@ inline void jit_uni_pool_kernel<isa>::max_step_bwd(int ur_w, int pad_l,
 
 template <cpu_isa_t isa>
 void jit_uni_pool_kernel<isa>::maybe_zero_diff_src() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:  void jit_uni_pool_kernel<isa>::maybe_zero_diff_src() {" << std::endl;
     assert(jpp.c_block * sizeof(float) % cpu_isa_traits<isa>::vlen == 0);
     Label l_skip, l_zero;
 
@@ -562,6 +622,7 @@ void jit_uni_pool_kernel<isa>::maybe_zero_diff_src() {
     jz(l_skip, T_NEAR);
 
     if (jpp.ndims == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.ndims == 5) {" << std::endl;
         mov(zero_size, ptr[reg_param + GET_OFF(oh)]);
         mov(tmp_gpr, jpp.ih * jpp.iw * jpp.c_block * jpp.dt_size);
         imul(zero_size, tmp_gpr);
@@ -582,6 +643,7 @@ void jit_uni_pool_kernel<isa>::maybe_zero_diff_src() {
             : cpu_isa_traits<isa>::vlen;
         for (int i = 0; i < dim; i += step)
             if (jpp.is_bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              if (jpp.is_bf16) {" << std::endl;
                 vmovdqu16(ptr[reg_input + reg_off + i], yzero);
             } else {
                 uni_vmovups(ptr[reg_input + reg_off + i], vzero);
@@ -597,6 +659,7 @@ void jit_uni_pool_kernel<isa>::maybe_zero_diff_src() {
 
 template <cpu_isa_t isa>
 void jit_uni_pool_kernel<isa>::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:  void jit_uni_pool_kernel<isa>::generate() {" << std::endl;
 
     this->preamble();
 
@@ -636,6 +699,7 @@ void jit_uni_pool_kernel<isa>::generate() {
     mov(reg_ker_area_h, ptr[reg_param + GET_OFF(ker_area_h)]);
 
     if (jpp.is_bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.is_bf16) {" << std::endl;
         mov(tmp_gpr.cvt32(), 0xAAAAAAAA);
         kmovd(k_mask_cvt, tmp_gpr.cvt32());
 
@@ -647,13 +711,16 @@ void jit_uni_pool_kernel<isa>::generate() {
         maybe_zero_diff_src();
 
     if (jpp.alg == pooling_max && (jpp.is_training || jpp.is_backward)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.alg == pooling_max && (jpp.is_training || jpp.is_backward)) {" << std::endl;
         mov(tmp_gpr, 1);
         movq(xmm_one, tmp_gpr);
         uni_vpbroadcastd(vmm_one, xmm_one);
 
         if (isa == avx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (isa == avx) {" << std::endl;
             mov(reg_shuf_mask, 0x0c080400);
         } else if (isa >= avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          } else if (isa >= avx512_common) {" << std::endl;
             mov(tmp_gpr.cvt32(), 0x000f);
             kmovw(k_index_mask, tmp_gpr.cvt32());
         }
@@ -669,15 +736,19 @@ void jit_uni_pool_kernel<isa>::generate() {
     uni_vpbroadcastd(vmm_ker_area_h, xmm_ker_area_h);
 
     if (l_pad > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (l_pad > 0) {" << std::endl;
         n_oi--;
         if (n_oi < 0 && r_pad1 > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (n_oi < 0 && r_pad1 > 0) {" << std::endl;
             step(ur_w, l_pad, r_pad1, r_pad1_log);
         } else  {
             step(ur_w, l_pad, 0, 0);
         }
 
         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (isa == sse42) {" << std::endl;
             if (n_oi < 0 && r_pad1 > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              if (n_oi < 0 && r_pad1 > 0) {" << std::endl;
                 step_high_half(ur_w, l_pad, r_pad1, r_pad1_log);
             } else  {
                 step_high_half(ur_w, l_pad, 0, 0);
@@ -685,6 +756,7 @@ void jit_uni_pool_kernel<isa>::generate() {
         }
 
         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (isa == sse42) {" << std::endl;
             add(reg_input, jpp.dt_size*(ur_w*stride_w-l_pad)*c_block - vlen);
             add(reg_output, jpp.dt_size*ur_w*c_block - vlen);
             if (jpp.alg == pooling_max && (jpp.is_training || jpp.is_backward))
@@ -701,15 +773,18 @@ void jit_uni_pool_kernel<isa>::generate() {
 
     xor_(oi_iter, oi_iter);
     if (n_oi > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (n_oi > 0) {" << std::endl;
         Label ow_loop;
         L(ow_loop); {
             step(ur_w, 0, 0, 0);
 
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              if (isa == sse42) {" << std::endl;
                 step_high_half(ur_w, 0, 0, 0);
             }
 
             if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:              if (isa == sse42) {" << std::endl;
                 add(reg_input, jpp.dt_size*ur_w*stride_w*c_block - vlen);
                 add(reg_output, jpp.dt_size*ur_w*c_block - vlen);
                 if (jpp.alg == pooling_max &&
@@ -732,13 +807,16 @@ void jit_uni_pool_kernel<isa>::generate() {
     }
 
     if (r_pad1 > 0 && n_oi >= 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (r_pad1 > 0 && n_oi >= 0) {" << std::endl;
         step(ur_w, 0, r_pad1, r_pad1_log);
 
         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (isa == sse42) {" << std::endl;
             step_high_half(ur_w, 0, r_pad1, r_pad1_log);
         }
 
         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (isa == sse42) {" << std::endl;
             add(reg_input, jpp.dt_size*ur_w*stride_w*c_block - vlen);
             add(reg_output, jpp.dt_size*ur_w*c_block - vlen);
             if (jpp.alg == pooling_max && (jpp.is_training || jpp.is_backward))
@@ -754,9 +832,11 @@ void jit_uni_pool_kernel<isa>::generate() {
     }
 
     if (ur_w_tail != 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (ur_w_tail != 0) {" << std::endl;
         step(ur_w_tail, 0, r_pad, r_pad_log);
 
         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:          if (isa == sse42) {" << std::endl;
             step_high_half(ur_w_tail, 0, r_pad, r_pad_log);
         }
     }
@@ -764,6 +844,7 @@ void jit_uni_pool_kernel<isa>::generate() {
     this->postamble();
 
     if (jpp.is_bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_pool_kernel.cpp:      if (jpp.is_bf16) {" << std::endl;
         align(64);
         L(idx_table);
         const uint16_t _idx[] = { 0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -48,14 +49,19 @@ void pre_calc_for_bilinear_interpolate(
     int roi_bin_grid_h,
     int roi_bin_grid_w,
     std::vector<PreCalc<T>>& pre_calc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      std::vector<PreCalc<T>>& pre_calc) {" << std::endl;
   int pre_calc_index = 0;
   for (int ph = 0; ph < pooled_height; ph++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:    for (int ph = 0; ph < pooled_height; ph++) {" << std::endl;
     for (int pw = 0; pw < pooled_width; pw++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      for (int pw = 0; pw < pooled_width; pw++) {" << std::endl;
       for (int iy = 0; iy < iy_upper; iy++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:        for (int iy = 0; iy < iy_upper; iy++) {" << std::endl;
         const T yy = roi_start_h + ph * bin_size_h +
             static_cast<T>(iy + .5f) * bin_size_h /
                 static_cast<T>(roi_bin_grid_h);  // e.g., 0.5, 1.5
         for (int ix = 0; ix < ix_upper; ix++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:          for (int ix = 0; ix < ix_upper; ix++) {" << std::endl;
           const T xx = roi_start_w + pw * bin_size_w +
               static_cast<T>(ix + .5f) * bin_size_w /
                   static_cast<T>(roi_bin_grid_w);
@@ -64,6 +70,7 @@ void pre_calc_for_bilinear_interpolate(
           T y = yy;
           // deal with: inverse elements are out of feature map boundary
           if (y < -1.0 || y > height || x < -1.0 || x > width) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:            if (y < -1.0 || y > height || x < -1.0 || x > width) {" << std::endl;
             // empty
             PreCalc<T> pc;
             pc.pos1 = 0;
@@ -80,9 +87,11 @@ void pre_calc_for_bilinear_interpolate(
           }
 
           if (y <= 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:            if (y <= 0) {" << std::endl;
             y = 0;
           }
           if (x <= 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:            if (x <= 0) {" << std::endl;
             x = 0;
           }
 
@@ -92,6 +101,7 @@ void pre_calc_for_bilinear_interpolate(
           int x_high = 0;
 
           if (y_low >= height - 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:            if (y_low >= height - 1) {" << std::endl;
             y_high = y_low = height - 1;
             y = (T)y_low;
           } else {
@@ -99,6 +109,7 @@ void pre_calc_for_bilinear_interpolate(
           }
 
           if (x_low >= width - 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:            if (x_low >= width - 1) {" << std::endl;
             x_high = x_low = width - 1;
             x = (T)x_low;
           } else {
@@ -142,17 +153,20 @@ void ROIAlignForward_cpu_kernel(
     const int sampling_ratio,
     const T* bottom_rois,
     T* top_data) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      T* top_data) {" << std::endl;
   int roi_cols = 4;
 
   int n_rois = nthreads / channels / pooled_width / pooled_height;
   // (n, c, ph, pw) is an element in the pooled output
   parallel_for(n_rois, [&](size_t n) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:    parallel_for(n_rois, [&](size_t n) {" << std::endl;
     int index_n = n * channels * pooled_width * pooled_height;
 
     // roi could have 4 or 5 columns
     const T* offset_bottom_rois = bottom_rois + n * roi_cols;
     int roi_batch_ind = 0;
     if (roi_cols == 5) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      if (roi_cols == 5) {" << std::endl;
       roi_batch_ind = static_cast<int>(offset_bottom_rois[0]);
       offset_bottom_rois++;
     }
@@ -199,18 +213,23 @@ void ROIAlignForward_cpu_kernel(
         pre_calc);
 
     for (int c = 0; c < channels; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      for (int c = 0; c < channels; c++) {" << std::endl;
       int index_n_c = index_n + c * pooled_width * pooled_height;
       const T* offset_bottom_data =
           bottom_data + (roi_batch_ind * channels + c) * height * width;
       int pre_calc_index = 0;
 
       for (int ph = 0; ph < pooled_height; ph++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:        for (int ph = 0; ph < pooled_height; ph++) {" << std::endl;
         for (int pw = 0; pw < pooled_width; pw++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:          for (int pw = 0; pw < pooled_width; pw++) {" << std::endl;
           int index = index_n_c + ph * pooled_width + pw;
 
           T output_val = 0.;
           for (int iy = 0; iy < roi_bin_grid_h; iy++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:            for (int iy = 0; iy < roi_bin_grid_h; iy++) {" << std::endl;
             for (int ix = 0; ix < roi_bin_grid_w; ix++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:              for (int ix = 0; ix < roi_bin_grid_w; ix++) {" << std::endl;
               PreCalc<T> pc = pre_calc[pre_calc_index];
               output_val += pc.w1 * offset_bottom_data[pc.pos1] +
                   pc.w2 * offset_bottom_data[pc.pos2] +
@@ -232,10 +251,12 @@ void ROIAlignForward_cpu_kernel(
 
 void redistribute_rois(const float* rois, int* level_ids,
                        const int num_rois, const int levels_num) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:                         const int num_rois, const int levels_num) {" << std::endl;
     const float canonical_scale = 224.0f;
     const int canonical_level = 2;
 
     for (int i = 0; i < num_rois; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      for (int i = 0; i < num_rois; ++i) {" << std::endl;
         const float x0 = rois[4 * i + 0];
         const float y0 = rois[4 * i + 1];
         const float x1 = rois[4 * i + 2];
@@ -244,6 +265,7 @@ void redistribute_rois(const float* rois, int* level_ids,
         int target_level = levels_num;
         float area = (x1 - x0) * (y1 - y0);
         if (area > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:          if (area > 0) {" << std::endl;
             area = std::sqrt(area) / canonical_scale;
             area = std::log2(area + 1e-6f);
             target_level = static_cast<int>(std::floor(area + canonical_level));
@@ -257,9 +279,12 @@ void redistribute_rois(const float* rois, int* level_ids,
 
 void reorder(const float* src_data, const int* ranks, const int n, const int step, float* dst_data,
              int* dst_mapping) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:               int* dst_mapping) {" << std::endl;
     std::iota(dst_mapping, dst_mapping + n, 0);
-    std::sort(dst_mapping, dst_mapping + n, [&ranks](size_t i1, size_t i2) {return ranks[i1] < ranks[i2];});
+    std::sort(dst_mapping, dst_mapping + n, [&ranks](size_t i1, size_t i2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      std::sort(dst_mapping, dst_mapping + n, [&ranks](size_t i1, size_t i2) {" << std::endl;return ranks[i1] < ranks[i2];});
     for (int i = 0; i < n; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      for (int i = 0; i < n; ++i) {" << std::endl;
         const int j = dst_mapping[i];
         assert(0 <= j && j < n);
         std::memcpy(dst_data + i * step, src_data + j * step, sizeof(float) * step);
@@ -267,13 +292,16 @@ void reorder(const float* src_data, const int* ranks, const int n, const int ste
 }
 
 void split_points(const std::vector<int>& ids, std::vector<int>& rois_per_level, const int levels_num) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:  void split_points(const std::vector<int>& ids, std::vector<int>& rois_per_level, const int levels_num) {" << std::endl;
     rois_per_level.clear();
     rois_per_level.resize(levels_num, 0);
     for (size_t i = 0; i < ids.size(); ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      for (size_t i = 0; i < ids.size(); ++i) {" << std::endl;
         assert(0 <= ids[i] && ids[i] < levels_num);
         rois_per_level[ids[i]]++;
     }
     for (int i = 1; i < levels_num; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      for (int i = 1; i < levels_num; ++i) {" << std::endl;
         rois_per_level[i] += rois_per_level[i - 1];
     }
     rois_per_level.insert(rois_per_level.begin(), 0);
@@ -282,13 +310,16 @@ void split_points(const std::vector<int>& ids, std::vector<int>& rois_per_level,
 
 void reorder_rois(const float *rois, const int* ids, int* mapping, const int rois_num,
                   float * reordered_rois, std::vector<int>& rois_per_level, const int levels_num) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:                    float * reordered_rois, std::vector<int>& rois_per_level, const int levels_num) {" << std::endl;
     rois_per_level.clear();
     rois_per_level.resize(levels_num, 0);
     for (int i = 0; i < rois_num; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      for (int i = 0; i < rois_num; ++i) {" << std::endl;
         assert(0 <= ids[i] && ids[i] < levels_num);
         rois_per_level[ids[i]]++;
     }
     for (int i = 1; i < levels_num; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      for (int i = 1; i < levels_num; ++i) {" << std::endl;
         rois_per_level[i] += rois_per_level[i - 1];
     }
     rois_per_level.insert(rois_per_level.begin(), 0);
@@ -296,6 +327,7 @@ void reorder_rois(const float *rois, const int* ids, int* mapping, const int roi
     std::vector<int> level_counter = rois_per_level;
 
     for (int i = 0; i < rois_num; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      for (int i = 0; i < rois_num; ++i) {" << std::endl;
         const int level = ids[i];
         assert(level < levels_num);
         const int j = level_counter[level];
@@ -318,6 +350,7 @@ private:
 
 public:
     explicit ExperimentalDetectronROIFeatureExtractorImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:      explicit ExperimentalDetectronROIFeatureExtractorImpl(const CNNLayer* layer) {" << std::endl;
         try {
             output_dim_ = layer->GetParamAsInt("output_size");
             pyramid_scales_ = layer->GetParamAsInts("pyramid_scales");
@@ -329,6 +362,7 @@ public:
             std::vector<DataConfigurator> outputs_layouts(layer->outData.size(), DataConfigurator(ConfLayout::PLN));
             addConfig(layer, inputs_layouts, outputs_layouts);
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -344,6 +378,7 @@ public:
         auto *output_rois_features = outputs[OUTPUT_ROI_FEATURES]->buffer().as<float *>();
         float *output_rois = nullptr;
         if (OUTPUT_ROIS < static_cast<int>(outputs.size())) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:          if (OUTPUT_ROIS < static_cast<int>(outputs.size())) {" << std::endl;
             output_rois = outputs[OUTPUT_ROIS]->buffer().as<float *>();
         }
 
@@ -359,9 +394,11 @@ public:
 
         std::vector<float> output_rois_features_temp(feaxels_per_roi * num_rois, 0);
         for (int i = 0; i < levels_num; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:          for (int i = 0; i < levels_num; ++i) {" << std::endl;
             const int level_rois_offset = rois_per_level[i];
             const int level_rois_num = rois_per_level[i + 1] - level_rois_offset;
             if (level_rois_num > 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:              if (level_rois_num > 0) {" << std::endl;
                 auto *featuremap = inputs[INPUT_FEATURES_START + i]->buffer().as<const float *>();
                 const int featuremap_height = inputs[INPUT_FEATURES_START + i]->getTensorDesc().getDims()[2];
                 const int featuremap_width = inputs[INPUT_FEATURES_START + i]->getTensorDesc().getDims()[3];
@@ -383,6 +420,7 @@ public:
         reorder(&output_rois_features_temp[0], &original_rois_mapping[0], num_rois, feaxels_per_roi,
                 output_rois_features, &dummy_mapping[0]);
         if (output_rois != nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/roifeatureextractor_onnx.cpp:          if (output_rois != nullptr) {" << std::endl;
             std::memcpy(output_rois, input_rois, 4 * num_rois * sizeof(float));
         }
 

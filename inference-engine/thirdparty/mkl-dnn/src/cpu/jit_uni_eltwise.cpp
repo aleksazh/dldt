@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2017-2019 Intel Corporation
 *
@@ -35,18 +36,21 @@ using namespace Xbyak;
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::injector_preamble(size_t start_idx,
         size_t end_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          size_t end_idx) {" << std::endl;
     preserved_vecs_count = 0;
     vecs_to_preserve = (size_t)aux_vecs_count(alg_);
     start_idx_tail = start_idx;
 
     // For sse42 mask register has to be Xmm(0)
     if (isa == sse42 && vecs_to_preserve > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (isa == sse42 && vecs_to_preserve > 0) {" << std::endl;
         size_t idx = 0;
         assert(idx < start_idx);
         preserved_vec_idxs[preserved_vecs_count++] = idx;
     }
 
     for (size_t idx = preserved_vecs_count; idx < vecs_count; idx++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      for (size_t idx = preserved_vecs_count; idx < vecs_count; idx++) {" << std::endl;
         if (preserved_vecs_count >= vecs_to_preserve) break;
         if (start_idx <= idx && idx < end_idx) continue;
 
@@ -55,12 +59,14 @@ void jit_uni_eltwise_injector_f32<isa>::injector_preamble(size_t start_idx,
 
     size_t preserved_vecs_count_tail = vecs_to_preserve - preserved_vecs_count;
     for (size_t i = 0; i < preserved_vecs_count_tail; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      for (size_t i = 0; i < preserved_vecs_count_tail; i++) {" << std::endl;
         preserved_vec_idxs[preserved_vecs_count++] = start_idx_tail++;
     }
 
     assert(preserved_vecs_count == vecs_to_preserve);
 
     if (save_state_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (save_state_) {" << std::endl;
         h->push(p_table);
 
         if (preserved_vecs_count)
@@ -79,12 +85,14 @@ void jit_uni_eltwise_injector_f32<isa>::injector_preamble(size_t start_idx,
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::injector_preamble_tail(size_t start_idx)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::injector_preamble_tail(size_t start_idx) {" << std::endl;
     size_t tail_vecs_to_preserve = start_idx_tail - start_idx;
     if (tail_vecs_to_preserve == 0) return;
 
     const int idx_off = vecs_to_preserve - tail_vecs_to_preserve;
 
     if (save_state_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (save_state_) {" << std::endl;
         if (idx_off)
             h->add(h->rsp, idx_off * vlen);
 
@@ -97,6 +105,7 @@ void jit_uni_eltwise_injector_f32<isa>::injector_preamble_tail(size_t start_idx)
         preserved_vec_idxs[idx_off + i] += tail_vecs_to_preserve;
 
     if (save_state_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (save_state_) {" << std::endl;
         for (size_t i = 0; i < tail_vecs_to_preserve; ++i)
             h->uni_vmovups(h->ptr[h->rsp + i * vlen],
                     Vmm(preserved_vec_idxs[idx_off + i]));
@@ -110,6 +119,7 @@ void jit_uni_eltwise_injector_f32<isa>::injector_preamble_tail(size_t start_idx)
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::injector_postamble() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::injector_postamble() {" << std::endl;
     if (!save_state_) return;
 
     for (size_t i = 0; i < preserved_vecs_count; ++i)
@@ -124,6 +134,7 @@ void jit_uni_eltwise_injector_f32<isa>::injector_postamble() {
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::assign_regs() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::assign_regs() {" << std::endl;
     vmm_mask = Vmm(preserved_vec_idxs[0]);
     vmm_aux0 = Vmm(preserved_vec_idxs[0]);
     vmm_aux1 = Vmm(preserved_vec_idxs[1]);
@@ -134,6 +145,7 @@ void jit_uni_eltwise_injector_f32<isa>::assign_regs() {
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::exp_compute_vector(const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::exp_compute_vector(const Vmm &vmm_src) {" << std::endl;
     h->uni_vminps(vmm_src, vmm_src, table_val(10));
     h->uni_vmaxps(vmm_src, vmm_src, table_val(11));
     h->uni_vmovups(vmm_aux0, vmm_src);
@@ -175,19 +187,23 @@ void jit_uni_eltwise_injector_f32<isa>::exp_compute_vector(const Vmm &vmm_src) {
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::relu_compute_vector(const Vmm &vmm_src)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::relu_compute_vector(const Vmm &vmm_src) {" << std::endl;
     const int alpha_off = 0, zero_off = 1;
 
     h->uni_vmovups(vmm_aux1, vmm_src);
     if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (isa == sse42) {" << std::endl;
         h->movups(vmm_mask, vmm_src);
         h->mulps(vmm_src, table_val(alpha_off));
         h->cmpps(vmm_mask, table_val(zero_off), _cmp_nle_us);
         h->blendvps(vmm_src, vmm_aux1);
     } else if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      } else if (isa == avx2) {" << std::endl;
         h->vmulps(vmm_src, vmm_src, table_val(alpha_off));
         h->vcmpgtps(vmm_mask, vmm_aux1, table_val(zero_off));
         h->vblendvps(vmm_src, vmm_src, vmm_aux1, vmm_mask);
     } else if (isa == avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      } else if (isa == avx512_common) {" << std::endl;
         h->vmulps(vmm_src, vmm_src, table_val(alpha_off));
         h->vcmpps(k_mask, vmm_aux1, table_val(zero_off), _cmp_nle_us);
         h->vblendmps(vmm_src | k_mask, vmm_src, vmm_aux1);
@@ -197,12 +213,14 @@ void jit_uni_eltwise_injector_f32<isa>::relu_compute_vector(const Vmm &vmm_src)
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::relu_zero_ns_compute_vector(
         const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          const Vmm &vmm_src) {" << std::endl;
     const int zero_off = 1;
     h->uni_vmaxps(vmm_src, vmm_src, table_val(zero_off));
 }
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::elu_compute_vector(const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::elu_compute_vector(const Vmm &vmm_src) {" << std::endl;
     const int alpha_off = 23, zero_off = 24;
 
     // compute exponent
@@ -215,13 +233,16 @@ void jit_uni_eltwise_injector_f32<isa>::elu_compute_vector(const Vmm &vmm_src) {
 
     // combine with mask
     if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (isa == sse42) {" << std::endl;
         h->pxor(vmm_mask, vmm_mask);
         h->cmpps(vmm_mask,  vmm_aux2, _cmp_le_os);
         h->blendvps(vmm_src, vmm_aux2);
     } else if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      } else if (isa == avx2) {" << std::endl;
         h->uni_vcmpgtps(vmm_mask, vmm_aux2, table_val(zero_off));
         h->uni_vblendvps(vmm_src, vmm_src, vmm_aux2, vmm_mask);
     } else if (isa == avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      } else if (isa == avx512_common) {" << std::endl;
         h->vcmpps(k_mask, vmm_aux2, table_val(zero_off), _cmp_nle_us);
         h->vblendmps(vmm_src | k_mask, vmm_src, vmm_aux2);
     }
@@ -230,6 +251,7 @@ void jit_uni_eltwise_injector_f32<isa>::elu_compute_vector(const Vmm &vmm_src) {
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::tanh_compute_vector(const Vmm &vmm_src)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::tanh_compute_vector(const Vmm &vmm_src) {" << std::endl;
     // # comes from Taylor expansion error bound
     //  > linear_sat_point = single(sqrt(3) * 1b-12);
     // # comes from the exp formula cancellation
@@ -257,9 +279,11 @@ void jit_uni_eltwise_injector_f32<isa>::tanh_compute_vector(const Vmm &vmm_src)
     Label end_tanh_label;
 
     auto test_exit =[&](Xbyak::Address threshold){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      auto test_exit =[&](Xbyak::Address threshold){" << std::endl;
         // is not necessary for >AVX, but should not matter on perf
         h->uni_vmovups(vmm_aux0, vmm_src);
         if (isa == avx512_common){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (isa == avx512_common){" << std::endl;
             h->vcmpps(k_mask, vmm_aux0, threshold, 0x5);
             h->kortestw(k_mask, k_mask);
         } else {
@@ -270,6 +294,7 @@ void jit_uni_eltwise_injector_f32<isa>::tanh_compute_vector(const Vmm &vmm_src)
     };
 
     auto blend_results=[&](Vmm vmm_partial_res){
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      auto blend_results=[&](Vmm vmm_partial_res){" << std::endl;
         if (isa == avx512_common)
             h->vblendmps(vmm_aux1 | k_mask, vmm_aux1, vmm_partial_res);
         else
@@ -361,11 +386,13 @@ void jit_uni_eltwise_injector_f32<isa>::tanh_compute_vector(const Vmm &vmm_src)
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::square_compute_vector(
         const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          const Vmm &vmm_src) {" << std::endl;
     h->uni_vmulps(vmm_src, vmm_src, vmm_src);
 }
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::abs_compute_vector(const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::abs_compute_vector(const Vmm &vmm_src) {" << std::endl;
     // compute abs(x) = _mm_and_ps(x, 01111..111));
     h->uni_vandps(vmm_src, vmm_src, table_val(0));
 }
@@ -373,7 +400,9 @@ void jit_uni_eltwise_injector_f32<isa>::abs_compute_vector(const Vmm &vmm_src) {
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::sqrt_compute_vector(const Vmm &vmm_src)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::sqrt_compute_vector(const Vmm &vmm_src) {" << std::endl;
     if (isa == avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (isa == avx512_common) {" << std::endl;
         h->vcmpps(k_mask, vmm_src, table_val(0), _cmp_nle_us);
         h->uni_vsqrtps(vmm_aux1, vmm_src);
         h->uni_vmovups(vmm_src, table_val(0));
@@ -390,6 +419,7 @@ void jit_uni_eltwise_injector_f32<isa>::sqrt_compute_vector(const Vmm &vmm_src)
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::linear_compute_vector(
         const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          const Vmm &vmm_src) {" << std::endl;
     // compute x = alpha * x + beta;
     h->uni_vmovups(vmm_aux0, table_val(0));
     h->uni_vfmadd213ps(vmm_src, vmm_aux0, table_val(1));
@@ -398,6 +428,7 @@ void jit_uni_eltwise_injector_f32<isa>::linear_compute_vector(
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::bounded_relu_compute_vector(
         const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          const Vmm &vmm_src) {" << std::endl;
     // compute bounded relu */
     h->uni_vmaxps(vmm_src, vmm_src, table_val(1));
     h->uni_vminps(vmm_src, vmm_src, table_val(0));
@@ -406,6 +437,7 @@ void jit_uni_eltwise_injector_f32<isa>::bounded_relu_compute_vector(
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::soft_relu_compute_vector(
         const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          const Vmm &vmm_src) {" << std::endl;
     // duplicate src
     h->uni_vmovups(vmm_aux2, vmm_src);
 
@@ -441,6 +473,7 @@ void jit_uni_eltwise_injector_f32<isa>::soft_relu_compute_vector(
 
     // compute 2^(-n)
     if (isa == avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (isa == avx512_common) {" << std::endl;
         h->vmulps(vmm_aux1, vmm_src, table_val(23));
         h->vcvtps2dq(vmm_aux1, vmm_aux1);
     } else {
@@ -491,6 +524,7 @@ void jit_uni_eltwise_injector_f32<isa>::soft_relu_compute_vector(
     // get vmm_mask = src > max logf
     h->uni_vmovups(vmm_mask, vmm_aux2);
     if (isa == avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (isa == avx512_common) {" << std::endl;
         // y = (x < max log f) ? soft_relu(x) : x
         h->vcmpps(k_mask, vmm_mask, table_val(24), _cmp_nle_us);
         h->vblendmps(vmm_aux1 | k_mask, vmm_aux1, vmm_aux2);
@@ -506,6 +540,7 @@ void jit_uni_eltwise_injector_f32<isa>::soft_relu_compute_vector(
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::logistic_compute_vector(
         const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          const Vmm &vmm_src) {" << std::endl;
     // we store the original sign and make x negative
     // IMPORTANT: we assume vmm_aux0 to be xmm0, as for sse4.2 path it is required
     // IMPORTANT: we use vmm_aux2 for the mask as exp_compute does not use it.
@@ -525,6 +560,7 @@ void jit_uni_eltwise_injector_f32<isa>::logistic_compute_vector(
     h->uni_vmovups(vmm_aux3, table_val(0));
     h->uni_vsubps(vmm_aux3, vmm_aux3, vmm_src);
     if (isa == avx512_common) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (isa == avx512_common) {" << std::endl;
         h->vptestmd(k_mask, vmm_aux2, vmm_aux2);
         h->vblendmps(vmm_aux3 | k_mask, vmm_aux3, vmm_src);
     } else {
@@ -537,6 +573,7 @@ void jit_uni_eltwise_injector_f32<isa>::logistic_compute_vector(
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::clamp_compute_vector(
         const Vmm &vmm_src) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          const Vmm &vmm_src) {" << std::endl;
     // compute clamp */
     h->uni_vmaxps(vmm_src, vmm_src, table_val(1));
     h->uni_vminps(vmm_src, vmm_src, table_val(0));
@@ -544,12 +581,14 @@ void jit_uni_eltwise_injector_f32<isa>::clamp_compute_vector(
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::relu_prepare_table() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::relu_prepare_table() {" << std::endl;
     for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(float2int(alpha_));
     for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(0);
 }
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::elu_prepare_table() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::elu_prepare_table() {" << std::endl;
     const unsigned int cvals[] = {
             0x3f800000, // [0] 1.0f
             0x3f000000, // [1] 0.5f
@@ -580,6 +619,7 @@ void jit_uni_eltwise_injector_f32<isa>::elu_prepare_table() {
     };
 
     for (size_t i = 0; i < sizeof(cvals) / sizeof(cvals[0]); ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      for (size_t i = 0; i < sizeof(cvals) / sizeof(cvals[0]); ++i) {" << std::endl;
         for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(cvals[i]);
     }
 
@@ -589,6 +629,7 @@ void jit_uni_eltwise_injector_f32<isa>::elu_prepare_table() {
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::soft_relu_prepare_table() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::soft_relu_prepare_table() {" << std::endl;
     const unsigned int cvals[] = {
             0x3f800000, // [0] 1.0f
             0x3f000000, // [1] 0.5f
@@ -621,7 +662,9 @@ void jit_uni_eltwise_injector_f32<isa>::soft_relu_prepare_table() {
     };
 
     for (size_t i = 0; i < sizeof(cvals) / sizeof(cvals[0]); ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      for (size_t i = 0; i < sizeof(cvals) / sizeof(cvals[0]); ++i) {" << std::endl;
         for (size_t d = 0; d < vlen / sizeof(float); ++d) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          for (size_t d = 0; d < vlen / sizeof(float); ++d) {" << std::endl;
             h->dd(cvals[i]);
         }
     }
@@ -629,35 +672,42 @@ void jit_uni_eltwise_injector_f32<isa>::soft_relu_prepare_table() {
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::abs_prepare_table() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::abs_prepare_table() {" << std::endl;
     for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(0x7fffffff);
 }
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::sqrt_prepare_table() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::sqrt_prepare_table() {" << std::endl;
     for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(0);
 }
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::linear_prepare_table() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::linear_prepare_table() {" << std::endl;
     for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(float2int(alpha_));
     for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(float2int(beta_));
 }
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::bounded_relu_prepare_table() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::bounded_relu_prepare_table() {" << std::endl;
     for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(float2int(alpha_));
     for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(0);
 }
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::clamp_prepare_table() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::clamp_prepare_table() {" << std::endl;
     for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(float2int(alpha_));
     for (size_t d = 0; d < vlen / sizeof(float); ++d) h->dd(float2int(beta_));
 }
 
 template <cpu_isa_t isa>
 int jit_uni_eltwise_injector_f32<isa>::aux_vecs_count(alg_kind_t alg_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  int jit_uni_eltwise_injector_f32<isa>::aux_vecs_count(alg_kind_t alg_) {" << std::endl;
     switch (alg_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      switch (alg_) {" << std::endl;
     case alg_kind::eltwise_relu: return (alpha_ == 0.f) ? 0 : 2;
     case alg_kind::eltwise_elu: return 4;
     case alg_kind::eltwise_tanh: return 5;
@@ -679,9 +729,12 @@ int jit_uni_eltwise_injector_f32<isa>::aux_vecs_count(alg_kind_t alg_) {
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::compute_body(size_t start_idx,
         size_t end_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          size_t end_idx) {" << std::endl;
     using namespace alg_kind;
     for (size_t idx = start_idx; idx < end_idx; idx++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      for (size_t idx = start_idx; idx < end_idx; idx++) {" << std::endl;
         switch (alg_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          switch (alg_) {" << std::endl;
         case eltwise_relu:
             if (alpha_ == 0.f) relu_zero_ns_compute_vector(Vmm(idx));
             else relu_compute_vector(Vmm(idx));
@@ -705,6 +758,7 @@ void jit_uni_eltwise_injector_f32<isa>::compute_body(size_t start_idx,
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::compute_vector_range(size_t start_idx,
         size_t end_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          size_t end_idx) {" << std::endl;
     assert(start_idx < end_idx && end_idx <= vecs_count);
 
     injector_preamble(start_idx, end_idx);
@@ -716,13 +770,16 @@ void jit_uni_eltwise_injector_f32<isa>::compute_vector_range(size_t start_idx,
 
 template <cpu_isa_t isa>
 void jit_uni_eltwise_injector_f32<isa>::prepare_table(bool gen_table) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  void jit_uni_eltwise_injector_f32<isa>::prepare_table(bool gen_table) {" << std::endl;
     using namespace alg_kind;
 
     h->align(64);
     h->L(l_table);
 
     if (gen_table) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      if (gen_table) {" << std::endl;
         switch (alg_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          switch (alg_) {" << std::endl;
         case eltwise_relu: relu_prepare_table(); break;
         case eltwise_elu:
         case eltwise_tanh:
@@ -757,11 +814,14 @@ struct jit_uni_eltwise_kernel_f32 : public c_compatible {
     const eltwise_desc_t &desc_;
 
     void (*ker_)(const jit_args *);
-    void operator()(const jit_args *args) { assert(ker_); ker_(args); }
+    void operator()(const jit_args *args) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      void operator()(const jit_args *args) {" << std::endl; assert(ker_); ker_(args); }
 
     jit_uni_eltwise_kernel_f32(const eltwise_desc_t &desc)
-        : desc_(desc), ker_(nullptr) {}
-    virtual ~jit_uni_eltwise_kernel_f32() {}
+        : desc_(desc), ker_(nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          : desc_(desc), ker_(nullptr) {" << std::endl;}
+    virtual ~jit_uni_eltwise_kernel_f32() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      virtual ~jit_uni_eltwise_kernel_f32() {" << std::endl;}
 
 protected:
     bool is_bwd() const { return desc_.prop_kind == prop_kind::backward_data; }
@@ -777,18 +837,24 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_uni_relu_kernel_f32)
 
     void compute_step(bool vectorize, const int uf, const int shift) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      void compute_step(bool vectorize, const int uf, const int shift) {" << std::endl;
         for (int i = 0; i < uf; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          for (int i = 0; i < uf; i++) {" << std::endl;
             auto addr_fwd = ptr[reg_from + i * shift];
             auto addr_bwd = ptr[reg_for_comparison + i * shift];
             if (vectorize) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:              if (vectorize) {" << std::endl;
                 if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:                  if (is_bf16_) {" << std::endl;
                     vmovups(Ymm_src(i + 1), addr_fwd);
                     vpermw(Vmm(i + 1) | k_mask_cvt | T_z, zmm_idx, Zmm_src(i + 1));
                 } else {
                     uni_vmovups(Vmm(i + 1), addr_fwd);
                 }
                 if (is_bwd()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:                  if (is_bwd()) {" << std::endl;
                     if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:                      if (is_bf16_) {" << std::endl;
                         vmovups(Ymm_src(uf + i + 1), addr_bwd);
                         vpermw(Vmm(uf + i + 1) | k_mask_cvt | T_z,
                                 zmm_idx, Zmm_src(uf + i + 1));
@@ -798,6 +864,7 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
                 }
             } else {
                 if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:                  if (is_bf16_) {" << std::endl;
                     vmovdqu16(Ymm_src(i + 1) | k_tail_mask, addr_fwd);
                     vpermw(Vmm(i + 1) | k_mask_cvt | T_z, zmm_idx,
                             Zmm_src(i + 1));
@@ -805,7 +872,9 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
                     movss(Xmm(i + 1), addr_fwd);
                 }
                 if (is_bwd()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:                  if (is_bwd()) {" << std::endl;
                     if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:                      if (is_bf16_) {" << std::endl;
                         vmovdqu16(Ymm_src(uf + i + 1) | k_tail_mask, addr_bwd);
                         vpermw(Vmm(uf + i + 1) | k_mask_cvt | T_z, zmm_idx,
                                 Zmm_src(uf + i + 1));
@@ -817,12 +886,15 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
         }
 
         if (isa == sse42) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (isa == sse42) {" << std::endl;
             for (int i = 0; i < uf; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:              for (int i = 0; i < uf; i++) {" << std::endl;
                 movups(Vmm(2 * uf + i + 1), Vmm(i + 1));
                 mulps(Vmm(2 * uf + i + 1), vmm_ns);
 
                 Vmm mask = Vmm(0);
                 if (is_bwd()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:                  if (is_bwd()) {" << std::endl;
                     movups(mask, Vmm(uf + i + 1));
                     cmpps(mask, vmm_zero, _cmp_nle_us);
                 } else {
@@ -833,8 +905,10 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
             }
         } else {
             for (int i = 0; i < uf; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:              for (int i = 0; i < uf; i++) {" << std::endl;
                 vmulps(Vmm(2 * uf + i + 1), Vmm(i + 1), vmm_ns);
                 if (isa == avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:                  if (isa == avx2) {" << std::endl;
                     if (is_bwd())
                         vcmpgtps(vmm_mask, Vmm(uf + i + 1), vmm_zero);
                     else
@@ -854,6 +928,7 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
             }
         }
         auto store_data =[&] (opmask_t _kmask, int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          auto store_data =[&] (opmask_t _kmask, int i) {" << std::endl;
             if (!is_cpx_)
                 bf16_emu_->r_vcvtneps2bf16(Ymm_src(2 * uf + i + 1),
                     Zmm(2 * uf + i + 1));
@@ -863,6 +938,7 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
         };
 
         for (int i = 0; i < uf; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          for (int i = 0; i < uf; i++) {" << std::endl;
             if (vectorize)
                 if(is_bf16_)
                     store_data(k_full_mask, i);
@@ -876,12 +952,14 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
         }
     }
 
-    ~jit_uni_relu_kernel_f32() { delete bf16_emu_; }
+    ~jit_uni_relu_kernel_f32() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      ~jit_uni_relu_kernel_f32() {" << std::endl; delete bf16_emu_; }
 
     jit_uni_relu_kernel_f32(const eltwise_desc_t &desc)
         : jit_uni_eltwise_kernel_f32(desc)
         , jit_generator()
         , bf16_emu_(nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          , bf16_emu_(nullptr) {" << std::endl;
         assert(desc.alg_kind == alg_kind::eltwise_relu);
         assert(isa == sse42 || isa == avx2 || isa == avx512_common);
 
@@ -910,6 +988,7 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
         preamble();
 
         if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (is_bf16_) {" << std::endl;
             mov(mask_reg, 0xAAAAAAAA);
             kmovd(k_mask_cvt, mask_reg);
 
@@ -929,6 +1008,7 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
         mov(reg_work_amount, ptr[param + GET_OFF(work_amount)]);
 
         if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (is_bf16_) {" << std::endl;
             mov(p_idx_table, idx_table);
             vmovups(zmm_idx, ptr[p_idx_table]);
         }
@@ -942,6 +1022,7 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
         Label loop_label[3];
 
         for (int id = 0; id < 2; id++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          for (int id = 0; id < 2; id++) {" << std::endl;
             L(loop_label[id]);
             cmp(reg_work_amount, uf[id] * loop_dec[id] - 1);
             jle(loop_label[id + 1], T_NEAR);
@@ -961,6 +1042,7 @@ struct jit_uni_relu_kernel_f32 : public jit_uni_eltwise_kernel_f32,
         postamble();
 
         if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (is_bf16_) {" << std::endl;
             align(64);
             L(idx_table);
             const uint16_t _idx[] = { 0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,
@@ -997,9 +1079,11 @@ private:
     Opmask k_mask = Opmask(1);
 
     inline Ymm Ymm_src(int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      inline Ymm Ymm_src(int i) {" << std::endl;
         return Ymm(15 + i);
     }
     inline Zmm Zmm_src(int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      inline Zmm Zmm_src(int i) {" << std::endl;
         return Zmm(15 + i);
     }
     Zmm zmm_idx = Zmm(29);
@@ -1032,6 +1116,7 @@ struct jit_uni_kernel_fwd_f32: public jit_uni_eltwise_kernel_f32,
         : jit_uni_eltwise_kernel_f32(desc)
         , jit_generator()
         , bf16_emu_(nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          , bf16_emu_(nullptr) {" << std::endl;
 
         is_cpx_ = mayiuse(avx512_core_bf16);
         bool is_bf16_ = (desc.data_desc.data_type == data_type::bf16);
@@ -1056,6 +1141,7 @@ struct jit_uni_kernel_fwd_f32: public jit_uni_eltwise_kernel_f32,
         preamble();
 
         if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (is_bf16_) {" << std::endl;
             mov(mask_reg, 0xAAAAAAAA);
             kmovd(k_mask, mask_reg);
 
@@ -1072,6 +1158,7 @@ struct jit_uni_kernel_fwd_f32: public jit_uni_eltwise_kernel_f32,
         mov(reg_from, ptr[param + GET_OFF(from)]);
         mov(reg_to, ptr[param + GET_OFF(to)]);
         if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (is_bf16_) {" << std::endl;
             mov(p_idx_table, idx_table);
             vmovups(zmm_idx, ptr[p_idx_table]);
         }
@@ -1088,6 +1175,7 @@ struct jit_uni_kernel_fwd_f32: public jit_uni_eltwise_kernel_f32,
         L(vectorized_loop_start);
 
         auto store_data =[&] (opmask_t _kmask) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          auto store_data =[&] (opmask_t _kmask) {" << std::endl;
             if (!is_cpx_)
                 bf16_emu_->r_vcvtneps2bf16(ymm_src, zmm_src_1);
             else
@@ -1096,6 +1184,7 @@ struct jit_uni_kernel_fwd_f32: public jit_uni_eltwise_kernel_f32,
         };
 
         if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (is_bf16_) {" << std::endl;
             vmovups(ymm_src, ptr[reg_from]);
             vpermw(vmm_src | k_mask  | T_z, zmm_idx, zmm_src);
             eltwise_injector_->compute_vector(vmm_src.getIdx());
@@ -1120,6 +1209,7 @@ struct jit_uni_kernel_fwd_f32: public jit_uni_eltwise_kernel_f32,
         cmp(reg_work_amount, 0);
         jle(reminder_loop_end, T_NEAR);
         if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (is_bf16_) {" << std::endl;
             vmovups(ymm_src | k_tail_mask, ptr[reg_from]);
             vpermw(vmm_src | k_mask | T_z, zmm_idx, zmm_src);
             eltwise_injector_->compute_vector(vmm_src.getIdx());
@@ -1143,6 +1233,7 @@ struct jit_uni_kernel_fwd_f32: public jit_uni_eltwise_kernel_f32,
         eltwise_injector_->prepare_table();
 
         if (is_bf16_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (is_bf16_) {" << std::endl;
             align(64);
             L(idx_table);
             const uint16_t _idx[] = { 0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,
@@ -1155,6 +1246,7 @@ struct jit_uni_kernel_fwd_f32: public jit_uni_eltwise_kernel_f32,
     }
 
     ~jit_uni_kernel_fwd_f32() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      ~jit_uni_kernel_fwd_f32() {" << std::endl;
         delete eltwise_injector_;
         delete bf16_emu_;
     }
@@ -1207,6 +1299,7 @@ private:
 
 template <cpu_isa_t isa, data_type_t d_type>
 status_t jit_uni_eltwise_fwd_t<isa, d_type>::pd_t::init() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  status_t jit_uni_eltwise_fwd_t<isa, d_type>::pd_t::init() {" << std::endl;
     using namespace alg_kind;
 
     assert(engine()->kind() == engine_kind::cpu);
@@ -1231,8 +1324,10 @@ template <cpu_isa_t isa, data_type_t d_type>
 jit_uni_eltwise_fwd_t<isa, d_type>::jit_uni_eltwise_fwd_t(const pd_t *apd,
         const input_vector &inputs, const output_vector &outputs)
     : cpu_primitive_t(apd, inputs, outputs), kernel_(nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      : cpu_primitive_t(apd, inputs, outputs), kernel_(nullptr) {" << std::endl;
     const auto &desc = *pd()->desc();
     switch (desc.alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      switch (desc.alg_kind) {" << std::endl;
     case alg_kind::eltwise_relu:
         kernel_ = new jit_uni_relu_kernel_f32<isa>(desc); break;
     default:
@@ -1242,7 +1337,8 @@ jit_uni_eltwise_fwd_t<isa, d_type>::jit_uni_eltwise_fwd_t(const pd_t *apd,
 
 template <cpu_isa_t isa, data_type_t d_type>
 jit_uni_eltwise_fwd_t<isa, d_type>::~jit_uni_eltwise_fwd_t()
-{ delete kernel_; }
+{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  jit_uni_eltwise_fwd_t<isa, d_type>::~jit_uni_eltwise_fwd_t() {" << std::endl; delete kernel_; }
 
 template <cpu_isa_t isa, data_type_t d_type>
 void jit_uni_eltwise_fwd_t<isa, d_type>::execute_forward() const {
@@ -1258,6 +1354,7 @@ void jit_uni_eltwise_fwd_t<isa, d_type>::execute_forward() const {
 
     const int cache_line = 16;
     parallel(0, utils::div_up(nelems, cache_line), [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      parallel(0, utils::div_up(nelems, cache_line), [&](const int ithr, const int nthr) {" << std::endl;
         size_t start{0}, end{0};
         balance211(utils::div_up(nelems, cache_line), nthr, ithr, start, end);
         start = nstl::min(nelems, start * cache_line);
@@ -1275,6 +1372,7 @@ void jit_uni_eltwise_fwd_t<isa, d_type>::execute_forward() const {
 
 template <cpu_isa_t isa, data_type_t d_type>
 status_t jit_uni_eltwise_bwd_t<isa, d_type>::pd_t::init() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  status_t jit_uni_eltwise_bwd_t<isa, d_type>::pd_t::init() {" << std::endl;
     assert(engine()->kind() == engine_kind::cpu);
 
     bool ok = true
@@ -1294,8 +1392,10 @@ template <cpu_isa_t isa, data_type_t d_type>
 jit_uni_eltwise_bwd_t<isa, d_type>::jit_uni_eltwise_bwd_t(const pd_t *apd,
         const input_vector &inputs, const output_vector &outputs)
     : cpu_primitive_t(apd, inputs, outputs), kernel_(nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      : cpu_primitive_t(apd, inputs, outputs), kernel_(nullptr) {" << std::endl;
     const auto &desc = *pd()->desc();
     switch (desc.alg_kind) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      switch (desc.alg_kind) {" << std::endl;
     case alg_kind::eltwise_relu:
         kernel_ = new jit_uni_relu_kernel_f32<isa>(desc); break;
     default: assert(!"unknown eltwise alg_kind");
@@ -1304,7 +1404,8 @@ jit_uni_eltwise_bwd_t<isa, d_type>::jit_uni_eltwise_bwd_t(const pd_t *apd,
 
 template <cpu_isa_t isa, data_type_t d_type>
 jit_uni_eltwise_bwd_t<isa, d_type>::~jit_uni_eltwise_bwd_t()
-{ delete kernel_; }
+{
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:  jit_uni_eltwise_bwd_t<isa, d_type>::~jit_uni_eltwise_bwd_t() {" << std::endl; delete kernel_; }
 
 template <cpu_isa_t isa, data_type_t d_type>
 void jit_uni_eltwise_bwd_t<isa, d_type>::execute_backward() const {
@@ -1324,6 +1425,7 @@ void jit_uni_eltwise_bwd_t<isa, d_type>::execute_backward() const {
     const int cache_line = 16;
 
     parallel(0, utils::div_up(nelems, cache_line), [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:      parallel(0, utils::div_up(nelems, cache_line), [&](const int ithr, const int nthr) {" << std::endl;
         size_t start{0}, end{0};
 
         balance211(utils::div_up(nelems, cache_line), nthr, ithr, start, end);
@@ -1336,6 +1438,7 @@ void jit_uni_eltwise_bwd_t<isa, d_type>::execute_backward() const {
         arg.for_comparison = (const void*)&src[start];
         arg.work_amount = end - start;
         if (arg.work_amount) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_eltwise.cpp:          if (arg.work_amount) {" << std::endl;
             (*kernel_)(&arg);
         }
     });

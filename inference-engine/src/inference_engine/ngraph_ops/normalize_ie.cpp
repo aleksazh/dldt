@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,10 +18,12 @@ constexpr NodeTypeInfo op::NormalizeIE::type_info;
 op::NormalizeIE::NormalizeIE(const Output<Node>& data, const Output<Node>& weights, float eps, bool across_spatial,
                              bool channel_shared)
     : Op({data, weights}), m_eps(eps), m_across_spatial(across_spatial), m_channel_shared(channel_shared) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/normalize_ie.cpp:      : Op({data, weights}), m_eps(eps), m_across_spatial(across_spatial), m_channel_shared(channel_shared) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 void op::NormalizeIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/normalize_ie.cpp:  void op::NormalizeIE::validate_and_infer_types() {" << std::endl;
     element::Type arg_type = get_input_element_type(0);
     PartialShape arg_shape = get_input_partial_shape(0);
     set_output_type(0, arg_type, arg_shape);

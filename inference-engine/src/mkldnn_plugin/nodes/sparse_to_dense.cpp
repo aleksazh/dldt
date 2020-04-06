@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -22,30 +23,38 @@ namespace Cpu {
 class SparseToDenseImpl : public ExtLayerBase {
 public:
     explicit SparseToDenseImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:      explicit SparseToDenseImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if ((layer->insData.size() != 3 && layer->insData.size() != 4) || layer->outData.size() != 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if ((layer->insData.size() != 3 && layer->insData.size() != 4) || layer->outData.size() != 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
             }
             if (layer->insData.size() == 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if (layer->insData.size() == 4) {" << std::endl;
                 with_default_value = true;
             }
 
             // check precisions for input tensors
             Precision input_indices_precision = layer->insData[INPUT_INDICES_PORT].lock()->getTensorDesc().getPrecision();
             if (input_indices_precision != Precision::I32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if (input_indices_precision != Precision::I32) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect input precision for input indices. Only I32 is supported!";
             }
             Precision input_dense_shape_precision = layer->insData[INPUT_DENSE_SHAPE_PORT].lock()->getTensorDesc().getPrecision();
             if (input_dense_shape_precision != Precision::I32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if (input_dense_shape_precision != Precision::I32) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect input precision for input dense shape. Only I32 is supported!";
             }
             Precision input_values_precision = layer->insData[INPUT_VALUES_PORT].lock()->getTensorDesc().getPrecision();
             if (input_values_precision != Precision::I32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if (input_values_precision != Precision::I32) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect input precision for input values. Only I32 is supported!";
             }
             if (with_default_value) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if (with_default_value) {" << std::endl;
                 Precision input_default_value_precision = layer->insData[INPUT_DEFAULT_VALUE_PORT].lock()->getTensorDesc().getPrecision();
                 if (input_default_value_precision != Precision::I32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:                  if (input_default_value_precision != Precision::I32) {" << std::endl;
                     THROW_IE_EXCEPTION << layer->name << " Incorrect input precision for input default value. Only I32 is supported!";
                 }
             }
@@ -53,20 +62,25 @@ public:
             // check dimensions of input tensors
             SizeVector input_dense_shape_dims = layer->insData[INPUT_DENSE_SHAPE_PORT].lock()->getTensorDesc().getDims();
             if (input_dense_shape_dims.size() != 1 || input_dense_shape_dims[0] < 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if (input_dense_shape_dims.size() != 1 || input_dense_shape_dims[0] < 1) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for input dense shape. It must be 1D dimension tensor.";
             }
             dense_tensor_rank = input_dense_shape_dims[0];
             SizeVector input_indices_dims = layer->insData[INPUT_INDICES_PORT].lock()->getTensorDesc().getDims();
             if (input_indices_dims.size() != 2 || input_indices_dims[1] != dense_tensor_rank) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if (input_indices_dims.size() != 2 || input_indices_dims[1] != dense_tensor_rank) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for input indices.";
             }
             SizeVector input_values_dims = layer->insData[INPUT_VALUES_PORT].lock()->getTensorDesc().getDims();
             if (input_values_dims.size() != 1 || input_values_dims[0] != input_indices_dims[0]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if (input_values_dims.size() != 1 || input_values_dims[0] != input_indices_dims[0]) {" << std::endl;
                 THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for input values.";
             }
             if (with_default_value) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if (with_default_value) {" << std::endl;
                 SizeVector input_default_value_dims = layer->insData[INPUT_DEFAULT_VALUE_PORT].lock()->getTensorDesc().getDims();
                 if (input_default_value_dims.size() != 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:                  if (input_default_value_dims.size() != 0) {" << std::endl;
                     THROW_IE_EXCEPTION << layer->name << " Incorrect dimensions for input default value.";
                 }
             }
@@ -74,6 +88,7 @@ public:
 
             // TODO: check that dense shape value is set
             if (with_default_value) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              if (with_default_value) {" << std::endl;
                 addConfig(layer,
                 { DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN),
                     DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN) },
@@ -86,6 +101,7 @@ public:
             }
         }
         catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:          catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -99,6 +115,7 @@ public:
             inputs[INPUT_VALUES_PORT]->getTensorDesc().getBlockingDesc().getOffsetPadding();
         int default_value = 0;
         if (with_default_value) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:          if (with_default_value) {" << std::endl;
             const int *input_default_value_ptr = inputs[INPUT_DEFAULT_VALUE_PORT]->cbuffer().as<const int *>() +
                 inputs[INPUT_DEFAULT_VALUE_PORT]->getTensorDesc().getBlockingDesc().getOffsetPadding();
             default_value = *input_default_value_ptr;
@@ -108,25 +125,31 @@ public:
 
         size_t output_num_values = 1;
         for (size_t ind = 0; ind < dense_tensor_rank; ind++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:          for (size_t ind = 0; ind < dense_tensor_rank; ind++) {" << std::endl;
             output_num_values *= input_dense_shape_ptr[ind];
         }
 
         // fill the output tensor with the default value
         for (size_t ind = 0; ind < output_num_values; ind++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:          for (size_t ind = 0; ind < output_num_values; ind++) {" << std::endl;
             output_ptr[ind] = default_value;
         }
 
         // walkthrough all indices and fill the output tensor with corresponding values
         for (size_t ind = 0; ind < input_num_values; ind++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:          for (size_t ind = 0; ind < input_num_values; ind++) {" << std::endl;
             int value = input_values_ptr[ind];
             size_t placement = 0;
             const int *tmp_indice_ptr = input_indices_ptr + ind * dense_tensor_rank;
             size_t num_values_in_slice = output_num_values;
             for (size_t subindice_ind = 0; subindice_ind < dense_tensor_rank; subindice_ind++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:              for (size_t subindice_ind = 0; subindice_ind < dense_tensor_rank; subindice_ind++) {" << std::endl;
                 num_values_in_slice /= input_dense_shape_ptr[subindice_ind];
                 size_t subindice = static_cast<size_t>(tmp_indice_ptr[subindice_ind]);
                 if (subindice >= input_dense_shape_ptr[subindice_ind]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:                  if (subindice >= input_dense_shape_ptr[subindice_ind]) {" << std::endl;
                     if (resp) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/sparse_to_dense.cpp:                      if (resp) {" << std::endl;
                         std::string errorMsg = "Value of index is out of bound!";
                         errorMsg.copy(resp->msg, sizeof(resp->msg) - 1);
                     }

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -23,6 +24,7 @@ using namespace InferenceEngine;
 MKLDNNDeformableConvolutionNode::MKLDNNDeformableConvolutionNode(const InferenceEngine::CNNLayerPtr& layer,
                                                                  const mkldnn::engine& eng, int socket)
         : MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:          : MKLDNNNode(layer, eng, socket) {" << std::endl;
     internalBlobDesc.emplace_back([&](primitive_desc_iterator &primitive_desc_it, size_t idx) -> MKLDNNMemoryDesc {
         return MKLDNNMemoryDesc(primitive_desc_it.weights_primitive_desc(0).desc());
     });
@@ -34,6 +36,7 @@ MKLDNNDeformableConvolutionNode::MKLDNNDeformableConvolutionNode(const Inference
 }
 
 void MKLDNNDeformableConvolutionNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:  void MKLDNNDeformableConvolutionNode::getSupportedDescriptors() {" << std::endl;
     if (!descs.empty())
         return;
 
@@ -47,6 +50,7 @@ void MKLDNNDeformableConvolutionNode::getSupportedDescriptors() {
         THROW_IE_EXCEPTION << "Incorrect number of output edges for layer " << getName();
 
     if (getParentEdgeAt(0)->getDims().ndims() != 4) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      if (getParentEdgeAt(0)->getDims().ndims() != 4) {" << std::endl;
         THROW_IE_EXCEPTION << "Deformable convolution layer. Unsupported mode. Only 4D blobs are supported as input.";
     }
 
@@ -63,9 +67,11 @@ void MKLDNNDeformableConvolutionNode::getSupportedDescriptors() {
     isDW = groupNum == groupOC && groupNum == groupIC;
 
     if (isMerged) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      if (isMerged) {" << std::endl;
         groupNum = getMergeWith().size() + 1;
     }
     if (isGrouped) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      if (isGrouped) {" << std::endl;
         groupIC /= groupNum;
         groupOC /= groupNum;
     }
@@ -74,6 +80,7 @@ void MKLDNNDeformableConvolutionNode::getSupportedDescriptors() {
     weightDims.push_back(groupOC);
     weightDims.push_back(groupIC);
     for (int i = 1; i <= defConvLayer->_kernel.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      for (int i = 1; i <= defConvLayer->_kernel.size(); i++) {" << std::endl;
         weightDims.push_back(defConvLayer->_kernel[defConvLayer->_kernel.size() - i]);
     }
     biasesDims = { groupOC * groupNum };
@@ -84,12 +91,14 @@ void MKLDNNDeformableConvolutionNode::getSupportedDescriptors() {
 
     internalBlobs.push_back(createInternalBlob(weightDims, true));
     if (withBiases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      if (withBiases) {" << std::endl;
         internalBlobs.push_back(createInternalBlob(biasesDims, false));
     }
 
     invertVectorCopyUtoI(defConvLayer->_stride, stride);
     deformable_group = defConvLayer->_deformable_group;
     for (int i = 1; i <= defConvLayer->_dilation.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      for (int i = 1; i <= defConvLayer->_dilation.size(); i++) {" << std::endl;
         dilation.push_back(static_cast<int>(defConvLayer->_dilation[defConvLayer->_dilation.size() - i] - 1));
     }
 
@@ -100,6 +109,7 @@ void MKLDNNDeformableConvolutionNode::getSupportedDescriptors() {
     MKLDNNDims weightsDims = MKLDNNDims(weightDims);
 
     for (int i = 0; i < paddingR.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      for (int i = 0; i < paddingR.size(); i++) {" << std::endl;
         int with_group = (isGrouped || isMerged) ? 1 : 0;
         int krn = weightsDims[with_group + 2 + i];
         int src = getParentEdgeAt(0)->getDims()[2 + i];
@@ -117,17 +127,21 @@ void MKLDNNDeformableConvolutionNode::getSupportedDescriptors() {
 }
 
 void MKLDNNDeformableConvolutionNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:  void MKLDNNDeformableConvolutionNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
     mkldnn::primitive_attr attr;
 
     for (auto& desc : descs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      for (auto& desc : descs) {" << std::endl;
         auto itpd = desc.createPrimitiveDescriptorIterator(getEngine(), attr);
         while (itpd.is_not_end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:          while (itpd.is_not_end()) {" << std::endl;
             InferenceEngine::LayerConfig config;
             config.dynBatchSupport = true;
             for (size_t i = 0; i < desc.inputNumbers(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:              for (size_t i = 0; i < desc.inputNumbers(); i++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = -1;
                 dataConfig.constant = false;
@@ -139,6 +153,7 @@ void MKLDNNDeformableConvolutionNode::initSupportedPrimitiveDescriptors() {
 
             std::vector<memory::format> outFormats;
             for (size_t i = 0; i < desc.outputNumbers(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:              for (size_t i = 0; i < desc.outputNumbers(); i++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
 
                 dataConfig.constant = false;
@@ -159,6 +174,7 @@ void MKLDNNDeformableConvolutionNode::initSupportedPrimitiveDescriptors() {
 
 
 void MKLDNNDeformableConvolutionNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:  void MKLDNNDeformableConvolutionNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
@@ -169,10 +185,12 @@ void MKLDNNDeformableConvolutionNode::createPrimitive() {
 
     std::vector<primitive::at> src_p;
     for (size_t i = 0; i < getParentEdges().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      for (size_t i = 0; i < getParentEdges().size(); i++) {" << std::endl;
         src_p.push_back(getParentEdgeAt(i)->getMemoryPtr()->GetPrimitive());
     }
 
     if (internalBlobMemory.size() > 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      if (internalBlobMemory.size() > 1) {" << std::endl;
         prim.reset(new deformable_convolution_forward(prim_desc, src_p,
                                            internalBlobMemory[0]->GetPrimitive(),
                                            internalBlobMemory[1]->GetPrimitive(),
@@ -190,6 +208,7 @@ bool MKLDNNDeformableConvolutionNode::created() const {
 
 void MKLDNNDeformableConvolutionNode::createDescriptor(const std::vector<InferenceEngine::TensorDesc> &inputDesc,
                                              const std::vector<InferenceEngine::TensorDesc> &outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:                                               const std::vector<InferenceEngine::TensorDesc> &outputDesc) {" << std::endl;
     std::vector<memory::desc> srcs;
     srcs.push_back(MKLDNNMemoryDesc(inputDesc[0]));
     srcs.push_back(MKLDNNMemoryDesc(inputDesc[1]));
@@ -208,8 +227,10 @@ void MKLDNNDeformableConvolutionNode::createDescriptor(const std::vector<Inferen
     MKLDNNMemoryDesc wgh_candidate{blocked_weightDims, wdt, memory::any};
 
     for (auto alg : {algorithm::deformable_convolution_direct}) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      for (auto alg : {algorithm::deformable_convolution_direct}) {" << std::endl;
         std::shared_ptr<mkldnn::deformable_convolution_forward::desc> def_conv_desc;
         if (withBiases) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:          if (withBiases) {" << std::endl;
             MKLDNNMemoryDesc bias_candidate{blocked_biasesDims, bdt, memory::any};
 
             def_conv_desc.reset(new deformable_convolution_forward::desc(prop_kind::forward_scoring, alg, srcs, wgh_candidate, bias_candidate, out_candidate,
@@ -224,14 +245,17 @@ void MKLDNNDeformableConvolutionNode::createDescriptor(const std::vector<Inferen
 }
 
 void MKLDNNDeformableConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& config) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:  void MKLDNNDeformableConvolutionNode::initDescriptor(const InferenceEngine::LayerConfig& config) {" << std::endl;
     auto* selectedPD = getSelectedPrimitiveDescriptor();
     if (!selectedPD) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      if (!selectedPD) {" << std::endl;
         return;
     }
     bool addedNewDesc = false;
     if (config.inConfs[0].desc.getPrecision() == InferenceEngine::Precision::FP32 &&
             config.inConfs[1].desc.getPrecision() == InferenceEngine::Precision::FP32 &&
             config.outConfs[0].desc.getPrecision() == InferenceEngine::Precision::FP32) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:              config.outConfs[0].desc.getPrecision() == InferenceEngine::Precision::FP32) {" << std::endl;
         addedNewDesc = true;
         createDescriptor({config.inConfs[0].desc, config.inConfs[1].desc}, {config.outConfs[0].desc});
     }
@@ -241,12 +265,15 @@ void MKLDNNDeformableConvolutionNode::initDescriptor(const InferenceEngine::Laye
     InferenceEngine::LayerConfig rightConfig = selectedPD->getConfig();
     size_t selected_count = 0;
     for (size_t i = 0; i < descs.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:      for (size_t i = 0; i < descs.size(); i++) {" << std::endl;
         const auto& desc = descs[i];
         auto itpd = desc.createPrimitiveDescriptorIterator(getEngine(), attr);
         while (itpd.is_not_end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:          while (itpd.is_not_end()) {" << std::endl;
             InferenceEngine::LayerConfig cfg;
             cfg.dynBatchSupport = true;
             for (size_t j = 0; j < desc.inputNumbers(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:              for (size_t j = 0; j < desc.inputNumbers(); j++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = -1;
                 dataConfig.constant = false;
@@ -255,6 +282,7 @@ void MKLDNNDeformableConvolutionNode::initDescriptor(const InferenceEngine::Laye
             }
 
             for (size_t j = 0; j < desc.outputNumbers(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:              for (size_t j = 0; j < desc.outputNumbers(); j++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = -1;
                 dataConfig.constant = false;
@@ -265,13 +293,17 @@ void MKLDNNDeformableConvolutionNode::initDescriptor(const InferenceEngine::Laye
             impl_desc_type impl_type = parse_impl_name(itpd.get_impl_info_str());
 
             if (selected_count == selectedPrimitiveDescriptorIndex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:              if (selected_count == selectedPrimitiveDescriptorIndex) {" << std::endl;
                 if (impl_type != selectedPD->getImplementationType()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:                  if (impl_type != selectedPD->getImplementationType()) {" << std::endl;
                     THROW_IE_EXCEPTION << "Cannot get the original layer configuration!";
                 }
                 rightConfig = cfg;
             }
             if (i == descs.size() - 1 && addedNewDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:              if (i == descs.size() - 1 && addedNewDesc) {" << std::endl;
                 if (impl_type == selectedPD->getImplementationType()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_def_conv_node.cpp:                  if (impl_type == selectedPD->getImplementationType()) {" << std::endl;
                     rightConfig = config;
                 }
             }

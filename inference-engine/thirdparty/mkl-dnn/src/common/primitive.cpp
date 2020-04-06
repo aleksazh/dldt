@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -28,6 +29,7 @@ using namespace mkldnn::impl::status;
 using namespace mkldnn::impl::primitive_kind;
 
 status_t mkldnn_primitive_desc_destroy(primitive_desc_t *primitive_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive.cpp:  status_t mkldnn_primitive_desc_destroy(primitive_desc_t *primitive_desc) {" << std::endl;
     if (primitive_desc) delete primitive_desc;
     return success;
 }
@@ -35,9 +37,11 @@ status_t mkldnn_primitive_desc_destroy(primitive_desc_t *primitive_desc) {
 status_t mkldnn_primitive_create(primitive_t **primitive,
         const primitive_desc_t *primitive_desc, const primitive_at_t *inputs,
         const primitive_t **outputs) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive.cpp:          const primitive_t **outputs) {" << std::endl;
     if (utils::any_null(primitive, primitive_desc))
         return invalid_arguments;
     for (int i = 0; i < primitive_desc->n_inputs(); ++i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive.cpp:      for (int i = 0; i < primitive_desc->n_inputs(); ++i) {" << std::endl;
         const auto i_p = inputs[i].primitive;
         const auto i_oi = (int)inputs[i].output_index;
         const bool ok = true
@@ -55,6 +59,7 @@ status_t mkldnn_primitive_create(primitive_t **primitive,
 
 status_t mkldnn_primitive_get_primitive_desc(const primitive_t *primitive,
         const primitive_desc_t **primitive_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive.cpp:          const primitive_desc_t **primitive_desc) {" << std::endl;
     if (utils::any_null(primitive, primitive_desc))
         return invalid_arguments;
     return safe_ptr_assign<const primitive_desc_t>(*primitive_desc,
@@ -63,6 +68,7 @@ status_t mkldnn_primitive_get_primitive_desc(const primitive_t *primitive,
 
 status_t mkldnn_primitive_get_input_at(const primitive_t *primitive,
         size_t index, primitive_at_t *input) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive.cpp:          size_t index, primitive_at_t *input) {" << std::endl;
     if (utils::any_null(primitive, input)
             || index >= primitive->inputs().size())
         return invalid_arguments;
@@ -72,6 +78,7 @@ status_t mkldnn_primitive_get_input_at(const primitive_t *primitive,
 
 status_t mkldnn_primitive_get_output(const primitive_t *primitive,
         size_t index, const primitive_t **output) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive.cpp:          size_t index, const primitive_t **output) {" << std::endl;
     if (utils::any_null(primitive, output)
             || index >= primitive->outputs().size())
         return invalid_arguments;
@@ -80,6 +87,7 @@ status_t mkldnn_primitive_get_output(const primitive_t *primitive,
 }
 
 status_t mkldnn_primitive_destroy(primitive_t *primitive) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive.cpp:  status_t mkldnn_primitive_destroy(primitive_t *primitive) {" << std::endl;
     if (primitive != nullptr)
         delete primitive;
     return success;
@@ -87,6 +95,7 @@ status_t mkldnn_primitive_destroy(primitive_t *primitive) {
 
 primitive_at_t mkldnn_primitive_at(const primitive_t *primitive,
         size_t output_index) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/primitive.cpp:          size_t output_index) {" << std::endl;
     primitive_at_t result = {primitive, output_index};
     return result;
 }

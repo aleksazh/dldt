@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,13 +18,16 @@
 namespace InferenceEngine {
 namespace {
 void verifyNV12BlobInput(const Blob::Ptr& y, const Blob::Ptr& uv) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  void verifyNV12BlobInput(const Blob::Ptr& y, const Blob::Ptr& uv) {" << std::endl;
     // Y and UV must be valid pointers
     if (y == nullptr || uv == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (y == nullptr || uv == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Y and UV planes must be valid Blob objects";
     }
 
     // both Y and UV must be MemoryBlob objects
     if (!y->is<MemoryBlob>() || !uv->is<MemoryBlob>()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (!y->is<MemoryBlob>() || !uv->is<MemoryBlob>()) {" << std::endl;
         THROW_IE_EXCEPTION << "Y and UV planes must be MemoryBlob objects";
     }
 
@@ -33,6 +37,7 @@ void verifyNV12BlobInput(const Blob::Ptr& y, const Blob::Ptr& uv) {
     auto uvMemoryBlob = uv->as<MemoryBlob>();
     // check Blob element size
     if (yMemoryBlob->element_size() != uvMemoryBlob->element_size()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yMemoryBlob->element_size() != uvMemoryBlob->element_size()) {" << std::endl;
         THROW_IE_EXCEPTION << "Y and UV planes have different element sizes: " << yMemoryBlob->element_size()
                            << " != " << uvMemoryBlob->element_size();
     }
@@ -43,17 +48,21 @@ void verifyNV12BlobInput(const Blob::Ptr& y, const Blob::Ptr& uv) {
 
     // check precision
     if (yDesc.getPrecision() != Precision::U8) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDesc.getPrecision() != Precision::U8) {" << std::endl;
         THROW_IE_EXCEPTION << "Y plane precision must be U8, actual: " << yDesc.getPrecision();
     }
     if (uvDesc.getPrecision() != Precision::U8) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (uvDesc.getPrecision() != Precision::U8) {" << std::endl;
         THROW_IE_EXCEPTION << "UV plane precision must be U8, actual: " << uvDesc.getPrecision();
     }
 
     // check layout
     if (yDesc.getLayout() != Layout::NHWC) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDesc.getLayout() != Layout::NHWC) {" << std::endl;
         THROW_IE_EXCEPTION << "Y plane layout must be NHWC, actual: " << yDesc.getLayout();
     }
     if (uvDesc.getLayout() != Layout::NHWC) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (uvDesc.getLayout() != Layout::NHWC) {" << std::endl;
         THROW_IE_EXCEPTION << "UV plane layout must be NHWC, actual: " << uvDesc.getLayout();
     }
 
@@ -61,44 +70,53 @@ void verifyNV12BlobInput(const Blob::Ptr& y, const Blob::Ptr& uv) {
     const auto& yDims = yDesc.getDims();
     const auto& uvDims = uvDesc.getDims();
     if (yDims.size() != 4 || uvDims.size() != 4) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims.size() != 4 || uvDims.size() != 4) {" << std::endl;
         THROW_IE_EXCEPTION << "Y and UV planes dimension sizes must be 4, actual: " << yDims.size() << "(Y plane) and "
                            << uvDims.size() << "(UV plane)";
     }
 
     // check batch size
     if (yDims[0] != uvDims[0]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims[0] != uvDims[0]) {" << std::endl;
         THROW_IE_EXCEPTION << "Y and UV planes must have the same batch size";
     }
 
     // check number of channels
     if (yDims[1] != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims[1] != 1) {" << std::endl;
         THROW_IE_EXCEPTION << "Y plane must have 1 channel, actual: " << yDims[1];
     }
     if (uvDims[1] != 2) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (uvDims[1] != 2) {" << std::endl;
         THROW_IE_EXCEPTION << "UV plane must have 2 channels, actual: " << uvDims[1];
     }
 
     // check height
     if (yDims[2] != 2 * uvDims[2]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims[2] != 2 * uvDims[2]) {" << std::endl;
         THROW_IE_EXCEPTION << "The height of the Y plane must be equal to (2 * the height of the UV plane), actual: "
                            << yDims[2] << "(Y plane) and " << uvDims[2] << "(UV plane)";
     }
 
     // check width
     if (yDims[3] != 2 * uvDims[3]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims[3] != 2 * uvDims[3]) {" << std::endl;
         THROW_IE_EXCEPTION << "The width of the Y plane must be equal to (2 * the width of the UV plane), actual: "
                            << yDims[3] << "(Y plane) and " << uvDims[3] << "(UV plane)";
     }
 }
 
 void verifyI420BlobInput(const Blob::Ptr& y, const Blob::Ptr& u, const Blob::Ptr& v) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  void verifyI420BlobInput(const Blob::Ptr& y, const Blob::Ptr& u, const Blob::Ptr& v) {" << std::endl;
     // Y and UV must be valid pointers
     if (y == nullptr || u == nullptr || v == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (y == nullptr || u == nullptr || v == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "Y, U and V planes must be valid Blob objects";
     }
 
     // both Y and UV must be MemoryBlob objects
     if (!y->is<MemoryBlob>() || !u->is<MemoryBlob>() || !v->is<MemoryBlob>()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (!y->is<MemoryBlob>() || !u->is<MemoryBlob>() || !v->is<MemoryBlob>()) {" << std::endl;
         THROW_IE_EXCEPTION << "Y, U and V planes must be MemoryBlob objects";
     }
 
@@ -109,6 +127,7 @@ void verifyI420BlobInput(const Blob::Ptr& y, const Blob::Ptr& u, const Blob::Ptr
     auto vMemoryBlob = v->as<MemoryBlob>();
     // check Blob element size
     if (yMemoryBlob->element_size() != uMemoryBlob->element_size() || yMemoryBlob->element_size() != vMemoryBlob->element_size()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yMemoryBlob->element_size() != uMemoryBlob->element_size() || yMemoryBlob->element_size() != vMemoryBlob->element_size()) {" << std::endl;
         THROW_IE_EXCEPTION << "Y and UV planes have different element sizes: " << yMemoryBlob->element_size()
                            << " != " << uMemoryBlob->element_size()
                            << " != " << vMemoryBlob->element_size();
@@ -121,23 +140,29 @@ void verifyI420BlobInput(const Blob::Ptr& y, const Blob::Ptr& u, const Blob::Ptr
 
     // check precision
     if (yDesc.getPrecision() != Precision::U8) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDesc.getPrecision() != Precision::U8) {" << std::endl;
         THROW_IE_EXCEPTION << "Y plane precision must be U8, actual: " << yDesc.getPrecision();
     }
     if (uDesc.getPrecision() != Precision::U8) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (uDesc.getPrecision() != Precision::U8) {" << std::endl;
         THROW_IE_EXCEPTION << "U plane precision must be U8, actual: " << uDesc.getPrecision();
     }
     if (vDesc.getPrecision() != Precision::U8) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (vDesc.getPrecision() != Precision::U8) {" << std::endl;
         THROW_IE_EXCEPTION << "V plane precision must be U8, actual: " << vDesc.getPrecision();
     }
 
     // check layout
     if (yDesc.getLayout() != Layout::NHWC) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDesc.getLayout() != Layout::NHWC) {" << std::endl;
         THROW_IE_EXCEPTION << "Y plane layout must be NHWC, actual: " << yDesc.getLayout();
     }
     if (uDesc.getLayout() != Layout::NHWC) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (uDesc.getLayout() != Layout::NHWC) {" << std::endl;
         THROW_IE_EXCEPTION << "U plane layout must be NHWC, actual: " << uDesc.getLayout();
     }
     if (uDesc.getLayout() != Layout::NHWC) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (uDesc.getLayout() != Layout::NHWC) {" << std::endl;
         THROW_IE_EXCEPTION << "V plane layout must be NHWC, actual: " << vDesc.getLayout();
     }
 
@@ -147,6 +172,7 @@ void verifyI420BlobInput(const Blob::Ptr& y, const Blob::Ptr& u, const Blob::Ptr
     const auto& vDims = vDesc.getDims();
 
     if (yDims.size() != 4 || uDims.size() != 4 || vDims.size() != 4) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims.size() != 4 || uDims.size() != 4 || vDims.size() != 4) {" << std::endl;
         THROW_IE_EXCEPTION << "Y,U and V planes dimension sizes must be 4, actual: " << yDims.size() << "(Y plane) and "
                            << uDims.size() << "(U plane) "
                            << vDims.size() << "(V plane)";
@@ -154,66 +180,82 @@ void verifyI420BlobInput(const Blob::Ptr& y, const Blob::Ptr& u, const Blob::Ptr
 
     // check batch size
     if (yDims[0] != uDims[0] || yDims[0] != vDims[0]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims[0] != uDims[0] || yDims[0] != vDims[0]) {" << std::endl;
         THROW_IE_EXCEPTION << "Y, U and U planes must have the same batch size";
     }
 
     // check number of channels
     if (yDims[1] != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims[1] != 1) {" << std::endl;
         THROW_IE_EXCEPTION << "Y plane must have 1 channel, actual: " << yDims[1];
     }
     if (uDims[1] != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (uDims[1] != 1) {" << std::endl;
         THROW_IE_EXCEPTION << "U plane must have 1 channel, actual: " << uDims[1];
     }
     if (vDims[1] != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (vDims[1] != 1) {" << std::endl;
         THROW_IE_EXCEPTION << "V plane must have 1 channel, actual: " << vDims[1];
     }
 
     // check height
     if (yDims[2] != 2 * uDims[2]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims[2] != 2 * uDims[2]) {" << std::endl;
         THROW_IE_EXCEPTION << "The height of the Y plane must be equal to (2 * the height of the U plane), actual: "
                            << yDims[2] << "(Y plane) and " << uDims[2] << "(U plane)";
     }
 
     if (yDims[2] != 2 * vDims[2]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims[2] != 2 * vDims[2]) {" << std::endl;
         THROW_IE_EXCEPTION << "The height of the Y plane must be equal to (2 * the height of the UV plane), actual: "
                            << yDims[2] << "(Y plane) and " << vDims[2] << "(V plane)";
     }
 
     // check width
     if (yDims[3] != 2 * uDims[3]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims[3] != 2 * uDims[3]) {" << std::endl;
         THROW_IE_EXCEPTION << "The width of the Y plane must be equal to (2 * the width of the UV plane), actual: "
                            << yDims[3] << "(Y plane) and " << uDims[3] << "(U plane)";
     }
     if (yDims[3] != 2 * vDims[3]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (yDims[3] != 2 * vDims[3]) {" << std::endl;
         THROW_IE_EXCEPTION << "The width of the Y plane must be equal to (2 * the width of the UV plane), actual: "
                            << yDims[3] << "(Y plane) and " << vDims[3] << "(V plane)";
     }
 }
 }  // anonymous namespace
 
-CompoundBlob::CompoundBlob(): Blob(TensorDesc(Precision::UNSPECIFIED, {}, Layout::ANY)) {}
+CompoundBlob::CompoundBlob(): Blob(TensorDesc(Precision::UNSPECIFIED, {}, Layout::ANY)) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  CompoundBlob::CompoundBlob(): Blob(TensorDesc(Precision::UNSPECIFIED, {}, Layout::ANY)) {" << std::endl;}
 
 CompoundBlob::CompoundBlob(const CompoundBlob& blob): CompoundBlob() {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  CompoundBlob::CompoundBlob(const CompoundBlob& blob): CompoundBlob() {" << std::endl;
     this->_blobs = blob._blobs;
 }
 
 CompoundBlob::CompoundBlob(CompoundBlob&& blob): CompoundBlob() {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  CompoundBlob::CompoundBlob(CompoundBlob&& blob): CompoundBlob() {" << std::endl;
     this->_blobs = std::move(blob._blobs);
 }
 
 CompoundBlob::CompoundBlob(const std::vector<Blob::Ptr>& blobs): CompoundBlob() {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  CompoundBlob::CompoundBlob(const std::vector<Blob::Ptr>& blobs): CompoundBlob() {" << std::endl;
     // Cannot create a compound blob from nullptr Blob objects
     if (std::any_of(blobs.begin(), blobs.end(), [](const Blob::Ptr& blob) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (std::any_of(blobs.begin(), blobs.end(), [](const Blob::Ptr& blob) {" << std::endl;
             return blob == nullptr;
         })) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:          })) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot create a compound blob from nullptr Blob objects";
     }
 
     // Check that none of the blobs provided is compound. If at least one of them is compound, throw
     // an exception because recursive behavior is not allowed
     if (std::any_of(blobs.begin(), blobs.end(), [](const Blob::Ptr& blob) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (std::any_of(blobs.begin(), blobs.end(), [](const Blob::Ptr& blob) {" << std::endl;
             return blob->is<CompoundBlob>();
         })) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:          })) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot create a compound blob from other compound blobs";
     }
 
@@ -221,18 +263,23 @@ CompoundBlob::CompoundBlob(const std::vector<Blob::Ptr>& blobs): CompoundBlob() 
 }
 
 CompoundBlob::CompoundBlob(std::vector<Blob::Ptr>&& blobs): CompoundBlob() {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  CompoundBlob::CompoundBlob(std::vector<Blob::Ptr>&& blobs): CompoundBlob() {" << std::endl;
     // Cannot create a compound blob from nullptr Blob objects
     if (std::any_of(blobs.begin(), blobs.end(), [](const Blob::Ptr& blob) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (std::any_of(blobs.begin(), blobs.end(), [](const Blob::Ptr& blob) {" << std::endl;
             return blob == nullptr;
         })) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:          })) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot create a compound blob from nullptr Blob objects";
     }
 
     // Check that none of the blobs provided is compound. If at least one of them is compound, throw
     // an exception because recursive behavior is not allowed
     if (std::any_of(blobs.begin(), blobs.end(), [](const Blob::Ptr& blob) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (std::any_of(blobs.begin(), blobs.end(), [](const Blob::Ptr& blob) {" << std::endl;
             return blob->is<CompoundBlob>();
         })) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:          })) {" << std::endl;
         THROW_IE_EXCEPTION << "Cannot create a compound blob from other compound blobs";
     }
 
@@ -267,6 +314,7 @@ size_t CompoundBlob::size() const noexcept {
 
 Blob::Ptr CompoundBlob::getBlob(size_t i) const noexcept {
     if (i >= _blobs.size()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:      if (i >= _blobs.size()) {" << std::endl;
         return nullptr;
     }
     return _blobs[i];
@@ -282,6 +330,7 @@ void* CompoundBlob::getHandle() const noexcept {
 }
 
 NV12Blob::NV12Blob(const Blob::Ptr& y, const Blob::Ptr& uv) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  NV12Blob::NV12Blob(const Blob::Ptr& y, const Blob::Ptr& uv) {" << std::endl;
     // verify data is correct
     verifyNV12BlobInput(y, uv);
     // set blobs
@@ -291,6 +340,7 @@ NV12Blob::NV12Blob(const Blob::Ptr& y, const Blob::Ptr& uv) {
 }
 
 NV12Blob::NV12Blob(Blob::Ptr&& y, Blob::Ptr&& uv) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  NV12Blob::NV12Blob(Blob::Ptr&& y, Blob::Ptr&& uv) {" << std::endl;
     // verify data is correct
     verifyNV12BlobInput(y, uv);
     // set blobs
@@ -320,6 +370,7 @@ const Blob::Ptr& NV12Blob::uv() const noexcept {
 }
 
 I420Blob::I420Blob(const Blob::Ptr& y, const Blob::Ptr& u, const Blob::Ptr& v) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  I420Blob::I420Blob(const Blob::Ptr& y, const Blob::Ptr& u, const Blob::Ptr& v) {" << std::endl;
     // verify data is correct
     verifyI420BlobInput(y, u, v);
     // set blobs
@@ -330,6 +381,7 @@ I420Blob::I420Blob(const Blob::Ptr& y, const Blob::Ptr& u, const Blob::Ptr& v) {
 }
 
 I420Blob::I420Blob(Blob::Ptr&& y, Blob::Ptr&& u, Blob::Ptr&& v) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  I420Blob::I420Blob(Blob::Ptr&& y, Blob::Ptr&& u, Blob::Ptr&& v) {" << std::endl;
     // verify data is correct
     verifyI420BlobInput(y, u, v);
     // set blobs
@@ -339,7 +391,8 @@ I420Blob::I420Blob(Blob::Ptr&& y, Blob::Ptr&& u, Blob::Ptr&& v) {
     tensorDesc = TensorDesc(Precision::U8, {}, Layout::NCHW);
 }
 
-I420Blob::~I420Blob() {}
+I420Blob::~I420Blob() {
+    std::cerr << "./inference-engine/src/inference_engine/ie_compound_blob.cpp:  I420Blob::~I420Blob() {" << std::endl;}
 
 Blob::Ptr& I420Blob::y() noexcept {
     // NOTE: Y plane is a memory blob, which is checked in the constructor

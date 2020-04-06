@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -23,9 +24,11 @@ using namespace InferenceEngine::details;
 namespace MKLDNNPlugin {
 
 static LayerConfig make_plain_config(const CNNLayerPtr &layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:  static LayerConfig make_plain_config(const CNNLayerPtr &layer) {" << std::endl;
     LayerConfig config;
 
     for (const auto &in_w : layer->insData) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:      for (const auto &in_w : layer->insData) {" << std::endl;
         const auto in = in_w.lock();
 
         const auto dims = in->getDims();
@@ -37,6 +40,7 @@ static LayerConfig make_plain_config(const CNNLayerPtr &layer) {
     }
 
     for (const auto &out : layer->outData) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:      for (const auto &out : layer->outData) {" << std::endl;
         const auto dims = out->getDims();
         const auto prec = out->getPrecision();
 
@@ -53,6 +57,7 @@ class PortIteratorHelper : public PortMapHelper {
 public:
     PortIteratorHelper(const MKLDNNMemoryPtr &from, const MKLDNNMemoryPtr &to,
             bool as_input, const TensorIterator::PortMap &port_map, const mkldnn::engine& eng, int n_iter) : as_input(as_input) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:              bool as_input, const TensorIterator::PortMap &port_map, const mkldnn::engine& eng, int n_iter) : as_input(as_input) {" << std::endl;
         const auto &full_blob = as_input ? from : to;
         const auto &part_blob = !as_input ? from : to;
 
@@ -64,6 +69,7 @@ public:
 
         bool simple_copy = port_map.axis == -1;
         if (port_map.axis == -1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:          if (port_map.axis == -1) {" << std::endl;
             // simple copy mode. No iteration through this tensor
             reorders.emplace_back(from->GetPrimitive(), to->GetPrimitive());
             iter_count = n_iter;
@@ -96,6 +102,7 @@ public:
             chunk_stride_in_byte *= sign_of_stride;
 
             if (as_input) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:              if (as_input) {" << std::endl;
                 reorders.emplace_back(chunk_mem_prim, to->GetPrimitive());
             } else {
                 reorders.emplace_back(from->GetPrimitive(), chunk_mem_prim);
@@ -105,6 +112,7 @@ public:
 
     void execute(int n_iter, mkldnn::stream strm) override {
         if (chunk_stride_in_byte != 0) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:          if (chunk_stride_in_byte != 0) {" << std::endl;
             IE_ASSERT(n_iter < iter_count);
 
             auto full_mem = mem_holder[FULL_DATA];
@@ -132,6 +140,7 @@ private:
 class BackEdgePortHelper : public PortMapHelper {
 public:
     BackEdgePortHelper(const MKLDNNMemoryPtr &from, const MKLDNNMemoryPtr &to, const mkldnn::engine& eng, int n_iter) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:      BackEdgePortHelper(const MKLDNNMemoryPtr &from, const MKLDNNMemoryPtr &to, const mkldnn::engine& eng, int n_iter) {" << std::endl;
         auto mem_desc =  from->GetDescriptor();
 
 
@@ -145,6 +154,7 @@ public:
 
     void execute(int n_iter, mkldnn::stream strm) override {
         if (n_iter < iter_count - 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:          if (n_iter < iter_count - 1) {" << std::endl;
             strm.submit({reorders.begin(), reorders.end()});
         }
     };
@@ -153,9 +163,11 @@ public:
 }  // namespace MKLDNNPlugin
 
 MKLDNNTensorIteratorNode::MKLDNNTensorIteratorNode(InferenceEngine::CNNLayerPtr layer, const mkldnn::engine& eng, int socket) :
-        MKLDNNNode(layer, eng, socket) {}
+        MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:          MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNTensorIteratorNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:  void MKLDNNTensorIteratorNode::getSupportedDescriptors() {" << std::endl;
     auto *ti = dynamic_cast<class TensorIterator*>(getCnnLayer().get());
     if (ti == nullptr)
         THROW_IE_EXCEPTION << "Cannot convert to TensorIterator layer.";
@@ -174,6 +186,7 @@ void MKLDNNTensorIteratorNode::getSupportedDescriptors() {
         out_map[node->getName().substr(4)] = node;  // remove "out_" prefix
 
     for (const auto &in_data : ti->body.inputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:      for (const auto &in_data : ti->body.inputs) {" << std::endl;
         if (in_data->getName() == "const_holder") continue;
 
         auto &in_node = in_map[in_data->getName()];
@@ -182,6 +195,7 @@ void MKLDNNTensorIteratorNode::getSupportedDescriptors() {
     }
 
     for (const auto &out_data : ti->body.outputs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:      for (const auto &out_data : ti->body.outputs) {" << std::endl;
         auto &out_node = out_map[out_data->getName()];
         auto out_mem = out_node->getParentEdgeAt(0)->getMemoryPtr();
         output_mem.push_back(out_mem);
@@ -189,6 +203,7 @@ void MKLDNNTensorIteratorNode::getSupportedDescriptors() {
 }
 
 void MKLDNNTensorIteratorNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:  void MKLDNNTensorIteratorNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -198,11 +213,13 @@ void MKLDNNTensorIteratorNode::initSupportedPrimitiveDescriptors() {
 
 
 void MKLDNNTensorIteratorNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:  void MKLDNNTensorIteratorNode::createPrimitive() {" << std::endl;
     auto ti = dynamic_cast<class TensorIterator*>(getCnnLayer().get());
     if (ti == nullptr)
         THROW_IE_EXCEPTION << "Cannot convert to TensorIterator layer.";
 
     for (auto map_rule : ti->input_port_map) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:      for (auto map_rule : ti->input_port_map) {" << std::endl;
         auto &extr_mem = getParentEdgesAtPort(map_rule.from)[0]->getMemoryPtr();
         auto &intr_mem = input_mem[map_rule.to];
 
@@ -213,6 +230,7 @@ void MKLDNNTensorIteratorNode::createPrimitive() {
     }
 
     for (auto map_rule : ti->output_port_map) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:      for (auto map_rule : ti->output_port_map) {" << std::endl;
         auto &extr_mem = getChildEdgesAtPort(map_rule.from)[0]->getMemoryPtr();
         auto &intr_mem = output_mem[map_rule.to];
 
@@ -223,6 +241,7 @@ void MKLDNNTensorIteratorNode::createPrimitive() {
     }
 
     for (auto map_rule : ti->back_edges) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:      for (auto map_rule : ti->back_edges) {" << std::endl;
         auto from_mem = output_mem[map_rule.from];
         auto to_mem = input_mem[map_rule.to];
 
@@ -234,9 +253,11 @@ void MKLDNNTensorIteratorNode::createPrimitive() {
 }
 
 void MKLDNNTensorIteratorNode::execute(mkldnn::stream strm) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:  void MKLDNNTensorIteratorNode::execute(mkldnn::stream strm) {" << std::endl;
     sub_graph.ResetInferCount();
 
     for (int i = 0; i < n_iter; i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_tensoriterator_node.cpp:      for (int i = 0; i < n_iter; i++) {" << std::endl;
         // copy data to subgraph iteration
         for (auto &mapper : in_port_mappers)
             mapper->execute(i, strm);

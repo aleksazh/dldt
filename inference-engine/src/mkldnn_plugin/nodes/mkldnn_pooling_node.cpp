@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,9 +21,11 @@ using namespace MKLDNNPlugin;
 using namespace InferenceEngine;
 
 MKLDNNPoolingNode::MKLDNNPoolingNode(const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket)
-        : MKLDNNNode(layer, eng, socket) {}
+        : MKLDNNNode(layer, eng, socket) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          : MKLDNNNode(layer, eng, socket) {" << std::endl;}
 
 void MKLDNNPoolingNode::getSupportedDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:  void MKLDNNPoolingNode::getSupportedDescriptors() {" << std::endl;
     if (!descs.empty())
         return;
 
@@ -42,17 +45,22 @@ void MKLDNNPoolingNode::getSupportedDescriptors() {
     outputPrecision = getCnnLayer()->outData[0]->getPrecision();
     // Dirty WA to support stat based quantization approach
     if (this->getCnnLayer()->precision != Precision::I8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      if (this->getCnnLayer()->precision != Precision::I8) {" << std::endl;
         if (type == PoolingLayer::MAX) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          if (type == PoolingLayer::MAX) {" << std::endl;
             // MKLDNN supports only equal precisions for input and output
             outputPrecision = inputPrecision;
         } else if (type == PoolingLayer::AVG) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          } else if (type == PoolingLayer::AVG) {" << std::endl;
             outputPrecision = Precision::FP32;
         }
     }
 
     if (!fusedWith.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      if (!fusedWith.empty()) {" << std::endl;
         auto lastFusedLayer = fusedWith[fusedWith.size() - 1].get()->getCnnLayer();
         if (lastFusedLayer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          if (lastFusedLayer) {" << std::endl;
             outputPrecision = lastFusedLayer->outData[0]->getPrecision();
         }
     }
@@ -72,6 +80,7 @@ void MKLDNNPoolingNode::getSupportedDescriptors() {
         THROW_IE_EXCEPTION << "Pooling layer. Unsupported mode. Only 4D and 5D blobs are supported as input.";
 
     for (int i = 0; i < paddingR.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      for (int i = 0; i < paddingR.size(); i++) {" << std::endl;
         int krn = kernel[i];
         int src = getParentEdgeAt(0)->getDims()[2 + i];
         int dst = getChildEdgeAt(0)->getDims()[2 + i];
@@ -80,11 +89,13 @@ void MKLDNNPoolingNode::getSupportedDescriptors() {
         paddingR[i] = (dst - calc_dst) * stride[i];
     }
     if (inputPrecision == Precision::I8 || inputPrecision == Precision::U8) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      if (inputPrecision == Precision::I8 || inputPrecision == Precision::U8) {" << std::endl;
         // i8 layers supports only ndhwc and nhwc layouts
         MKLDNNMemoryDesc in_candidate{parentDims, inputDataType, parentDims.ndims() == 5 ? memory::format::ndhwc : memory::format::nhwc};
         MKLDNNMemoryDesc out_candidate{childDims, outputDataType, parentDims.ndims() == 5 ? memory::format::ndhwc : memory::format::nhwc};
         createDescriptor({ in_candidate }, { out_candidate });
     } else if ((parentDims.ndims() == 4 || parentDims.ndims() == 5) && parentDims[1] == 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      } else if ((parentDims.ndims() == 4 || parentDims.ndims() == 5) && parentDims[1] == 1) {" << std::endl;
         inputDataType = memory::f32;
         outputDataType = memory::f32;
         // WA. We should force planar layout since it provides better performance
@@ -96,6 +107,7 @@ void MKLDNNPoolingNode::getSupportedDescriptors() {
         outputDataType = memory::f32;
         // It doesn't support any format
         for (auto format : getAvailableFormatsForDims(parentDims)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          for (auto format : getAvailableFormatsForDims(parentDims)) {" << std::endl;
             MKLDNNMemoryDesc in_candidate{parentDims, inputDataType, format};
             MKLDNNMemoryDesc out_candidate{childDims, outputDataType, format};
             createDescriptor({in_candidate}, {out_candidate});
@@ -104,6 +116,7 @@ void MKLDNNPoolingNode::getSupportedDescriptors() {
 }
 
 void MKLDNNPoolingNode::createPrimitive() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:  void MKLDNNPoolingNode::createPrimitive() {" << std::endl;
     if (prim)
         return;
 
@@ -122,14 +135,18 @@ bool MKLDNNPoolingNode::created() const {
 
 void MKLDNNPoolingNode::createDescriptor(const std::vector<InferenceEngine::TensorDesc> &inputDesc,
                                          const std::vector<InferenceEngine::TensorDesc> &outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:                                           const std::vector<InferenceEngine::TensorDesc> &outputDesc) {" << std::endl;
     MKLDNNMemoryDesc in_candidate(inputDesc[0]);
     MKLDNNMemoryDesc out_candidate(outputDesc[0]);
 
     algorithm alg;
     if (type == PoolingLayer::PoolType::AVG) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      if (type == PoolingLayer::PoolType::AVG) {" << std::endl;
         bool not_zero_l = false;
         for (auto lr : paddingL) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          for (auto lr : paddingL) {" << std::endl;
             if (lr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:              if (lr) {" << std::endl;
                 not_zero_l = true;
                 break;
             }
@@ -139,6 +156,7 @@ void MKLDNNPoolingNode::createDescriptor(const std::vector<InferenceEngine::Tens
         else
             alg = pooling_avg_exclude_padding;
     } else if (type == PoolingLayer::PoolType::MAX) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      } else if (type == PoolingLayer::PoolType::MAX) {" << std::endl;
         alg = pooling_max;
     } else {
         // TODO: Handle rest of the possible: STOCH, ROI, SPACIAL_PYRAMID
@@ -153,12 +171,15 @@ void MKLDNNPoolingNode::createDescriptor(const std::vector<InferenceEngine::Tens
 
     bool not_zero_r = false;
     for (auto pr : paddingR) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      for (auto pr : paddingR) {" << std::endl;
         if (pr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          if (pr) {" << std::endl;
             not_zero_r = true;
             break;
         }
     }
     if (alg == pooling_avg_include_padding && not_zero_r) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      if (alg == pooling_avg_include_padding && not_zero_r) {" << std::endl;
         // In case of AVG including paddings the norm coeff should be calculated
         // with tacking into account original pads. So we need to restore
         // original values (R_padding = L_padding).
@@ -172,6 +193,7 @@ void MKLDNNPoolingNode::createDescriptor(const std::vector<InferenceEngine::Tens
 }
 
 void MKLDNNPoolingNode::initSupportedPrimitiveDescriptors() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:  void MKLDNNPoolingNode::initSupportedPrimitiveDescriptors() {" << std::endl;
     if (!supportedPrimitiveDescriptors.empty())
         return;
 
@@ -179,11 +201,14 @@ void MKLDNNPoolingNode::initSupportedPrimitiveDescriptors() {
     setPostOps(attr);
 
     for (auto& desc : descs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      for (auto& desc : descs) {" << std::endl;
         auto itpd = desc.createPrimitiveDescriptorIterator(getEngine(), attr);
         while (itpd.is_not_end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          while (itpd.is_not_end()) {" << std::endl;
             InferenceEngine::LayerConfig config;
             config.dynBatchSupport = true;
             for (size_t i = 0; i < descInputNumbers(desc); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:              for (size_t i = 0; i < descInputNumbers(desc); i++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = -1;
                 dataConfig.constant = false;
@@ -193,6 +218,7 @@ void MKLDNNPoolingNode::initSupportedPrimitiveDescriptors() {
 
             std::vector<mkldnn::memory::format> outFormats;
             for (size_t i = 0; i < descOutputNumbers(desc); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:              for (size_t i = 0; i < descOutputNumbers(desc); i++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = canBeInPlace() ? 0 : -1;
                 dataConfig.constant = false;
@@ -202,11 +228,13 @@ void MKLDNNPoolingNode::initSupportedPrimitiveDescriptors() {
                 auto primDesc = itpd.fetch();
                 auto dstPrimDesc = mkldnn_primitive_desc_query_pd(primDesc.get(), mkldnn::convert_to_c(dst_pd), 0);
                 if (dstPrimDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:                  if (dstPrimDesc) {" << std::endl;
                     outFormats.emplace_back(static_cast<memory::format>(itpd.dst_primitive_desc().desc().data.format));
                 } else {
                     // This path is needed to correctly handle Deconvolution node
                     auto diffSrcPrimDesc = mkldnn_primitive_desc_query_pd(primDesc.get(), mkldnn::convert_to_c(diff_src_pd), 0);
                     if (diffSrcPrimDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:                      if (diffSrcPrimDesc) {" << std::endl;
                         outFormats.emplace_back(static_cast<memory::format>(itpd.diff_src_primitive_desc().desc().data.format));
                     }
                 }
@@ -220,8 +248,10 @@ void MKLDNNPoolingNode::initSupportedPrimitiveDescriptors() {
 }
 
 void MKLDNNPoolingNode::initDescriptor(const InferenceEngine::LayerConfig &config) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:  void MKLDNNPoolingNode::initDescriptor(const InferenceEngine::LayerConfig &config) {" << std::endl;
     auto* selectedPD = getSelectedPrimitiveDescriptor();
     if (!selectedPD) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      if (!selectedPD) {" << std::endl;
         return;
     }
     std::vector<InferenceEngine::TensorDesc> inDescs;
@@ -238,15 +268,18 @@ void MKLDNNPoolingNode::initDescriptor(const InferenceEngine::LayerConfig &confi
     InferenceEngine::LayerConfig rightConfig = selectedPD->getConfig();
     size_t selected_count = 0;
     for (size_t j = 0; j < descs.size(); j++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      for (size_t j = 0; j < descs.size(); j++) {" << std::endl;
         const auto &desc = descs[j];
         std::shared_ptr<primitive_desc_iterator> itpd;
 
         itpd = std::make_shared<primitive_desc_iterator>(desc.createPrimitiveDescriptorIterator(getEngine(), attr));
 
         while (itpd->is_not_end()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          while (itpd->is_not_end()) {" << std::endl;
             InferenceEngine::LayerConfig cfg;
             cfg.dynBatchSupport = true;
             for (size_t i = 0; i < descInputNumbers(desc); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:              for (size_t i = 0; i < descInputNumbers(desc); i++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = canBeInPlace() ? 0 : -1;
                 dataConfig.constant = false;
@@ -255,6 +288,7 @@ void MKLDNNPoolingNode::initDescriptor(const InferenceEngine::LayerConfig &confi
             }
 
             for (size_t i = 0; i < descOutputNumbers(desc); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:              for (size_t i = 0; i < descOutputNumbers(desc); i++) {" << std::endl;
                 InferenceEngine::DataConfig dataConfig;
                 dataConfig.inPlace = -1;
                 dataConfig.constant = false;
@@ -263,13 +297,17 @@ void MKLDNNPoolingNode::initDescriptor(const InferenceEngine::LayerConfig &confi
             }
             impl_desc_type impl_type = parse_impl_name(itpd->get_impl_info_str().c_str());
             if (selected_count == selectedPrimitiveDescriptorIndex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:              if (selected_count == selectedPrimitiveDescriptorIndex) {" << std::endl;
                 if (impl_type != selectedPD->getImplementationType()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:                  if (impl_type != selectedPD->getImplementationType()) {" << std::endl;
                     THROW_IE_EXCEPTION << "Cannot get the original layer configuration!";
                 }
                 rightConfig = cfg;
             }
             if (j == descs.size() - 1) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:              if (j == descs.size() - 1) {" << std::endl;
                 if (impl_type == selectedPD->getImplementationType()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:                  if (impl_type == selectedPD->getImplementationType()) {" << std::endl;
                     rightConfig = config;
                 }
             }
@@ -279,17 +317,20 @@ void MKLDNNPoolingNode::initDescriptor(const InferenceEngine::LayerConfig &confi
     }
 
     if (descs.empty()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      if (descs.empty()) {" << std::endl;
         const auto& selectedConfig = selectedPD->getConfig();
         if (selectedConfig.inConfs.size() != config.inConfs.size() || selectedConfig.outConfs.size() != config.outConfs.size())
             return;
 
         for (size_t i = 0; i < selectedConfig.inConfs.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          for (size_t i = 0; i < selectedConfig.inConfs.size(); i++) {" << std::endl;
             if (selectedConfig.inConfs[i].desc.getLayout() != InferenceEngine::Layout::ANY &&
                 !MKLDNNExtensionUtils::initTensorsAreEqual(selectedConfig.inConfs[i].desc, config.inConfs[i].desc))
                 THROW_IE_EXCEPTION << "Incorrect descriptor for node: " << getName();
         }
 
         for (size_t i = 0; i < selectedConfig.outConfs.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          for (size_t i = 0; i < selectedConfig.outConfs.size(); i++) {" << std::endl;
             if (selectedConfig.outConfs[i].desc.getLayout() != InferenceEngine::Layout::ANY &&
                 !MKLDNNExtensionUtils::initTensorsAreEqual(selectedConfig.outConfs[i].desc, config.outConfs[i].desc))
                 THROW_IE_EXCEPTION << "Incorrect descriptor for node: " << getName();
@@ -301,13 +342,17 @@ void MKLDNNPoolingNode::initDescriptor(const InferenceEngine::LayerConfig &confi
 }
 
 void MKLDNNPoolingNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:  void MKLDNNPoolingNode::setPostOps(mkldnn::primitive_attr &attr, bool initWeights) {" << std::endl;
     int blob_idx = 0;
     mkldnn::post_ops ops;
 
     for (auto &node : fusedWith) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:      for (auto &node : fusedWith) {" << std::endl;
         auto* quantizeNode = dynamic_cast<MKLDNNQuantizeNode *>(node.get());
         if (quantizeNode) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:          if (quantizeNode) {" << std::endl;
             if (initWeights) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/mkldnn_pooling_node.cpp:              if (initWeights) {" << std::endl;
                 MKLDNNDims weightsDims({static_cast<ptrdiff_t>(rnd_up(getParentEdgeAt(0)->getDims()[1], 16))});
                 MKLDNNMemoryDesc weightsDataDesc = {{(uint32_t)weightsDims[0]}, memory::f32, memory::x};
 

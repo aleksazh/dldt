@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -42,6 +43,7 @@ gemm_bf16_ip_pp_kernel_t<store_type>::gemm_bf16_ip_pp_kernel_t(
     , vlen_(cpu_isa_traits<avx512_common>::vlen / sizeof(float))
     , is_cpx_(false), bf16_emu_(nullptr)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      , is_cpx_(false), bf16_emu_(nullptr) {" << std::endl;
     is_ajustable_row_length_ = row_length_ == 0;
     if (do_bias_ && row_length_ == 0)
         // Post-ops kernel w/ bias can't have ajustable row length
@@ -73,12 +75,16 @@ gemm_bf16_ip_pp_kernel_t<store_type>::gemm_bf16_ip_pp_kernel_t(
 template<data_type_t store_type>
 void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:  void gemm_bf16_ip_pp_kernel_t<store_type>::generate() {" << std::endl;
     using namespace Xbyak;
     using namespace utils;
 
-    auto vreg_dst = [&](int idx) { return Zmm(2 + idx * 2 + 0); };
-    auto vreg_dst_ymm = [&](int idx) { return Ymm(2 + idx * 2 + 0); };
-    auto vreg_bias = [&](int idx) { return Zmm(2 + idx * 2 + 1); };
+    auto vreg_dst = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      auto vreg_dst = [&](int idx) {" << std::endl; return Zmm(2 + idx * 2 + 0); };
+    auto vreg_dst_ymm = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      auto vreg_dst_ymm = [&](int idx) {" << std::endl; return Ymm(2 + idx * 2 + 0); };
+    auto vreg_bias = [&](int idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      auto vreg_bias = [&](int idx) {" << std::endl; return Zmm(2 + idx * 2 + 1); };
 
     preamble();
 
@@ -97,6 +103,7 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
     // Load accumulated value (float), apply bias (if any) and relu (if any);
     // then convert to destination type and store
     auto compute = [&](size_t offset, int idx, bool apply_mask) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      auto compute = [&](size_t offset, int idx, bool apply_mask) {" << std::endl;
         if (!is_cpx_)
             bf16_emu_->init_vcvtneps2bf16();
 
@@ -104,15 +111,18 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
 
         auto vreg_dst_ = vreg_dst(idx);
         if (apply_mask) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:          if (apply_mask) {" << std::endl;
             vxorps(vreg_dst_, vreg_dst_, vreg_dst_);
             vreg_dst_ = vreg_dst_ | kreg_rem_mask;
         }
         vmovups(vreg_dst_, acc_addr);
 
         if (do_bias_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:          if (do_bias_) {" << std::endl;
             auto bias_addr = ptr[reg_bias + offset * sizeof(acc_data_t)];
             auto vreg_bias_ = vreg_bias(idx);
             if (apply_mask) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:              if (apply_mask) {" << std::endl;
                 vxorps(vreg_bias_, vreg_bias_, vreg_bias_);
                 vreg_bias_ = vreg_bias_ | kreg_rem_mask;
             }
@@ -122,12 +132,14 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
         }
 
         if (do_relu_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:          if (do_relu_) {" << std::endl;
             vcmpps(kreg_relu_cmp, vreg_dst(idx), vreg_zero, _cmp_lt_os);
             vmulps(vreg_dst(idx) | kreg_relu_cmp, vreg_dst(idx), vreg_nslope);
         }
 
         auto dst_addr = ptr[reg_dst + offset * sizeof(store_data_t)];
         if (store_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:          if (store_type == data_type::bf16) {" << std::endl;
             // TODO: implement store by zmm registers for bf16
             auto vreg_dst_ymm_ = vreg_dst_ymm(idx);
             if (is_cpx_)
@@ -147,6 +159,7 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
 
     // Advance all pointers by an immediate
     auto advance_ptrs_imm = [&](size_t offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      auto advance_ptrs_imm = [&](size_t offset) {" << std::endl;
         add(reg_dst, offset * sizeof(store_data_t));
         add(reg_acc, offset * sizeof(acc_data_t));
         if (do_bias_)
@@ -155,6 +168,7 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
 
     // Advance all pointers by a value stored in a register
     auto advance_ptrs_reg = [&](Reg64 offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      auto advance_ptrs_reg = [&](Reg64 offset) {" << std::endl;
         lea(reg_dst, ptr[reg_dst + offset * sizeof(store_data_t)]);
         lea(reg_acc, ptr[reg_acc + offset * sizeof(acc_data_t)]);
         if (do_bias_)
@@ -164,6 +178,7 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
     // Rewind pointers that point to data that is indexed by output channel
     // (bias or per-oc scaling factors)
     auto rewind_ptrs = [&]() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      auto rewind_ptrs = [&]() {" << std::endl;
         if (do_bias_)
             sub(reg_bias, row_length_ * sizeof(acc_data_t));
     };
@@ -184,6 +199,7 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
 
     if (!is_ajustable_row_length_)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      if (!is_ajustable_row_length_)     {" << std::endl;
         Label prologue_end;
         cmp(reg_row_offset, 0);
         je(prologue_end, T_NEAR);
@@ -234,6 +250,7 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
         L(main_loop); {
             size_t row_loop, row_tail;
             if (row_length_ <= max_unroll_ * vlen_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:              if (row_length_ <= max_unroll_ * vlen_) {" << std::endl;
                 // Fully unroll small loops
                 row_loop = 0;
                 row_tail = row_length_;
@@ -245,6 +262,7 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
             assert(!!row_loop || !!row_tail);
 
             if (row_tail % vlen_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:              if (row_tail % vlen_) {" << std::endl;
                 int vlen_tail = row_tail % vlen_;
                 unsigned tail_mask = (1 << vlen_tail) - 1;
                 mov(reg_tmp, tail_mask);
@@ -252,6 +270,7 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
             }
 
             if (row_loop) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:              if (row_loop) {" << std::endl;
                 mov(reg_tmp, rnd_dn(row_length_, row_loop));
                 Label oc_loop;
                 L(oc_loop); {
@@ -264,7 +283,9 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::generate()
             }
 
             if (row_tail) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:              if (row_tail) {" << std::endl;
                 for (size_t offset = 0; offset < row_tail; offset += vlen_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:                  for (size_t offset = 0; offset < row_tail; offset += vlen_) {" << std::endl;
                     bool use_mask = (offset + vlen_) > row_tail;
                     compute(offset, offset / vlen_, use_mask);
                 }
@@ -322,10 +343,12 @@ void gemm_bf16_ip_pp_kernel_t<store_type>::operator ()(
         const acc_data_t *bias, float nslope,
         size_t start, size_t end)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:          size_t start, size_t end) {" << std::endl;
     if (end <= start)
         return;
 
     if (ker_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      if (ker_) {" << std::endl;
         // JIT
         ker_args args;
         size_t row_offset = start % row_length_;
@@ -362,9 +385,11 @@ void gemm_bf16_inner_product_fwd_t<dst_data_type>::execute_forward() const {
             &alpha, weights, wei_tr ? &K : &M, src, &K, &beta, acc, &M);
 
     if (!pd()->dst_is_acc_ || pd()->do_relu_ || pd()->with_bias()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      if (!pd()->dst_is_acc_ || pd()->do_relu_ || pd()->with_bias()) {" << std::endl;
         const auto &post_ops = pd()->attr()->post_ops_;
         float nslope = pd()->do_relu_ ? post_ops.entry_[0].eltwise.alpha : 0.f;
         parallel(0, [&](int ithr, int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:          parallel(0, [&](int ithr, int nthr) {" << std::endl;
             size_t start, end;
             balance211((size_t)M * N, nthr, ithr, start, end);
             (*pp_kernel_)(dst, acc, bias, nslope, start, end);
@@ -397,7 +422,9 @@ void gemm_bf16_inner_product_bwd_data_t<diff_src_data_type>::
             weights, wei_tr ? &K : &M, diff_dst, &K, &beta, acc, &M);
 
     if (!pd()->diff_src_is_acc_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      if (!pd()->diff_src_is_acc_) {" << std::endl;
         parallel(0, [&](int ithr, int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:          parallel(0, [&](int ithr, int nthr) {" << std::endl;
             size_t start, end;
             balance211((size_t)M * N, nthr, ithr, start, end);
             if (end > start)
@@ -444,7 +471,9 @@ void gemm_bf16_inner_product_bwd_weights_t<diff_wei_data_type>::
             acc, &M);
 
     if (!pd()->diff_wei_is_acc_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      if (!pd()->diff_wei_is_acc_) {" << std::endl;
         parallel(0, [&](int ithr, int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:          parallel(0, [&](int ithr, int nthr) {" << std::endl;
             size_t start, end;
             balance211((size_t)M * N, nthr, ithr, start, end);
             if (end > start)
@@ -455,6 +484,7 @@ void gemm_bf16_inner_product_bwd_weights_t<diff_wei_data_type>::
     }
 
     if (pd()->with_bias()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:      if (pd()->with_bias()) {" << std::endl;
         diff_bias += diff_bias_d.blocking_desc().offset_padding;
         constexpr int blksize = 16;
         const int OC_blocks = OC / blksize;
@@ -462,6 +492,7 @@ void gemm_bf16_inner_product_bwd_weights_t<diff_wei_data_type>::
         acc_data_t *ddst_ws = scratchpad().template get<acc_data_t>(
             key_iprod_dst_bf16_convert_wsp);
         parallel(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:          parallel(0, [&](const int ithr, const int nthr) {" << std::endl;
             int oc_st{0}, oc_e{0};
             balance211(OC_blocks, nthr, ithr, oc_st, oc_e);
             oc_st = oc_st * blksize;
@@ -472,6 +503,7 @@ void gemm_bf16_inner_product_bwd_weights_t<diff_wei_data_type>::
                 diff_bias[oc] = 0.0f;
 
             for (int mb = 0; mb < MB; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:              for (int mb = 0; mb < MB; ++mb) {" << std::endl;
                 if (oc_e > oc_st)
                     cvt_bfloat16_to_float((float *)&ddst_ws[oc_st],
                         (const mkldnn_bfloat16_t *)&diff_dst[mb * OC + oc_st],
@@ -483,10 +515,12 @@ void gemm_bf16_inner_product_bwd_weights_t<diff_wei_data_type>::
             }
 
             if (rem_OC != 0 && ithr == nthr-1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:              if (rem_OC != 0 && ithr == nthr-1) {" << std::endl;
                 int oc_st = OC_blocks * blksize;
                 for (int oc = OC_blocks * blksize; oc < OC; oc++)
                     diff_bias[oc] = 0.0f;
                 for (int mb = 0; mb < MB; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_inner_product.cpp:                  for (int mb = 0; mb < MB; ++mb) {" << std::endl;
                     cvt_bfloat16_to_float((float *)&ddst_ws[oc_st],
                         (const mkldnn_bfloat16_t *)&diff_dst[mb * OC + oc_st],
                         OC - oc_st);

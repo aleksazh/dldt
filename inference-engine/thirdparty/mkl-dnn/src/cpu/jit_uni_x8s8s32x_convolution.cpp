@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018-2019 Intel Corporation
 *
@@ -52,6 +53,7 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
                             (jcp.with_input_zp) ? pd()->attr()->output_compensations_.shifts_ : 0;
 
     if (bias && jcp.oc != jcp.oc_padded) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:      if (bias && jcp.oc != jcp.oc_padded) {" << std::endl;
         auto padded_bias = this->scratchpad().template get<bia_data_t>(key_conv_padded_bias);
         utils::array_copy(padded_bias, (bia_data_t*)bias, jcp.oc);
         utils::array_set(padded_bias + jcp.oc, 0, jcp.oc_padded - jcp.oc);
@@ -60,10 +62,12 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
 
     const float *oscales = pd()->attr()->output_scales_.scales_;
     if (jcp.signed_input) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:      if (jcp.signed_input) {" << std::endl;
         auto local_scales = scratchpad().template get<float>(key_conv_adjusted_scales);
         size_t count = pd()->attr()->output_scales_.count_;
         float factor = 1.f / jcp.wei_adj_scale;
         if (count == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:          if (count == 1) {" << std::endl;
             utils::array_set(local_scales, oscales[0] * factor, 8);
         } else {
             for (size_t c = 0; c < count; c++)
@@ -74,7 +78,9 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
 
     const uint8_t* input_zp = pd()->attr()->input_zero_points_.zero_points_;
     if (jcp.signed_input || jcp.with_input_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:      if (jcp.signed_input || jcp.with_input_zp) {" << std::endl;
         if (jcp.oc != jcp.oc_padded) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:          if (jcp.oc != jcp.oc_padded) {" << std::endl;
             auto padded_compensation = this->scratchpad().template get<int32_t>(key_conv_padded_compensation);
             utils::array_copy(padded_compensation, compensation, jcp.oc);
             utils::array_set(padded_compensation + jcp.oc, 0, jcp.oc_padded - jcp.oc);
@@ -86,6 +92,7 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
     const size_t work_amount = jcp.mb * jcp.ngroups * ocb_work * jcp.od * jcp.oh;
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         size_t start{0}, end{0};
         balance211(work_amount, nthr, ithr, start, end);
 
@@ -102,27 +109,34 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
         size_t od_start = od;
         size_t oh_start = oh;
         if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:          if (jcp.with_weights_zp) {" << std::endl;
             utils::array_set(weights_zp_compensation, 0, jcp.od * jcp.oh * jcp.ow);
         }
 
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:              if (jcp.with_weights_zp) {" << std::endl;
                 if (n != n_prev) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:                  if (n != n_prev) {" << std::endl;
                     n_prev = n;
                     ocbb_start = ocbb;
                     od_start = od;
                     oh_start = oh;
                     if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:                      if (jcp.with_weights_zp) {" << std::endl;
                         utils::array_set(weights_zp_compensation, 0, jcp.od * jcp.oh * jcp.ow);
                     }
                 }
 
                 if (g != g_prev) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:                  if (g != g_prev) {" << std::endl;
                     g_prev = g;
                     ocbb_start = ocbb;
                     od_start = od;
                     oh_start = oh;
                     if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:                      if (jcp.with_weights_zp) {" << std::endl;
                         utils::array_set(weights_zp_compensation, 0, jcp.od * jcp.oh * jcp.ow);
                     }
                 }
@@ -188,9 +202,11 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
 
             par_conv.oc_off = _oc * jcp.oc_block * sizeof(float);
             if (jcp.with_input_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:              if (jcp.with_input_zp) {" << std::endl;
                 par_conv.input_zp = input_zp + _ic * jcp.ic_block;
             }
             if (jcp.with_weights_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:              if (jcp.with_weights_zp) {" << std::endl;
                 if (ocbb == ocbb_start || ((ocbb == ocbb_start + 1) && (oh < oh_start || od < od_start)))
                     par_conv.flags |= FLAG_OC_FIRST;
                 par_conv.weights_zp_compensation = weights_zp_compensation + od * jcp.oh * jcp.ow + oh * jcp.ow;
@@ -228,6 +244,7 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
     auto dw_weights = reinterpret_cast<const wei_data_t *>(jcp_dw.conv_weights);
 
     if (jcp.oc != jcp.oc_padded) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:      if (jcp.oc != jcp.oc_padded) {" << std::endl;
         auto padded_bias = this->scratchpad().template get<bia_data_t>(key_conv_padded_bias);
         utils::array_copy(padded_bias, (bia_data_t*)bias, jcp.oc);
         utils::array_set(padded_bias + jcp.oc, 0, jcp.oc_padded - jcp.oc);
@@ -241,10 +258,12 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
 
     const float *oscales = pd()->attr()->output_scales_.scales_;
     if (jcp.signed_input) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:      if (jcp.signed_input) {" << std::endl;
         auto local_scales = scratchpad().template get<float>(key_conv_adjusted_scales);
         size_t count = pd()->attr()->output_scales_.count_;
         float factor = 1.f / jcp.wei_adj_scale;
         if (count == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:          if (count == 1) {" << std::endl;
             utils::array_set(local_scales, oscales[0] * factor, 8);
         } else {
             for (size_t c = 0; c < count; c++)
@@ -255,7 +274,9 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
 
     const uint8_t* input_zp = pd()->attr()->input_zero_points_.zero_points_;
     if (jcp.signed_input || jcp.with_input_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:      if (jcp.signed_input || jcp.with_input_zp) {" << std::endl;
         if (jcp.oc != jcp.oc_padded) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:          if (jcp.oc != jcp.oc_padded) {" << std::endl;
             auto padded_compensation = this->scratchpad().template get<int32_t>(key_conv_padded_compensation);
             utils::array_copy(padded_compensation, compensation, jcp.oc);
             utils::array_set(padded_compensation + jcp.oc, 0, jcp.oc_padded - jcp.oc);
@@ -267,10 +288,15 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
     const size_t work_amount = MB * jcp.ngroups * ocb_work * jcp.oh;
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         auto compute_row_gen = [&](dst_data_t* ws_p, int n, int g, int ocb, int ocb_num, int oh, int num_rows) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:          auto compute_row_gen = [&](dst_data_t* ws_p, int n, int g, int ocb, int ocb_num, int oh, int num_rows) {" << std::endl;
             for (int h = 0; h < num_rows; h++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:              for (int h = 0; h < num_rows; h++) {" << std::endl;
                 if ((oh + h) < 0 || (oh + h) >= jcp.oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:                  if ((oh + h) < 0 || (oh + h) >= jcp.oh) {" << std::endl;
                     for (int chb = ocb; chb < ocb + ocb_num; chb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:                      for (int chb = ocb; chb < ocb + ocb_num; chb++) {" << std::endl;
                         memset(ws_p + (((oh + h) + 1) % jcp_dw.kh) * jcp.ow * jcp.oc_block +
                                (chb - ocb) * jcp_dw.kh * jcp.ow * jcp.oc_block, 0, jcp.ow * jcp.oc_block * sizeof(dst_data_t));
                     }
@@ -308,6 +334,7 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
                     par_conv.scales = &oscales[jcp.is_oc_scale * _oc * jcp.oc_block];
                     par_conv.compensation = (jcp.signed_input || jcp.with_input_zp) ? compensation + _oc * jcp.oc_block : 0;
                     if (jcp.with_input_zp) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:                      if (jcp.with_input_zp) {" << std::endl;
                         par_conv.input_zp = input_zp + _ic * jcp.ic_block;
                     }
                     par_conv.t_overflow = i_t_overflow;
@@ -321,7 +348,9 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
         };
 
         auto compute_row_dw = [&](const dst_data_t* ws_p, int n, int ocb, int ocb_num, int dst_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:          auto compute_row_dw = [&](const dst_data_t* ws_p, int n, int ocb, int ocb_num, int dst_idx) {" << std::endl;
             for (int chb = ocb; chb < nstl::min(ocb + ocb_num, jcp.nb_oc); chb++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:              for (int chb = ocb; chb < nstl::min(ocb + ocb_num, jcp.nb_oc); chb++) {" << std::endl;
                 auto par_conv_dw = jit_conv_call_s();
 
                 par_conv_dw.src_row0 = &ws_p[(((dst_idx+1) - 1) % jcp_dw.kh) * jcp_dw.iw * jcp_dw.ch_block +
@@ -354,20 +383,24 @@ void _jit_uni_x8s8s32x_convolution_fwd_t<isa, src_type, dst_type>::execute_forwa
         size_t n{0}, g{0}, ocbb{0}, oh{0};
         nd_iterator_init(start, n, MB, g, jcp.ngroups, ocbb, ocb_work, oh, jcp.oh);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int ocb = ocbb * jcp.nb_oc_blocking;
             int ocb_num = jcp.nb_oc_blocking;
 
             if (iwork == start || oh == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:              if (iwork == start || oh == 0) {" << std::endl;
                 compute_row_gen(pbuf, n, g, ocb, ocb_num, oh - 1, 2);
             } else {
                 compute_row_gen(pbuf, n, g, ocb, ocb_num, oh, 1);
             }
 
             if (iwork > start && ((oh - 1) % jcp_dw.stride_h == 0) && oh > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:              if (iwork > start && ((oh - 1) % jcp_dw.stride_h == 0) && oh > 0) {" << std::endl;
                 compute_row_dw(pbuf, n, ocb, ocb_num, oh - 1);
             }
 
             if ((iwork == end - 1 || (int) oh == jcp.oh - 1) && ((oh) % jcp_dw.stride_h == 0)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_x8s8s32x_convolution.cpp:              if ((iwork == end - 1 || (int) oh == jcp.oh - 1) && ((oh) % jcp_dw.stride_h == 0)) {" << std::endl;
                 compute_row_gen(pbuf, n, g, ocb, ocb_num, oh + 1, 1);
                 compute_row_dw(pbuf, n, ocb, ocb_num, oh);
             }

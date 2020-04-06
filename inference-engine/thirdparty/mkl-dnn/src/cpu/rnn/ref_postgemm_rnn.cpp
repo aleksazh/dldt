@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -34,48 +35,57 @@ using namespace rnn_utils;
 template <>
 float activation<alg_kind::eltwise_relu, prop_kind::forward>(
         float dd, float s, float alpha, float cliping) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:          float dd, float s, float alpha, float cliping) {" << std::endl;
     return relu_fwd<float>(s, alpha);
 }
 
 template <>
 float activation<alg_kind::eltwise_relu, prop_kind::backward>(
         float dd, float s, float alpha, float cliping) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:          float dd, float s, float alpha, float cliping) {" << std::endl;
     return relu_bwd<float>(dd, s, alpha);
 }
 
 template <>
 float activation<alg_kind::eltwise_tanh, prop_kind::forward>(
         float dd, float s, float alpha, float cliping) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:          float dd, float s, float alpha, float cliping) {" << std::endl;
     return tanh_fwd<float>(s);
 }
 
 template <>
 float activation<alg_kind::eltwise_tanh, prop_kind::backward>(
         float dd, float s, float alpha, float cliping) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:          float dd, float s, float alpha, float cliping) {" << std::endl;
     return dd * one_m_square<float>(s);
 }
 
 template <>
 float activation<alg_kind::eltwise_logistic, prop_kind::forward>(
         float dd, float s, float alpha, float cliping) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:          float dd, float s, float alpha, float cliping) {" << std::endl;
     return logistic_fwd<float>(s);
 }
 
 template <>
 float activation<alg_kind::eltwise_logistic, prop_kind::backward>(
         float dd, float s, float alpha, float cliping) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:          float dd, float s, float alpha, float cliping) {" << std::endl;
     return dd * x_m_square<float>(s);
 }
 
 template <>
 rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::rnn_postgemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:  rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::rnn_postgemm) {" << std::endl;
     ws_gates_aoc_t ws_gates(rnn, ws_gates_);
     bias_aoc_t bias(rnn, bias_);
     ws_states_aoc_t states_t_l(rnn, states_t_l_);
     ws_states_aoc_t states_tm1_l(rnn, states_tm1_l_);
 
     parallel_nd(rnn.mb, [&](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:      parallel_nd(rnn.mb, [&](int i) {" << std::endl;
         for (int j = 0; j < rnn.dic; j++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:          for (int j = 0; j < rnn.dic; j++) {" << std::endl;
             const float h
                     = activation_func(0, ws_gates(i, 0, j) + bias(0, j), 0, 0);
             ws_gates(i, 0, j) = states_t_l(i, j) = h;
@@ -85,11 +95,13 @@ rnn_postgemm_sig(rnn_postgemm_fwd_f32_t::rnn_postgemm) {
 
 template <>
 rnn_postgemm_sig(rnn_postgemm_fwd_u8_t::rnn_postgemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:  rnn_postgemm_sig(rnn_postgemm_fwd_u8_t::rnn_postgemm) {" << std::endl;
     assert(!"VANILLA RNN int8 is not supported");
 }
 
 template <>
 rnn_postgemm_sig(rnn_postgemm_bwd_f32_t::rnn_postgemm) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:  rnn_postgemm_sig(rnn_postgemm_bwd_f32_t::rnn_postgemm) {" << std::endl;
     ws_gates_aoc_t ws_gates(rnn, ws_gates_);
     bias_aoc_t bias(rnn, bias_);
     ws_states_aoc_t states_t_l(rnn, states_t_l_);
@@ -99,7 +111,9 @@ rnn_postgemm_sig(rnn_postgemm_bwd_f32_t::rnn_postgemm) {
     ws_diff_states_aoc_t diff_states_t_lp1(rnn, diff_states_t_lp1_);
 
     parallel_nd(rnn.mb, [&](int i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:      parallel_nd(rnn.mb, [&](int i) {" << std::endl;
         for (int j = 0; j < rnn.dic; ++j) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/rnn/ref_postgemm_rnn.cpp:          for (int j = 0; j < rnn.dic; ++j) {" << std::endl;
             const float dH = diff_states_t_lp1(rnn.n_states, i, j)
                     + diff_states_tp1_l(0, i, j);
             auto g = ws_gates(i, 0, j);

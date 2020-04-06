@@ -1,4 +1,5 @@
-﻿// Copyright (C) 2018-2020 Intel Corporation
+#include <iostream>
+// Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -24,6 +25,7 @@
 #endif
 
 long long FileUtils::fileSize(const char* charfilepath) {
+    std::cerr << "./inference-engine/src/inference_engine/file_utils.cpp:  long long FileUtils::fileSize(const char* charfilepath) {" << std::endl;
 #if defined(ENABLE_UNICODE_PATH_SUPPORT) && defined(_WIN32)
     std::wstring widefilename = InferenceEngine::details::multiByteCharToWString(charfilepath);
     const wchar_t* fileName = widefilename.c_str();
@@ -35,6 +37,7 @@ long long FileUtils::fileSize(const char* charfilepath) {
 }
 
 void FileUtils::readAllFile(const std::string& string_file_name, void* buffer, size_t maxSize) {
+    std::cerr << "./inference-engine/src/inference_engine/file_utils.cpp:  void FileUtils::readAllFile(const std::string& string_file_name, void* buffer, size_t maxSize) {" << std::endl;
     std::ifstream inputFile;
 
 #if defined(ENABLE_UNICODE_PATH_SUPPORT) && defined(_WIN32)
@@ -46,6 +49,7 @@ void FileUtils::readAllFile(const std::string& string_file_name, void* buffer, s
     inputFile.open(file_name, std::ios::binary | std::ios::in);
     if (!inputFile.is_open()) THROW_IE_EXCEPTION << "cannot open file " << string_file_name;
     if (!inputFile.read(reinterpret_cast<char*>(buffer), maxSize)) {
+    std::cerr << "./inference-engine/src/inference_engine/file_utils.cpp:      if (!inputFile.read(reinterpret_cast<char*>(buffer), maxSize)) {" << std::endl;
         inputFile.close();
         THROW_IE_EXCEPTION << "cannot read " << maxSize << " bytes from file " << string_file_name;
     }

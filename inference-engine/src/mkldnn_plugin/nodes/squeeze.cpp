@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,6 +20,7 @@ namespace Cpu {
 class SqueezeImpl: public ExtLayerBase {
 public:
     explicit SqueezeImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/squeeze.cpp:      explicit SqueezeImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -39,6 +41,7 @@ public:
             // WA to enable the implementation only for equal input and output precisions
             confs[0].inConfs[0].desc.setPrecision(confs[0].outConfs[0].desc.getPrecision());
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/squeeze.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -48,6 +51,7 @@ public:
         uint8_t* dst = outputs[0]->cbuffer().as<uint8_t *>() + outputs[0]->getTensorDesc().getBlockingDesc().getOffsetPadding()*outputs[0]->element_size();
 
         if (src != dst) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/squeeze.cpp:          if (src != dst) {" << std::endl;
             size_t srcSize = inputs[0]->byteSize();
             size_t dstSize = outputs[0]->byteSize();
             simple_copy(dst, dstSize, src, srcSize);

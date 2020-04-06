@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -27,6 +28,7 @@ namespace impl {
 namespace cpu {
 
 int jit_avx2_kernel_sgemm_kern::next_acc(int idx, int um, int un) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:  int jit_avx2_kernel_sgemm_kern::next_acc(int idx, int um, int un) {" << std::endl;
     while (!(((idx / unroll_n_) < std::max(1, um / nelt_per_vecreg_))
             || ((idx % unroll_n_) < un)))
         idx++;
@@ -35,8 +37,11 @@ int jit_avx2_kernel_sgemm_kern::next_acc(int idx, int um, int un) {
 
 void jit_avx2_kernel_sgemm_kern::prefetchB_beforeBload(
         int um, int un, int k_idx, int n_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          int um, int un, int k_idx, int n_idx) {" << std::endl;
     if (!mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      if (!mayiuse(avx512_core)) {" << std::endl;
         if ((n_idx == 0) && (k_idx == 0) && (un == unroll_n_) && (um != 16)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if ((n_idx == 0) && (k_idx == 0) && (un == unroll_n_) && (um != 16)) {" << std::endl;
             prefetcht0(ptr[BO_ + elt_size_ * (PREFETCHSIZEB_ + offb_)]);
             offb_ += 16;
         }
@@ -45,14 +50,19 @@ void jit_avx2_kernel_sgemm_kern::prefetchB_beforeBload(
 
 void jit_avx2_kernel_sgemm_kern::prefetchB_beforeFMA(
         int um, int un, int k_idx, int n_idx, int m_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          int um, int un, int k_idx, int n_idx, int m_idx) {" << std::endl;
     if (!mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      if (!mayiuse(avx512_core)) {" << std::endl;
         if ((um == 16) || (un < unroll_n_)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if ((um == 16) || (un < unroll_n_)) {" << std::endl;
             if ((k_idx + m_idx + n_idx) == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:              if ((k_idx + m_idx + n_idx) == 0) {" << std::endl;
                 prefetcht0(ptr[BO_ + elt_size_ * (PREFETCHSIZEB_ + offb_)]);
                 offb_ += 16;
             }
             if ((um == 16) && (un == 4) && (k_idx == 2)
                     && ((m_idx + n_idx) == 0)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                      && ((m_idx + n_idx) == 0)) {" << std::endl;
                 prefetcht0(ptr[BO_ + elt_size_ * (PREFETCHSIZEB_ + offb_)]);
                 offb_ += 16;
             }
@@ -62,21 +72,27 @@ void jit_avx2_kernel_sgemm_kern::prefetchB_beforeFMA(
 
 void jit_avx2_kernel_sgemm_kern::prefetchA_afterFMA(
         int um, int un, int k_idx, int n_idx, int m_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          int um, int un, int k_idx, int n_idx, int m_idx) {" << std::endl;
     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      if (mayiuse(avx512_core)) {" << std::endl;
         if ((um < unroll_m_) && (m_idx == 0)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if ((um < unroll_m_) && (m_idx == 0)) {" << std::endl;
             if (((k_idx % (nb_zmm_a_ / unroll_m_reg_) == 0) && (n_idx % 6 == 0))
                     || ((k_idx % (nb_zmm_a_ / unroll_m_reg_) == 1)
                                && (n_idx == 3))) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                                 && (n_idx == 3))) {" << std::endl;
                 prefetcht0(ptr[AO_ + elt_size_ * (PREFETCHSIZEA_ + off_)]);
                 off_ += 16;
             }
         }
     } else {
         if (un == unroll_n_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if (un == unroll_n_) {" << std::endl;
             if (((um < nelt_per_vecreg_) && (n_idx == 0)
                         && (k_idx == std::min(2, nelt_per_vecreg_ / um - 1)))
                     || ((um == nelt_per_vecreg_) && (un == unroll_n_)
                                && (n_idx == 1) && (k_idx == 0))) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                                 && (n_idx == 1) && (k_idx == 0))) {" << std::endl;
                 prefetcht0(ptr[AO_ + elt_size_ * (PREFETCHSIZEA_ + off_)]);
                 off_ += 16;
             }
@@ -86,21 +102,28 @@ void jit_avx2_kernel_sgemm_kern::prefetchA_afterFMA(
 
 void jit_avx2_kernel_sgemm_kern::prefetchA_afterBload(
         int um, int un, int k_idx, int n_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          int um, int un, int k_idx, int n_idx) {" << std::endl;
     if (!mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      if (!mayiuse(avx512_core)) {" << std::endl;
         if ((um == unroll_m_) && (un == 2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if ((um == unroll_m_) && (un == 2)) {" << std::endl;
             if (k_idx % 3 == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:              if (k_idx % 3 == 0) {" << std::endl;
                 if (n_idx == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  if (n_idx == 1) {" << std::endl;
                     if (k_idx == 0)
                         off_ += 16;
                     prefetcht0(ptr[AO_ + elt_size_ * (PREFETCHSIZEA_ + off_)]);
                     off_ += 16;
                 }
                 if ((k_idx == 0) && (n_idx == 0)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  if ((k_idx == 0) && (n_idx == 0)) {" << std::endl;
                     prefetcht0(ptr[AO_ + elt_size_ * (PREFETCHSIZEA_ + off_)]);
                     off_ += 16;
                 }
             } else {
                 if (n_idx == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  if (n_idx == 1) {" << std::endl;
                     prefetcht0(ptr[AO_ + elt_size_ * (PREFETCHSIZEA_ + off_)]);
                     off_ += 16;
                 }
@@ -111,10 +134,13 @@ void jit_avx2_kernel_sgemm_kern::prefetchA_afterBload(
 
 void jit_avx2_kernel_sgemm_kern::prefetchB_afterFMA(
         int k_idx, int n_idx, int m_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          int k_idx, int n_idx, int m_idx) {" << std::endl;
     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      if (mayiuse(avx512_core)) {" << std::endl;
         if (((m_idx + (k_idx % (nb_zmm_a_ / unroll_m_reg_)) * unroll_m_reg_)
                     == 0)
                 && (n_idx == 1)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  && (n_idx == 1)) {" << std::endl;
             prefetcht0(ptr[BO_
                     + elt_size_
                             * (PREFETCHSIZEB_
@@ -126,32 +152,41 @@ void jit_avx2_kernel_sgemm_kern::prefetchB_afterFMA(
 
 void jit_avx2_kernel_sgemm_kern::prefetchA_beforeFMA(
         int um, int un, int k_idx, int n_idx, int m_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          int um, int un, int k_idx, int n_idx, int m_idx) {" << std::endl;
     if (!mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      if (!mayiuse(avx512_core)) {" << std::endl;
         if ((um == unroll_m_) && (un == unroll_n_)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if ((um == unroll_m_) && (un == unroll_n_)) {" << std::endl;
             if (((k_idx == 0) && (n_idx % 2 == 1) && (m_idx == 0))
                     || ((k_idx == 1) && (n_idx == 2) && (m_idx == 0))
                     || ((k_idx == 2) && (n_idx == 0) && (m_idx == 2))
                     || ((k_idx == 2) && (n_idx == 3) && (m_idx == 0))
                     || ((k_idx == 3) && (n_idx == 1) && (m_idx == 0))) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                      || ((k_idx == 3) && (n_idx == 1) && (m_idx == 0))) {" << std::endl;
                 prefetcht0(ptr[AO_ + elt_size_ * (PREFETCHSIZEA_ + off_)]);
                 off_ += 16;
             }
         }
         if ((um == unroll_m_) && (un == 1)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if ((um == unroll_m_) && (un == 1)) {" << std::endl;
             if (m_idx == 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:              if (m_idx == 2) {" << std::endl;
                 prefetcht0(ptr[AO_ + elt_size_ * (PREFETCHSIZEA_ + off_)]);
                 off_ += 16;
             } else if ((m_idx == 0) && ((k_idx == 1) || (k_idx == 2))) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:              } else if ((m_idx == 0) && ((k_idx == 1) || (k_idx == 2))) {" << std::endl;
                 prefetcht0(ptr[AO_ + elt_size_ * (PREFETCHSIZEA_ + off_)]);
                 off_ += 16;
             }
         }
         if ((um == 16) && (un == unroll_n_) && (m_idx == 0) && (n_idx == 2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if ((um == 16) && (un == unroll_n_) && (m_idx == 0) && (n_idx == 2)) {" << std::endl;
             prefetcht0(ptr[AO_ + elt_size_ * (PREFETCHSIZEA_ + off_)]);
             off_ += 16;
         }
         if ((um == 8) && (un == unroll_n_) && (m_idx == 0) && (n_idx == 1)
                 && (k_idx == 2)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  && (k_idx == 2)) {" << std::endl;
             prefetcht0(ptr[AO_ + elt_size_ * (PREFETCHSIZEA_ + off_)]);
             off_ += 16;
         }
@@ -160,9 +195,13 @@ void jit_avx2_kernel_sgemm_kern::prefetchA_beforeFMA(
 
 void jit_avx2_kernel_sgemm_kern::prefetchC_afterBload(
         int um, int un, int k_idx, int n_idx) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          int um, int un, int k_idx, int n_idx) {" << std::endl;
     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      if (mayiuse(avx512_core)) {" << std::endl;
         if (um == unroll_m_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if (um == unroll_m_) {" << std::endl;
             if (n_idx == std::min(1, un - 1)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:              if (n_idx == std::min(1, un - 1)) {" << std::endl;
                 if (k_idx == unroll_k_ - 1)
                     lea(CO2_, ptr[CO2_ + LDC_]);
                 else
@@ -173,8 +212,11 @@ void jit_avx2_kernel_sgemm_kern::prefetchC_afterBload(
 }
 
 void jit_avx2_kernel_sgemm_kern::prefetchC_beforeKloop(int um) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:  void jit_avx2_kernel_sgemm_kern::prefetchC_beforeKloop(int um) {" << std::endl;
     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      if (mayiuse(avx512_core)) {" << std::endl;
         if (um < unroll_m_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if (um < unroll_m_) {" << std::endl;
             prefetchw(ptr[CO2_ + elt_size_ * 0]);
             prefetchw(ptr[CO2_ + elt_size_ * 8]);
             if (um <= 16)
@@ -201,6 +243,7 @@ void jit_avx2_kernel_sgemm_kern::prefetchC_beforeKloop(int um) {
 }
 
 void jit_avx2_kernel_sgemm_kern::generate() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:  void jit_avx2_kernel_sgemm_kern::generate() {" << std::endl;
 
     int i, unroll_x, unroll_y, uy_bin, ux_bin;
     int C_off = is_windows ? 56 : 8;
@@ -214,6 +257,7 @@ void jit_avx2_kernel_sgemm_kern::generate() {
     preamble();
 
     if (is_windows) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      if (is_windows) {" << std::endl;
         mov(M_, ptr[rcx]);
         mov(N_, ptr[rdx]);
         mov(K_, ptr[r8]);
@@ -229,6 +273,7 @@ void jit_avx2_kernel_sgemm_kern::generate() {
     mov(LDC_, ptr[rsp + get_size_of_abi_save_regs() + LDC_off]);
 
     if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      if (mayiuse(avx512_core)) {" << std::endl;
         for (i = zmm_acc_idx_; i < unroll_m_reg_ * unroll_n_ + zmm_acc_idx_;
                 i++)
             vpxorq(Xbyak::Zmm(i), Xbyak::Zmm(i), Xbyak::Zmm(i));
@@ -242,8 +287,10 @@ void jit_avx2_kernel_sgemm_kern::generate() {
     for (unroll_x = unroll_m_, i = 0, ux_bin = unroll_m_bin_; unroll_x >= 1;
             unroll_x -= std::min(nelt_per_vecreg_, std::max(1, unroll_x / 2)),
         i++, ux_bin--) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          i++, ux_bin--) {" << std::endl;
 
         if (unroll_x == unroll_m_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if (unroll_x == unroll_m_) {" << std::endl;
             mov(J_, M_);
             cmp(J_, unroll_m_);
             jl(unroll_x_label[i + 1], T_NEAR);
@@ -275,8 +322,10 @@ void jit_avx2_kernel_sgemm_kern::generate() {
 
         for (unroll_y = unroll_n_, uy_bin = unroll_n_bin_; unroll_y >= 1;
                 unroll_y /= 2, uy_bin--) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  unroll_y /= 2, uy_bin--) {" << std::endl;
 
             if (unroll_y == unroll_n_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:              if (unroll_y == unroll_n_) {" << std::endl;
                 mov(I_, N_);
                 sar(I_, uy_bin);
                 jle(unroll_y_label[i * (unroll_n_bin_ + 1) + uy_bin - 1],
@@ -296,8 +345,10 @@ void jit_avx2_kernel_sgemm_kern::generate() {
                 prefetcht2(ptr[AA_ - addr_off_ * elt_size_]);
 
             switch (unroll_x) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:              switch (unroll_x) {" << std::endl;
             case 8:
                 if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  if (mayiuse(avx512_core)) {" << std::endl;
                     loop<Xbyak::Zmm, Xbyak::Zmm, Xbyak::Address, Xbyak::Xmm,
                             Xbyak::Operand>(unroll_x, unroll_y,
                             &Xbyak::CodeGenerator::vbroadcastf64x4,
@@ -320,6 +371,7 @@ void jit_avx2_kernel_sgemm_kern::generate() {
                 break;
             case 4:
                 if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  if (mayiuse(avx512_core)) {" << std::endl;
                     loop<Xbyak::Zmm, Xbyak::Ymm, Xbyak::Address, Xbyak::Xmm,
                             Xbyak::Operand>(unroll_x, unroll_y,
                             &Xbyak::CodeGenerator::vbroadcastf32x4,
@@ -341,6 +393,7 @@ void jit_avx2_kernel_sgemm_kern::generate() {
                 break;
             case 2:
                 if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  if (mayiuse(avx512_core)) {" << std::endl;
                     loop<Xbyak::Zmm, Xbyak::Ymm, Xbyak::Operand, Xbyak::Xmm,
                             Xbyak::Operand>(unroll_x, unroll_y,
                             &Xbyak::CodeGenerator::vbroadcastsd,
@@ -358,6 +411,7 @@ void jit_avx2_kernel_sgemm_kern::generate() {
                 break;
             case 1:
                 if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  if (mayiuse(avx512_core)) {" << std::endl;
                     loop<Xbyak::Zmm, Xbyak::Xmm, Xbyak::Operand, Xbyak::Xmm,
                             Xbyak::Operand>(unroll_x, unroll_y,
                             &Xbyak::CodeGenerator::vbroadcastss,
@@ -378,6 +432,7 @@ void jit_avx2_kernel_sgemm_kern::generate() {
                 break;
             default:
                 if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  if (mayiuse(avx512_core)) {" << std::endl;
                     loop<Xbyak::Zmm, Xbyak::Xmm, Xbyak::Operand, Xbyak::Xmm,
                             Xbyak::Operand>(unroll_x, unroll_y,
                             &Xbyak::CodeGenerator::vmovups,
@@ -401,9 +456,11 @@ void jit_avx2_kernel_sgemm_kern::generate() {
             }
 
             if (mayiuse(avx512_core)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:              if (mayiuse(avx512_core)) {" << std::endl;
                 sub(AA_, -16 * elt_size_);
             } else {
                 if ((unroll_y != unroll_n_) || (unroll_x <= 4)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:                  if ((unroll_y != unroll_n_) || (unroll_x <= 4)) {" << std::endl;
                     if (unroll_x == unroll_m_)
                         sub(AA_, -16 * elt_size_);
                     else
@@ -413,6 +470,7 @@ void jit_avx2_kernel_sgemm_kern::generate() {
             }
 
             if (unroll_y == unroll_n_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:              if (unroll_y == unroll_n_) {" << std::endl;
                 dec(I_);
                 jg(unroll_y_label[i * (unroll_n_bin_ + 1) + uy_bin], T_NEAR);
             }
@@ -423,6 +481,7 @@ void jit_avx2_kernel_sgemm_kern::generate() {
         mov(A_, AO_);
 
         if (unroll_x == unroll_m_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:          if (unroll_x == unroll_m_) {" << std::endl;
             sub(J_, unroll_x);
             cmp(J_, unroll_x);
             jge(unroll_x_label[i], T_NEAR);
@@ -436,6 +495,7 @@ void jit_avx2_kernel_sgemm_kern::generate() {
 
 jit_avx2_kernel_sgemm_kern::jit_avx2_kernel_sgemm_kern(bool beta_zero)
     : jit_generator(nullptr, 65536) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx2_kernel_sgemm_kern.cpp:      : jit_generator(nullptr, 65536) {" << std::endl;
 
     beta_zero_ = beta_zero;
     generate();

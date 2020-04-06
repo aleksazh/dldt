@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "details/ie_no_copy.hpp"
 #include "ie_api.h"

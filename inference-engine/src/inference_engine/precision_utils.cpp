@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -15,15 +16,19 @@ namespace InferenceEngine {
 namespace PrecisionUtils {
 
 void f16tof32Arrays(float* dst, const short* src, size_t nelem, float scale, float bias) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:  void f16tof32Arrays(float* dst, const short* src, size_t nelem, float scale, float bias) {" << std::endl;
     const ie_fp16* _src = reinterpret_cast<const ie_fp16*>(src);
 
     for (size_t i = 0; i < nelem; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:      for (size_t i = 0; i < nelem; i++) {" << std::endl;
         dst[i] = PrecisionUtils::f16tof32(_src[i]) * scale + bias;
     }
 }
 
 void f32tof16Arrays(short* dst, const float* src, size_t nelem, float scale, float bias) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:  void f32tof16Arrays(short* dst, const float* src, size_t nelem, float scale, float bias) {" << std::endl;
     for (size_t i = 0; i < nelem; i++) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:      for (size_t i = 0; i < nelem; i++) {" << std::endl;
         dst[i] = PrecisionUtils::f32tof16(src[i] * scale + bias);
     }
 }
@@ -36,6 +41,7 @@ void f32tof16Arrays(short* dst, const float* src, size_t nelem, float scale, flo
 
 // small helper function to represent uint32_t value as float32
 inline float asfloat(uint32_t v) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:  inline float asfloat(uint32_t v) {" << std::endl;
     // Both type-punning casts and unions are UB per C++ spec
     // But compilers usually only break code with casts
     union {
@@ -48,6 +54,7 @@ inline float asfloat(uint32_t v) {
 
 // Function to convert F32 into F16
 float f16tof32(ie_fp16 x) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:  float f16tof32(ie_fp16 x) {" << std::endl;
     // this is storage for output result
     uint32_t u = static_cast<uint32_t>(x);
 
@@ -56,20 +63,24 @@ float f16tof32(ie_fp16 x) {
 
     // check for NAN and INF
     if ((u & EXP_MASK_F16) == EXP_MASK_F16) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:      if ((u & EXP_MASK_F16) == EXP_MASK_F16) {" << std::endl;
         // keep mantissa only
         u &= 0x03FF;
 
         // check if it is NAN and raise 10 bit to be align with intrin
         if (u) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:          if (u) {" << std::endl;
             u |= 0x0200;
         }
 
         u <<= (23 - 10);
         u |= EXP_MASK_F32;
         u |= s;
-    } else if ((u & EXP_MASK_F16) == 0) {  // check for zero and denormals.
+    } else if ((u & EXP_MASK_F16) == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:      } else if ((u & EXP_MASK_F16) == 0) {" << std::endl;  // check for zero and denormals.
         uint16_t h_sig = (u & 0x03ffu);
         if (h_sig == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:          if (h_sig == 0) {" << std::endl;
             /* Signed zero */
             u = s;
         } else {
@@ -77,6 +88,7 @@ float f16tof32(ie_fp16 x) {
             uint16_t h_exp = (u & EXP_MASK_F16);
             h_sig <<= 1;
             while ((h_sig & 0x0400u) == 0) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:              while ((h_sig & 0x0400u) == 0) {" << std::endl;
                 h_sig <<= 1;
                 h_exp++;
             }
@@ -105,6 +117,7 @@ float f16tof32(ie_fp16 x) {
 // This function convert f32 to f16 with rounding to nearest value to minimize error
 // the denormal values are converted to 0.
 ie_fp16 f32tof16(float x) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:  ie_fp16 f32tof16(float x) {" << std::endl;
     // create minimal positive normal f16 value in f32 format
     // exp:-14,mantissa:0 -> 2^-14 * 1.0
     static float min16 = asfloat((127 - 14) << 23);
@@ -130,7 +143,9 @@ ie_fp16 f32tof16(float x) {
 
     // check NAN and INF
     if ((v.u & EXP_MASK_F32) == EXP_MASK_F32) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:      if ((v.u & EXP_MASK_F32) == EXP_MASK_F32) {" << std::endl;
         if (v.u & 0x007FFFFF) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:          if (v.u & 0x007FFFFF) {" << std::endl;
             return s | (v.u >> (23 - 10)) | 0x0200;  // return NAN f16
         } else {
             return s | (v.u >> (23 - 10));  // return INF f16
@@ -145,17 +160,20 @@ ie_fp16 f32tof16(float x) {
     // if input value is not fit normalized f16 then return 0
     // denormals are not covered by this code and just converted to 0
     if (v.f < min16 * 0.5F) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:      if (v.f < min16 * 0.5F) {" << std::endl;
         return s;
     }
 
     // if input value between min16/2 and min16 then return min16
     if (v.f < min16) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:      if (v.f < min16) {" << std::endl;
         return s | (1 << 10);
     }
 
     // if input value more than maximal allowed value for f16
     // then return this maximal value
     if (v.f >= max16) {
+    std::cerr << "./inference-engine/src/inference_engine/precision_utils.cpp:      if (v.f >= max16) {" << std::endl;
         return max16f16 | s;
     }
 

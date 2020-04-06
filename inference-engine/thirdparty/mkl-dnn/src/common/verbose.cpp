@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2018 Intel Corporation
 *
@@ -49,8 +50,10 @@ static bool initialized;
 static bool version_printed = false;
 
 const verbose_t *mkldnn_verbose() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/verbose.cpp:  const verbose_t *mkldnn_verbose() {" << std::endl;
 #if !defined(DISABLE_VERBOSE)
     if (!initialized) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/verbose.cpp:      if (!initialized) {" << std::endl;
         const int len = 2;
         char val[len] = {0};
         if (mkldnn_getenv(val, "MKLDNN_VERBOSE", len) == 1)
@@ -58,6 +61,7 @@ const verbose_t *mkldnn_verbose() {
         initialized = true;
     }
     if (!version_printed && verbose.level > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/verbose.cpp:      if (!version_printed && verbose.level > 0) {" << std::endl;
          printf("mkldnn_verbose,info,"
                  "Intel(R) MKL-DNN v%d.%d.%d (Git Hash %s),%s\n",
                 mkldnn_version()->major, mkldnn_version()->minor,
@@ -72,6 +76,7 @@ const verbose_t *mkldnn_verbose() {
 }
 
 double get_msec() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/verbose.cpp:  double get_msec() {" << std::endl;
 #ifdef _WIN32
     static LARGE_INTEGER frequency;
     if (frequency.QuadPart == 0)
@@ -87,6 +92,7 @@ double get_msec() {
 }
 
 const char *get_isa_info() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/verbose.cpp:  const char *get_isa_info() {" << std::endl;
     using namespace mkldnn::impl::cpu;
     if (mayiuse(avx512_mic_4ops))  return AVX512_MIC_4OPS;
     if (mayiuse(avx512_mic))       return AVX512_MIC;
@@ -103,6 +109,7 @@ const char *get_isa_info() {
 }
 
 mkldnn_status_t mkldnn_set_verbose(int level) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/verbose.cpp:  mkldnn_status_t mkldnn_set_verbose(int level) {" << std::endl;
     using namespace mkldnn::impl::status;
     if (level < 0 || level > 2) return invalid_arguments;
     mkldnn::impl::verbose.level = level;
@@ -111,6 +118,7 @@ mkldnn_status_t mkldnn_set_verbose(int level) {
 }
 
 const mkldnn_version_t *mkldnn_version() {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/verbose.cpp:  const mkldnn_version_t *mkldnn_version() {" << std::endl;
     static mkldnn_version_t ver = {
         MKLDNN_VERSION_MAJOR,
         MKLDNN_VERSION_MINOR,

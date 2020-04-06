@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -14,13 +15,16 @@ constexpr NodeTypeInfo op::OneHotIE::type_info;
 
 op::OneHotIE::OneHotIE(const std::shared_ptr<ngraph::Node>& input, int axis, int depth, float on_value, float off_value, element::Type type)
         : Op("OneHotIE", {input}), m_axis(axis), m_depth(depth), m_on_value(on_value), m_off_value(off_value), m_type(type) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/onehot_ie.cpp:          : Op('OneHotIE', {input}), m_axis(axis), m_depth(depth), m_on_value(on_value), m_off_value(off_value), m_type(type) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 void op::OneHotIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/onehot_ie.cpp:  void op::OneHotIE::validate_and_infer_types() {" << std::endl;
     const PartialShape& arg_shape = get_input_partial_shape(0);
 
     if (arg_shape.is_dynamic()) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/onehot_ie.cpp:      if (arg_shape.is_dynamic()) {" << std::endl;
         set_output_type(0, m_type, PartialShape::dynamic());
     } else {
         Shape output_shape = arg_shape.to_shape();

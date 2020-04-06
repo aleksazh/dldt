@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2018 Intel Corporation
 *
@@ -29,6 +30,7 @@ using namespace mkldnn::impl::status;
 
 status_t mkldnn_primitive_desc_query(const primitive_desc_t *primitive_desc,
         query_t what, int index, void *result) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/query.cpp:          query_t what, int index, void *result) {" << std::endl;
     if (any_null(primitive_desc, result))
         return invalid_arguments;
 
@@ -37,6 +39,7 @@ status_t mkldnn_primitive_desc_query(const primitive_desc_t *primitive_desc,
 
 const memory_desc_t *mkldnn_primitive_desc_query_memory_d(
         const primitive_desc_t *primitive_desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/query.cpp:          const primitive_desc_t *primitive_desc) {" << std::endl;
     const memory_desc_t *res_md = nullptr;
     bool args_ok = primitive_desc != nullptr
         && mkldnn_primitive_desc_query(primitive_desc,
@@ -46,6 +49,7 @@ const memory_desc_t *mkldnn_primitive_desc_query_memory_d(
 
 const primitive_desc_t *mkldnn_primitive_desc_query_pd(
         const primitive_desc_t *primitive_desc, query_t what, int index) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/query.cpp:          const primitive_desc_t *primitive_desc, query_t what, int index) {" << std::endl;
     const primitive_desc_t *res_pd = nullptr;
     bool args_ok = primitive_desc != nullptr
         && (what & query::some_pd) && (what != query::some_pd)
@@ -56,6 +60,7 @@ const primitive_desc_t *mkldnn_primitive_desc_query_pd(
 
 int mkldnn_primitive_desc_query_s32(const primitive_desc_t *primitive_desc,
         query_t what, int index) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/query.cpp:          query_t what, int index) {" << std::endl;
     int res_s32;
     bool args_ok = primitive_desc != nullptr
         && one_of(what, query::num_of_inputs_s32, query::num_of_outputs_s32)

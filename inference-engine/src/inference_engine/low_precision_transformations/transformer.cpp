@@ -1,4 +1,5 @@
-﻿// Copyright (C) 2018-2020 Intel Corporation
+#include <iostream>
+// Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
 
@@ -50,56 +51,73 @@ LowPrecisionTransformations::LowPrecisionTransformations(
     const std::map<std::string, LayerTransformationPtr>& cleanupTransformations) :
     branchSpecificTransformations(branchSpecificTransformations),
     transformations(transformations),
-    cleanupTransformations(cleanupTransformations) {}
+    cleanupTransformations(cleanupTransformations) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      cleanupTransformations(cleanupTransformations) {" << std::endl;}
 
 void LowPrecisionTransformations::setUpdatePrecisions(const bool updatePrecisions) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:  void LowPrecisionTransformations::setUpdatePrecisions(const bool updatePrecisions) {" << std::endl;
     for (auto it = branchSpecificTransformations.begin(); it != branchSpecificTransformations.end(); ++it) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it = branchSpecificTransformations.begin(); it != branchSpecificTransformations.end(); ++it) {" << std::endl;
         it->second->setUpdatePrecisions(updatePrecisions);
     }
     for (auto it = transformations.begin(); it != transformations.end(); ++it) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it = transformations.begin(); it != transformations.end(); ++it) {" << std::endl;
         it->second->setUpdatePrecisions(updatePrecisions);
     }
 }
 
 void LowPrecisionTransformations::setQuantizeOutputs(const bool quantizeOutputs) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:  void LowPrecisionTransformations::setQuantizeOutputs(const bool quantizeOutputs) {" << std::endl;
     for (auto it = branchSpecificTransformations.begin(); it != branchSpecificTransformations.end(); ++it) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it = branchSpecificTransformations.begin(); it != branchSpecificTransformations.end(); ++it) {" << std::endl;
         it->second->setQuantizeOutputs(quantizeOutputs);
     }
     for (auto it = transformations.begin(); it != transformations.end(); ++it) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it = transformations.begin(); it != transformations.end(); ++it) {" << std::endl;
         it->second->setQuantizeOutputs(quantizeOutputs);
     }
 }
 
 void LowPrecisionTransformations::setWeightsToConst(const bool weightsToConst) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:  void LowPrecisionTransformations::setWeightsToConst(const bool weightsToConst) {" << std::endl;
     for (auto it = branchSpecificTransformations.begin(); it != branchSpecificTransformations.end(); ++it) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it = branchSpecificTransformations.begin(); it != branchSpecificTransformations.end(); ++it) {" << std::endl;
         it->second->setWeightsToConst(weightsToConst);
     }
     for (auto it = transformations.begin(); it != transformations.end(); ++it) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it = transformations.begin(); it != transformations.end(); ++it) {" << std::endl;
         it->second->setWeightsToConst(weightsToConst);
     }
 }
 
 void LowPrecisionTransformations::setQuantizedTensorAlignmentOnActivations(
     const LayerTransformation::QuantizedTensorAlignment quantizedTensorAlignmentOnActivations) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      const LayerTransformation::QuantizedTensorAlignment quantizedTensorAlignmentOnActivations) {" << std::endl;
     for (auto it = branchSpecificTransformations.begin(); it != branchSpecificTransformations.end(); ++it) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it = branchSpecificTransformations.begin(); it != branchSpecificTransformations.end(); ++it) {" << std::endl;
         it->second->setQuantizedTensorAlignmentOnActivations(quantizedTensorAlignmentOnActivations);
     }
     for (auto it = transformations.begin(); it != transformations.end(); ++it) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it = transformations.begin(); it != transformations.end(); ++it) {" << std::endl;
         it->second->setQuantizedTensorAlignmentOnActivations(quantizedTensorAlignmentOnActivations);
     }
 }
 
 void LowPrecisionTransformations::setQuantizedTensorAlignmentOnWeights(
     const LayerTransformation::QuantizedTensorAlignment quantizedTensorAlignmentOnWeights) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      const LayerTransformation::QuantizedTensorAlignment quantizedTensorAlignmentOnWeights) {" << std::endl;
     for (auto it = branchSpecificTransformations.begin(); it != branchSpecificTransformations.end(); ++it) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it = branchSpecificTransformations.begin(); it != branchSpecificTransformations.end(); ++it) {" << std::endl;
         it->second->setQuantizedTensorAlignmentOnWeights(quantizedTensorAlignmentOnWeights);
     }
     for (auto it = transformations.begin(); it != transformations.end(); ++it) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it = transformations.begin(); it != transformations.end(); ++it) {" << std::endl;
         it->second->setQuantizedTensorAlignmentOnWeights(quantizedTensorAlignmentOnWeights);
     }
 }
 
 LowPrecisionTransformations& LowPrecisionTransformations::remove(const std::string& layerName) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:  LowPrecisionTransformations& LowPrecisionTransformations::remove(const std::string& layerName) {" << std::endl;
     branchSpecificTransformations.erase(layerName);
     transformations.erase(layerName);
     return *this;
@@ -108,16 +126,19 @@ LowPrecisionTransformations& LowPrecisionTransformations::remove(const std::stri
 LayerTransformationPtr LowPrecisionTransformations::find(const std::string& layerType) const {
     auto it = branchSpecificTransformations.find(layerType);
     if (it != branchSpecificTransformations.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      if (it != branchSpecificTransformations.end()) {" << std::endl;
         return it->second;
     }
 
     it = transformations.find(layerType);
     if (it != transformations.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      if (it != transformations.end()) {" << std::endl;
         return it->second;
     }
 
     it = cleanupTransformations.find(layerType);
     if (it != cleanupTransformations.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      if (it != cleanupTransformations.end()) {" << std::endl;
         return it->second;
     }
 
@@ -140,6 +161,7 @@ void LowPrecisionTransformations::setParamsManager(
     IParamsManager* paramsManager,
     std::map<std::string, LayerTransformationPtr>& transformations) noexcept {
     for (auto it : transformations) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it : transformations) {" << std::endl;
         it.second->setParamsManager(paramsManager);
     }
 }
@@ -148,11 +170,13 @@ void LowPrecisionTransformations::setLayerTransformationsManager(
     ILayerTransformationsManager* layerTransformationsManager,
     std::map<std::string, LayerTransformationPtr>& transformations) noexcept {
     for (auto it : transformations) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (auto it : transformations) {" << std::endl;
         it.second->setLayerTransformationsManager(layerTransformationsManager);
     }
 }
 
 LowPrecisionTransformations LowPrecisionTransformer::getAllTransformations(const LayerTransformation::Params& params) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:  LowPrecisionTransformations LowPrecisionTransformer::getAllTransformations(const LayerTransformation::Params& params) {" << std::endl;
     return LowPrecisionTransformations(
         std::map<std::string, LayerTransformationPtr>({
             { "Eltwise", LayerTransformationPtr(new EltwiseTransformation(params)) },
@@ -176,16 +200,21 @@ LowPrecisionTransformations LowPrecisionTransformer::getAllTransformations(const
         }));
 }
 
-LowPrecisionTransformer::LowPrecisionTransformer(): transformations(LowPrecisionTransformer::getAllTransformations()) {}
+LowPrecisionTransformer::LowPrecisionTransformer(): transformations(LowPrecisionTransformer::getAllTransformations()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:  LowPrecisionTransformer::LowPrecisionTransformer(): transformations(LowPrecisionTransformer::getAllTransformations()) {" << std::endl;}
 
 LowPrecisionTransformer::LowPrecisionTransformer(const LowPrecisionTransformations& transformations)
-    : transformations(transformations) {}
+    : transformations(transformations) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      : transformations(transformations) {" << std::endl;}
 
 void LowPrecisionTransformer::renameLayersByType(const std::vector<CNNLayerPtr>& layers, const std::string& type) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:  void LowPrecisionTransformer::renameLayersByType(const std::vector<CNNLayerPtr>& layers, const std::string& type) {" << std::endl;
     size_t number = 1;
     for (size_t i = 0; i < layers.size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (size_t i = 0; i < layers.size(); ++i) {" << std::endl;
         const CNNLayerPtr layer = layers[i];
         if (layer->type != type) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (layer->type != type) {" << std::endl;
             continue;
         }
 
@@ -200,18 +229,22 @@ void LowPrecisionTransformer::rename(ICNNNetwork& network) const {
     const std::unordered_set<std::string> standaloneLayerTypes = {"Convolution", "Concat",  "Eltwise",
                                                                   "Reshape",     "Pooling", "Clamp"};
     for (const std::string& standaloneLayerType : standaloneLayerTypes) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (const std::string& standaloneLayerType : standaloneLayerTypes) {" << std::endl;
         renameLayersByType(context.getLayers(), standaloneLayerType);
     }
 
     size_t fakeQuantizeNumber = 1;
     for (size_t i = 0lu; i < context.getLayers().size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (size_t i = 0lu; i < context.getLayers().size(); ++i) {" << std::endl;
         const CNNLayerPtr layer = context.getLayers()[i];
         if (layer->type != "FakeQuantize") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (layer->type != 'FakeQuantize') {" << std::endl;
             continue;
         }
 
         const std::vector<CNNLayerPtr> children = CNNNetworkHelper::getChildren(*layer);
         if ((children.size() == 1) && (children[0]->type == "Convolution")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if ((children.size() == 1) && (children[0]->type == 'Convolution')) {" << std::endl;
             const std::string postfix = CNNNetworkHelper::getIndex(*layer) == 0 ? "data" : "weights";
             layer->name = children[0]->name + "_FakeQuantize_" + postfix;
         } else {
@@ -222,25 +255,32 @@ void LowPrecisionTransformer::rename(ICNNNetwork& network) const {
 
     size_t otherNumber = 1;
     for (size_t i = 0; i < context.getLayers().size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (size_t i = 0; i < context.getLayers().size(); ++i) {" << std::endl;
         std::string name;
         const CNNLayerPtr layer = context.getLayers()[i];
         if ((standaloneLayerTypes.find(layer->type) != standaloneLayerTypes.end()) || (layer->type == "FakeQuantize")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if ((standaloneLayerTypes.find(layer->type) != standaloneLayerTypes.end()) || (layer->type == 'FakeQuantize')) {" << std::endl;
             continue;
         }
 
         if (layer->type == "Const") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (layer->type == 'Const') {" << std::endl;
             const std::vector<CNNLayerPtr> children = CNNNetworkHelper::getChildren(*layer);
             if (children.size() == 1) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:              if (children.size() == 1) {" << std::endl;
                 if (children[0]->type == "Convolution") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:                  if (children[0]->type == 'Convolution') {" << std::endl;
                     const std::string postfix = CNNNetworkHelper::getIndex(*layer) == 1 ? "weights" : "biases";
                     name = children[0]->name + "_Const_" + postfix;
                 } else if (children[0]->type == "FakeQuantize") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:                  } else if (children[0]->type == 'FakeQuantize') {" << std::endl;
                     name = children[0]->name + "_Const_" + std::to_string(CNNNetworkHelper::getIndex(*layer));
                 }
             }
         }
 
         if (name.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (name.empty()) {" << std::endl;
             name = layer->type + std::to_string(otherNumber);
             ++otherNumber;
         }
@@ -250,14 +290,18 @@ void LowPrecisionTransformer::rename(ICNNNetwork& network) const {
 }
 
 void LowPrecisionTransformer::transform(ICNNNetwork& network) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:  void LowPrecisionTransformer::transform(ICNNNetwork& network) {" << std::endl;
     auto it = details::CNNNetworkIterator(&network);
     auto end = details::CNNNetworkIterator();
     bool fqFound = false;
     bool allFQareUnsupported = true;
     while (it != end) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      while (it != end) {" << std::endl;
         if (CaselessEq<std::string>()((*it)->type, "FakeQuantize")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (CaselessEq<std::string>()((*it)->type, 'FakeQuantize')) {" << std::endl;
             fqFound = true;
             if (QuantizationDetails::isSupportedLevel((*it)->GetParamAsUInt("levels"))) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:              if (QuantizationDetails::isSupportedLevel((*it)->GetParamAsUInt('levels'))) {" << std::endl;
                 allFQareUnsupported = false;
                 break;
             }
@@ -275,13 +319,16 @@ void LowPrecisionTransformer::transform(ICNNNetwork& network) {
 
     // TODO: branch specific transformations execution
     for (size_t i = 0lu; i < context.getLayers().size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (size_t i = 0lu; i < context.getLayers().size(); ++i) {" << std::endl;
         const CNNLayerPtr layer = context.getLayers()[i];
         if (layer == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (layer == nullptr) {" << std::endl;
             continue;
         }
 
         const auto it = transformations.branchSpecificTransformations.find(layer->type);
         if (it == transformations.branchSpecificTransformations.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (it == transformations.branchSpecificTransformations.end()) {" << std::endl;
             continue;
         }
         it->second->transform(context, *layer);
@@ -290,29 +337,36 @@ void LowPrecisionTransformer::transform(ICNNNetwork& network) {
     // Step #1: FakeQuantize layer transformation execution
     LayerTransformationPtr fqTransformation = transformations.find("FakeQuantize");
     if (fqTransformation == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      if (fqTransformation == nullptr) {" << std::endl;
         THROW_IE_EXCEPTION << "FakeQuantize transformation was not found";
     }
     for (size_t i = 0lu; i < context.getLayers().size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (size_t i = 0lu; i < context.getLayers().size(); ++i) {" << std::endl;
         const CNNLayerPtr layer = context.getLayers()[i];
         if (layer == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (layer == nullptr) {" << std::endl;
             continue;
         }
 
         if (CaselessEq<std::string>()(layer->type, "FakeQuantize")) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (CaselessEq<std::string>()(layer->type, 'FakeQuantize')) {" << std::endl;
             fqTransformation->transform(context, *layer);
         }
     }
 
     // Step #2: layer transformations execution
     for (size_t i = 0; i < context.getLayers().size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (size_t i = 0; i < context.getLayers().size(); ++i) {" << std::endl;
         const CNNLayerPtr layer = context.getLayers()[i];
         if (layer == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (layer == nullptr) {" << std::endl;
             continue;
         }
 
         bool transformed;
         const auto it = transformations.transformations.find(layer->type);
         if (it != transformations.transformations.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (it != transformations.transformations.end()) {" << std::endl;
             it->second->transform(context, *layer);
             transformed = true;
         }
@@ -320,7 +374,9 @@ void LowPrecisionTransformer::transform(ICNNNetwork& network) {
 #ifdef DISPLAY_PECISION
         CNNLayerPtr transformedLayer = CNNNetworkHelper::getLayer(context.network, layer->name);
         if (transformedLayer == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (transformedLayer == nullptr) {" << std::endl;
             if (layer->type == "FakeQuantize") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:              if (layer->type == 'FakeQuantize') {" << std::endl;
                 std::cout << "Layer " << layer->name << ": " << QuantizationDetails::getDetails(*layer) << std::endl;
             }
 
@@ -328,6 +384,7 @@ void LowPrecisionTransformer::transform(ICNNNetwork& network) {
                       << layer->name << ": [REMOVED]" << std::endl;
         } else {
             if (transformedLayer->type == "FakeQuantize") {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:              if (transformedLayer->type == 'FakeQuantize') {" << std::endl;
                 std::cout << "Layer " << transformedLayer->name << ": "
                           << QuantizationDetails::getDetails(*transformedLayer) << std::endl;
             }
@@ -344,13 +401,16 @@ void LowPrecisionTransformer::transform(ICNNNetwork& network) {
 
     // Step #3: cleanup transformations execution
     for (size_t i = 0; i < context.getLayers().size(); ++i) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      for (size_t i = 0; i < context.getLayers().size(); ++i) {" << std::endl;
         const CNNLayerPtr layer = context.getLayers()[i];
         if (layer == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (layer == nullptr) {" << std::endl;
             continue;
         }
 
         const auto it = transformations.cleanupTransformations.find(layer->type);
         if (it != transformations.cleanupTransformations.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:          if (it != transformations.cleanupTransformations.end()) {" << std::endl;
             it->second->transform(context, *layer);
         }
     }
@@ -359,6 +419,7 @@ void LowPrecisionTransformer::transform(ICNNNetwork& network) {
 std::vector<Precision> LowPrecisionTransformer::getPrecisionsOnActivations(const std::string& layerType) const noexcept {
     const LayerTransformationPtr transformation = transformations.find(layerType);
     if (transformation == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      if (transformation == nullptr) {" << std::endl;
         return std::vector<Precision>();
     }
     return transformation->getPrecisionsOnActivations();
@@ -367,6 +428,7 @@ std::vector<Precision> LowPrecisionTransformer::getPrecisionsOnActivations(const
 bool LowPrecisionTransformer::isQuantized(const CNNLayer& layer) const noexcept {
     const LayerTransformationPtr transformation = transformations.find(layer.type);
     if (transformation == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      if (transformation == nullptr) {" << std::endl;
         return false;
     }
     return transformation->isQuantized(layer);
@@ -375,6 +437,7 @@ bool LowPrecisionTransformer::isQuantized(const CNNLayer& layer) const noexcept 
 bool LowPrecisionTransformer::isPrecisionPreserved(const CNNLayer& layer) const noexcept {
     const LayerTransformationPtr transformation = transformations.find(layer.type);
     if (transformation == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/low_precision_transformations/transformer.cpp:      if (transformation == nullptr) {" << std::endl;
         return false;
     }
     return transformation->isPrecisionPreserved(layer);

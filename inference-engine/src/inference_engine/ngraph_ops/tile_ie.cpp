@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -17,11 +18,13 @@ constexpr NodeTypeInfo op::TileIE::type_info;
 
 op::TileIE::TileIE(const std::shared_ptr<ngraph::Node>& data1, const int64_t axis, const int64_t tiles)
     : Op("Tile", check_single_output_args({data1})), axis(axis), tiles(tiles) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/tile_ie.cpp:      : Op('Tile', check_single_output_args({data1})), axis(axis), tiles(tiles) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 std::shared_ptr<Node> op::TileIE::copy_with_new_args(const NodeVector& new_args) const {
     if (new_args.size() != 1) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/tile_ie.cpp:      if (new_args.size() != 1) {" << std::endl;
         throw ngraph_error("Incorrect number of new arguments");
     }
 
@@ -29,6 +32,7 @@ std::shared_ptr<Node> op::TileIE::copy_with_new_args(const NodeVector& new_args)
 }
 
 void op::TileIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/tile_ie.cpp:  void op::TileIE::validate_and_infer_types() {" << std::endl;
     auto input_shape = get_input_partial_shape(0).to_shape();
 
     ngraph::Shape output_shape(input_shape);

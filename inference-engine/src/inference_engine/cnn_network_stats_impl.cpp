@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -21,9 +22,11 @@ using namespace std;
 namespace InferenceEngine {
 namespace details {
 
-CNNNetworkStatsImpl::~CNNNetworkStatsImpl() {}
+CNNNetworkStatsImpl::~CNNNetworkStatsImpl() {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_stats_impl.cpp:  CNNNetworkStatsImpl::~CNNNetworkStatsImpl() {" << std::endl;}
 
 void CNNNetworkStatsImpl::setNodesStats(const NetworkStatsMap& stats) {
+    std::cerr << "./inference-engine/src/inference_engine/cnn_network_stats_impl.cpp:  void CNNNetworkStatsImpl::setNodesStats(const NetworkStatsMap& stats) {" << std::endl;
     netNodesStats = stats;
 }
 

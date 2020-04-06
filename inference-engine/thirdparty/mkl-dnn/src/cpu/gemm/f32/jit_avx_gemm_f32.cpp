@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2019 Intel Corporation
 *
@@ -54,6 +55,7 @@ struct xbyak_gemm : public jit_generator {
             size_t code_size = 80 * Xbyak::DEFAULT_MAX_CODE_SIZE)
         : jit_generator(code_ptr, code_size)
     {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          : jit_generator(code_ptr, code_size)     {" << std::endl;
         using namespace Xbyak;
 
         const bool is_avx2 = mayiuse(avx2);
@@ -132,6 +134,7 @@ struct xbyak_gemm : public jit_generator {
         // Function for packing if needed
         auto do_pack = [&](
                 int unroll_m, bool isLoad1Unmasked, bool isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  int unroll_m, bool isLoad1Unmasked, bool isLoad2Unmasked) {" << std::endl;
             Label pack2, pack3, pack4, pack10;
 
             int regIdx;
@@ -141,6 +144,7 @@ struct xbyak_gemm : public jit_generator {
             lea(AO1, ptr[rsp + 256 + OFFSET * SIZE]);
 
             if (isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (isTransA) {" << std::endl;
                 lea(BO2, ptr[BO1 + LDA * 4]);
                 lea(CO1, ptr[LDA + LDA * 2]);
                 vmovupd(ymm7, STRIDE);
@@ -153,9 +157,12 @@ struct xbyak_gemm : public jit_generator {
 
             L(pack2);
             if (!isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransA) {" << std::endl;
                 for (int i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  for (int i = 0; i < 4; i++) {" << std::endl;
                     regIdx = (i % 2 == 0) ? 4 : 6;
                     if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad1Unmasked) {" << std::endl;
                         vmovups(Ymm(regIdx),
                                 ptr[BO1 + (0 * 8 - OFFSET) * SIZE]);
                     } else {
@@ -163,7 +170,9 @@ struct xbyak_gemm : public jit_generator {
                                 ptr[BO1 + (0 * 8 - OFFSET) * SIZE]);
                     }
                     if (unroll_m > 8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m > 8) {" << std::endl;
                         if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (isLoad2Unmasked) {" << std::endl;
                             vmovups(Ymm(regIdx + 1),
                                     ptr[BO1 + (1 * 8 - OFFSET) * SIZE]);
                         } else {
@@ -176,6 +185,7 @@ struct xbyak_gemm : public jit_generator {
                     vmovups(ptr[AO1 + (unroll_m * i + 0 * 8 - OFFSET) * SIZE],
                             Ymm(regIdx));
                     if (unroll_m > 8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m > 8) {" << std::endl;
                         vmovups(ptr[AO1
                                         + (unroll_m * i + 1 * 8 - OFFSET)
                                                 * SIZE],
@@ -185,7 +195,9 @@ struct xbyak_gemm : public jit_generator {
 
             } else {
                 if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isLoad1Unmasked) {" << std::endl;
                     for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      for (int i = 0; i < 2; i++) {" << std::endl;
                         reg = (i % 2 == 0) ? BO1 : BO2;
                         vmovups(xmm0, ptr[reg + (0 * 8 - OFFSET) * SIZE]);
                         vmovups(xmm1,
@@ -222,7 +234,9 @@ struct xbyak_gemm : public jit_generator {
                                 xmm1);
                     }
                 } else if (is_avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  } else if (is_avx2) {" << std::endl;
                     for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      for (int i = 0; i < 2; i++) {" << std::endl;
                         vmovaps(xmm4, xmm3);
                         vgatherqps(xmm0,
                                 ptr[BO1 + ymm7 + ((2 * i) - OFFSET) * SIZE],
@@ -246,6 +260,7 @@ struct xbyak_gemm : public jit_generator {
                     lea(BO2, ptr[BO1 + LDA * 4]);
 
                     for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      for (int i = 0; i < 2; i++) {" << std::endl;
                         vextractf128(xmm4, ymm3, 1);
                         vgatherqps(xmm0,
                                 ptr[BO2 + ymm7 + ((2 * i) - OFFSET) * SIZE],
@@ -272,6 +287,7 @@ struct xbyak_gemm : public jit_generator {
                     lea(BO2, ptr[BO1 + LDA * 4]);
 
                     auto el_cp = [&](int section, int ld_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      auto el_cp = [&](int section, int ld_step) {" << std::endl;
                         RegExp src_addr = section == 0 ? BO1 : BO2;
                         if (ld_step == 1 || ld_step == 2)
                             src_addr = src_addr + LDA * ld_step;
@@ -301,9 +317,12 @@ struct xbyak_gemm : public jit_generator {
                 }
 
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     assert(is_avx2);
                     if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad2Unmasked) {" << std::endl;
                         for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          for (int i = 0; i < 2; i++) {" << std::endl;
                             vmovups(xmm0, ptr[BO2 + (0 * 8 - OFFSET) * SIZE]);
                             vmovups(xmm1, ptr[BO2 + LDA * 1
                                                   + (0 * 8 - OFFSET) * SIZE]);
@@ -345,6 +364,7 @@ struct xbyak_gemm : public jit_generator {
                         }
                     } else {
                         for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          for (int i = 0; i < 2; i++) {" << std::endl;
                             vmovaps(xmm4, xmm3);
                             vgatherqps(xmm0,
                                     ptr[BO2 + ymm7 + ((2 * i) - OFFSET) * SIZE],
@@ -370,6 +390,7 @@ struct xbyak_gemm : public jit_generator {
                         lea(BO2, ptr[BO2 + LDA * 4]);
 
                         for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          for (int i = 0; i < 2; i++) {" << std::endl;
                             vextractf128(xmm4, ymm3, 1);
                             vgatherqps(xmm0,
                                     ptr[BO2 + ymm7 + ((2 * i) - OFFSET) * SIZE],
@@ -411,13 +432,17 @@ struct xbyak_gemm : public jit_generator {
 
             L(pack4);
             if (!isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransA) {" << std::endl;
                 if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isLoad1Unmasked) {" << std::endl;
                     vmovups(ymm4, ptr[BO1 + (0 * 8 - OFFSET) * SIZE]);
                 } else {
                     vmaskmovps(ymm4, VMASK, ptr[BO1 + (0 * 8 - OFFSET) * SIZE]);
                 }
                 if (unroll_m > 8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m > 8) {" << std::endl;
                     if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad2Unmasked) {" << std::endl;
                         vmovups(ymm5, ptr[BO1 + (1 * 8 - OFFSET) * SIZE]);
                     } else {
                         vmaskmovps(ymm5, VMASK,
@@ -428,12 +453,15 @@ struct xbyak_gemm : public jit_generator {
                 vmovups(ptr[AO1 + (unroll_m * 0 + 0 * 8 - OFFSET) * SIZE],
                         ymm4);
                 if (unroll_m > 8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m > 8) {" << std::endl;
                     vmovups(ptr[AO1 + (unroll_m * 0 + 1 * 8 - OFFSET) * SIZE],
                             ymm5);
                 }
             } else {
                 if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isLoad1Unmasked) {" << std::endl;
                     for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      for (int i = 0; i < 2; i++) {" << std::endl;
                         reg = (i % 2 == 0) ? BO1 : BO2;
                         vmovss(Xmm(i + 1), ptr[reg + (0 * 8 - OFFSET) * SIZE]);
                         vmovss(xmm0,
@@ -446,6 +474,7 @@ struct xbyak_gemm : public jit_generator {
                             xmm1);
 
                     for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      for (int i = 0; i < 2; i++) {" << std::endl;
                         vmovss(Xmm(i + 1), ptr[BO2 + (0 * 8 - OFFSET) * SIZE]);
                         vmovss(xmm0,
                                 ptr[BO2 + LDA * 1 + (0 * 8 - OFFSET) * SIZE]);
@@ -456,6 +485,7 @@ struct xbyak_gemm : public jit_generator {
                     vmovups(ptr[AO1 + (unroll_m * 0 + 1 * 4 - OFFSET) * SIZE],
                             xmm1);
                 } else if (is_avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  } else if (is_avx2) {" << std::endl;
                     vmovaps(xmm4, xmm3);
                     vgatherqps(xmm1, ptr[BO1 + ymm7 + (0 * 8 - OFFSET) * SIZE],
                             xmm4);
@@ -474,6 +504,7 @@ struct xbyak_gemm : public jit_generator {
                     lea(BO2, ptr[BO1 + LDA * 4]);
 
                     auto el_cp = [&](int section, int ld_step) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      auto el_cp = [&](int section, int ld_step) {" << std::endl;
                         RegExp src_addr = section == 0 ? BO1 : BO2;
                         if (ld_step == 1 || ld_step == 2)
                             src_addr = src_addr + LDA * ld_step;
@@ -501,9 +532,12 @@ struct xbyak_gemm : public jit_generator {
                 }
 
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     assert(is_avx2);
                     if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad2Unmasked) {" << std::endl;
                         for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          for (int i = 0; i < 2; i++) {" << std::endl;
                             vmovss(Xmm(i + 1),
                                     ptr[BO2 + (0 * 8 - OFFSET) * SIZE]);
                             vmovss(xmm0, ptr[BO2 + LDA * 1
@@ -523,7 +557,9 @@ struct xbyak_gemm : public jit_generator {
                             xmm1);
 
                     if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad2Unmasked) {" << std::endl;
                         for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          for (int i = 0; i < 2; i++) {" << std::endl;
                             vmovss(Xmm(i + 1),
                                     ptr[BO2 + (0 * 8 - OFFSET) * SIZE]);
                             vmovss(xmm0, ptr[BO2 + LDA * 1
@@ -555,8 +591,11 @@ struct xbyak_gemm : public jit_generator {
         // Fused multiply add; may become one or two instructions
         auto fma = [&](bool useFma, Ymm reg0, Ymm reg1, Ymm reg2,
                 bool overWrite = false) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool overWrite = false) {" << std::endl;
             if (useFma) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (useFma) {" << std::endl;
                 if (is_avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (is_avx2) {" << std::endl;
                     vfmadd231ps(reg2, reg1, reg0);
                 } else {
                     assert(UNROLL_M == 8);
@@ -566,6 +605,7 @@ struct xbyak_gemm : public jit_generator {
                 }
             } else {
                 if (!overWrite) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!overWrite) {" << std::endl;
                     vmulps(ymm15, reg1, reg0);
                     vaddps(reg2, reg2, ymm15);
                 } else {
@@ -584,25 +624,32 @@ struct xbyak_gemm : public jit_generator {
                 Ymm reg13, Ymm reg14, Ymm reg15, Ymm reg16, Ymm reg17,
                 Ymm reg18, Ymm reg19, Ymm reg20, Ymm reg21, Ymm reg22,
                 Ymm reg23) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  Ymm reg23) {" << std::endl;
 
             Ymm fmareg;
 
             if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isDirect) {" << std::endl;
                 prefetcht0(ptr[AO1 + (PREFETCHSIZEA + 0) * SIZE]);
             } else {
                 prefetcht0(ptr[AO1 + LDA4]);
             }
 
             for (int i = 0; i < 8; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              for (int i = 0; i < 8; i++) {" << std::endl;
                 if (isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isDirect) {" << std::endl;
                     if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad1Unmasked) {" << std::endl;
                         vmovups(ymm0, ptr[AO1 + (0 * 8 - OFFSET) * SIZE]);
                     } else {
                         vmaskmovps(ymm0, VMASK,
                                 ptr[AO1 + (0 * 8 - OFFSET) * SIZE]);
                     }
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (isLoad2Unmasked) {" << std::endl;
                             vmovups(ymm1, ptr[AO1 + (1 * 8 - OFFSET) * SIZE]);
                         } else {
                             vmaskmovps(ymm1, VMASK,
@@ -613,6 +660,7 @@ struct xbyak_gemm : public jit_generator {
                 }
 
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     vbroadcastss(ymm2, ptr[BO1 + (i - OFFSET) * SIZE]);
                 } else {
                     vbroadcastss(ymm2, ptr[BO1 + (0 - OFFSET) * SIZE]);
@@ -620,17 +668,23 @@ struct xbyak_gemm : public jit_generator {
                 fmareg = (i % 2 == 0) ? reg00 : reg12;
                 fma(useFma, ymm0, ymm2, fmareg);
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     fmareg = (i % 2 == 0) ? reg06 : reg18;
                     fma(useFma, ymm1, ymm2, fmareg);
                 }
                 if (i == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 0) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         prefetcht0(ptr[BO1 + PREFETCHSIZEB * SIZE]);
                     }
                 }
                 if (unroll_n >= 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 2) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 1) {" << std::endl;
                             prefetcht0(ptr[BO1 + LDB + PREFETCHSIZEB * SIZE]);
                         }
                         vbroadcastss(
@@ -641,28 +695,35 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg01 : reg13;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg07 : reg19;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isCopy) {" << std::endl;
                     vmovups(ptr[LDA4 + (unroll_m * i + 0 * 8 - OFFSET) * SIZE],
                             ymm0);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         vmovups(ptr[LDA4
                                         + (unroll_m * i + 1 * 8 - OFFSET)
                                                 * SIZE],
                                 ymm1);
                     }
                     if (i == 7) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (i == 7) {" << std::endl;
                         sub(LDA4, -unroll_m * 8 * SIZE);
                     }
                 }
 
                 if (unroll_n >= 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 3) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 2) {" << std::endl;
                             prefetcht0(
                                     ptr[BO1 + LDB * 2 + PREFETCHSIZEB * SIZE]);
                         }
@@ -674,20 +735,26 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg02 : reg14;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg08 : reg20;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (i == 7) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 7) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         sub(BO1, -8 * SIZE);
                     }
                 }
 
                 if (unroll_n >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 4) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 3) {" << std::endl;
                             prefetcht0(ptr[BO2 + PREFETCHSIZEB * SIZE]);
                         }
                         vbroadcastss(ymm2, ptr[BO2 + (i - OFFSET) * SIZE]);
@@ -697,14 +764,18 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg03 : reg15;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg09 : reg21;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (unroll_n >= 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 5) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 4) {" << std::endl;
                             prefetcht0(ptr[BO2 + LDB + PREFETCHSIZEB * SIZE]);
                         }
                         vbroadcastss(
@@ -715,14 +786,18 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg04 : reg16;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg10 : reg22;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (unroll_n >= 6) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 6) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 5) {" << std::endl;
                             prefetcht0(
                                     ptr[BO2 + LDB * 2 + PREFETCHSIZEB * SIZE]);
                         }
@@ -734,18 +809,23 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg05 : reg17;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg11 : reg23;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
                 if (isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isTransB) {" << std::endl;
                     prefetcht0(ptr[BO1 + BO2]);
                     add(BO1, LDB);
                 }
 
                 if (i == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 0) {" << std::endl;
                     if (unroll_m >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 4) {" << std::endl;
                         if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (!isDirect) {" << std::endl;
                             prefetcht0(
                                     ptr[AO1 + (PREFETCHSIZEA + 2 * 8) * SIZE]);
                         } else {
@@ -754,8 +834,11 @@ struct xbyak_gemm : public jit_generator {
                     }
                 }
                 if (i == 1 || i == 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 1 || i == 2) {" << std::endl;
                     if (unroll_m >= 8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 8) {" << std::endl;
                         if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (!isDirect) {" << std::endl;
                             prefetcht0(ptr[AO1
                                     + (PREFETCHSIZEA + (2 + 2 * i) * 8)
                                             * SIZE]);
@@ -765,8 +848,11 @@ struct xbyak_gemm : public jit_generator {
                     }
                 }
                 if (i == 3 || i == 4 || i == 5 || i == 6) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 3 || i == 4 || i == 5 || i == 6) {" << std::endl;
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (!isDirect) {" << std::endl;
                             prefetcht0(ptr[AO1
                                     + (PREFETCHSIZEA + (2 + 2 * i) * 8)
                                             * SIZE]);
@@ -776,19 +862,25 @@ struct xbyak_gemm : public jit_generator {
                     }
                 }
                 if (i == 7) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 7) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (unroll_n >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (unroll_n >= 4) {" << std::endl;
                             sub(BO2, -8 * SIZE);
                         }
                     }
                     if (!isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransA) {" << std::endl;
                         prefetcht2(ptr[AA]);
                         lea(AA, ptr[AA + LDA]);
                     }
                 }
 
                 if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isDirect) {" << std::endl;
                     if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad1Unmasked) {" << std::endl;
                         vmovups(ymm0,
                                 ptr[AO1
                                         + (unroll_m * (i + 1) + 0 * 8 - OFFSET)
@@ -801,7 +893,9 @@ struct xbyak_gemm : public jit_generator {
                                                 * SIZE]);
                     }
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (isLoad2Unmasked) {" << std::endl;
                             vmovups(ymm1, ptr[AO1
                                                   + (unroll_m * (i + 1) + 1 * 8
                                                             - OFFSET)
@@ -818,6 +912,7 @@ struct xbyak_gemm : public jit_generator {
             }
 
             if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isDirect) {" << std::endl;
                 sub(AO1, -unroll_m * 8 * SIZE);
             }
             sub(LL, 1);
@@ -833,25 +928,32 @@ struct xbyak_gemm : public jit_generator {
                 Ymm reg13, Ymm reg14, Ymm reg15, Ymm reg16, Ymm reg17,
                 Ymm reg18, Ymm reg19, Ymm reg20, Ymm reg21, Ymm reg22,
                 Ymm reg23) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  Ymm reg23) {" << std::endl;
 
             Ymm fmareg;
 
             if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isDirect) {" << std::endl;
                 prefetcht0(ptr[AO1 + (PREFETCHSIZEA + 0) * SIZE]);
             } else {
                 prefetcht0(ptr[AO1 + LDA4]);
             }
 
             for (int i = 0; i < 4; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              for (int i = 0; i < 4; i++) {" << std::endl;
                 if (isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isDirect) {" << std::endl;
                     if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad1Unmasked) {" << std::endl;
                         vmovups(ymm0, ptr[AO1 + (0 * 8 - OFFSET) * SIZE]);
                     } else {
                         vmaskmovps(ymm0, VMASK,
                                 ptr[AO1 + (0 * 8 - OFFSET) * SIZE]);
                     }
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (isLoad2Unmasked) {" << std::endl;
                             vmovups(ymm1, ptr[AO1 + (1 * 8 - OFFSET) * SIZE]);
                         } else {
                             vmaskmovps(ymm1, VMASK,
@@ -862,6 +964,7 @@ struct xbyak_gemm : public jit_generator {
                 }
 
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     vbroadcastss(ymm2, ptr[BO1 + (i - OFFSET) * SIZE]);
                 } else {
                     vbroadcastss(ymm2, ptr[BO1 + (0 - OFFSET) * SIZE]);
@@ -869,17 +972,23 @@ struct xbyak_gemm : public jit_generator {
                 fmareg = (i % 2 == 0) ? reg00 : reg12;
                 fma(useFma, ymm0, ymm2, fmareg);
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     fmareg = (i % 2 == 0) ? reg06 : reg18;
                     fma(useFma, ymm1, ymm2, fmareg);
                 }
                 if (i == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 0) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         prefetcht0(ptr[BO1 + PREFETCHSIZEB * SIZE]);
                     }
                 }
                 if (unroll_n >= 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 2) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 1) {" << std::endl;
                             prefetcht0(ptr[BO1 + LDB + PREFETCHSIZEB * SIZE]);
                         }
                         vbroadcastss(
@@ -890,28 +999,35 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg01 : reg13;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg07 : reg19;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isCopy) {" << std::endl;
                     vmovups(ptr[LDA4 + (unroll_m * i + 0 * 8 - OFFSET) * SIZE],
                             ymm0);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         vmovups(ptr[LDA4
                                         + (unroll_m * i + 1 * 8 - OFFSET)
                                                 * SIZE],
                                 ymm1);
                     }
                     if (i == 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (i == 3) {" << std::endl;
                         sub(LDA4, -unroll_m * 4 * SIZE);
                     }
                 }
 
                 if (unroll_n >= 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 3) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 2) {" << std::endl;
                             prefetcht0(
                                     ptr[BO1 + LDB * 2 + PREFETCHSIZEB * SIZE]);
                         }
@@ -923,20 +1039,26 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg02 : reg14;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg08 : reg20;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (i == 7) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 7) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         sub(BO1, -8 * SIZE);
                     }
                 }
 
                 if (unroll_n >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 4) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 3) {" << std::endl;
                             prefetcht0(ptr[BO2 + PREFETCHSIZEB * SIZE]);
                         }
                         vbroadcastss(ymm2, ptr[BO2 + (i - OFFSET) * SIZE]);
@@ -946,14 +1068,18 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg03 : reg15;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg09 : reg21;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (unroll_n >= 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 5) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 4) {" << std::endl;
                             prefetcht0(ptr[BO2 + LDB + PREFETCHSIZEB * SIZE]);
                         }
                         vbroadcastss(
@@ -964,14 +1090,18 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg04 : reg16;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg10 : reg22;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (unroll_n >= 6) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 6) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 5) {" << std::endl;
                             prefetcht0(
                                     ptr[BO2 + LDB * 2 + PREFETCHSIZEB * SIZE]);
                         }
@@ -983,18 +1113,23 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg05 : reg17;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg11 : reg23;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
                 if (isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isTransB) {" << std::endl;
                     prefetcht0(ptr[BO1 + BO2]);
                     add(BO1, LDB);
                 }
 
                 if (i == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 0) {" << std::endl;
                     if (unroll_m >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 4) {" << std::endl;
                         if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (!isDirect) {" << std::endl;
                             prefetcht0(
                                     ptr[AO1 + (PREFETCHSIZEA + 2 * 8) * SIZE]);
                         } else {
@@ -1003,8 +1138,11 @@ struct xbyak_gemm : public jit_generator {
                     }
                 }
                 if (i == 1 || i == 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 1 || i == 2) {" << std::endl;
                     if (unroll_m >= 8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 8) {" << std::endl;
                         if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (!isDirect) {" << std::endl;
                             prefetcht0(ptr[AO1
                                     + (PREFETCHSIZEA + (2 + 2 * i) * 8)
                                             * SIZE]);
@@ -1014,16 +1152,21 @@ struct xbyak_gemm : public jit_generator {
                     }
                 }
                 if (i == 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (i == 3) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         sub(BO1, -4 * SIZE);
                         if (unroll_n >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (unroll_n >= 4) {" << std::endl;
                             sub(BO2, -4 * SIZE);
                         }
                     }
                 }
 
                 if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isDirect) {" << std::endl;
                     if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad1Unmasked) {" << std::endl;
                         vmovups(ymm0,
                                 ptr[AO1
                                         + (unroll_m * (i + 1) + 0 * 8 - OFFSET)
@@ -1036,7 +1179,9 @@ struct xbyak_gemm : public jit_generator {
                                                 * SIZE]);
                     }
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (isLoad2Unmasked) {" << std::endl;
                             vmovups(ymm1, ptr[AO1
                                                   + (unroll_m * (i + 1) + 1 * 8
                                                             - OFFSET)
@@ -1053,6 +1198,7 @@ struct xbyak_gemm : public jit_generator {
             }
 
             if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isDirect) {" << std::endl;
                 sub(AO1, -unroll_m * 4 * SIZE);
             }
 
@@ -1067,19 +1213,25 @@ struct xbyak_gemm : public jit_generator {
                 Ymm reg13, Ymm reg14, Ymm reg15, Ymm reg16, Ymm reg17,
                 Ymm reg18, Ymm reg19, Ymm reg20, Ymm reg21, Ymm reg22,
                 Ymm reg23) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  Ymm reg23) {" << std::endl;
 
             Ymm fmareg;
 
             for (int i = 0; i < 2; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              for (int i = 0; i < 2; i++) {" << std::endl;
                 if (isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isDirect) {" << std::endl;
                     if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad1Unmasked) {" << std::endl;
                         vmovups(ymm0, ptr[AO1 + (0 * 8 - OFFSET) * SIZE]);
                     } else {
                         vmaskmovps(ymm0, VMASK,
                                 ptr[AO1 + (0 * 8 - OFFSET) * SIZE]);
                     }
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (isLoad2Unmasked) {" << std::endl;
                             vmovups(ymm1, ptr[AO1 + (1 * 8 - OFFSET) * SIZE]);
                         } else {
                             vmaskmovps(ymm1, VMASK,
@@ -1090,6 +1242,7 @@ struct xbyak_gemm : public jit_generator {
                 }
 
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     vbroadcastss(ymm2, ptr[BO1 + (0 - OFFSET) * SIZE]);
                 } else {
                     vbroadcastss(ymm2, ptr[BO1 + (0 - OFFSET) * SIZE]);
@@ -1097,11 +1250,14 @@ struct xbyak_gemm : public jit_generator {
                 fmareg = (i % 2 == 0) ? reg00 : reg12;
                 fma(useFma, ymm0, ymm2, fmareg);
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     fmareg = (i % 2 == 0) ? reg06 : reg18;
                     fma(useFma, ymm1, ymm2, fmareg);
                 }
                 if (unroll_n >= 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 2) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         vbroadcastss(
                                 ymm2, ptr[BO1 + LDB * 1 + (0 - OFFSET) * SIZE]);
                     } else {
@@ -1110,14 +1266,18 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg01 : reg13;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg07 : reg19;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (unroll_n >= 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 3) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         if (i == 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (i == 2) {" << std::endl;
                             prefetcht0(
                                     ptr[BO1 + LDB * 2 + PREFETCHSIZEB * SIZE]);
                         }
@@ -1129,13 +1289,16 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg02 : reg14;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg08 : reg20;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (unroll_n >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 4) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         vbroadcastss(ymm2, ptr[BO2 + (0 - OFFSET) * SIZE]);
                     } else {
                         vbroadcastss(ymm2, ptr[BO1 + (3 - OFFSET) * SIZE]);
@@ -1143,13 +1306,16 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg03 : reg15;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg09 : reg21;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (unroll_n >= 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 5) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         vbroadcastss(
                                 ymm2, ptr[BO2 + LDB * 1 + (0 - OFFSET) * SIZE]);
                     } else {
@@ -1158,13 +1324,16 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg04 : reg16;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg10 : reg22;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (unroll_n >= 6) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 6) {" << std::endl;
                     if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isTransB) {" << std::endl;
                         vbroadcastss(
                                 ymm2, ptr[BO2 + LDB * 2 + (0 - OFFSET) * SIZE]);
                     } else {
@@ -1173,15 +1342,18 @@ struct xbyak_gemm : public jit_generator {
                     fmareg = (i % 2 == 0) ? reg05 : reg17;
                     fma(useFma, ymm0, ymm2, fmareg);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         fmareg = (i % 2 == 0) ? reg11 : reg23;
                         fma(useFma, ymm1, ymm2, fmareg);
                     }
                 }
 
                 if (isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isCopy) {" << std::endl;
                     vmovups(ptr[LDA4 + (unroll_m * 0 + 0 * 8 - OFFSET) * SIZE],
                             ymm0);
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         vmovups(ptr[LDA4
                                         + (unroll_m * 0 + 1 * 8 - OFFSET)
                                                 * SIZE],
@@ -1191,7 +1363,9 @@ struct xbyak_gemm : public jit_generator {
                 }
 
                 if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isDirect) {" << std::endl;
                     if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad1Unmasked) {" << std::endl;
                         vmovups(ymm0, ptr[AO1
                                               + (unroll_m * 1 + 0 * 8 - OFFSET)
                                                       * SIZE]);
@@ -1202,7 +1376,9 @@ struct xbyak_gemm : public jit_generator {
                                                    * SIZE]);
                     }
                     if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_m >= 16) {" << std::endl;
                         if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (isLoad2Unmasked) {" << std::endl;
                             vmovups(ymm1,
                                     ptr[AO1
                                             + (unroll_m * 1 + 1 * 8 - OFFSET)
@@ -1218,8 +1394,10 @@ struct xbyak_gemm : public jit_generator {
                 }
 
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     sub(BO1, -SIZE);
                     if (unroll_n >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (unroll_n >= 4) {" << std::endl;
                         sub(BO2, -SIZE);
                     }
                 } else {
@@ -1235,15 +1413,20 @@ struct xbyak_gemm : public jit_generator {
                 bool isCopy, bool useFma, Ymm reg00, Ymm reg01, Ymm reg02,
                 Ymm reg03, Ymm reg04, Ymm reg05, Ymm reg06, Ymm reg07,
                 Ymm reg08, Ymm reg09, Ymm reg10, Ymm reg11) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  Ymm reg08, Ymm reg09, Ymm reg10, Ymm reg11) {" << std::endl;
 
             if (isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (isDirect) {" << std::endl;
                 if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isLoad1Unmasked) {" << std::endl;
                     vmovups(ymm0, ptr[AO1 + (0 * 8 - OFFSET) * SIZE]);
                 } else {
                     vmaskmovps(ymm0, VMASK, ptr[AO1 + (0 * 8 - OFFSET) * SIZE]);
                 }
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad2Unmasked) {" << std::endl;
                         vmovups(ymm1, ptr[AO1 + (1 * 8 - OFFSET) * SIZE]);
                     } else {
                         vmaskmovps(ymm1, VMASK,
@@ -1254,17 +1437,21 @@ struct xbyak_gemm : public jit_generator {
             }
 
             if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransB) {" << std::endl;
                 vbroadcastss(ymm2, ptr[BO1 + (0 - OFFSET) * SIZE]);
             } else {
                 vbroadcastss(ymm2, ptr[BO1 + (0 - OFFSET) * SIZE]);
             }
             fma(useFma, ymm0, ymm2, reg00);
             if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_m >= 16) {" << std::endl;
                 fma(useFma, ymm1, ymm2, reg06);
             }
 
             if (unroll_n >= 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_n >= 2) {" << std::endl;
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     vbroadcastss(
                             ymm2, ptr[BO1 + LDB * 1 + (0 - OFFSET) * SIZE]);
                 } else {
@@ -1272,12 +1459,15 @@ struct xbyak_gemm : public jit_generator {
                 }
                 fma(useFma, ymm0, ymm2, reg01);
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     fma(useFma, ymm1, ymm2, reg07);
                 }
             }
 
             if (unroll_n >= 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_n >= 3) {" << std::endl;
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     vbroadcastss(
                             ymm2, ptr[BO1 + LDB * 2 + (0 - OFFSET) * SIZE]);
                 } else {
@@ -1285,24 +1475,30 @@ struct xbyak_gemm : public jit_generator {
                 }
                 fma(useFma, ymm0, ymm2, reg02);
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     fma(useFma, ymm1, ymm2, reg08);
                 }
             }
 
             if (unroll_n >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_n >= 4) {" << std::endl;
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     vbroadcastss(ymm2, ptr[BO2 + (0 - OFFSET) * SIZE]);
                 } else {
                     vbroadcastss(ymm2, ptr[BO1 + (3 - OFFSET) * SIZE]);
                 }
                 fma(useFma, ymm0, ymm2, reg03);
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     fma(useFma, ymm1, ymm2, reg09);
                 }
             }
 
             if (unroll_n >= 5) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_n >= 5) {" << std::endl;
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     vbroadcastss(
                             ymm2, ptr[BO2 + LDB * 1 + (0 - OFFSET) * SIZE]);
                 } else {
@@ -1310,12 +1506,15 @@ struct xbyak_gemm : public jit_generator {
                 }
                 fma(useFma, ymm0, ymm2, reg04);
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     fma(useFma, ymm1, ymm2, reg10);
                 }
             }
 
             if (unroll_n >= 6) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_n >= 6) {" << std::endl;
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     vbroadcastss(
                             ymm2, ptr[BO2 + LDB * 2 + (0 - OFFSET) * SIZE]);
                 } else {
@@ -1323,14 +1522,17 @@ struct xbyak_gemm : public jit_generator {
                 }
                 fma(useFma, ymm0, ymm2, reg05);
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     fma(useFma, ymm1, ymm2, reg11);
                 }
             }
 
             if (isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (isCopy) {" << std::endl;
                 vmovups(ptr[LDA4 + (unroll_m * 0 + 0 * 8 - OFFSET) * SIZE],
                         ymm0);
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     vmovups(ptr[LDA4 + (unroll_m * 0 + 1 * 8 - OFFSET) * SIZE],
                             ymm1);
                 }
@@ -1338,7 +1540,9 @@ struct xbyak_gemm : public jit_generator {
             }
 
             if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isDirect) {" << std::endl;
                 if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isLoad1Unmasked) {" << std::endl;
                     vmovups(ymm0,
                             ptr[AO1 + (unroll_m * 1 + 0 * 8 - OFFSET) * SIZE]);
                 } else {
@@ -1346,7 +1550,9 @@ struct xbyak_gemm : public jit_generator {
                             ptr[AO1 + (unroll_m * 1 + 0 * 8 - OFFSET) * SIZE]);
                 }
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad2Unmasked) {" << std::endl;
                         vmovups(ymm1, ptr[AO1
                                               + (unroll_m * 1 + 1 * 8 - OFFSET)
                                                       * SIZE]);
@@ -1361,8 +1567,10 @@ struct xbyak_gemm : public jit_generator {
             }
 
             if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransB) {" << std::endl;
                 sub(BO1, -SIZE);
                 if (unroll_n >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n >= 4) {" << std::endl;
                     sub(BO2, -SIZE);
                 }
             } else {
@@ -1384,25 +1592,31 @@ struct xbyak_gemm : public jit_generator {
                 Ymm reg15 = Ymm(7), Ymm reg16 = Ymm(8), Ymm reg17 = Ymm(9),
                 Ymm reg18 = Ymm(10), Ymm reg19 = Ymm(11), Ymm reg20 = Ymm(12),
                 Ymm reg21 = Ymm(13), Ymm reg22 = Ymm(14), Ymm reg23 = Ymm(15)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  Ymm reg21 = Ymm(13), Ymm reg22 = Ymm(14), Ymm reg23 = Ymm(15)) {" << std::endl;
             if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isDirect) {" << std::endl;
                 lea(AO1, ptr[rsp + 256 + OFFSET * SIZE]);
             } else {
                 mov(AO1, A);
             }
 
             if (isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (isCopy) {" << std::endl;
                 lea(LDA4, ptr[rsp + 256 + OFFSET * SIZE]);
             } else {
                 lea(LDA4, ptr[LDA * 8 + (8 - 1 - OFFSET) * SIZE]);
             }
 
             if (isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (isTransB) {" << std::endl;
                 lea(BO2, ptr[LDB * 4 + (8 - 1 - OFFSET) * SIZE]);
                 lea(BO2, ptr[BO2 + LDB * 2]);
             }
 
             if (!isDirect) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isDirect) {" << std::endl;
                 if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isLoad1Unmasked) {" << std::endl;
                     vmovups(ymm0,
                             ptr[AO1 + (unroll_m * 0 + 0 * 8 - OFFSET) * SIZE]);
                 } else {
@@ -1410,7 +1624,9 @@ struct xbyak_gemm : public jit_generator {
                             ptr[AO1 + (unroll_m * 0 + 0 * 8 - OFFSET) * SIZE]);
                 }
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad2Unmasked) {" << std::endl;
                         vmovups(ymm1, ptr[AO1
                                               + (unroll_m * 0 + 1 * 8 - OFFSET)
                                                       * SIZE]);
@@ -1424,6 +1640,7 @@ struct xbyak_gemm : public jit_generator {
             }
 
             for (int i = 4; i < 10; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              for (int i = 4; i < 10; i++) {" << std::endl;
                 vxorps(Ymm(i), Ymm(i), Ymm(i));
                 vxorps(Ymm(i + 6), Ymm(i + 6), Ymm(i + 6));
             }
@@ -1494,7 +1711,9 @@ struct xbyak_gemm : public jit_generator {
 
             L(kernel17);
             if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_m == 16) {" << std::endl;
                 if (unroll_n <= 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_n <= 3) {" << std::endl;
                     vaddps(reg00, reg00, reg12);
                     vaddps(reg01, reg01, reg13);
                     vaddps(reg02, reg02, reg14);
@@ -1505,6 +1724,7 @@ struct xbyak_gemm : public jit_generator {
             }
 
             if (unroll_m <= 8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_m <= 8) {" << std::endl;
                 vaddps(reg00, reg00, reg12);
                 vaddps(reg01, reg01, reg13);
                 vaddps(reg02, reg02, reg14);
@@ -1524,12 +1744,14 @@ struct xbyak_gemm : public jit_generator {
             vbroadcastss(VALPHA, ALPHA);
 
             if (isBetaN) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (isBetaN) {" << std::endl;
                 vbroadcastss(VBETA, BETA);
             }
 
             // Write back the results; all beta and bias cases need to be
             // handled
             switch (unroll_n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              switch (unroll_n) {" << std::endl;
             case 1: mov(rax, LDC); break;
             case 2: lea(rax, ptr[LDC * 2]); break;
             case 3: lea(rax, ptr[LDC + LDC * 2]); break;
@@ -1545,8 +1767,10 @@ struct xbyak_gemm : public jit_generator {
             }
 
             if (hasBias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (hasBias) {" << std::endl;
                 mov(BIAS1, BIAS);
                 if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isLoad1Unmasked) {" << std::endl;
                     vmovups(VBIAS1, ptr[BIAS1 + 0 * SIZE]);
                 } else {
                     vmaskmovps(VBIAS1, VMASK, ptr[BIAS1 + 0 * SIZE]);
@@ -1554,10 +1778,14 @@ struct xbyak_gemm : public jit_generator {
             }
 
             for (int i = 0; i < unroll_n; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              for (int i = 0; i < unroll_n; i++) {" << std::endl;
                 vmulps(Ymm(i + 4), Ymm(i + 4), VALPHA);
                 if (!isBeta0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isBeta0) {" << std::endl;
                     if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad1Unmasked) {" << std::endl;
                         switch (i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          switch (i) {" << std::endl;
                         case 0: vmovups(ymm0, ptr[CO1 + 0 * SIZE]); break;
                         case 1: vmovups(ymm0, ptr[CO1 + LDC + 0 * SIZE]); break;
                         case 2:
@@ -1571,6 +1799,7 @@ struct xbyak_gemm : public jit_generator {
                         }
                     } else {
                         switch (i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          switch (i) {" << std::endl;
                         case 0:
                             vmaskmovps(ymm0, VMASK, ptr[CO1 + 0 * SIZE]);
                             break;
@@ -1595,16 +1824,20 @@ struct xbyak_gemm : public jit_generator {
                     }
 
                     if (!isBetaN) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isBetaN) {" << std::endl;
                         vaddps(Ymm(i + 4), ymm0, Ymm(i + 4));
                     } else {
                         fma(useFma, VBETA, ymm0, Ymm(i + 4), true);
                     }
                 }
                 if (hasBias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (hasBias) {" << std::endl;
                     vaddps(Ymm(i + 4), VBIAS1, Ymm(i + 4));
                 }
                 if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (isLoad1Unmasked) {" << std::endl;
                     switch (i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      switch (i) {" << std::endl;
                     case 0: vmovups(ptr[CO1 + 0 * SIZE], Ymm(i + 4)); break;
                     case 1:
                         vmovups(ptr[CO1 + LDC + 0 * SIZE], Ymm(i + 4));
@@ -1622,6 +1855,7 @@ struct xbyak_gemm : public jit_generator {
                     }
                 } else {
                     switch (i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      switch (i) {" << std::endl;
                     case 0:
                         vmaskmovps(ptr[CO1 + 0 * SIZE], VMASK, Ymm(i + 4));
                         break;
@@ -1648,10 +1882,14 @@ struct xbyak_gemm : public jit_generator {
                 }
 
                 if (unroll_m >= 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m >= 16) {" << std::endl;
                     // Re-use ymm4 (VBIAS2)
                     if (i == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (i == 0) {" << std::endl;
                         if (hasBias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (hasBias) {" << std::endl;
                             if (isLoad1Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                              if (isLoad1Unmasked) {" << std::endl;
                                 vmovups(VBIAS2, ptr[BIAS1 + 8 * SIZE]);
                             } else {
                                 vmaskmovps(
@@ -1661,8 +1899,11 @@ struct xbyak_gemm : public jit_generator {
                     }
                     vmulps(Ymm(i + 10), Ymm(i + 10), VALPHA);
                     if (!isBeta0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (!isBeta0) {" << std::endl;
                         if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (isLoad2Unmasked) {" << std::endl;
                             switch (i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                              switch (i) {" << std::endl;
                             case 0: vmovups(ymm0, ptr[CO1 + 8 * SIZE]); break;
                             case 1:
                                 vmovups(ymm0, ptr[CO1 + LDC + 8 * SIZE]);
@@ -1680,6 +1921,7 @@ struct xbyak_gemm : public jit_generator {
                             }
                         } else {
                             switch (i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                              switch (i) {" << std::endl;
                             case 0:
                                 vmaskmovps(ymm0, VMASK, ptr[CO1 + 8 * SIZE]);
                                 break;
@@ -1705,16 +1947,20 @@ struct xbyak_gemm : public jit_generator {
                             }
                         }
                         if (!isBetaN) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (!isBetaN) {" << std::endl;
                             vaddps(Ymm(i + 10), ymm0, Ymm(i + 10));
                         } else {
                             fma(useFma, VBETA, ymm0, Ymm(i + 10), true);
                         }
                     }
                     if (hasBias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (hasBias) {" << std::endl;
                         vaddps(Ymm(i + 10), VBIAS2, Ymm(i + 10));
                     }
                     if (isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (isLoad2Unmasked) {" << std::endl;
                         switch (i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          switch (i) {" << std::endl;
                         case 0:
                             vmovups(ptr[CO1 + 8 * SIZE], Ymm(i + 10));
                             break;
@@ -1736,6 +1982,7 @@ struct xbyak_gemm : public jit_generator {
                         }
                     } else {
                         switch (i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          switch (i) {" << std::endl;
                         case 0:
                             vmaskmovps(ptr[CO1 + 8 * SIZE], VMASK, Ymm(i + 10));
                             break;
@@ -1765,13 +2012,16 @@ struct xbyak_gemm : public jit_generator {
                     add(CO1, rax);
             }
             if (unroll_n >= 4) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_n >= 4) {" << std::endl;
                 add(CO2, rax);
             }
 
             // Compute next address of B
             if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransB) {" << std::endl;
                 lea(rax, ptr[K * SIZE]);
                 switch (unroll_n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  switch (unroll_n) {" << std::endl;
                 case 1:
                     add(BO1, LDB);
                     add(BO2, LDB);
@@ -1811,18 +2061,21 @@ struct xbyak_gemm : public jit_generator {
 
         auto kernel_16x6 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool isLoad2Unmasked, bool isDirect, bool isCopy) {" << std::endl;
             kernel(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy, true);
         };
 
         auto kernel_16x5 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool isLoad2Unmasked, bool isDirect, bool isCopy) {" << std::endl;
             kernel(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy, true);
         };
 
         auto kernel_16x4 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool isLoad2Unmasked, bool isDirect, bool isCopy) {" << std::endl;
             kernel(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy, true);
         };
@@ -1830,6 +2083,7 @@ struct xbyak_gemm : public jit_generator {
         auto kernel_16x3 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy,
                 bool useFma = true) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool useFma = true) {" << std::endl;
             kernel(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy, useFma, Ymm(4), Ymm(5), Ymm(6), Ymm(7),
                     Ymm(8), Ymm(9), Ymm(10), Ymm(11), Ymm(12), Ymm(13), Ymm(14),
@@ -1839,12 +2093,14 @@ struct xbyak_gemm : public jit_generator {
 
         auto kernel_16x2 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool isLoad2Unmasked, bool isDirect, bool isCopy) {" << std::endl;
             kernel_16x3(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy, false);
         };
 
         auto kernel_16x1 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool isLoad2Unmasked, bool isDirect, bool isCopy) {" << std::endl;
             kernel_16x3(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy, false);
         };
@@ -1852,6 +2108,7 @@ struct xbyak_gemm : public jit_generator {
         auto kernel_8x6 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy,
                 bool useFma = true) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool useFma = true) {" << std::endl;
             kernel(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy, useFma, Ymm(4), Ymm(5), Ymm(6), Ymm(7),
                     Ymm(8), Ymm(9), Ymm(10), Ymm(11), Ymm(12), Ymm(13), Ymm(14),
@@ -1861,12 +2118,14 @@ struct xbyak_gemm : public jit_generator {
 
         auto kernel_8x5 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool isLoad2Unmasked, bool isDirect, bool isCopy) {" << std::endl;
             kernel_8x6(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy);
         };
 
         auto kernel_8x4 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool isLoad2Unmasked, bool isDirect, bool isCopy) {" << std::endl;
             kernel_8x6(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy);
         };
@@ -1874,6 +2133,7 @@ struct xbyak_gemm : public jit_generator {
         auto kernel_8x3 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy,
                 bool useFma = true) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool useFma = true) {" << std::endl;
             kernel(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy, useFma, Ymm(4), Ymm(5), Ymm(6), Ymm(7),
                     Ymm(8), Ymm(9), Ymm(10), Ymm(11), Ymm(12), Ymm(13), Ymm(14),
@@ -1883,12 +2143,14 @@ struct xbyak_gemm : public jit_generator {
 
         auto kernel_8x2 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool isLoad2Unmasked, bool isDirect, bool isCopy) {" << std::endl;
             kernel_8x3(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy, false);
         };
 
         auto kernel_8x1 = [&](int unroll_m, int unroll_n, bool isLoad1Unmasked,
                 bool isLoad2Unmasked, bool isDirect, bool isCopy) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  bool isLoad2Unmasked, bool isDirect, bool isCopy) {" << std::endl;
             kernel_8x3(unroll_m, unroll_n, isLoad1Unmasked, isLoad2Unmasked,
                     isDirect, isCopy, false);
         };
@@ -1899,7 +2161,9 @@ struct xbyak_gemm : public jit_generator {
         // Masking is used for tail cases where M is not divisible by 8.
         auto subloop = [&](
                 int unroll_m, bool isLoad1Unmasked, bool isLoad2Unmasked) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  int unroll_m, bool isLoad1Unmasked, bool isLoad2Unmasked) {" << std::endl;
             if (isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (isTransA) {" << std::endl;
                 do_pack(unroll_m, isLoad1Unmasked, isLoad2Unmasked);
             }
 
@@ -1917,10 +2181,12 @@ struct xbyak_gemm : public jit_generator {
             add(C, unroll_m * SIZE);
             mov(BO1, B);
             if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransB) {" << std::endl;
                 lea(BO2, qword[B + LDB3]);
             }
 
             if (!isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransA) {" << std::endl;
                 lea(AA, ptr[A + (unroll_m * 2 - 1 - OFFSET) * SIZE]);
                 cmp(M, UNROLL_M);
                 jg(subloop98, T_NEAR);
@@ -1933,6 +2199,7 @@ struct xbyak_gemm : public jit_generator {
             mov(LL, N);
             mov(I, LL);
             if (!isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransA) {" << std::endl;
                 // If N is too small, skip copy operation
                 cmp(LL, UNROLL_N * 3);
                 jle(subloop30, T_NEAR);
@@ -1947,7 +2214,9 @@ struct xbyak_gemm : public jit_generator {
             align(16);
 
             if (!isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransA) {" << std::endl;
                 if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m == 16) {" << std::endl;
                     kernel_16x6(unroll_m, UNROLL_N, isLoad1Unmasked,
                             isLoad2Unmasked, true, true);
                 } else {
@@ -1956,6 +2225,7 @@ struct xbyak_gemm : public jit_generator {
                 }
             } else {
                 if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m == 16) {" << std::endl;
                     kernel_16x6(unroll_m, UNROLL_N, isLoad1Unmasked,
                             isLoad2Unmasked, false, false);
                 } else {
@@ -1971,6 +2241,7 @@ struct xbyak_gemm : public jit_generator {
 
             L(subloop11);
             if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_m == 16) {" << std::endl;
                 kernel_16x6(unroll_m, UNROLL_N, isLoad1Unmasked,
                         isLoad2Unmasked, false, false);
             } else {
@@ -1986,6 +2257,7 @@ struct xbyak_gemm : public jit_generator {
             cmp(I, 1);
             jne(subloop21, T_NEAR);
             if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_m == 16) {" << std::endl;
                 kernel_16x1(unroll_m, 1, isLoad1Unmasked, isLoad2Unmasked,
                         false, false);
             } else {
@@ -1999,6 +2271,7 @@ struct xbyak_gemm : public jit_generator {
             cmp(I, 2);
             jne(subloop22, T_NEAR);
             if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_m == 16) {" << std::endl;
                 kernel_16x2(unroll_m, 2, isLoad1Unmasked, isLoad2Unmasked,
                         false, false);
             } else {
@@ -2012,6 +2285,7 @@ struct xbyak_gemm : public jit_generator {
             cmp(I, 3);
             jne(subloop23, T_NEAR);
             if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_m == 16) {" << std::endl;
                 kernel_16x3(unroll_m, 3, isLoad1Unmasked, isLoad2Unmasked,
                         false, false);
             } else {
@@ -2025,6 +2299,7 @@ struct xbyak_gemm : public jit_generator {
             cmp(I, 4);
             jne(subloop24, T_NEAR);
             if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_m == 16) {" << std::endl;
                 kernel_16x4(unroll_m, 4, isLoad1Unmasked, isLoad2Unmasked,
                         false, false);
             } else {
@@ -2038,6 +2313,7 @@ struct xbyak_gemm : public jit_generator {
             cmp(I, 5);
             jne(subloop99, T_NEAR);
             if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (unroll_m == 16) {" << std::endl;
                 kernel_16x5(unroll_m, 5, isLoad1Unmasked, isLoad2Unmasked,
                         false, false);
             } else {
@@ -2048,6 +2324,7 @@ struct xbyak_gemm : public jit_generator {
             align(16);
 
             if (!isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransA) {" << std::endl;
                 L(subloop30);
                 cmp(I, UNROLL_N);
                 jl(subloop25, T_NEAR);
@@ -2055,6 +2332,7 @@ struct xbyak_gemm : public jit_generator {
 
                 L(subloop31);
                 if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m == 16) {" << std::endl;
                     kernel_16x6(unroll_m, UNROLL_N, isLoad1Unmasked,
                             isLoad2Unmasked, true, false);
                 } else {
@@ -2070,6 +2348,7 @@ struct xbyak_gemm : public jit_generator {
                 cmp(I, 1);
                 jne(subloop32, T_NEAR);
                 if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m == 16) {" << std::endl;
                     kernel_16x1(unroll_m, 1, isLoad1Unmasked, isLoad2Unmasked,
                             true, false);
                 } else {
@@ -2083,6 +2362,7 @@ struct xbyak_gemm : public jit_generator {
                 cmp(I, 2);
                 jne(subloop33, T_NEAR);
                 if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m == 16) {" << std::endl;
                     kernel_16x2(unroll_m, 2, isLoad1Unmasked, isLoad2Unmasked,
                             true, false);
                 } else {
@@ -2096,6 +2376,7 @@ struct xbyak_gemm : public jit_generator {
                 cmp(I, 3);
                 jne(subloop34, T_NEAR);
                 if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m == 16) {" << std::endl;
                     kernel_16x3(unroll_m, 3, isLoad1Unmasked, isLoad2Unmasked,
                             true, false);
                 } else {
@@ -2109,6 +2390,7 @@ struct xbyak_gemm : public jit_generator {
                 cmp(I, 4);
                 jne(subloop35, T_NEAR);
                 if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m == 16) {" << std::endl;
                     kernel_16x4(unroll_m, 4, isLoad1Unmasked, isLoad2Unmasked,
                             true, false);
                 } else {
@@ -2122,6 +2404,7 @@ struct xbyak_gemm : public jit_generator {
                 cmp(I, 5);
                 jne(subloop99, T_NEAR);
                 if (unroll_m == 16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (unroll_m == 16) {" << std::endl;
                     kernel_16x5(unroll_m, 5, isLoad1Unmasked, isLoad2Unmasked,
                             true, false);
                 } else {
@@ -2134,6 +2417,7 @@ struct xbyak_gemm : public jit_generator {
             L(subloop99);
             // Compute address for A
             if (!isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (!isTransA) {" << std::endl;
                 add(A, unroll_m * SIZE);
             } else {
                 mov(rax, LDA);
@@ -2143,6 +2427,7 @@ struct xbyak_gemm : public jit_generator {
 
             // Compute next address of BIAS
             if (hasBias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (hasBias) {" << std::endl;
                 add(BIAS, unroll_m * SIZE);
             }
         };
@@ -2202,10 +2487,12 @@ struct xbyak_gemm : public jit_generator {
         lea(LDB3, ptr[LDB + LDB * 2]);
 
         for (int i = 0; i < 8; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          for (int i = 0; i < 8; i++) {" << std::endl;
             mov(dword[rsp + 88 + i * 4], i);
         }
 
         if (isTransA && is_avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          if (isTransA && is_avx2) {" << std::endl;
             movq(xmm0, LDA);
             vpbroadcastq(ymm1, xmm0);
             vinsertf128(ymm0, ymm0, xmm0, 1);
@@ -2241,6 +2528,7 @@ struct xbyak_gemm : public jit_generator {
         jle(main999, T_NEAR);
 
         if (UNROLL_M > 8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          if (UNROLL_M > 8) {" << std::endl;
             cmp(M, 8);
             jle(main2, T_NEAR);
 
@@ -2264,6 +2552,7 @@ struct xbyak_gemm : public jit_generator {
         L(main3);
         vbroadcastss(VMASK, M);
         if (is_avx2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          if (is_avx2) {" << std::endl;
             vpcmpgtd(VMASK, VMASK, MASK);
         } else {
             auto xmask = Xmm(VMASK.getIdx());
@@ -2306,7 +2595,9 @@ private:
 
 const xbyak_gemm *get_xbyak_gemm(
         bool isTransA, bool isTransB, float beta, bool hasBias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          bool isTransA, bool isTransB, float beta, bool hasBias) {" << std::endl;
     auto beta_idx = [](float beta) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:      auto beta_idx = [](float beta) {" << std::endl;
         return (beta == 0.0) ? 0 : (beta == 1.0 ? 1 : 2);
     };
 
@@ -2318,6 +2609,7 @@ const xbyak_gemm *get_xbyak_gemm(
             for (bool isTransB: {false, true})
             for (bool hasBias: {false, true})
             for (float beta: {0.0f, 1.0f, 2.0f}) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              for (float beta: {0.0f, 1.0f, 2.0f}) {" << std::endl;
                 // nocopy sgemm with bias for beta != 0.0 is not supported
                 if (hasBias && beta != 0.0)
                     continue;
@@ -2333,6 +2625,7 @@ void sgemm_nocopy_driver(const char *transa,
         const char *transb, int m, int n, int k, const float *alpha,
         const float *a, dim_t lda, const float *b, dim_t ldb, const float *beta,
         float *c, dim_t ldc, const float *bias, float *ws) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          float *c, dim_t ldc, const float *bias, float *ws) {" << std::endl;
 
     bool isTransA = (*transa == 'T' || *transa == 't');
     bool isTransB = (*transb == 'T' || *transb == 't');
@@ -2345,12 +2638,15 @@ void sgemm_nocopy_driver(const char *transa,
         return;
 
     if ((k <= 0) || (alpha[0] == 0.)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:      if ((k <= 0) || (alpha[0] == 0.)) {" << std::endl;
 
         if (beta[0] == 0.) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          if (beta[0] == 0.) {" << std::endl;
             for (j = 0; j < n; j++)
                 for (i = 0; i < m; i++)
                     c[i + j * ldc] = 0.0;
         } else if (beta[0] != 1.) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          } else if (beta[0] != 1.) {" << std::endl;
             for (j = 0; j < n; j++)
                 for (i = 0; i < m; i++)
                     c[i + j * ldc] *= beta[0];
@@ -2375,6 +2671,7 @@ void sgemm_nocopy_driver(const char *transa,
     float *curC;
 
     for (Bk = 0; Bk < k; Bk += sizeK) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:      for (Bk = 0; Bk < k; Bk += sizeK) {" << std::endl;
         sizeK = k - Bk;
         if (sizeK >= BK * 2)
             sizeK = BK;
@@ -2384,6 +2681,7 @@ void sgemm_nocopy_driver(const char *transa,
         }
 
         for (Bm = 0; Bm < m; Bm += sizeM) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          for (Bm = 0; Bm < m; Bm += sizeM) {" << std::endl;
             sizeM = m - Bm;
             if (sizeM >= BM * 2)
                 sizeM = BM;
@@ -2393,6 +2691,7 @@ void sgemm_nocopy_driver(const char *transa,
             }
 
             for (Bn = 0; Bn < n; Bn += sizeN) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              for (Bn = 0; Bn < n; Bn += sizeN) {" << std::endl;
                 sizeN = n - Bn;
                 if (sizeN >= BN * 2)
                     sizeN = BN;
@@ -2402,24 +2701,29 @@ void sgemm_nocopy_driver(const char *transa,
                 }
 
                 if (!isTransA) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransA) {" << std::endl;
                     curA = a + Bm + Bk * lda;
                 } else {
                     curA = a + Bk + Bm * lda;
                 }
                 if (!isTransB) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (!isTransB) {" << std::endl;
                     curB = b + Bk + Bn * ldb;
                 } else {
                     curB = b + Bn + Bk * ldb;
                 }
                 curC = c + Bm + (size_t)Bn * ldc;
                 if (bias != nullptr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (bias != nullptr) {" << std::endl;
                     if (Bk == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (Bk == 0) {" << std::endl;
                         curBias = bias + Bm;
                     } else {
                         curBias = nullptr;
                     }
                 }
                 if (Bk == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (Bk == 0) {" << std::endl;
                     if (*beta == 0.0 && bias == nullptr)
                         (*ker_b0)((dim_t)sizeM, (dim_t)sizeN, (dim_t)sizeK,
                                 alpha, curA, lda, curB, ldb, beta, curC, ldc,
@@ -2445,6 +2749,7 @@ mkldnn_status_t jit_avx_gemm_f32(
         const int *p_m, const int *p_n, const int *p_k, const float *p_alpha,
         const float *A, const int *p_lda, const float *B, const int *p_ldb,
         const float *p_beta, float *C, const int *p_ldc, const float *bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          const float *p_beta, float *C, const int *p_ldc, const float *bias) {" << std::endl;
 
     using namespace mkldnn::impl::utils;
     using namespace avx_gemm_f32;
@@ -2485,6 +2790,7 @@ mkldnn_status_t jit_avx_gemm_f32(
     float *ws_buffers = nullptr;
 
     if (nthr_k > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:      if (nthr_k > 1) {" << std::endl;
         ompstatus_ = (unsigned char *) malloc(
                 nthr * CACHE_LINE_SIZE,
                 CACHE_LINE_SIZE);
@@ -2502,10 +2808,12 @@ mkldnn_status_t jit_avx_gemm_f32(
     const size_t ws_size_per_thr
             = rnd_up(ws_elems_per_thr * sizeof(float), PAGE_4K);
     if (k > STACK_K_CAPACITY) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:      if (k > STACK_K_CAPACITY) {" << std::endl;
         ws_buffers = (float *)malloc(nthr * ws_size_per_thr, PAGE_4K);
     }
 
     parallel_nd(nthr, [&](const int ithr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:      parallel_nd(nthr, [&](const int ithr) {" << std::endl;
         int ithr_m, ithr_n, ithr_k, ithr_mn;
         int m_from, m_to, myM;
         int n_from, n_to, myN;
@@ -2520,6 +2828,7 @@ mkldnn_status_t jit_avx_gemm_f32(
         int sum_later = (mkldnn_get_num_threads() < nthr_m * nthr_n * nthr_k);
 
         if (ithr < nthr_m * nthr_n * nthr_k) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          if (ithr < nthr_m * nthr_n * nthr_k) {" << std::endl;
 
             ithr_mn = ithr % nthr_mn;
             ithr_m = ithr_mn % nthr_m;
@@ -2554,18 +2863,22 @@ mkldnn_status_t jit_avx_gemm_f32(
             ibase = (ithr_m + nthr_m * ithr_n) * nthr_k;
 
             if ((myM > 0) && (myN > 0)) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if ((myM > 0) && (myN > 0)) {" << std::endl;
 
                 if (*transa == 'N' || *transa == 'n') {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (*transa == 'N' || *transa == 'n') {" << std::endl;
                     myA = &(A[m_from + k_from * lda]);
                 } else {
                     myA = &(A[k_from + m_from * lda]);
                 }
                 if (*transb == 'N' || *transb == 'n') {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (*transb == 'N' || *transb == 'n') {" << std::endl;
                     myB = &(B[k_from + n_from * ldb]);
                 } else {
                     myB = &(B[n_from + k_from * ldb]);
                 }
                 if (ithr_k == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (ithr_k == 0) {" << std::endl;
                     myC = &(C[m_from + n_from * ldc]);
                     myBeta = beta;
                     ld = ldc;
@@ -2586,6 +2899,7 @@ mkldnn_status_t jit_avx_gemm_f32(
             }
 
             if (nthr_k > 1 && !sum_later) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (nthr_k > 1 && !sum_later) {" << std::endl;
 
                 // sum matrices partitioned along K dimension
                 int n1, n2;
@@ -2593,11 +2907,13 @@ mkldnn_status_t jit_avx_gemm_f32(
                 partition_unit_diff(ithr_k, nthr_k, myN, &n1, &n2);
 
                 if (ithr_k > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (ithr_k > 0) {" << std::endl;
 
                     myC = c_buffers + (dim_t)MB * NB * (cbase + ithr_k - 1)
                         + (dim_t)n1 * MB;
                     /* need to wait until main thread finishes */
                     while (ompstatus[ibase * CACHE_LINE_SIZE] != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      while (ompstatus[ibase * CACHE_LINE_SIZE] != 1) {" << std::endl;
                     };
 
                     /* my cache is hot */
@@ -2606,12 +2922,15 @@ mkldnn_status_t jit_avx_gemm_f32(
                 }
 
                 for (int ik = 1; ik < nthr_k; ++ik) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  for (int ik = 1; ik < nthr_k; ++ik) {" << std::endl;
                     if (ik != ithr_k) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (ik != ithr_k) {" << std::endl;
 
                         myC = c_buffers + (dim_t)MB * NB * (cbase + ik - 1)
                             + (dim_t)n1 * MB;
 
                         while (ompstatus[(ibase + ik) * CACHE_LINE_SIZE] != 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          while (ompstatus[(ibase + ik) * CACHE_LINE_SIZE] != 1) {" << std::endl;
                         };
 
                         sum_two_matrices(myM, n2, myC, MB,
@@ -2624,8 +2943,10 @@ mkldnn_status_t jit_avx_gemm_f32(
 
     // handle C summation later
     if (nthr_k > 1 && ompstatus[0] == 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:      if (nthr_k > 1 && ompstatus[0] == 0) {" << std::endl;
 
         parallel_nd(nthr, [&](const int ithr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:          parallel_nd(nthr, [&](const int ithr) {" << std::endl;
             int ithr_m, ithr_n, ithr_k, ithr_mn;
             int m_from, m_to, myM;
             int n_from, n_to, myN;
@@ -2633,6 +2954,7 @@ mkldnn_status_t jit_avx_gemm_f32(
             float *myC = C;
 
             if (ithr < nthr_m * nthr_n * nthr_k) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:              if (ithr < nthr_m * nthr_n * nthr_k) {" << std::endl;
 
                 ithr_mn = ithr % nthr_mn;
                 ithr_m = ithr_mn % nthr_m;
@@ -2660,12 +2982,14 @@ mkldnn_status_t jit_avx_gemm_f32(
                 cbase = (ithr_m + nthr_m * ithr_n) * (nthr_k - 1);
 
                 if (nthr_k > 1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                  if (nthr_k > 1) {" << std::endl;
                     // sum matrices partitioned along K dimension
                     int n1, n2;
 
                     partition_unit_diff(ithr_k, nthr_k, myN, &n1, &n2);
 
                     if (ithr_k > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      if (ithr_k > 0) {" << std::endl;
 
                         myC = c_buffers + (dim_t)MB * NB * (cbase + ithr_k - 1)
                             + (dim_t)n1 * MB;
@@ -2676,7 +3000,9 @@ mkldnn_status_t jit_avx_gemm_f32(
                     }
 
                     for (int ik = 1; ik < nthr_k; ++ik) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                      for (int ik = 1; ik < nthr_k; ++ik) {" << std::endl;
                         if (ik != ithr_k) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/f32/jit_avx_gemm_f32.cpp:                          if (ik != ithr_k) {" << std::endl;
 
                             myC = c_buffers + (dim_t)MB * NB * (cbase + ik - 1)
                                 + (dim_t)n1 * MB;

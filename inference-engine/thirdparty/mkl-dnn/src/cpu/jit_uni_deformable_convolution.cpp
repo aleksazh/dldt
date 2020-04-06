@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -48,6 +49,7 @@ void jit_uni_deformable_convolution_fwd_t<isa>::execute_forward() const {
     const auto &jcp = kernel_->jcp;
 
     if (bias && jcp.oc != jcp.oc_padded) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_deformable_convolution.cpp:      if (bias && jcp.oc != jcp.oc_padded) {" << std::endl;
         auto padded_bias = this->scratchpad().template get<float>(key_conv_padded_bias);
         utils::array_copy(padded_bias, (float*)bias, jcp.oc);
         utils::array_set(padded_bias + jcp.oc, 0, jcp.oc_padded - jcp.oc);
@@ -59,12 +61,14 @@ void jit_uni_deformable_convolution_fwd_t<isa>::execute_forward() const {
     const size_t work_amount = jcp.mb * jcp.ngroups * jcp.oh;
 
     auto ker = [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_deformable_convolution.cpp:      auto ker = [&](const int ithr, const int nthr) {" << std::endl;
         size_t start{0}, end{0};
         balance211(work_amount, nthr, ithr, start, end);
 
         size_t n{0}, g{0}, oh{0};
         nd_iterator_init(start, n, jcp.mb, g, jcp.ngroups, oh, jcp.oh);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_uni_deformable_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             auto par_conv = jit_def_conv_call_s();
 
             const size_t _oc = g * jcp.nb_oc;

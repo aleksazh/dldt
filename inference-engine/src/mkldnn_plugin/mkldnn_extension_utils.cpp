@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -10,7 +11,9 @@ using namespace mkldnn;
 using namespace MKLDNNPlugin;
 
 uint8_t MKLDNNExtensionUtils::sizeOfDataType(mkldnn::memory::data_type dataType) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_extension_utils.cpp:  uint8_t MKLDNNExtensionUtils::sizeOfDataType(mkldnn::memory::data_type dataType) {" << std::endl;
     switch (dataType) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_extension_utils.cpp:      switch (dataType) {" << std::endl;
     case mkldnn::memory::data_type::f32:
         return 4;
     case mkldnn::memory::data_type::s32:
@@ -32,7 +35,9 @@ uint8_t MKLDNNExtensionUtils::sizeOfDataType(mkldnn::memory::data_type dataType)
 }
 
 memory::data_type MKLDNNExtensionUtils::IEPrecisionToDataType(InferenceEngine::Precision prec) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_extension_utils.cpp:  memory::data_type MKLDNNExtensionUtils::IEPrecisionToDataType(InferenceEngine::Precision prec) {" << std::endl;
     switch (prec) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_extension_utils.cpp:      switch (prec) {" << std::endl;
         case InferenceEngine::Precision::FP32:
             return memory::f32;
         case InferenceEngine::Precision::I32:
@@ -54,7 +59,9 @@ memory::data_type MKLDNNExtensionUtils::IEPrecisionToDataType(InferenceEngine::P
 }
 
 InferenceEngine::Precision MKLDNNExtensionUtils::DataTypeToIEPrecision(memory::data_type dataType) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_extension_utils.cpp:  InferenceEngine::Precision MKLDNNExtensionUtils::DataTypeToIEPrecision(memory::data_type dataType) {" << std::endl;
     switch (dataType) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_extension_utils.cpp:      switch (dataType) {" << std::endl;
         case memory::f32:
             return InferenceEngine::Precision(InferenceEngine::Precision::FP32);
         case memory::s32:
@@ -75,9 +82,11 @@ InferenceEngine::Precision MKLDNNExtensionUtils::DataTypeToIEPrecision(memory::d
 }
 
 InferenceEngine::TensorDesc MKLDNNExtensionUtils::getUninitTensorDesc(const InferenceEngine::TensorDesc &desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_extension_utils.cpp:  InferenceEngine::TensorDesc MKLDNNExtensionUtils::getUninitTensorDesc(const InferenceEngine::TensorDesc &desc) {" << std::endl;
     std::vector<size_t> notInitArr;
     std::vector<size_t> zeroArr;
     for (size_t i = 0; i < desc.getBlockingDesc().getBlockDims().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_extension_utils.cpp:      for (size_t i = 0; i < desc.getBlockingDesc().getBlockDims().size(); i++) {" << std::endl;
         notInitArr.push_back(std::numeric_limits<size_t>::max());
         zeroArr.push_back(0);
     }
@@ -89,6 +98,7 @@ InferenceEngine::TensorDesc MKLDNNExtensionUtils::getUninitTensorDesc(const Infe
 }
 
 bool MKLDNNExtensionUtils::initTensorsAreEqual(const InferenceEngine::TensorDesc &desc1, const InferenceEngine::TensorDesc &desc2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_extension_utils.cpp:  bool MKLDNNExtensionUtils::initTensorsAreEqual(const InferenceEngine::TensorDesc &desc1, const InferenceEngine::TensorDesc &desc2) {" << std::endl;
     if (desc1.getDims() != desc2.getDims() || desc1.getPrecision() != desc2.getPrecision())
         return false;
     if (desc1.getLayout() == InferenceEngine::Layout::SCALAR && desc2.getLayout() == InferenceEngine::Layout::SCALAR)
@@ -102,6 +112,7 @@ bool MKLDNNExtensionUtils::initTensorsAreEqual(const InferenceEngine::TensorDesc
     if (in1Block.getBlockDims().size() != in2Block.getBlockDims().size())
         return false;
     for (size_t i = 0; i < in1Block.getBlockDims().size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_extension_utils.cpp:      for (size_t i = 0; i < in1Block.getBlockDims().size(); i++) {" << std::endl;
         if (in1Block.getBlockDims()[i] != in2Block.getBlockDims()[i] &&
                 in1Block.getBlockDims()[i] != uninitNum && in2Block.getBlockDims()[i] != uninitNum)
             return false;

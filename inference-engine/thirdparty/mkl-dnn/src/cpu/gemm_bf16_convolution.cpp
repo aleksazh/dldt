@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -46,6 +47,7 @@ gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::pp_ker_t(
     , data_reg_base_idx_(0)
     , bf16_emu_(nullptr), eltwise_injector_(nullptr)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      , bf16_emu_(nullptr), eltwise_injector_(nullptr) {" << std::endl;
     using namespace types;
     using namespace Xbyak;
 
@@ -67,6 +69,7 @@ gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::pp_ker_t(
     do_sum_ = dst_data_type != data_type::f32
         && post_ops.contain(primitive_kind::sum, 0);
     if (do_sum_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      if (do_sum_) {" << std::endl;
         compute_reg_step_ = 2;
         vreg_sum_scale = Zmm(data_reg_base_idx_++);
     }
@@ -80,6 +83,7 @@ gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::pp_ker_t(
     is_cpx_ = mayiuse(avx512_core_bf16);
 
     if (!is_cpx_) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      if (!is_cpx_) {" << std::endl;
         max_data_reg_idx_ = 26;
         bf16_emu_ = new bf16_emulation_t(this,
                             bf16_emu_reserv_1, bf16_emu_reserv_2,
@@ -96,6 +100,7 @@ gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::pp_ker_t(
 template <data_type_t dst_data_type>
 void gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::generate()
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:  void gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::generate() {" << std::endl;
     using namespace Xbyak;
     using namespace utils;
     using namespace round_mode;
@@ -119,6 +124,7 @@ void gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::generate()
     // Load accumulated value, apply sum (if any), bias (if any)
     // and relu (if any); then convert to destination type and store
     auto compute = [&](size_t offset, int idx, bool apply_mask) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      auto compute = [&](size_t offset, int idx, bool apply_mask) {" << std::endl;
         auto acc_addr = ptr[reg_acc + offset * sizeof(acc_data_t)];
         auto vreg_dst_ = vreg_dst(idx);
         if (apply_mask)
@@ -131,13 +137,16 @@ void gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::generate()
         auto dst_addr = ptr[reg_dst + offset * sizeof(dst_data_t)];
         if (do_sum_)
         {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:          if (do_sum_)         {" << std::endl;
             auto vreg_prev_dst_ = vreg_prev_dst(idx);
             if (dst_data_type == data_type::f32) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              if (dst_data_type == data_type::f32) {" << std::endl;
                 if (apply_mask)
                     vreg_prev_dst_ = vreg_prev_dst_ | kreg_rem_mask;
 
                 vmovups(vreg_prev_dst_, dst_addr);
             } else if (dst_data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              } else if (dst_data_type == data_type::bf16) {" << std::endl;
                 auto vreg_prev_dst_ymm_ = vreg_prev_dst_ymm(idx);
                 if (apply_mask)
                     vreg_prev_dst_ymm_ = vreg_prev_dst_ymm_ | kreg_rem_mask;
@@ -155,6 +164,7 @@ void gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::generate()
             eltwise_injector_->compute_vector(vreg_dst_idx(idx));
 
         if (dst_data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:          if (dst_data_type == data_type::bf16) {" << std::endl;
             // TODO: implement store by zmm registers for bf16
             auto vreg_dst_ymm_ = vreg_dst_ymm(idx);
             if (is_cpx_)
@@ -174,6 +184,7 @@ void gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::generate()
 
     // Advance all pointers by an immediate
     auto advance_ptrs_imm = [&](size_t offset) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      auto advance_ptrs_imm = [&](size_t offset) {" << std::endl;
         add(reg_dst, offset * sizeof(dst_data_t));
         add(reg_acc, offset * sizeof(acc_data_t));
     };
@@ -198,6 +209,7 @@ void gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::generate()
 
     Xbyak::Label l_simd_loop[n_unroll + 2], l_simd_notail;
     for (int i = n_unroll; i >= 0; i--) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      for (int i = n_unroll; i >= 0; i--) {" << std::endl;
         const int unroll = 1 << i; // 4, 2, 1
         L(l_simd_loop[i + 1]); {
             const int loop_len = unroll * vlen_;
@@ -247,14 +259,17 @@ void gemm_bf16_convolution_fwd_t<dst_data_type>::pp_ker_t::operator ()
         float sum_scale, size_t dst_stride_in_elements,
         size_t acc_stride_in_elements, size_t len, bool do_parallel)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:          size_t acc_stride_in_elements, size_t len, bool do_parallel) {" << std::endl;
     assert(ker_);
     if (len == 0)
         return;
 
     parallel(do_parallel ? 0 : 1, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      parallel(do_parallel ? 0 : 1, [&](const int ithr, const int nthr) {" << std::endl;
         size_t start_oc = 0, end_oc = 0;
         balance211(OC_, nthr, ithr, start_oc, end_oc);
         if (end_oc > start_oc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:          if (end_oc > start_oc) {" << std::endl;
             ker_args args;
             args.acc = acc + start_oc * acc_stride_in_elements;
             args.dst = dst + start_oc * dst_stride_in_elements;
@@ -305,13 +320,15 @@ void gemm_bf16_convolution_fwd_t<dst_data_type>::execute_forward() const {
 
     if (jcp.im2col_sz && jcp.id != 1)
         parallel_nd(jcp.im2col_sz * jcp.nthr,
-                [&](ptrdiff_t i) { col[i] = (src_data_t)0; });
+                [&](ptrdiff_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                  [&](ptrdiff_t i) {" << std::endl; col[i] = (src_data_t)0; });
 
     const int nb_oh = div_up(jcp.oh, jcp.oh_block);
     const int nb_ow = div_up(jcp.ow, jcp.ow_block);
     const size_t work_amount = (size_t)jcp.ngroups
         * jcp.mb * jcp.od * nb_oh * nb_ow;
     parallel(jcp.nthr, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      parallel(jcp.nthr, [&](const int ithr, const int nthr) {" << std::endl;
         src_data_t *_col = col + (ptrdiff_t)ithr * jcp.im2col_sz;
 
         int g{ 0 }, n{ 0 }, od{ 0 }, ohb{ 0 }, owb{ 0 };
@@ -321,6 +338,7 @@ void gemm_bf16_convolution_fwd_t<dst_data_type>::execute_forward() const {
         nd_iterator_init(start, g, jcp.ngroups, n, jcp.mb, od, jcp.od, ohb,
                 nb_oh, owb, nb_ow);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
             int oh = ohb * jcp.oh_block;
             int ow = owb * jcp.ow_block;
             const src_data_t *_src = src + (n * jcp.ngroups + g) * src_step;
@@ -329,6 +347,7 @@ void gemm_bf16_convolution_fwd_t<dst_data_type>::execute_forward() const {
             const int h_step = nstl::min(jcp.oh_block, jcp.oh - oh);
             const int w_step = nstl::min(jcp.ow_block, jcp.ow - ow);
             if (jcp.im2col_sz) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              if (jcp.im2col_sz) {" << std::endl;
                 if (jcp.id == 1)
                     jit_gemm_convolution_utils::im2col<src_data_t>(
                             jcp, _src, _col, oh, h_step, ow, w_step);
@@ -353,6 +372,7 @@ void gemm_bf16_convolution_fwd_t<dst_data_type>::execute_forward() const {
                     &this->beta_, _acc, &LDC);
 
             if (this->pd()->is_postprocess_required()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              if (this->pd()->is_postprocess_required()) {" << std::endl;
                 size_t acc_str = LDC;
                 size_t dst_str = M;
                 (*pp_ker_)(dst_local, _acc, bias + g * jcp.oc,
@@ -394,6 +414,7 @@ void gemm_bf16_convolution_bwd_data_t<diff_src_data_type>::
     const size_t work_amount = (size_t)jcp.ngroups * jcp.mb;
 
     parallel(jcp.nthr, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      parallel(jcp.nthr, [&](const int ithr, const int nthr) {" << std::endl;
         acc_data_t *_col = col + (ptrdiff_t)ithr * jcp.im2col_sz;
 
         int g{0}, n{0};
@@ -401,6 +422,7 @@ void gemm_bf16_convolution_bwd_data_t<diff_src_data_type>::
         balance211(work_amount, nthr, ithr, start, end);
         nd_iterator_init(start, g, jcp.ngroups, n, jcp.mb);
         for (size_t iwork = start; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:          for (size_t iwork = start; iwork < end; ++iwork) {" << std::endl;
 
             diff_src_data_t *diff_src_local = diff_src
                 + (n * jcp.ngroups + g) * src_step;
@@ -409,6 +431,7 @@ void gemm_bf16_convolution_bwd_data_t<diff_src_data_type>::
                 : (acc_data_t *)diff_src_local;
 
             if (jcp.id > 1 && jcp.im2col_sz > 0) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              if (jcp.id > 1 && jcp.im2col_sz > 0) {" << std::endl;
                 // jit_gemm_convolution_utils::col2im_3d() assumes that the
                 // accumulator is initialized by zeroes
                 for (size_t i = 0; i < src_step; i++)
@@ -417,6 +440,7 @@ void gemm_bf16_convolution_bwd_data_t<diff_src_data_type>::
 
             const wei_data_t *_weights = weights + g * weights_g_size;
             for (int od = 0; od < jcp.od; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              for (int od = 0; od < jcp.od; ++od) {" << std::endl;
                 const diff_dst_data_t *_diff_dst = diff_dst
                      + (n * jcp.ngroups + g) * dst_step + od * m;
 
@@ -426,6 +450,7 @@ void gemm_bf16_convolution_bwd_data_t<diff_src_data_type>::
                     jcp.im2col_sz ? _col: acc + od * m, &LDC);
 
                 if (jcp.im2col_sz) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                  if (jcp.im2col_sz) {" << std::endl;
                     if (jcp.id == 1)
                         jit_gemm_convolution_utils::col2im(jcp, _col,
                             acc);
@@ -435,14 +460,17 @@ void gemm_bf16_convolution_bwd_data_t<diff_src_data_type>::
                 }
             }
             if (diff_src_data_type == data_type::bf16) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              if (diff_src_data_type == data_type::bf16) {" << std::endl;
                 size_t spatial_size = (size_t)jcp.ih * jcp.iw * jcp.id;
                 int convert_parallel_work = jcp.ic;
                 parallel(jcp.nthr > 1 ? 1 : 0,
                         [&](const int ithr_cvt, const int nthr_cvt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                          [&](const int ithr_cvt, const int nthr_cvt) {" << std::endl;
                     int start_cvt = 0, end_cvt = 0;
                     balance211(convert_parallel_work, nthr_cvt, ithr_cvt,
                         start_cvt, end_cvt);
                     if (start_cvt < end_cvt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                      if (start_cvt < end_cvt) {" << std::endl;
                         diff_src_data_t *my_diff_src_local =
                              diff_src_local + start_cvt * spatial_size;
                         acc_data_t *my_acc = acc + start_cvt * spatial_size;
@@ -480,6 +508,7 @@ void gemm_bf16_convolution_bwd_weights_t<diff_wei_data_type>::
                 ? (float*)weights_reduce_base + weights_start
                 : (float*)weights_base + weights_start;
     if (!is_bf16_out) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      if (!is_bf16_out) {" << std::endl;
         // f32 diff_weights require initialization by weights_reduce
         // for thr_mb = 0
         for (size_t i = 0; i < acc_size; i++)
@@ -487,6 +516,7 @@ void gemm_bf16_convolution_bwd_weights_t<diff_wei_data_type>::
     }
 
     for (int thr_mb = 1; thr_mb < nthr_mb; ++thr_mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      for (int thr_mb = 1; thr_mb < nthr_mb; ++thr_mb) {" << std::endl;
         float *wei_to_reduce = (float*)weights_reduce_base
             + thr_mb * weights_g_size + weights_start;
 
@@ -533,9 +563,11 @@ void gemm_bf16_convolution_bwd_weights_t<diff_wei_data_type>::
     const int LDA = jcp.im2col_sz ? k : K;
 
     parallel_nd(jcp.im2col_sz * jcp.nthr,
-            [&](ptrdiff_t i) { col[i] = (src_data_t)0; });
+            [&](ptrdiff_t i) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              [&](ptrdiff_t i) {" << std::endl; col[i] = (src_data_t)0; });
 
     parallel(jcp.nthr, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      parallel(jcp.nthr, [&](const int ithr, const int nthr) {" << std::endl;
         int ithr_g, nthr_g, ithr_mb, nthr_mb;
         size_t g_start{0}, g_end{0}, mb_start{0}, mb_end{0};
 
@@ -547,6 +579,7 @@ void gemm_bf16_convolution_bwd_weights_t<diff_wei_data_type>::
         const int need_reduction = nthr_mb != 1;
 
         if (ithr_g != -1 && ithr_mb != -1) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:          if (ithr_g != -1 && ithr_mb != -1) {" << std::endl;
             balance211((size_t)jcp.ngroups, nthr_g, ithr_g, g_start, g_end);
             balance211((size_t)jcp.mb, nthr_mb, ithr_mb, mb_start, mb_end);
 
@@ -559,16 +592,20 @@ void gemm_bf16_convolution_bwd_weights_t<diff_wei_data_type>::
                     + ithr_mb * weights_g_size;
 
             for (size_t g = g_start; g < g_end; ++g) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              for (size_t g = g_start; g < g_end; ++g) {" << std::endl;
                 acc_data_t *acc = need_reduction
                         ? weights_reduce : (acc_base + g * weights_g_size);
                 for (size_t mb = mb_start; mb < mb_end; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                  for (size_t mb = mb_start; mb < mb_end; ++mb) {" << std::endl;
                     const src_data_t *_src =
                         src + (mb * jcp.ngroups + g) * src_step;
                     for (int od = 0; od < jcp.od; ++od) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                      for (int od = 0; od < jcp.od; ++od) {" << std::endl;
                     const diff_dst_data_t *_diff_dst = diff_dst
                             + (mb * jcp.ngroups + g) * dst_step + od * k;
 
                     if (jcp.im2col_sz) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                      if (jcp.im2col_sz) {" << std::endl;
                         if (jcp.id == 1)
                             jit_gemm_convolution_utils::im2col<src_data_t>(
                                     jcp, _src, _col, 0, jcp.oh, 0, jcp.ow);
@@ -588,6 +625,7 @@ void gemm_bf16_convolution_bwd_weights_t<diff_wei_data_type>::
                 }
             }
             if (need_reduction) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              if (need_reduction) {" << std::endl;
                 mkldnn_thr_barrier();
                 diff_wei_data_t *weights_base = diff_weights
                     + g_start * weights_g_size;
@@ -595,15 +633,18 @@ void gemm_bf16_convolution_bwd_weights_t<diff_wei_data_type>::
                     ithr_mb, nthr_mb, jcp, weights_reduce_base, weights_base);
             } else if (diff_wei_data_type == data_type::bf16
                            && g_end > g_start) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                             && g_end > g_start) {" << std::endl;
                 const size_t weights_g_size = (size_t)jcp.ic * jcp.oc * jcp.ks;
                 const size_t work_size = (g_end - g_start) * weights_g_size;
 
                 parallel(jcp.nthr > 1 ? 1 : 0,
                         [&](const int ithr_cvt, const int nthr_cvt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                          [&](const int ithr_cvt, const int nthr_cvt) {" << std::endl;
                     size_t start_cvt = 0, end_cvt = 0;
                     balance211(work_size, nthr_cvt, ithr_cvt,
                         start_cvt, end_cvt);
                     if (start_cvt < end_cvt) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                      if (start_cvt < end_cvt) {" << std::endl;
                         const acc_data_t *acc_local = acc_base
                             + g_start * weights_g_size + start_cvt;
                         diff_wei_data_t *out = diff_weights
@@ -615,14 +656,17 @@ void gemm_bf16_convolution_bwd_weights_t<diff_wei_data_type>::
                 });
             }
         } else
-            if (need_reduction) { mkldnn_thr_barrier(); }
+            if (need_reduction) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              if (need_reduction) {" << std::endl; mkldnn_thr_barrier(); }
     });
 
     if (jcp.with_bias) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:      if (jcp.with_bias) {" << std::endl;
         acc_data_t *bias_ws_base =
             scratchpad().template get<acc_data_t>(
                     key_conv_dst_bf16_convert_wsp);
         parallel(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:          parallel(0, [&](const int ithr, const int nthr) {" << std::endl;
             const int work_amount = jcp.ngroups * jcp.oc;
             int start{0}, end{0};
             balance211(work_amount, nthr, ithr, start, end);
@@ -633,13 +677,16 @@ void gemm_bf16_convolution_bwd_weights_t<diff_wei_data_type>::
             acc_data_t *bias_ws = bias_ws_base
                 + ithr * rnd_up(jcp.ow, sizeof_cacheline_float);
             for (int i_work = start; i_work < end; i_work++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:              for (int i_work = start; i_work < end; i_work++) {" << std::endl;
                 acc_data_t db = 0;
                 size_t offset_ = (size_t)g * dst_step + (size_t)oc * K;
                 for (int mb = 0; mb < jcp.mb; ++mb) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                  for (int mb = 0; mb < jcp.mb; ++mb) {" << std::endl;
                     size_t offset = offset_
                         + (size_t)mb * jcp.ngroups * dst_step;
                     for (int od = 0; od < jcp.od; ++od)
                     for (int oh = 0; oh < jcp.oh; ++oh) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm_bf16_convolution.cpp:                      for (int oh = 0; oh < jcp.oh; ++oh) {" << std::endl;
                         cvt_bfloat16_to_float((float *)bias_ws,
                             (const mkldnn_bfloat16_t *)&diff_dst[offset],
                             jcp.ow);

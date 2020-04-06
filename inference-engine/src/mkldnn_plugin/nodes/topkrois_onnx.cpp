@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -28,6 +29,7 @@ private:
 
 public:
     explicit ExperimentalDetectronTopKROIsImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topkrois_onnx.cpp:      explicit ExperimentalDetectronTopKROIsImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.size() != 2 || layer->outData.empty())
                 THROW_IE_EXCEPTION << "Incorrect number of input/output edges!";
@@ -42,6 +44,7 @@ public:
                       {DataConfigurator(ConfLayout::PLN), DataConfigurator(ConfLayout::PLN)},
                       {DataConfigurator(ConfLayout::PLN)});
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topkrois_onnx.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -58,9 +61,11 @@ public:
         std::vector<size_t> idx(input_rois_num);
         iota(idx.begin(), idx.end(), 0);
         // FIXME. partial_sort is enough here.
-        sort(idx.begin(), idx.end(), [&input_probs](size_t i1, size_t i2) {return input_probs[i1] > input_probs[i2];});
+        sort(idx.begin(), idx.end(), [&input_probs](size_t i1, size_t i2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topkrois_onnx.cpp:          sort(idx.begin(), idx.end(), [&input_probs](size_t i1, size_t i2) {" << std::endl;return input_probs[i1] > input_probs[i2];});
 
         for (int i = 0; i < top_rois_num; ++i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/topkrois_onnx.cpp:          for (int i = 0; i < top_rois_num; ++i) {" << std::endl;
             std::memcpy(output_rois + 4 * i, input_rois + 4 * idx[i], 4 * sizeof(float));
         }
 

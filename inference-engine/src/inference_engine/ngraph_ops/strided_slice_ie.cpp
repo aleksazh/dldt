@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -26,11 +27,13 @@ op::StridedSliceIE::StridedSliceIE(const Output <Node> &data, const Output <Node
                                    m_shrink_axis_mask(shrink_axis_mask),
                                    m_ellipsis_mask(ellipsis_mask),
                                    m_output_shape(output_shape) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/strided_slice_ie.cpp:                                     m_output_shape(output_shape) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 std::shared_ptr<Node> op::StridedSliceIE::copy_with_new_args(const NodeVector& new_args) const {
     if (new_args.size() != 4) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/strided_slice_ie.cpp:      if (new_args.size() != 4) {" << std::endl;
         throw ngraph_error("Incorrect number of new arguments");
     }
 
@@ -39,5 +42,6 @@ std::shared_ptr<Node> op::StridedSliceIE::copy_with_new_args(const NodeVector& n
 }
 
 void op::StridedSliceIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/strided_slice_ie.cpp:  void op::StridedSliceIE::validate_and_infer_types() {" << std::endl;
     set_output_type(0, get_input_element_type(0), PartialShape(m_output_shape));
 }

@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2016-2019 Intel Corporation
 *
@@ -93,6 +94,7 @@ using namespace mkldnn::impl::status;
 
 status_t cpu_engine_t::memory_primitive_desc_create(memory_pd_t **pd,
         const memory_desc_t *desc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_engine.cpp:          const memory_desc_t *desc) {" << std::endl;
     return safe_ptr_assign<memory_pd_t>(*pd,
             new cpu_memory_t::pd_t(this, desc));
 }
@@ -100,6 +102,7 @@ status_t cpu_engine_t::memory_primitive_desc_create(memory_pd_t **pd,
 status_t cpu_engine_t::view_primitive_desc_create(view_pd_t **view_pd,
             const memory_pd_t *memory_pd, const dims_t dims,
             const dims_t offsets) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_engine.cpp:              const dims_t offsets) {" << std::endl;
     assert(memory_pd->engine() == this);
     cpu_view_t::pd_t *cpu_vpd = nullptr;
     status_t status = cpu_view_t::pd_t::create(&cpu_vpd,
@@ -535,7 +538,9 @@ namespace {
 // A proper approach would be an implementation-specific unpoisoning.
 void unpoison_outputs(primitive_t *p)
 {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_engine.cpp:  void unpoison_outputs(primitive_t *p) {" << std::endl;
     for(auto o: p->outputs()) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_engine.cpp:      for(auto o: p->outputs()) {" << std::endl;
         assert(o->kind() == primitive_kind::memory);
         void *p;
         o->get_data_handle(&p);
@@ -547,8 +552,10 @@ void unpoison_outputs(primitive_t *p)
 
 status_t cpu_engine_t::submit(primitive_t *p, event_t *e,
         event_vector &prerequisites) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_engine.cpp:          event_vector &prerequisites) {" << std::endl;
     /* FIXME: this should live in primitive execute function... */
     if (mkldnn_verbose()->level) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/cpu_engine.cpp:      if (mkldnn_verbose()->level) {" << std::endl;
         double ms = get_msec();
         p->execute(e);
         ms = get_msec() - ms;

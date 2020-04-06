@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -13,8 +14,10 @@
 namespace InferenceEngine {
 
 Blob::Ptr make_shared_blob(const Blob::Ptr& inputBlob, const ROI& roi) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_blob_common.cpp:  Blob::Ptr make_shared_blob(const Blob::Ptr& inputBlob, const ROI& roi) {" << std::endl;
     // reject compound blobs
     if (inputBlob->is<CompoundBlob>()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_blob_common.cpp:      if (inputBlob->is<CompoundBlob>()) {" << std::endl;
         THROW_IE_EXCEPTION << "Compound blobs do not support ROI";
     }
 
@@ -27,11 +30,13 @@ Blob::Ptr make_shared_blob(const Blob::Ptr& inputBlob, const ROI& roi) {
 
     if (roi.posX + roi.sizeX > inputBlob->getTensorDesc().getDims()[3] ||
         roi.posY + roi.sizeY > inputBlob->getTensorDesc().getDims()[2]) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_blob_common.cpp:          roi.posY + roi.sizeY > inputBlob->getTensorDesc().getDims()[2]) {" << std::endl;
         THROW_IE_EXCEPTION << "passed ROI coordinates are inconsistent to input size";
     }
 
     Layout blobLayout = inputBlob->getTensorDesc().getLayout();
     switch (blobLayout) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_blob_common.cpp:      switch (blobLayout) {" << std::endl;
     case NCHW: {
         blkOffset = inputBlob->getTensorDesc().getDims()[3] * roi.posY + roi.posX;
         blkOrder = {0, 1, 2, 3};

@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -38,29 +39,36 @@ namespace InferenceEngine {
 namespace ShapeInfer {
 
 ConstInferHolder::ImplsHolder::Ptr ConstInferHolder::GetImplsHolder() {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/const_infer/ie_const_infer_holder.cpp:  ConstInferHolder::ImplsHolder::Ptr ConstInferHolder::GetImplsHolder() {" << std::endl;
     static ImplsHolder::Ptr localHolder;
     if (localHolder == nullptr) {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/const_infer/ie_const_infer_holder.cpp:      if (localHolder == nullptr) {" << std::endl;
         localHolder = std::make_shared<ImplsHolder>();
     }
     return localHolder;
 }
 
 void ConstInferHolder::AddImpl(const std::string& name, const IConstInferImpl::Ptr& impl) {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/const_infer/ie_const_infer_holder.cpp:  void ConstInferHolder::AddImpl(const std::string& name, const IConstInferImpl::Ptr& impl) {" << std::endl;
     GetImplsHolder()->list[name] = impl;
 }
 
 std::list<std::string> ConstInferHolder::getConstInferTypes() {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/const_infer/ie_const_infer_holder.cpp:  std::list<std::string> ConstInferHolder::getConstInferTypes() {" << std::endl;
     std::list<std::string> types;
     auto& factories = GetImplsHolder()->list;
     for (const auto& factory : factories) {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/const_infer/ie_const_infer_holder.cpp:      for (const auto& factory : factories) {" << std::endl;
         types.push_back(factory.first);
     }
     return types;
 }
 
 IConstInferImpl::Ptr ConstInferHolder::getConstInferImpl(const std::string& type) {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/const_infer/ie_const_infer_holder.cpp:  IConstInferImpl::Ptr ConstInferHolder::getConstInferImpl(const std::string& type) {" << std::endl;
     auto& impls = ConstInferHolder::GetImplsHolder()->list;
     if (impls.find(type) != impls.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/shape_infer/const_infer/ie_const_infer_holder.cpp:      if (impls.find(type) != impls.end()) {" << std::endl;
         return impls[type];
     }
     return nullptr;

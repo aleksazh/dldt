@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
  * Copyright 2019 Intel Corporation
  *
@@ -30,8 +31,10 @@ void jit_avx512_core_gemv_s8u8s32_kern::vnni(Xbyak::Zmm acc, Xbyak::Zmm b,
                                              Xbyak::Zmm a, Xbyak::Zmm tmp,
                                              Xbyak::Zmm one, bool swap,
                                              int use_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:                                               int use_vnni) {" << std::endl;
 
     if (use_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      if (use_vnni) {" << std::endl;
         if (swap)
             vpdpbusd(acc, a, b);
         else
@@ -53,6 +56,7 @@ void jit_avx512_core_gemv_s8u8s32_kern::n_loop_body(int start_a_idx,
         int start_acc_idx, int b_idx, int nreg_acc, Xbyak::Reg64 A,
         Xbyak::Reg64 lda, Xbyak::Reg64 X, Xbyak::Zmm tmp, Xbyak::Zmm one,
         bool swap, int use_vnni, int use_mask, Xbyak::Opmask mask_n) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:          bool swap, int use_vnni, int use_mask, Xbyak::Opmask mask_n) {" << std::endl;
 
     int i;
     int nreg_A = nreg_acc / 2 + (nreg_acc % 2);
@@ -66,6 +70,7 @@ void jit_avx512_core_gemv_s8u8s32_kern::n_loop_body(int start_a_idx,
     xor_(r14, r14);
     // load values of A
     for (i = 0; i < nreg_A; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      for (i = 0; i < nreg_A; i++) {" << std::endl;
         if (use_mask)
             vmovdqu8(Xbyak::Zmm(start_a_idx + i) | mask_n | T_z, ptr[A + r14]);
         else
@@ -74,12 +79,14 @@ void jit_avx512_core_gemv_s8u8s32_kern::n_loop_body(int start_a_idx,
     }
 
     for (i = 0; i < nreg_A; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      for (i = 0; i < nreg_A; i++) {" << std::endl;
         // vnni (acc, b, a, tmp, one, swap, use_vnni)
         vnni(Xbyak::Zmm(start_acc_idx + i), Xbyak::Zmm(b_idx),
              Xbyak::Zmm(start_a_idx + i), tmp, one, swap, use_vnni);
     }
 
     for (i = 0; i < nreg_A - (nreg_acc % 2); i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      for (i = 0; i < nreg_A - (nreg_acc % 2); i++) {" << std::endl;
         if (use_mask)
             vmovdqu8(Xbyak::Zmm(start_a_idx + i) | mask_n | T_z, ptr[A + r14]);
         else
@@ -88,6 +95,7 @@ void jit_avx512_core_gemv_s8u8s32_kern::n_loop_body(int start_a_idx,
     }
 
     for (i = 0; i < nreg_A - (nreg_acc % 2); i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      for (i = 0; i < nreg_A - (nreg_acc % 2); i++) {" << std::endl;
         vnni(Xbyak::Zmm(start_acc_idx + i + nreg_A), Xbyak::Zmm(b_idx),
              Xbyak::Zmm(start_a_idx + i), tmp, one, swap, use_vnni);
     }
@@ -96,6 +104,7 @@ void jit_avx512_core_gemv_s8u8s32_kern::n_loop_body(int start_a_idx,
 
 void jit_avx512_core_gemv_s8u8s32_kern::shuffle_and_add(Xbyak::Zmm dest,
         Xbyak::Zmm A, Xbyak::Zmm B, Xbyak::Zmm C, Xbyak::Zmm D) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:          Xbyak::Zmm A, Xbyak::Zmm B, Xbyak::Zmm C, Xbyak::Zmm D) {" << std::endl;
 
     vshufi32x4(dest, A, C, 0x44);
     vshufi32x4(A, A, C, 0xEE);
@@ -114,14 +123,18 @@ void jit_avx512_core_gemv_s8u8s32_kern::shuffle_and_add(Xbyak::Zmm dest,
 void jit_avx512_core_gemv_s8u8s32_kern::update_c(int nreg_acc, Xbyak::Reg64 Y,
         int start_a_idx, int start_acc_idx, Xbyak::Xmm beta, int use_mask,
         Xbyak::Opmask mask_m) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:          Xbyak::Opmask mask_m) {" << std::endl;
 
     int l, i, k, j, last_it;
     Xbyak::Label store_label;
 
     l = 0;
     for (k = 0; k < nreg_acc; k += 8) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      for (k = 0; k < nreg_acc; k += 8) {" << std::endl;
         for (i = 0, j = k; i < 8; i += 4, j += 2) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:          for (i = 0, j = k; i < 8; i += 4, j += 2) {" << std::endl;
             if (j < nreg_acc) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:              if (j < nreg_acc) {" << std::endl;
                 // shuffle per block of 4 registers
                 shuffle_and_add(Xbyak::Zmm(start_a_idx + l), // dest
                                 Xbyak::Zmm(start_acc_idx + j), // A = acc0
@@ -157,6 +170,7 @@ void jit_avx512_core_gemv_s8u8s32_kern::update_c(int nreg_acc, Xbyak::Reg64 Y,
 
     // beta = 1
     for (k = 0, l = 2; k < nreg_acc; k += 8, l += 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      for (k = 0, l = 2; k < nreg_acc; k += 8, l += 3) {" << std::endl;
         // load Y and add
         last_it = (k + 8) > nreg_acc;
         if (use_mask && last_it)
@@ -173,6 +187,7 @@ void jit_avx512_core_gemv_s8u8s32_kern::update_c(int nreg_acc, Xbyak::Reg64 Y,
     // store
     L_aligned(store_label);
     for (k = 0, l = 2; k < nreg_acc; k += 8, l += 3) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      for (k = 0, l = 2; k < nreg_acc; k += 8, l += 3) {" << std::endl;
         last_it = (k + 8) > nreg_acc;
         if (use_mask && last_it)
             vmovdqu32(ptr[Y + (k / 8) * 32], Xbyak::Ymm(start_a_idx + l)
@@ -185,6 +200,7 @@ void jit_avx512_core_gemv_s8u8s32_kern::update_c(int nreg_acc, Xbyak::Reg64 Y,
 
 template <typename T>
 T jit_avx512_core_gemv_s8u8s32_kern::generate(int use_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:  T jit_avx512_core_gemv_s8u8s32_kern::generate(int use_vnni) {" << std::endl;
 
     Xbyak::Opmask mask_n = k1, mask_m = k2;
     Xbyak::Label one_label, m_tail_label, m_loop_label, n_loop_label;
@@ -215,6 +231,7 @@ T jit_avx512_core_gemv_s8u8s32_kern::generate(int use_vnni) {
     int nreg_A_acc = nreg_acc + nreg_A;
 
     if (!use_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      if (!use_vnni) {" << std::endl;
         // set a zmm register to one
         tmp = Xbyak::Zmm(0);
         one = Xbyak::Zmm(zmm_idx + 1);
@@ -227,6 +244,7 @@ T jit_avx512_core_gemv_s8u8s32_kern::generate(int use_vnni) {
     preamble();
 
     if (is_windows) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      if (is_windows) {" << std::endl;
         mov(lda, ptr[rsp + get_size_of_abi_save_regs() + 40]);
         mov(X, ptr[rsp + get_size_of_abi_save_regs() + 48]);
         movss(beta, ptr[rsp + get_size_of_abi_save_regs() + 56]);
@@ -234,6 +252,7 @@ T jit_avx512_core_gemv_s8u8s32_kern::generate(int use_vnni) {
     }
 
     if (use_vnni && !is_windows) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      if (use_vnni && !is_windows) {" << std::endl;
         movaps(beta, xmm1);
     }
 
@@ -259,6 +278,7 @@ T jit_avx512_core_gemv_s8u8s32_kern::generate(int use_vnni) {
 
     // setup register of ones when VNNI instructions not available
     if (!use_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      if (!use_vnni) {" << std::endl;
         vmovdqu16(one, ptr[rip + one_label]);
     }
 
@@ -292,6 +312,7 @@ T jit_avx512_core_gemv_s8u8s32_kern::generate(int use_vnni) {
 
     // enter M loop
     for(i = 0; i < nreg_acc; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      for(i = 0; i < nreg_acc; i++) {" << std::endl;
         vpxorq(Xbyak::Zmm(i + zmm_idx + nreg_A),
                Xbyak::Zmm(i + zmm_idx + nreg_A),
                Xbyak::Zmm(i + zmm_idx + nreg_A));
@@ -341,6 +362,7 @@ T jit_avx512_core_gemv_s8u8s32_kern::generate(int use_vnni) {
     mov(r10, m);
     and_(r10, (1 << unroll_m_) - 1);
     for (ii = 1; ii < 1 << unroll_m_; ii++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      for (ii = 1; ii < 1 << unroll_m_; ii++) {" << std::endl;
         L_aligned(m_tail_label_case[ii-1]);
         cmp(r10, ii);
         if (ii == (1 << unroll_m_) - 1)
@@ -351,6 +373,7 @@ T jit_avx512_core_gemv_s8u8s32_kern::generate(int use_vnni) {
         // m_tail = i, use i accumulators
 
         for(i = 0; i < ii; i++) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:          for(i = 0; i < ii; i++) {" << std::endl;
             vpxorq(Xbyak::Zmm(i + zmm_idx + nreg_A),
                    Xbyak::Zmm(i + zmm_idx + nreg_A),
                    Xbyak::Zmm(i + zmm_idx + nreg_A));
@@ -392,6 +415,7 @@ T jit_avx512_core_gemv_s8u8s32_kern::generate(int use_vnni) {
     postamble();
 
     if (!use_vnni) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/s8x8s32/jit_avx512_core_kernel_gemv_s8u8s32_kern.cpp:      if (!use_vnni) {" << std::endl;
         L_aligned(one_label);
         for (i = 0; i < size_vec_reg_/8; i++)
             dq(0x0001000100010001);

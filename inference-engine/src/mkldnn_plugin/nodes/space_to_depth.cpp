@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,6 +21,7 @@ class SpaceToDepthImpl: public ExtLayerBase {
 
 public:
     explicit SpaceToDepthImpl(const CNNLayer* layer) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/space_to_depth.cpp:      explicit SpaceToDepthImpl(const CNNLayer* layer) {" << std::endl;
         try {
             if (layer->insData.empty() || layer->outData.empty())
                 THROW_IE_EXCEPTION << layer->name << " Incorrect number of input/output edges!";
@@ -70,6 +72,7 @@ public:
 
             addConfig(layer, { DataConfigurator(ConfLayout::PLN) }, { DataConfigurator(ConfLayout::PLN) });
         } catch (InferenceEngine::details::InferenceEngineException &ex) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/space_to_depth.cpp:          } catch (InferenceEngine::details::InferenceEngineException &ex) {" << std::endl;
             errorMsg = ex.what();
         }
     }
@@ -82,21 +85,26 @@ public:
 
         //  Parallel
         parallel_nt(0, [&](const int ithr, const int nthr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/space_to_depth.cpp:          parallel_nt(0, [&](const int ithr, const int nthr) {" << std::endl;
             size_t i, start = 0, end = 0, dst_idx = 0;
             size_t counters[CNTR_SIZE] = { 0 };
             splitter(work_amount_dst, nthr, ithr, start, end);
             i = start;
             for (int j = CNTR_SIZE - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/space_to_depth.cpp:              for (int j = CNTR_SIZE - 1; j >= 0; j--) {" << std::endl;
                 counters[j] = i % own_dims[j];
                 dst_idx += counters[j] * ownStrides[j];
                 i /= own_dims[j];
             }
 
             for (size_t iwork = start, i = 1; iwork < end; ++iwork) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/space_to_depth.cpp:              for (size_t iwork = start, i = 1; iwork < end; ++iwork) {" << std::endl;
                 dst_data[dst_idx] = src_data[iwork];
                 for (int j = CNTR_SIZE - 1; j >= 0; j--) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/space_to_depth.cpp:                  for (int j = CNTR_SIZE - 1; j >= 0; j--) {" << std::endl;
                     counters[j]++;
                     if (counters[j] < own_dims[j]) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/space_to_depth.cpp:                      if (counters[j] < own_dims[j]) {" << std::endl;
                         dst_idx += ownStrides[j];
                         break;
                     } else {
@@ -104,6 +112,7 @@ public:
                     }
                 }
                 if (!i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/space_to_depth.cpp:                  if (!i) {" << std::endl;
                     for (dst_idx = 0; i < CNTR_SIZE; ++i)
                         dst_idx += counters[i] * ownStrides[i];
                 }

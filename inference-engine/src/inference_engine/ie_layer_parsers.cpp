@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -15,16 +16,21 @@ namespace InferenceEngine {
 namespace details {
 
 CNNLayer::Ptr ActivationLayerCreator::CreateLayer(pugi::xml_node& node, LayerParseParameters& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:  CNNLayer::Ptr ActivationLayerCreator::CreateLayer(pugi::xml_node& node, LayerParseParameters& layerParsePrms) {" << std::endl;
     pugi::xml_node dn = GetChild(node, {"data", "activation_data"}, false);
     if (dn.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      if (dn.empty()) {" << std::endl;
         THROW_IE_EXCEPTION << "Activation layer has no data node";
     }
 
     std::string type;
     for (auto ait = dn.attributes_begin(); ait != dn.attributes_end(); ++ait) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      for (auto ait = dn.attributes_begin(); ait != dn.attributes_end(); ++ait) {" << std::endl;
         pugi::xml_attribute attr = *ait;
         if (CaselessEq<std::string>()("type", attr.name())) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:          if (CaselessEq<std::string>()('type', attr.name())) {" << std::endl;
             if (!type.empty()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:              if (!type.empty()) {" << std::endl;
                 THROW_IE_EXCEPTION << "Activation layer has multiple types";
             }
             type = attr.value();
@@ -45,6 +51,7 @@ CNNLayer::Ptr ActivationLayerCreator::CreateLayer(pugi::xml_node& node, LayerPar
 
     auto activationBuilder = activationCreators.find(type);
     if (activationBuilder == activationCreators.end()) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      if (activationBuilder == activationCreators.end()) {" << std::endl;
         auto activationCreator = std::make_shared<LayerCreator<CNNLayer>>(type);
         if (!activationCreator) THROW_IE_EXCEPTION << "Cannot create activation layer with type " << type;
 
@@ -69,14 +76,17 @@ using PortSet = std::set<PortInf>;
 using PortMap = std::map<PortInf, DataPtr>;
 
 static PortSet allRequiredInputs(pugi::xml_node& ti) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:  static PortSet allRequiredInputs(pugi::xml_node& ti) {" << std::endl;
     PortSet res;  // duplicates are possible
 
     FOREACH_CHILD(p, ti.child("port_map"), "input") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      FOREACH_CHILD(p, ti.child('port_map'), 'input') {" << std::endl;
         int internal_layer_id = GetIntAttr(p, "internal_layer_id");
         int internal_port_id = GetIntAttr(p, "internal_port_id");
         res.emplace(internal_layer_id, internal_port_id);
     }
     FOREACH_CHILD(ec, ti.child("back_edges"), "edge") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      FOREACH_CHILD(ec, ti.child('back_edges'), 'edge') {" << std::endl;
         int to_layer_id = GetIntAttr(ec, "to-layer");
         int to_port_id = GetIntAttr(ec, "to-port");
         res.emplace(to_layer_id, to_port_id);
@@ -85,14 +95,17 @@ static PortSet allRequiredInputs(pugi::xml_node& ti) {
 }
 
 static PortSet allRequiredOutputs(pugi::xml_node& ti) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:  static PortSet allRequiredOutputs(pugi::xml_node& ti) {" << std::endl;
     PortSet res;  // duplicates are possible
 
     FOREACH_CHILD(p, ti.child("port_map"), "output") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      FOREACH_CHILD(p, ti.child('port_map'), 'output') {" << std::endl;
         int internal_layer_id = GetIntAttr(p, "internal_layer_id");
         int internal_port_id = GetIntAttr(p, "internal_port_id");
         res.emplace(internal_layer_id, internal_port_id);
     }
     FOREACH_CHILD(edge, ti.child("back_edges"), "edge") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      FOREACH_CHILD(edge, ti.child('back_edges'), 'edge') {" << std::endl;
         int to_layer_id = GetIntAttr(edge, "from-layer");
         int to_port_id = GetIntAttr(edge, "from-port");
         res.emplace(to_layer_id, to_port_id);
@@ -108,9 +121,11 @@ using WBlob = TBlob<uint8_t>::Ptr;
 class BodyParser {
 public:
     BodyParser(pugi::xml_node& net_node, size_t ir_version, Precision prec)
-        : body(net_node), parser(FormatParser(ir_version)), default_precision(prec) {}
+        : body(net_node), parser(FormatParser(ir_version)), default_precision(prec) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:          : body(net_node), parser(FormatParser(ir_version)), default_precision(prec) {" << std::endl;}
 
     void parse(PortSet in_request, PortSet out_request) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      void parse(PortSet in_request, PortSet out_request) {" << std::endl;
         body.append_attribute("precision").set_value(default_precision.name());
         auto net = parser.Parse(body);
 
@@ -119,6 +134,7 @@ public:
 
         // Mark data as network output. Just for check
         for (const auto& kvp : outputs) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:          for (const auto& kvp : outputs) {" << std::endl;
             auto& data = kvp.second;
             auto layer = data->getCreatorLayer().lock();
             auto& outs = layer->outData;
@@ -138,6 +154,7 @@ public:
     }
 
     void setWeights(const WBlob& weights) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      void setWeights(const WBlob& weights) {" << std::endl;
         parser.SetWeights(weights);
     }
 
@@ -158,6 +175,7 @@ private:
 };
 
 CNNLayer::Ptr TILayerCreator::CreateLayer(pugi::xml_node& node, LayerParseParameters& layerParsePrms) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:  CNNLayer::Ptr TILayerCreator::CreateLayer(pugi::xml_node& node, LayerParseParameters& layerParsePrms) {" << std::endl;
     std::string ti_name = node.attribute("name").as_string();
 
     auto body = node.child("body");
@@ -176,11 +194,13 @@ CNNLayer::Ptr TILayerCreator::CreateLayer(pugi::xml_node& node, LayerParseParame
     std::map<PortInf, int> p2i;
     std::vector<DataPtr> inputs, outputs;
     for (const auto& p : all_inputs) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      for (const auto& p : all_inputs) {" << std::endl;
         IE_ASSERT(ins.find(p) != ins.end());
         p2i[p] = inputs.size();
         inputs.push_back(ins[p]);
     }
     for (const auto& p : all_outputs) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      for (const auto& p : all_outputs) {" << std::endl;
         IE_ASSERT(outs.find(p) != outs.end());
         p2i[p] = outputs.size();
         outputs.push_back(outs[p]);
@@ -191,11 +211,13 @@ CNNLayer::Ptr TILayerCreator::CreateLayer(pugi::xml_node& node, LayerParseParame
     {
         int in_indx = 0;
         FOREACH_CHILD(in, node.child("input"), "port") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:          FOREACH_CHILD(in, node.child('input'), 'port') {" << std::endl;
             int id = GetIntAttr(in, "id");
             e2i[id] = in_indx++;
         }
         int out_indx = 0;
         FOREACH_CHILD(in, node.child("output"), "port") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:          FOREACH_CHILD(in, node.child('output'), 'port') {" << std::endl;
             int id = GetIntAttr(in, "id");
             e2i[id] = out_indx++;
         }
@@ -204,6 +226,7 @@ CNNLayer::Ptr TILayerCreator::CreateLayer(pugi::xml_node& node, LayerParseParame
     std::vector<TensorIterator::PortMap> in_ports_maping, out_ports_maping, back_edges;
 
     auto parse_rule = [&](pugi::xml_node& pm) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      auto parse_rule = [&](pugi::xml_node& pm) {" << std::endl;
         int external_port_id = GetIntAttr(pm, "external_port_id");
         int internal_layer_id = GetIntAttr(pm, "internal_layer_id");
         int internal_port_id = GetIntAttr(pm, "internal_port_id");
@@ -226,13 +249,16 @@ CNNLayer::Ptr TILayerCreator::CreateLayer(pugi::xml_node& node, LayerParseParame
     };
 
     FOREACH_CHILD(pm, node.child("port_map"), "input") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      FOREACH_CHILD(pm, node.child('port_map'), 'input') {" << std::endl;
         in_ports_maping.push_back(parse_rule(pm));
     }
     FOREACH_CHILD(pm, node.child("port_map"), "output") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      FOREACH_CHILD(pm, node.child('port_map'), 'output') {" << std::endl;
         out_ports_maping.push_back(parse_rule(pm));
     }
 
     FOREACH_CHILD(ec, node.child("back_edges"), "edge") {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      FOREACH_CHILD(ec, node.child('back_edges'), 'edge') {" << std::endl;
         int from_l = GetIntAttr(ec, "from-layer");
         int from_p = GetIntAttr(ec, "from-port");
         int to_l = GetIntAttr(ec, "to-layer");
@@ -245,6 +271,7 @@ CNNLayer::Ptr TILayerCreator::CreateLayer(pugi::xml_node& node, LayerParseParame
     // Will be called outside to set weight blobs
     // for internal TI body layers
     layerParsePrms.internalWeightSet = [=](const WBlob& w) {
+    std::cerr << "./inference-engine/src/inference_engine/ie_layer_parsers.cpp:      layerParsePrms.internalWeightSet = [=](const WBlob& w) {" << std::endl;
         parser->setWeights(w);
     };
 

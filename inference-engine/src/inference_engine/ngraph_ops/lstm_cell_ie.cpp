@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -26,10 +27,12 @@ op::LSTMCellIE::LSTMCellIE(const Output<Node>& X, const Output<Node>& H_t, const
       m_clip(clip),
       m_hidden_state_output(hidden_state_output),
       m_cell_state_output(cell_state_output) {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/lstm_cell_ie.cpp:        m_cell_state_output(cell_state_output) {" << std::endl;
     constructor_validate_and_infer_types();
 }
 
 void op::LSTMCellIE::validate_and_infer_types() {
+    std::cerr << "./inference-engine/src/inference_engine/ngraph_ops/lstm_cell_ie.cpp:  void op::LSTMCellIE::validate_and_infer_types() {" << std::endl;
     element::Type arg_type = get_input_element_type(0);
     set_output_type(0, arg_type, m_hidden_state_output);
     set_output_type(1, arg_type, m_cell_state_output);

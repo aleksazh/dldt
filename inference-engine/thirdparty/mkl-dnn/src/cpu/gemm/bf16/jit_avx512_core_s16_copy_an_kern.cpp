@@ -1,3 +1,4 @@
+#include <iostream>
 /*******************************************************************************
 * Copyright 2019 Intel Corporation
 *
@@ -23,6 +24,7 @@ namespace cpu {
 
 jit_avx512_core_s16_copy_an_kern::jit_avx512_core_s16_copy_an_kern() :
     jit_generator(nullptr, S16_COPY_KERNEL_CODE_SIZE) {
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/gemm/bf16/jit_avx512_core_s16_copy_an_kern.cpp:      jit_generator(nullptr, S16_COPY_KERNEL_CODE_SIZE) {" << std::endl;
 
 #ifndef _WIN32
 #define M	rdi

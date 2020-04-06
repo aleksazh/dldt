@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -11,19 +12,23 @@
 using namespace InferenceEngine;
 
 Builder::PriorBoxClusteredLayer::PriorBoxClusteredLayer(const std::string& name): LayerDecorator("PriorBoxClustered", name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer::PriorBoxClusteredLayer(const std::string& name): LayerDecorator('PriorBoxClustered', name) {" << std::endl;
     getLayer()->getOutputPorts().resize(1);
     getLayer()->getInputPorts().resize(2);
 }
 
 Builder::PriorBoxClusteredLayer::PriorBoxClusteredLayer(const Layer::Ptr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer::PriorBoxClusteredLayer(const Layer::Ptr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("PriorBoxClustered");
 }
 
 Builder::PriorBoxClusteredLayer::PriorBoxClusteredLayer(const Layer::CPtr& layer): LayerDecorator(layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer::PriorBoxClusteredLayer(const Layer::CPtr& layer): LayerDecorator(layer) {" << std::endl;
     checkType("PriorBoxClustered");
 }
 
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setName(const std::string& name) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setName(const std::string& name) {" << std::endl;
     getLayer()->setName(name);
     return *this;
 }
@@ -33,6 +38,7 @@ const std::vector<Port>& Builder::PriorBoxClusteredLayer::getInputPorts() const 
 }
 
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setInputPorts(const std::vector<Port> &ports) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setInputPorts(const std::vector<Port> &ports) {" << std::endl;
     if (ports.size() != 2)
         THROW_IE_EXCEPTION << "Incorrect number of inputs for PriorBoxClustered getLayer().";
     getLayer()->getInputPorts() = ports;
@@ -44,6 +50,7 @@ const Port& Builder::PriorBoxClusteredLayer::getOutputPort() const {
 }
 
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setOutputPort(const Port &port) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setOutputPort(const Port &port) {" << std::endl;
     getLayer()->getOutputPorts()[0] = port;
     return *this;
 }
@@ -52,6 +59,7 @@ float Builder::PriorBoxClusteredLayer::getVariance() const {
     return getLayer()->getParameters().at("variance");
 }
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setVariance(float variance) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setVariance(float variance) {" << std::endl;
     getLayer()->getParameters()["variance"] = variance;
     return *this;
 }
@@ -60,6 +68,7 @@ float Builder::PriorBoxClusteredLayer::getOffset() const {
     return getLayer()->getParameters().at("offset");
 }
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setOffset(float offset) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setOffset(float offset) {" << std::endl;
     getLayer()->getParameters()["offset"] = offset;
     return *this;
 }
@@ -68,6 +77,7 @@ float Builder::PriorBoxClusteredLayer::getWidth() const {
     return getLayer()->getParameters().at("width");
 }
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setWidth(float width) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setWidth(float width) {" << std::endl;
     getLayer()->getParameters()["width"] = width;
     return *this;
 }
@@ -76,6 +86,7 @@ float Builder::PriorBoxClusteredLayer::getHeight() const {
     return getLayer()->getParameters().at("height");
 }
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setHeight(float height) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setHeight(float height) {" << std::endl;
     getLayer()->getParameters()["height"] = height;
     return *this;
 }
@@ -84,6 +95,7 @@ const std::vector<float> Builder::PriorBoxClusteredLayer::getSteps() const {
     return {getLayer()->getParameters().at("step_h"), getLayer()->getParameters().at("step_w")};
 }
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setSteps(const std::vector<float> steps) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setSteps(const std::vector<float> steps) {" << std::endl;
     if (steps.size() != 2)
         THROW_IE_EXCEPTION << "PriorBoxClusteredLayer supports sizes only for height and width dimensions!";
     getLayer()->getParameters()["step_h"] = steps[0];
@@ -95,6 +107,7 @@ const std::vector<float> Builder::PriorBoxClusteredLayer::getImgSizes() const {
     return {getLayer()->getParameters().at("img_h"), getLayer()->getParameters().at("img_w")};
 }
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setImgSizes(const std::vector<float> sizes) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setImgSizes(const std::vector<float> sizes) {" << std::endl;
     if (sizes.size() != 2)
         THROW_IE_EXCEPTION << "PriorBoxClusteredLayer allows to specify only height and width dimensions of an input image!";
     getLayer()->getParameters()["img_h"] = sizes[0];
@@ -106,6 +119,7 @@ float Builder::PriorBoxClusteredLayer::getStep() const {
     return getLayer()->getParameters().at("step");
 }
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setStep(float step) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setStep(float step) {" << std::endl;
     getLayer()->getParameters()["step"] = step;
     return *this;
 }
@@ -114,6 +128,7 @@ bool Builder::PriorBoxClusteredLayer::getClip() const {
     return getLayer()->getParameters().at("clip");
 }
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setClip(bool flag) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setClip(bool flag) {" << std::endl;
     getLayer()->getParameters()["clip"] = flag;
     return *this;
 }
@@ -122,11 +137,13 @@ bool Builder::PriorBoxClusteredLayer::getFlip() const {
     return getLayer()->getParameters().at("flip");
 }
 Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setFlip(bool flag) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  Builder::PriorBoxClusteredLayer& Builder::PriorBoxClusteredLayer::setFlip(bool flag) {" << std::endl;
     getLayer()->getParameters()["flip"] = flag;
     return *this;
 }
 
 REG_CONVERTER_FOR(PriorBoxClustered, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {
+    std::cerr << "./inference-engine/src/inference_engine/builders/ie_prior_box_clustered_layer.cpp:  REG_CONVERTER_FOR(PriorBoxClustered, [](const CNNLayerPtr& cnnLayer, Builder::Layer& layer) {" << std::endl;
     layer.getParameters()["flip"] = cnnLayer->GetParamAsBool("flip", false);
     layer.getParameters()["clip"] = cnnLayer->GetParamAsBool("clip", false);
     layer.getParameters()["step"] = cnnLayer->GetParamAsFloat("step");

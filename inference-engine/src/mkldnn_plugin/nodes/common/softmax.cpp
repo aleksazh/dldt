@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -25,10 +26,13 @@ struct jit_args_softmax {
 struct jit_uni_softmax_kernel {
     void (*ker_)(const jit_args_softmax *);
 
-    void operator()(const jit_args_softmax *args) { assert(ker_); ker_(args); }
+    void operator()(const jit_args_softmax *args) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:      void operator()(const jit_args_softmax *args) {" << std::endl; assert(ker_); ker_(args); }
 
-    jit_uni_softmax_kernel() : ker_(nullptr) {}
-    virtual ~jit_uni_softmax_kernel() {}
+    jit_uni_softmax_kernel() : ker_(nullptr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:      jit_uni_softmax_kernel() : ker_(nullptr) {" << std::endl;}
+    virtual ~jit_uni_softmax_kernel() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:      virtual ~jit_uni_softmax_kernel() {" << std::endl;}
 };
 
 template <cpu_isa_t isa>
@@ -36,6 +40,7 @@ struct jit_uni_softmax_kernel_f32 : public jit_uni_softmax_kernel, public jit_ge
     DECLARE_CPU_JIT_AUX_FUNCTIONS(jit_uni_softmax_kernel_f32)
 
     jit_uni_softmax_kernel_f32() : jit_uni_softmax_kernel(), jit_generator() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:      jit_uni_softmax_kernel_f32() : jit_uni_softmax_kernel(), jit_generator() {" << std::endl;
         exp_injector.reset(new jit_uni_eltwise_injector_f32<isa>(this, alg_kind::eltwise_exp, 0.f, 0.f));
 
         this->preamble();
@@ -62,15 +67,18 @@ struct jit_uni_softmax_kernel_f32 : public jit_uni_softmax_kernel, public jit_ge
             uni_vmovups(vmm_val, ptr[aux_reg_src]);
 
             if (isa == sse42) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:              if (isa == sse42) {" << std::endl;
                 uni_vmovups(vmm_mask, vmm_val);
                 uni_vcmpgtps(vmm_mask, vmm_mask, vmm_max);
             } else if (isa == avx2) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:              } else if (isa == avx2) {" << std::endl;
                 uni_vcmpgtps(vmm_mask, vmm_val, vmm_max);
             } else {
                 vcmpps(k_mask, vmm_val, vmm_max, _cmp_nle_us);
             }
 
             if (isa == avx512_common) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:              if (isa == avx512_common) {" << std::endl;
                 vptestmd(k_mask, vmm_mask, vmm_mask);
                 vblendmps(vmm_max | k_mask, vmm_max, vmm_val);
             } else {
@@ -161,26 +169,34 @@ private:
 };
 
 SoftmaxGeneric::SoftmaxGeneric() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:  SoftmaxGeneric::SoftmaxGeneric() {" << std::endl;
     block_size = 1;
     if (mayiuse(avx512_common)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:      if (mayiuse(avx512_common)) {" << std::endl;
         softmax_kernel.reset(new jit_uni_softmax_kernel_f32<avx512_common>());
         block_size = 16;
     } else if (mayiuse(avx2)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:      } else if (mayiuse(avx2)) {" << std::endl;
         softmax_kernel.reset(new jit_uni_softmax_kernel_f32<avx2>());
         block_size = 8;
     } else if (mayiuse(sse42)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:      } else if (mayiuse(sse42)) {" << std::endl;
         softmax_kernel.reset(new jit_uni_softmax_kernel_f32<sse42>());
         block_size = 4;
     }
 }
 
 void SoftmaxGeneric::execute(const float *src_data, float *dst_data, int B, int C, int H, int W) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:  void SoftmaxGeneric::execute(const float *src_data, float *dst_data, int B, int C, int H, int W) {" << std::endl;
     for (int b = 0; b < B; b++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:      for (int b = 0; b < B; b++) {" << std::endl;
         int tail_start = 0;
         if (softmax_kernel) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:          if (softmax_kernel) {" << std::endl;
             int blocks_num = H*W / block_size;
 
             parallel_for(blocks_num, [&](int ib) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:              parallel_for(blocks_num, [&](int ib) {" << std::endl;
                 auto arg = jit_args_softmax();
 
                 arg.src = src_data + b * C * H * W + ib * block_size;
@@ -195,20 +211,24 @@ void SoftmaxGeneric::execute(const float *src_data, float *dst_data, int B, int 
         }
 
         parallel_for(H * W - tail_start, [&](int i) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:          parallel_for(H * W - tail_start, [&](int i) {" << std::endl;
             int offset = i + tail_start;
             float max = src_data[b * C * H * W + offset];
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 float val = src_data[b * C * H * W + c * H * W + offset];
                 if (val > max) max = val;
             }
 
             float expSum = 0;
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 dst_data[b * C * H * W + c * H * W + offset] = exp(src_data[b * C * H * W + c * H * W + offset] - max);
                 expSum += dst_data[b * C * H * W + c * H * W + offset];
             }
 
             for (int c = 0; c < C; c++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/nodes/common/softmax.cpp:              for (int c = 0; c < C; c++) {" << std::endl;
                 dst_data[b * C * H * W + c * H * W + offset] = dst_data[b * C * H * W + c * H * W + offset] / expSum;
             }
         });
