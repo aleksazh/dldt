@@ -396,17 +396,19 @@ public:
 		, coresSharignDataCache_()
 		, dataCacheLevels_(0)
 	{
-    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h:  		, dataCacheLevels_(0) 	{" << std::endl;
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h: Cpu() constructor" << std::endl;
 		unsigned int data[4] = {};
 		const unsigned int& EAX = data[0];
 		const unsigned int& EBX = data[1];
 		const unsigned int& ECX = data[2];
 		const unsigned int& EDX = data[3];
 		getCpuid(0, data);
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h: getCpuid(0, data);" << std::endl;
 		const unsigned int maxNum = EAX;
 		static const char intel[] = "ntel";
 		static const char amd[] = "cAMD";
 		if (ECX == get32bitAsBE(amd)) {
+    	std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h: if (ECX == get32bitAsBE(amd)) {" << std::endl;
 			type_ |= tAMD;
 			getCpuid(0x80000001, data);
 			if (EDX & (1U << 31)) type_ |= t3DN;
@@ -416,6 +418,7 @@ public:
 			if (EDX & (1U << 27)) type_ |= tRDTSCP;
 		}
 		if (ECX == get32bitAsBE(intel)) {
+    	std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h: if (ECX == get32bitAsBE(intel)) {" << std::endl;
 			type_ |= tINTEL;
 			getCpuid(0x80000001, data);
 			if (EDX & (1U << 27)) type_ |= tRDTSCP;
@@ -423,6 +426,7 @@ public:
 			if (ECX & (1U << 8)) type_ |= tPREFETCHW;
 		}
 		getCpuid(1, data);
+    std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h: getCpuid(1, data);" << std::endl;
 		if (ECX & (1U << 0)) type_ |= tSSE3;
 		if (ECX & (1U << 9)) type_ |= tSSSE3;
 		if (ECX & (1U << 19)) type_ |= tSSE41;
@@ -447,6 +451,7 @@ public:
 				if (ECX & (1U << 28)) type_ |= tAVX;
 				if (ECX & (1U << 12)) type_ |= tFMA;
 				if (((bv >> 5) & 7) == 7) {
+    			std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h: if (((bv >> 5) & 7) == 7) { getCpuidEx(7, 0, data);" << std::endl;
 					getCpuidEx(7, 0, data);
 					if (EBX & (1U << 16)) type_ |= tAVX512F;
 					if (type_ & tAVX512F) {
@@ -469,12 +474,14 @@ public:
 						if (EDX & (1U << 3)) type_ |= tAVX512_4FMAPS;
 
 						getCpuidEx(7, 1, data); // Read CPUID.7.1.EAX[5]
+    				std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h: getCpuidEx(7, 1, data); // Read CPUID.7.1.EAX[5]" << std::endl;
 						if (EAX & (1U << 5)) type_ |= tAVX512_BF;
 					}
 				}
 			}
 		}
 		if (maxNum >= 7) {
+    	std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h: if (maxNum >= 7) { getCpuidEx(7, 0, data);" << std::endl;
 			getCpuidEx(7, 0, data);
 			if (type_ & tAVX && (EBX & (1U << 5))) type_ |= tAVX2;
 			if (EBX & (1U << 3)) type_ |= tBMI1;

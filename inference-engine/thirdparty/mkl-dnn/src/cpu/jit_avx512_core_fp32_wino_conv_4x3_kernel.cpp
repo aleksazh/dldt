@@ -73,8 +73,8 @@ bool is_winograd_faster_than_direct(const jit_conv_winograd_conf_t &jcp) {
     std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_avx512_core_fp32_wino_conv_4x3_kernel.cpp:  bool is_winograd_faster_than_direct(const jit_conv_winograd_conf_t &jcp) {" << std::endl;
     /* Determines if current winograd implementation is faster than direct.
        Following conditions are empirical and based on performance data */
-    unsigned int ncores_per_socket =
-        cpu.getNumCores(Xbyak::util::IntelCpuTopologyLevel::CoreLevel);
+    unsigned int ncores_per_socket = 0;
+        //cpu.getNumCores(Xbyak::util::IntelCpuTopologyLevel::CoreLevel);
     unsigned int nthreads = mkldnn_get_max_threads();
 
     if (jcp.prop_kind == prop_kind::forward_inference) {

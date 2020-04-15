@@ -89,10 +89,10 @@ template <> struct cpu_isa_traits<avx512_core_bf16>:
 
 namespace {
 
-static Xbyak::util::Cpu cpu;
+//static Xbyak::util::Cpu cpu;
 static inline bool mayiuse(const cpu_isa_t cpu_isa) {
     using namespace Xbyak::util;
-
+/*
     switch (cpu_isa) {
     case sse42:
         return cpu.has(Cpu::tSSE42);
@@ -135,7 +135,7 @@ static inline bool mayiuse(const cpu_isa_t cpu_isa) {
             && cpu.has(Cpu::tAVX512_VPOPCNTDQ);
     case isa_any:
         return true;
-    }
+    }*/
     return false;
 }
 }

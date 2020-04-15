@@ -14,13 +14,14 @@
 namespace InferenceEngine {
 
 #ifdef ENABLE_MKL_DNN
-static Xbyak::util::Cpu cpu;
+//static Xbyak::util::Cpu cpu;
 #endif
 
 bool with_cpu_x86_sse42() {
     std::cerr << "./inference-engine/src/inference_engine/cpu_detector.cpp:  bool with_cpu_x86_sse42() {" << std::endl;
 #ifdef ENABLE_MKL_DNN
-    return cpu.has(Xbyak::util::Cpu::tSSE42);
+    return false;
+    //return cpu.has(Xbyak::util::Cpu::tSSE42);
 #else
 #if defined(HAVE_SSE)
     return true;

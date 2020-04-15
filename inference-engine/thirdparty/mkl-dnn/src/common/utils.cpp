@@ -165,11 +165,11 @@ int32_t mkldnn_fetch_and_add(int32_t *dst, int32_t val) {
 #endif
 }
 
-static Xbyak::util::Cpu cpu_;
+//static Xbyak::util::Cpu cpu_;
 
 unsigned int get_cache_size(int level, bool per_core) {
     std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/utils.cpp:  unsigned int get_cache_size(int level, bool per_core) {" << std::endl;
-    unsigned int l = level - 1;
+    /*unsigned int l = level - 1;
     // Currently, if XByak is not able to fetch the cache topology
     // we default to 32KB of L1, 512KB of L2 and 1MB of L3 per core.
     if (cpu_.getDataCacheLevels() == 0){
@@ -190,7 +190,7 @@ unsigned int get_cache_size(int level, bool per_core) {
     std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/common/utils.cpp:      if (l < cpu_.getDataCacheLevels()) {" << std::endl;
         return cpu_.getDataCacheSize(l)
                / (per_core ? cpu_.getCoresSharingDataCache(l) : 1);
-    } else
+    } else*/
         return 0;
 }
 

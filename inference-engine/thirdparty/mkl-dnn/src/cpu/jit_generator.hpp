@@ -115,7 +115,7 @@ inline unsigned int get_cache_size(int level, bool per_core = true){
     unsigned int l = level - 1;
     // Currently, if XByak is not able to fetch the cache topology
     // we default to 32KB of L1, 512KB of L2 and 1MB of L3 per core.
-    if (cpu.getDataCacheLevels() == 0){
+    /*if (cpu.getDataCacheLevels() == 0){
     std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      if (cpu.getDataCacheLevels() == 0){" << std::endl;
         const int L1_cache_per_core = 32000;
         const int L2_cache_per_core = 512000;
@@ -133,7 +133,7 @@ inline unsigned int get_cache_size(int level, bool per_core = true){
     std::cerr << "./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp:      if (l < cpu.getDataCacheLevels()) {" << std::endl;
         return cpu.getDataCacheSize(l)
             / (per_core ? cpu.getCoresSharingDataCache(l) : 1);
-    } else
+    } else*/
         return 0;
 }
 
