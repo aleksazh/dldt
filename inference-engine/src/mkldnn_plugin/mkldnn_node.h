@@ -1,3 +1,4 @@
+#include <iostream>
 // Copyright (C) 2018-2020 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -75,7 +76,9 @@ enum Type {
 Type TypeFromName(const std::string type);
 
 static std::string NameFromType(Type type) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:  static std::string NameFromType(Type type) {" << std::endl;
     switch (type) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      switch (type) {" << std::endl;
         case Generic:
             return "Generic";
         case Reorder:
@@ -156,15 +159,18 @@ static std::string NameFromType(Type type) {
 class PrimitiveDescInfo {
 public:
     PrimitiveDescInfo(const InferenceEngine::LayerConfig conf, impl_desc_type type): config(conf) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      PrimitiveDescInfo(const InferenceEngine::LayerConfig conf, impl_desc_type type): config(conf) {" << std::endl;
         implementationType = type;
     }
 
     PrimitiveDescInfo(const InferenceEngine::LayerConfig conf, impl_desc_type type, std::vector<mkldnn::memory::format> outFmt): config(conf) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      PrimitiveDescInfo(const InferenceEngine::LayerConfig conf, impl_desc_type type, std::vector<mkldnn::memory::format> outFmt): config(conf) {" << std::endl;
         implementationType = type;
         outputLayouts = outFmt;
     }
 
     PrimitiveDescInfo(const InferenceEngine::LayerConfig conf, impl_desc_type type, mkldnn::memory::format outFmt): config(conf) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      PrimitiveDescInfo(const InferenceEngine::LayerConfig conf, impl_desc_type type, mkldnn::memory::format outFmt): config(conf) {" << std::endl;
         implementationType = type;
 
         setOutputLayouts(outFmt);
@@ -179,6 +185,7 @@ public:
         return config;
     }
     InferenceEngine::LayerConfig& getConfig() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      InferenceEngine::LayerConfig& getConfig() {" << std::endl;
         return config;
     }
 
@@ -191,13 +198,16 @@ public:
     }
 
     void setImplementationType(impl_desc_type type) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      void setImplementationType(impl_desc_type type) {" << std::endl;
         implementationType = type;
     }
 
     void setOutputLayouts(mkldnn::memory::format outFmt) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      void setOutputLayouts(mkldnn::memory::format outFmt) {" << std::endl;
         outputLayouts.clear();
 
         for (int i = 0; i < config.outConfs.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:          for (int i = 0; i < config.outConfs.size(); i++) {" << std::endl;
             outputLayouts.push_back(outFmt);
         }
     }
@@ -239,6 +249,7 @@ public:
     const std::vector<MKLDNNEdgePtr> getChildEdgesAtPort(size_t idx) const;
 
     bool isDropped() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      bool isDropped() {" << std::endl;
         return (isEdgesEmpty(childEdges) && isEdgesEmpty(parentEdges));
     }
 
@@ -253,24 +264,29 @@ public:
     bool isFusedWith(Type type) const;
 
     void fuseWith(const MKLDNNNodePtr &fuse) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      void fuseWith(const MKLDNNNodePtr &fuse) {" << std::endl;
         fusedWith.push_back(fuse);
     }
 
     void clearFusedWith() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      void clearFusedWith() {" << std::endl;
         fusedWith.clear();
     }
 
     void mergeWith(const MKLDNNNodePtr &merge) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      void mergeWith(const MKLDNNNodePtr &merge) {" << std::endl;
         mergedWith.push_back(merge);
     }
 
     void addOriginalLayer(const InferenceEngine::CNNLayerPtr &layer);
 
     const std::vector <MKLDNNNodePtr> &getMergeWith() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      const std::vector <MKLDNNNodePtr> &getMergeWith() {" << std::endl;
         return mergedWith;
     }
 
     const std::vector <MKLDNNNodePtr> &getFusedWith() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      const std::vector <MKLDNNNodePtr> &getFusedWith() {" << std::endl;
         return fusedWith;
     }
 
@@ -302,6 +318,7 @@ public:
     }
 
     inline PrimitiveDescInfo* getSelectedPrimitiveDescriptor() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      inline PrimitiveDescInfo* getSelectedPrimitiveDescriptor() {" << std::endl;
         if (selectedPrimitiveDescriptorIndex < 0 ||
             selectedPrimitiveDescriptorIndex >= supportedPrimitiveDescriptors.size())
             return nullptr;
@@ -309,6 +326,7 @@ public:
     }
 
     void selectPrimitiveDescriptorByIndex(int index) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      void selectPrimitiveDescriptorByIndex(int index) {" << std::endl;
         if (index < 0 || index >= supportedPrimitiveDescriptors.size())
             selectedPrimitiveDescriptorIndex = -1;
         else
@@ -317,7 +335,8 @@ public:
 
     std::string getPrimitiveDescriptorType();
 
-    PerfCount &PerfCounter() { return perfCounter; }
+    PerfCount &PerfCounter() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      PerfCount &PerfCounter() {" << std::endl; return perfCounter; }
 
     virtual void setDynamicBatchLim(int lim);
 
@@ -331,22 +350,27 @@ public:
 
     virtual void getSupportedDescriptors() = 0;
     virtual void createDescriptor(const std::vector<InferenceEngine::TensorDesc>& inputDesc,
-                                  const std::vector<InferenceEngine::TensorDesc>& outputDesc) {}
+                                  const std::vector<InferenceEngine::TensorDesc>& outputDesc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:                                    const std::vector<InferenceEngine::TensorDesc>& outputDesc) {" << std::endl;}
     virtual void initDescriptor(const InferenceEngine::LayerConfig& config);
     virtual bool created() const = 0;
     virtual bool created(const MKLDNNExtensionManager::Ptr& extMgr) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      virtual bool created(const MKLDNNExtensionManager::Ptr& extMgr) {" << std::endl;
         return created();
     }
 
     template <class PD, class D, typename FPD = bool>
     PD createPrimitiveDescriptor(const mkldnn::primitive_attr &attr = mkldnn::primitive_attr()) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      PD createPrimitiveDescriptor(const mkldnn::primitive_attr &attr = mkldnn::primitive_attr()) {" << std::endl;
         auto descsEqual = [](const std::vector<InferenceEngine::TensorDesc>& srcDescs,
                                const std::vector<InferenceEngine::DataConfig>& selectedDescs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:                                 const std::vector<InferenceEngine::DataConfig>& selectedDescs) {" << std::endl;
             if (srcDescs.empty() && selectedDescs.empty())
                 return true;
             if (srcDescs.empty() || selectedDescs.empty())
                 return false;
             for (size_t i = 0; i < srcDescs.size() && i < selectedDescs.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:              for (size_t i = 0; i < srcDescs.size() && i < selectedDescs.size(); i++) {" << std::endl;
                 if (srcDescs[i] != selectedDescs[i].desc && srcDescs[i].getLayout() != InferenceEngine::Layout::ANY)
                     return false;
             }
@@ -358,9 +382,11 @@ public:
             THROW_IE_EXCEPTION << "Preferable primitive descriptor is not set for node " << getName() << ".";
 
         for (const auto& desc : descs) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:          for (const auto& desc : descs) {" << std::endl;
             auto itpd = desc.createPrimitiveDescriptorIterator(engine, attr);
 
             while (itpd.is_not_end())  {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:              while (itpd.is_not_end())  {" << std::endl;
                 std::vector<InferenceEngine::TensorDesc> srcDescs;
                 for (size_t i = 0; i < descInputNumbers(desc); i++)
                     srcDescs.push_back(getSrcMemDesc(itpd, i));
@@ -374,6 +400,7 @@ public:
                 if (impl_type == selected_pd->getImplementationType() &&
                     descsEqual(srcDescs, selected_pd->getConfig().inConfs) &&
                     descsEqual(dstDescs, selected_pd->getConfig().outConfs)) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:                      descsEqual(dstDescs, selected_pd->getConfig().outConfs)) {" << std::endl;
                     prepareMemory(selected_pd, itpd);
                     PD prim_desc = createPd<PD, D, FPD>(desc);
                     itpd.getPrimitiveDescriptor(prim_desc);
@@ -387,8 +414,10 @@ public:
     }
 
     static void invertVectorCopyUtoI(const InferenceEngine::PropertyVector<unsigned int>& src, std::vector<ptrdiff_t>& dst) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      static void invertVectorCopyUtoI(const InferenceEngine::PropertyVector<unsigned int>& src, std::vector<ptrdiff_t>& dst) {" << std::endl;
         dst.clear();
         for (int i = 1; i <= src.size(); i++) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:          for (int i = 1; i <= src.size(); i++) {" << std::endl;
             dst.push_back(static_cast<ptrdiff_t>(src[src.size() - i]));
         }
     }
@@ -404,10 +433,12 @@ public:
     }
 
     virtual size_t descInputNumbers(MKLDNNDescriptor desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      virtual size_t descInputNumbers(MKLDNNDescriptor desc) {" << std::endl;
         return desc.inputNumbers();
     }
 
     virtual size_t descOutputNumbers(MKLDNNDescriptor desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      virtual size_t descOutputNumbers(MKLDNNDescriptor desc) {" << std::endl;
         return desc.outputNumbers();
     }
 
@@ -415,6 +446,7 @@ public:
     class Register {
     public:
         explicit Register(const std::string& type) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:          explicit Register(const std::string& type) { type:" << type << std::endl;
             MKLDNNNode::AddNode(type,
                     [](const InferenceEngine::CNNLayerPtr& layer, const mkldnn::engine& eng, int socket)
                     -> MKLDNNNode* {
@@ -428,6 +460,7 @@ protected:
     // TODO: It is necessary only in order to avoid modifications of cnnLayers and original topology
     std::vector<MKLDNNDims> outDims;
     void setType(Type type) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      void setType(Type type) {" << std::endl;
         this->type = type;
     }
 
@@ -484,14 +517,16 @@ protected:
 
     std::vector<mkldnn::memory::format> getAvailableFormatsForDims(const MKLDNNDims& dims) const;
     int batchToProcess();
-    int whichSocket() { return socket; }
+    int whichSocket() {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      int whichSocket() {" << std::endl; return socket; }
 
     // TODO: While CPU plugin has no ease way to clone graph object we use weight
     //       caching in global Engine context to avoid tensor duplication. Just to
     //       improve memory consumption in case of throughput streams when we have
     //       duplicate of graph for single input ICNNNetwork.
     //       Remove this flag when graph clone functionality will be added.
-    void enableWeightCaching(bool val) { weight_caching = val; }
+    void enableWeightCaching(bool val) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      void enableWeightCaching(bool val) {" << std::endl; weight_caching = val; }
 
     InferenceEngine::Blob::Ptr createInternalBlob(InferenceEngine::SizeVector dims, bool weights, bool is_grouped = false);
 
@@ -521,6 +556,7 @@ private:
     template <class PD, class D, typename FPD>
     typename std::enable_if<!std::is_same<FPD, bool>::value, PD>::type
     createPd(MKLDNNDescriptor desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      createPd(MKLDNNDescriptor desc) {" << std::endl;
         std::shared_ptr<D> selected_desc_ptr = desc;
         std::shared_ptr<FPD> backward_prim_desc_ptr = desc;
         return PD(*selected_desc_ptr, engine, *backward_prim_desc_ptr);
@@ -529,6 +565,7 @@ private:
     template <class PD, class D, typename FPD>
     typename std::enable_if<std::is_same<FPD, bool>::value, PD>::type
     createPd(MKLDNNDescriptor desc) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:      createPd(MKLDNNDescriptor desc) {" << std::endl;
         std::shared_ptr<D> selected_desc_ptr = desc;
         return PD(*selected_desc_ptr, engine);
     }
@@ -543,12 +580,14 @@ static MKLDNNNode::Register<__prim> __reg__##__type(#__type)
 
 template <typename T, typename U>
 inline T div_up(const T a, const U b) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:  inline T div_up(const T a, const U b) {" << std::endl;
     assert(b);
     return (a + b - 1) / b;
 }
 
 template <typename T, typename U>
 inline T rnd_up(const T a, const U b) {
+    std::cerr << "./inference-engine/src/mkldnn_plugin/mkldnn_node.h:  inline T rnd_up(const T a, const U b) {" << std::endl;
     return div_up(a, b) * b;
 }
 

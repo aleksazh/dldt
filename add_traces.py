@@ -18,7 +18,6 @@ def recursive_remove_traces(path = '.'):
 		for file in filenames:
 			# Add .h and .hpp cases if you want also have traces in headers.
 			if file[-2:] == '.c' or file[-4:] == '.cpp':
-				print(path + '/' + file)
 				remove_traces(path + '/' + file)
 		break
 
@@ -26,6 +25,7 @@ def remove_traces(path):
 	file = open(path)
 	code = file.read()
 	output = open(path, 'w')
+	print(path)
 
 	trace_match = '\n.*std::cerr\s+<<\s+\"' + path.replace('.', '\.') + '.*\n'
 	code = re.sub(trace_match, '', code)
@@ -44,7 +44,6 @@ def recursive_add_traces(path = '.'):
 		for file in filenames:
 			# Add .h and .hpp cases if you want also have traces in headers.
 			if file[-2:] == '.c' or file[-4:] == '.cpp':
-				print(path + '/' + file)
 				add_traces(path + '/' + file)
 		break
 
@@ -53,6 +52,7 @@ def add_traces(path, display = False):
 	code = file.read()
 	output = open(path, 'w')
 	if 'include <iostream>' not in code: output.write('#include <iostream>\n')
+	print(path)
 
 	while 1:
 		m = regex.search(code)
@@ -77,7 +77,8 @@ def add_traces(path, display = False):
 #recursive_add_traces('./inference-engine/src/mkldnn_plugin')
 #recursive_add_traces('./inference-engine/thirdparty/mkl-dnn/src')
 #add_traces('./inference-engine/thirdparty/mkl-dnn/src/cpu/jit_generator.hpp')
-add_traces('./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h')
+#add_traces('./inference-engine/thirdparty/mkl-dnn/src/cpu/xbyak/xbyak_util.h')
+add_traces('./inference-engine/src/mkldnn_plugin/mkldnn_node.h')
 
 #recursive_remove_traces('./inference-engine/src/inference_engine')
 #recursive_remove_traces('./inference-engine/src/mkldnn_plugin')
